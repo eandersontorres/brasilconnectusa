@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BrasilConnect — Remessas, Câmbio e Voos para brasileiros nos EUA</title>
+  <meta name="description" content="Compare taxas de remessa em tempo real. Alertas de câmbio gratuitos. Voos baratos para o Brasil. Para brasileiros nos EUA." />
+  <meta property="og:title" content="BrasilConnect" />
+  <meta property="og:description" content="Wise vs Remitly vs Western Union — veja quanto chega no Brasil em segundos." />
+  <meta property="og:type" content="website" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #009c3b;
+      --yellow: #ffdf00;
+      --blue: #002776;
+      --dark: #0f172a;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --surface: #ffffff;
+      --bg: #f8fafc;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo-text { font-size: 18px; font-weight: 800; }
+    .logo-br { color: var(--green); }
+    .logo-us { color: var(--blue); }
+    .cta-nav {
+      background: var(--green); color: #fff;
+      padding: 8px 18px; border-radius: 8px;
+      font-size: 13px; font-weight: 600;
+      transition: opacity .15s;
+    }
+    .cta-nav:hover { opacity: .85; }
+
+    /* ── Hero ── */
+    .hero {
+      background: linear-gradient(135deg, #002776 0%, #009c3b 100%);
+      padding: 80px 24px 70px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '🇧🇷';
+      position: absolute; font-size: 300px; opacity: 0.04;
+      top: 50%; left: 50%; transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      color: #fff; border: 1px solid rgba(255,255,255,0.3);
+      font-size: 12px; font-weight: 600; letter-spacing: .5px;
+      padding: 5px 14px; border-radius: 20px; margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(28px, 6vw, 52px);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      letter-spacing: -1px;
+    }
+    .hero h1 span { color: var(--yellow); }
+    .hero p {
+      font-size: clamp(15px, 2.5vw, 19px);
+      color: rgba(255,255,255,0.85);
+      max-width: 560px; margin: 0 auto 32px;
+      line-height: 1.6;
+    }
+    .hero-btns {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: var(--yellow); color: var(--dark);
+      padding: 14px 28px; border-radius: 10px;
+      font-size: 15px; font-weight: 700;
+      transition: transform .15s, opacity .15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-primary:hover { transform: translateY(-2px); opacity: .92; }
+    .btn-secondary {
+      background: rgba(255,255,255,0.15); color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      padding: 14px 28px; border-radius: 10px;
+      font-size: 15px; font-weight: 600;
+      transition: background .15s;
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,0.25); }
+
+    /* ── Rate ticker ── */
+    .rate-ticker {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+      text-align: center;
+      font-size: 14px; color: var(--muted);
+    }
+    .rate-ticker strong { color: var(--green); font-size: 16px; }
+
+    /* ── Sections ── */
+    .section { padding: 72px 24px; }
+    .section-inner { max-width: 1080px; margin: 0 auto; }
+    .section-tag {
+      font-size: 12px; font-weight: 700; letter-spacing: 1px;
+      color: var(--green); text-transform: uppercase; margin-bottom: 10px;
+    }
+    .section h2 {
+      font-size: clamp(24px, 4vw, 38px);
+      font-weight: 800; letter-spacing: -0.5px;
+      margin-bottom: 14px;
+    }
+    .section-lead {
+      font-size: 16px; color: var(--muted); line-height: 1.7;
+      max-width: 560px; margin-bottom: 48px;
+    }
+    .section-alt { background: var(--surface); }
+
+    /* ── Features grid ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .feature-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); transform: translateY(-3px); }
+    .feature-icon { font-size: 32px; margin-bottom: 14px; }
+    .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* ── Comparador ── */
+    .compare-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .compare-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+    }
+    .compare-card.best { border-color: var(--green); }
+    .best-badge {
+      position: absolute; top: -11px; left: 16px;
+      background: var(--green); color: #fff;
+      font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+    }
+    .provider-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .provider-rate { font-size: 28px; font-weight: 800; color: var(--green); }
+    .provider-fee { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ── How it works ── */
+    .steps { display: flex; flex-direction: column; gap: 0; max-width: 600px; }
+    .step { display: flex; gap: 20px; align-items: flex-start; }
+    .step-line {
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--green); color: #fff;
+      font-size: 14px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-connector { width: 2px; flex: 1; background: #e2e8f0; margin: 4px 0; min-height: 32px; }
+    .step-content { padding-top: 6px; padding-bottom: 32px; }
+    .step-content h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .step-content p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+    /* ── CTA final ── */
+    .cta-section {
+      background: linear-gradient(135deg, var(--dark) 0%, #1e3a5f 100%);
+      padding: 80px 24px; text-align: center;
+    }
+    .cta-section h2 { color: #fff; font-size: clamp(24px, 4vw, 38px); font-weight: 800; margin-bottom: 16px; }
+    .cta-section p { color: rgba(255,255,255,0.75); font-size: 16px; max-width: 480px; margin: 0 auto 32px; }
+
+    /* ── Footer ── */
+    footer {
+      background: var(--dark); color: rgba(255,255,255,0.5);
+      padding: 24px;
+      text-align: center; font-size: 12px; line-height: 1.7;
+    }
+    footer a { color: rgba(255,255,255,0.4); text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      nav { padding: 10px 16px; }
+      .hero { padding: 56px 16px 50px; }
+      .section { padding: 48px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="logo">
+    <span style="font-size:20px">🇧🇷</span>
+    <div class="logo-text">
+      <span class="logo-br">Brasil</span><span class="logo-us">Connect</span>
+    </div>
+  </div>
+  <a href="/" class="cta-nav">Abrir app →</a>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">🇧🇷 Para brasileiros nos EUA</div>
+  <h1>Mande mais dinheiro<br>pro <span>Brasil</span></h1>
+  <p>Compare Wise, Remitly e Western Union em segundos. Alertas quando o dólar subir. Voos baratos de volta pra casa.</p>
+  <div class="hero-btns">
+    <a href="/" class="btn-primary">💸 Comparar taxas agora</a>
+    <a href="/#alertas" class="btn-secondary">🔔 Criar alerta grátis</a>
+  </div>
+</div>
+
+<!-- Taxa ao vivo -->
+<div class="rate-ticker" id="ticker">
+  Carregando taxa…
+</div>
+
+<!-- Features -->
+<section class="section section-alt">
+  <div class="section-inner">
+    <div class="section-tag">Por que usar o BrasilConnect</div>
+    <h2>Tudo que você precisa em um lugar</h2>
+    <p class="section-lead">
+      Feito por brasileiros, para brasileiros nos EUA. Gratuito, sem cadastro, sem enrolação.
+    </p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">💸</div>
+        <h3>Comparador de remessas</h3>
+        <p>Taxa ao vivo do dólar. Veja exatamente quanto chega no Brasil com Wise, Remitly e Western Union.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Alertas de câmbio</h3>
+        <p>Defina uma taxa alvo e receba um email na hora que o dólar bater. De graça, sem cadastro.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✈️</div>
+        <h3>Voos para o Brasil</h3>
+        <p>Compare preços de passagens de Austin, Miami, NY e mais cidades direto para o Brasil.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚽</div>
+        <h3>Bolão Copa 2026</h3>
+        <p>A Copa é aqui nos EUA! Monte seu grupo, dispute com amigos e família, ranking por estado.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Comparador visual -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-tag">Comparador ao vivo</div>
+    <h2>Quem paga mais pra você?</h2>
+    <p class="section-lead">Enviando $500 — veja quanto chega no Brasil com cada serviço.</p>
+
+    <div class="compare-grid" id="compare-grid">
+      <div class="compare-card best">
+        <span class="best-badge">MELHOR OPÇÃO</span>
+        <div class="provider-name">🟢 Wise</div>
+        <div class="provider-rate" id="wise-rate">R$ —</div>
+        <div class="provider-fee">Taxa ~0.67%</div>
+      </div>
+      <div class="compare-card">
+        <div class="provider-name">🔵 Remitly</div>
+        <div class="provider-rate" id="remitly-rate">R$ —</div>
+        <div class="provider-fee">Taxa embutida no câmbio</div>
+      </div>
+      <div class="compare-card">
+        <div class="provider-name">🟡 Western Union</div>
+        <div class="provider-rate" id="wu-rate">R$ —</div>
+        <div class="provider-fee">Spread ~3%</div>
+      </div>
+    </div>
+
+    <p style="margin-top:20px;font-size:12px;color:var(--muted);text-align:center">
+      ⓘ Valores estimados com taxa ao vivo. Taxas reais podem variar.
+      <a href="/" style="color:var(--green)">Calcule no app →</a>
+    </p>
+  </div>
+</section>
+
+<!-- Como funciona -->
+<section class="section section-alt">
+  <div class="section-inner">
+    <div class="section-tag">Simples assim</div>
+    <h2>Em 3 passos</h2>
+    <p class="section-lead">Sem cadastro, sem senha, sem complicação.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-line">
+          <div class="step-num">1</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-content">
+          <h4>Digite o valor que quer enviar</h4>
+          <p>Qualquer valor em dólares. O comparador atualiza na hora.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-line">
+          <div class="step-num">2</div>
+          <div class="step-connector"></div>
+        </div>
+        <div class="step-content">
+          <h4>Compare quanto chega no Brasil</h4>
+          <p>Wise, Remitly e Western Union lado a lado, com taxa real do dólar.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-line">
+          <div class="step-num">3</div>
+        </div>
+        <div class="step-content">
+          <h4>Clique e envie</h4>
+          <p>Vá direto para o app da melhor opção e complete a transferência.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA final -->
+<div class="cta-section">
+  <h2>Pronto pra mandar mais pro Brasil? 🇧🇷</h2>
+  <p>Compare agora e veja qual serviço paga mais hoje. Gratuito e sem cadastro.</p>
+  <a href="/" class="btn-primary" style="font-size:16px; padding:16px 36px;">
+    Comparar taxas agora →
+  </a>
+</div>
+
+<!-- Footer -->
+<footer>
+  <p>🇧🇷 BrasilConnect — feito com ❤️ para brasileiros nos EUA</p>
+  <p style="margin-top:8px">
+    ⓘ Links de remessa e voo são links de afiliados. Podemos receber comissão quando você
+    completa uma transferência ou reserva — sem custo adicional para você.<br>
+    <a href="/privacy">Política de Privacidade</a>
+  </p>
+</footer>
+
+<script>
+  // Buscar taxa ao vivo para a landing
+  fetch('/api/rates')
+    .then(r => r.json())
+    .then(data => {
+      if (!data.mid_rate) return
+
+      const rate = data.mid_rate
+      const src  = data.source === 'exchangerate-api' ? '● Taxa real' : '○ Estimativa'
+
+      document.getElementById('ticker').innerHTML =
+        `USD/BRL hoje: <strong>R$ ${rate.toFixed(4)}</strong> &nbsp;·&nbsp; ${src} &nbsp;·&nbsp; ` +
+        `<a href="/" style="color:var(--green);text-decoration:underline">Ver comparador completo →</a>`
+
+      // Calcular e mostrar valores no comparador (simulando $500)
+      const amt = 500
+      const providers = [
+        { id: 'wise',    fee: 0.0067, spread: 0.005  },
+        { id: 'remitly', fee: 0,      spread: 0.025  },
+        { id: 'wu',      fee: 0,      spread: 0.03   },
+      ]
+      providers.forEach(p => {
+        const received = amt * (1 - p.fee) * rate * (1 - p.spread)
+        const el = document.getElementById(`${p.id}-rate`)
+        if (el) el.textContent = received.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+      })
+    })
+    .catch(() => {
+      document.getElementById('ticker').textContent =
+        'Taxa temporariamente indisponível. Abra o app para ver ao vivo.'
+    })
+</script>
+</body>
+</html>
