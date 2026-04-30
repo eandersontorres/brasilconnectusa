@@ -8,33 +8,21 @@ const YELLOW = '#ffdf00'
 
 // ─── Bandeiras por seleção ──────────────────────────────────────────────────
 const FLAGS = {
-  // Grupo A
   'México': '🇲🇽', 'África do Sul': '🇿🇦', 'Coreia do Sul': '🇰🇷', 'Rep. Tcheca': '🇨🇿',
-  // Grupo B
   'Canadá': '🇨🇦', 'Bósnia': '🇧🇦', 'Qatar': '🇶🇦', 'Suíça': '🇨🇭',
-  // Grupo C
   'Brasil': '🇧🇷', 'Marrocos': '🇲🇦', 'Haiti': '🇭🇹', 'Escócia': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
-  // Grupo D
   'EUA': '🇺🇸', 'Paraguai': '🇵🇾', 'Austrália': '🇦🇺', 'Turquia': '🇹🇷',
-  // Grupo E
   'Alemanha': '🇩🇪', 'Curaçau': '🇨🇼', 'Costa do Marfim': '🇨🇮', 'Equador': '🇪🇨',
-  // Grupo F
   'Holanda': '🇳🇱', 'Japão': '🇯🇵', 'Suécia': '🇸🇪', 'Tunísia': '🇹🇳',
-  // Grupo G
   'Bélgica': '🇧🇪', 'Egito': '🇪🇬', 'Irã': '🇮🇷', 'Nova Zelândia': '🇳🇿',
-  // Grupo H
   'Espanha': '🇪🇸', 'Cabo Verde': '🇨🇻', 'Arábia Saudita': '🇸🇦', 'Uruguai': '🇺🇾',
-  // Grupo I
   'França': '🇫🇷', 'Senegal': '🇸🇳', 'Iraque': '🇮🇶', 'Noruega': '🇳🇴',
-  // Grupo J
   'Argentina': '🇦🇷', 'Argélia': '🇩🇿', 'Áustria': '🇦🇹', 'Jordânia': '🇯🇴',
-  // Grupo K
   'Portugal': '🇵🇹', 'Rep. Congo': '🇨🇩', 'Uzbequistão': '🇺🇿', 'Colômbia': '🇨🇴',
-  // Grupo L
   'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Croácia': '🇭🇷', 'Gana': '🇬🇭', 'Panamá': '🇵🇦',
 }
 
-function flag(team) { return FLAGS[team] ? `${FLAGS[team]} ` : '' }
+function flag(team) { return FLAGS[team] ? FLAGS[team] + ' ' : '' }
 
 function Spinner() {
   return (
@@ -44,7 +32,7 @@ function Spinner() {
         borderTopColor: GREEN, borderRadius: '50%',
         animation: 'spin 0.7s linear infinite',
       }} />
-      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      <style>{'@keyframes spin { to { transform: rotate(360deg) } }'}</style>
     </div>
   )
 }
@@ -57,7 +45,7 @@ function Toast({ msg, type, onClose }) {
   return (
     <div style={{
       position: 'fixed', bottom: 80, left: '50%', transform: 'translateX(-50%)',
-      background: colors[type], border: `1px solid ${borders[type]}`,
+      background: colors[type], border: '1px solid ' + borders[type],
       borderRadius: 10, padding: '10px 16px', fontSize: 13, fontWeight: 500,
       boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 9999,
       display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap',
@@ -98,7 +86,7 @@ function Btn({ children, color = GREEN, outline = false, disabled, ...props }) {
         width: '100%', padding: '13px 0', borderRadius: 10,
         background: outline ? '#fff' : (disabled ? '#9ca3af' : color),
         color: outline ? color : '#fff',
-        border: outline ? `2px solid ${color}` : 'none',
+        border: outline ? '2px solid ' + color : 'none',
         fontSize: 15, fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer',
         opacity: disabled ? 0.6 : 1,
         ...(props.style || {}),
@@ -116,12 +104,11 @@ function formatDate(iso) {
 }
 
 const GROUP_ORDER = ['A','B','C','D','E','F','G','H','I','J','K','L']
-const PHASE_ORDER = ['group','r32','r16','qf','sf','final']
 
 function groupByPhaseAndGroup(matches) {
   const phases = {}
   for (const m of matches) {
-    const key = m.phase === 'group' ? `Grupo ${m.group_name}` : phaseLabel(m.phase)
+    const key = m.phase === 'group' ? 'Grupo ' + m.group_name : phaseLabel(m.phase)
     if (!phases[key]) phases[key] = []
     phases[key].push(m)
   }
@@ -130,7 +117,6 @@ function groupByPhaseAndGroup(matches) {
 
 function sortedGroupKeys(grouped) {
   return Object.keys(grouped).sort((a, b) => {
-    // Fase de grupos: ordenar A-L
     const aIsGroup = a.startsWith('Grupo ')
     const bIsGroup = b.startsWith('Grupo ')
     if (aIsGroup && bIsGroup) {
@@ -138,7 +124,6 @@ function sortedGroupKeys(grouped) {
       const bi = GROUP_ORDER.indexOf(b.replace('Grupo ', ''))
       return ai - bi
     }
-    // Fases eliminatórias depois dos grupos
     if (aIsGroup) return -1
     if (bIsGroup) return 1
     return 0
@@ -155,16 +140,13 @@ function phaseLabel(phase) {
 function HomeView({ onCreateClick, onJoinClick }) {
   return (
     <div style={{ padding: '0 0 16px' }}>
-      {/* Hero */}
       <div style={{
-        background: `linear-gradient(135deg, ${BLUE} 0%, #1e3a5f 100%)`,
+        background: 'linear-gradient(135deg, ' + BLUE + ' 0%, #1e3a5f 100%)',
         borderRadius: 14, padding: '24px 18px', marginBottom: 20, color: '#fff',
         textAlign: 'center',
       }}>
         <div style={{ fontSize: 40, marginBottom: 8 }}>⚽</div>
-        <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>
-          Bolão Copa 2026
-        </div>
+        <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 6 }}>Bolão Copa 2026</div>
         <div style={{ fontSize: 13, opacity: 0.85, lineHeight: 1.5 }}>
           A Copa é aqui nos EUA! Monte seu bolão,<br />
           dispute com amigos e torça pelo Brasil. 🇧🇷
@@ -172,54 +154,37 @@ function HomeView({ onCreateClick, onJoinClick }) {
         <div style={{
           marginTop: 14, display: 'inline-block',
           background: YELLOW, color: '#000',
-          fontSize: 11, fontWeight: 700, padding: '4px 12px',
-          borderRadius: 20,
+          fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 20,
         }}>
           🏆 EUA • Canadá • México — Junho 2026
         </div>
       </div>
 
-      {/* Opções */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <button
-          onClick={onCreateClick}
-          style={{
-            background: GREEN, color: '#fff', border: 'none',
-            borderRadius: 12, padding: '18px 16px', textAlign: 'left',
-            cursor: 'pointer',
-          }}
-        >
+        <button onClick={onCreateClick} style={{
+          background: GREEN, color: '#fff', border: 'none',
+          borderRadius: 12, padding: '18px 16px', textAlign: 'left', cursor: 'pointer',
+        }}>
           <div style={{ fontSize: 22, marginBottom: 6 }}>➕</div>
           <div style={{ fontSize: 17, fontWeight: 700 }}>Criar meu bolão</div>
-          <div style={{ fontSize: 13, opacity: 0.85, marginTop: 2 }}>
-            Gere um link de convite e chame os amigos
-          </div>
+          <div style={{ fontSize: 13, opacity: 0.85, marginTop: 2 }}>Gere um link de convite e chame os amigos</div>
         </button>
 
-        <button
-          onClick={onJoinClick}
-          style={{
-            background: '#fff', color: BLUE, border: `2px solid ${BLUE}`,
-            borderRadius: 12, padding: '18px 16px', textAlign: 'left',
-            cursor: 'pointer',
-          }}
-        >
+        <button onClick={onJoinClick} style={{
+          background: '#fff', color: BLUE, border: '2px solid ' + BLUE,
+          borderRadius: 12, padding: '18px 16px', textAlign: 'left', cursor: 'pointer',
+        }}>
           <div style={{ fontSize: 22, marginBottom: 6 }}>🔗</div>
           <div style={{ fontSize: 17, fontWeight: 700 }}>Entrar num bolão</div>
-          <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>
-            Tenho o código de convite de um grupo
-          </div>
+          <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>Tenho o código de convite de um grupo</div>
         </button>
       </div>
 
-      {/* Info */}
       <div style={{
         marginTop: 20, background: '#f0fdf4', borderRadius: 12,
         padding: '14px 16px', border: '1px solid #bbf7d0',
       }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: GREEN, marginBottom: 8 }}>
-          Como funciona o bolão
-        </div>
+        <div style={{ fontSize: 13, fontWeight: 600, color: GREEN, marginBottom: 8 }}>Como funciona o bolão</div>
         {[
           ['⚽', 'Placar exato: 3 pontos'],
           ['✅', 'Acertou o vencedor ou empate: 1 ponto'],
@@ -276,9 +241,7 @@ function CreateGroupView({ onBack, onCreated, setToast }) {
       <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <Input label="Nome do bolão" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Bolão do Trabalho" required />
         <Input label="Seu e-mail (para resultados)" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" required />
-        <Btn type="submit" disabled={loading || !name || !email}>
-          {loading ? 'Criando…' : 'Criar bolão →'}
-        </Btn>
+        <Btn type="submit" disabled={loading || !name || !email}>{loading ? 'Criando…' : 'Criar bolão →'}</Btn>
       </form>
     </div>
   )
@@ -329,12 +292,9 @@ function JoinGroupView({ onBack, onJoined, setToast }) {
             Código de convite
           </label>
           <input
-            type="text"
-            value={code}
+            type="text" value={code}
             onChange={e => setCode(e.target.value.toUpperCase())}
-            placeholder="XXXXXX"
-            maxLength={6}
-            required
+            placeholder="XXXXXX" maxLength={6} required
             style={{
               width: '100%', padding: '14px', borderRadius: 10,
               border: '1.5px solid #e5e7eb', fontSize: 24, fontWeight: 800,
@@ -345,9 +305,7 @@ function JoinGroupView({ onBack, onJoined, setToast }) {
         </div>
         <Input label="Seu apelido" type="text" value={nickname} onChange={e => setNickname(e.target.value)} placeholder="Ex: Anderson" required />
         <Input label="Seu e-mail (opcional)" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" />
-        <Btn type="submit" disabled={loading || !code || !nickname}>
-          {loading ? 'Entrando…' : 'Entrar no grupo →'}
-        </Btn>
+        <Btn type="submit" disabled={loading || !code || !nickname}>{loading ? 'Entrando…' : 'Entrar no grupo →'}</Btn>
       </form>
     </div>
   )
@@ -360,34 +318,33 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave }) {
 
   useEffect(() => {
     if (!group) return
-    fetch(`/api/bolao?action=group&code=${group.join_code}`)
+    fetch('/api/bolao?action=group&code=' + group.join_code)
       .then(r => r.json())
       .then(d => { if (d.members) setMembers(d.members) })
       .catch(() => {})
   }, [group])
 
-  const shareText = `Participe do nosso bolão da Copa 2026!\nCódigo: *${group?.join_code}*\n🇧🇷 BrasilConnect: https://brasilconnectusa.com`
+  const shareText = 'Participe do nosso bolão da Copa 2026!\nCódigo: *' + (group && group.join_code) + '*\n🇧🇷 BrasilConnect: https://brasilconnectusa.com'
 
   return (
     <div style={{ padding: '0 0 16px' }}>
-      {/* Header do grupo */}
       <div style={{
-        background: `linear-gradient(135deg, ${GREEN} 0%, #006428 100%)`,
+        background: 'linear-gradient(135deg, ' + GREEN + ' 0%, #006428 100%)',
         borderRadius: 14, padding: '18px 16px', marginBottom: 16, color: '#fff',
       }}>
         <div style={{ fontSize: 11, opacity: 0.8, marginBottom: 4 }}>SEU BOLÃO</div>
-        <div style={{ fontSize: 20, fontWeight: 800 }}>⚽ {group?.name}</div>
+        <div style={{ fontSize: 20, fontWeight: 800 }}>⚽ {group && group.name}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
           <div style={{
             background: 'rgba(255,255,255,0.2)', borderRadius: 8,
             padding: '6px 14px', fontSize: 18, fontWeight: 800, letterSpacing: 4,
           }}>
-            {group?.join_code}
+            {group && group.join_code}
           </div>
           <button
             onClick={() => {
               if (navigator.share) navigator.share({ text: shareText })
-              else { navigator.clipboard.writeText(shareText); }
+              else navigator.clipboard.writeText(shareText)
             }}
             style={{
               background: 'rgba(255,255,255,0.15)', border: 'none',
@@ -399,68 +356,53 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave }) {
           </button>
         </div>
         <div style={{ fontSize: 12, opacity: 0.75, marginTop: 6 }}>
-          Você: <strong style={{ opacity: 1 }}>{member?.nickname}</strong> · {members.length} participante{members.length !== 1 ? 's' : ''}
+          Você: <strong style={{ opacity: 1 }}>{member && member.nickname}</strong> · {members.length} participante{members.length !== 1 ? 's' : ''}
         </div>
       </div>
 
-      {/* Ações */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <button
-          onClick={onPredict}
-          style={{
-            background: '#fff', border: `2px solid ${BLUE}`, borderRadius: 12,
-            padding: '16px', textAlign: 'left', cursor: 'pointer',
-          }}
-        >
+        <button onClick={onPredict} style={{
+          background: '#fff', border: '2px solid ' + BLUE, borderRadius: 12,
+          padding: '16px', textAlign: 'left', cursor: 'pointer',
+        }}>
           <div style={{ fontSize: 18, marginBottom: 4 }}>📝</div>
           <div style={{ fontSize: 15, fontWeight: 700, color: BLUE }}>Fazer meus palpites</div>
-          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
-            Preveja os placares de todas as partidas
-          </div>
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Preveja os placares de todas as partidas</div>
         </button>
 
-        <button
-          onClick={onStandings}
-          style={{
-            background: '#fff', border: `2px solid ${GREEN}`, borderRadius: 12,
-            padding: '16px', textAlign: 'left', cursor: 'pointer',
-          }}
-        >
+        <button onClick={onStandings} style={{
+          background: '#fff', border: '2px solid ' + GREEN, borderRadius: 12,
+          padding: '16px', textAlign: 'left', cursor: 'pointer',
+        }}>
           <div style={{ fontSize: 18, marginBottom: 4 }}>🏆</div>
           <div style={{ fontSize: 15, fontWeight: 700, color: GREEN }}>Ver ranking</div>
-          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>
-            Classificação do grupo com pontuação
-          </div>
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Classificação do grupo com pontuação</div>
         </button>
       </div>
 
-      {/* Lista de membros */}
       {members.length > 0 && (
         <div style={{ marginTop: 20 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
             Participantes ({members.length})
           </div>
-          <div style={{
-            background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, overflow: 'hidden',
-          }}>
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, overflow: 'hidden' }}>
             {members.map((m, i) => (
               <div key={m.id} style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                padding: '10px 14px',
+                display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px',
                 borderBottom: i < members.length - 1 ? '1px solid #f3f4f6' : 'none',
               }}>
                 <div style={{
                   width: 30, height: 30, borderRadius: '50%',
-                  background: m.id === member?.id ? GREEN : '#e5e7eb',
-                  color: m.id === member?.id ? '#fff' : '#6b7280',
+                  background: m.id === (member && member.id) ? GREEN : '#e5e7eb',
+                  color: m.id === (member && member.id) ? '#fff' : '#6b7280',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: 12, fontWeight: 700, flexShrink: 0,
                 }}>
                   {m.nickname.charAt(0).toUpperCase()}
                 </div>
-                <span style={{ fontSize: 14, fontWeight: m.id === member?.id ? 600 : 400 }}>
+                <span style={{ fontSize: 14, fontWeight: m.id === (member && member.id) ? 600 : 400 }}>
                   {m.nickname}
-                  {m.id === member?.id && <span style={{ color: GREEN, fontSize: 11 }}> (você)</span>}
+                  {m.id === (member && member.id) && <span style={{ color: GREEN, fontSize: 11 }}> (você)</span>}
                 </span>
               </div>
             ))}
@@ -468,14 +410,11 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave }) {
         </div>
       )}
 
-      <button
-        onClick={onLeave}
-        style={{
-          background: 'none', border: 'none', fontSize: 12, color: '#9ca3af',
-          marginTop: 20, cursor: 'pointer', display: 'block', width: '100%',
-          textAlign: 'center', padding: 8,
-        }}
-      >
+      <button onClick={onLeave} style={{
+        background: 'none', border: 'none', fontSize: 12, color: '#9ca3af',
+        marginTop: 20, cursor: 'pointer', display: 'block', width: '100%',
+        textAlign: 'center', padding: 8,
+      }}>
         Sair do grupo / trocar de bolão
       </button>
     </div>
@@ -486,7 +425,7 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave }) {
 
 function PredictionsView({ member, groupId, onBack, setToast }) {
   const [matches, setMatches]         = useState([])
-  const [myPreds, setMyPreds]         = useState({})   // match_id → {h, a}
+  const [myPreds, setMyPreds]         = useState({})
   const [saving, setSaving]           = useState({})
   const [loading, setLoading]         = useState(true)
   const [activeGroup, setActiveGroup] = useState(null)
@@ -496,19 +435,17 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
     try {
       const [mRes, pRes] = await Promise.all([
         fetch('/api/bolao?action=matches'),
-        fetch(`/api/bolao?action=my-predictions&member_id=${member.id}`),
+        fetch('/api/bolao?action=my-predictions&member_id=' + member.id),
       ])
       const mData = await mRes.json()
       const pData = await pRes.json()
-
       const matchList = mData.matches || []
       setMatches(matchList)
-
       if (matchList.length > 0) {
         const grouped = groupByPhaseAndGroup(matchList)
-        setActiveGroup(Object.keys(grouped)[0])
+        const keys = sortedGroupKeys(grouped)
+        setActiveGroup(keys[0])
       }
-
       const predMap = {}
       for (const p of (pData.predictions || [])) {
         predMap[p.match_id] = { h: p.home_score, a: p.away_score }
@@ -556,59 +493,48 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
       </div>
 
       {loading ? <Spinner /> : (
-        <>
-          {/* Tabs de grupos */}
+        <div>
           <div style={{
             display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2,
             marginBottom: 16, scrollbarWidth: 'none',
           }}>
             {groupKeys.map(key => (
-              <button
-                key={key}
-                onClick={() => setActiveGroup(key)}
-                style={{
-                  flexShrink: 0, padding: '6px 12px', borderRadius: 20,
-                  fontSize: 12, fontWeight: 600, border: 'none',
-                  background: activeGroup === key ? BLUE : '#f3f4f6',
-                  color: activeGroup === key ? '#fff' : '#374151',
-                  cursor: 'pointer',
-                }}
-              >
+              <button key={key} onClick={() => setActiveGroup(key)} style={{
+                flexShrink: 0, padding: '6px 12px', borderRadius: 20,
+                fontSize: 12, fontWeight: 600, border: 'none',
+                background: activeGroup === key ? BLUE : '#f3f4f6',
+                color: activeGroup === key ? '#fff' : '#374151',
+                cursor: 'pointer',
+              }}>
                 {key}
               </button>
             ))}
           </div>
 
-          {/* Partidas do grupo selecionado */}
           {activeGroup && (grouped[activeGroup] || []).map(match => {
             const pred = myPreds[match.id] || {}
             const hasPred = pred.h !== undefined
             const isFinished = match.status === 'finished'
-
             return (
               <div key={match.id} style={{
                 background: '#fff', borderRadius: 12,
-                border: `1.5px solid ${hasPred ? '#86efac' : '#e5e7eb'}`,
+                border: '1.5px solid ' + (hasPred ? '#86efac' : '#e5e7eb'),
                 padding: '12px 14px', marginBottom: 10,
                 opacity: isFinished ? 0.7 : 1,
               }}>
                 <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 8 }}>
                   {formatDate(match.match_date)}
-                  {match.venue && ` · ${match.venue.split(',')[0]}`}
+                  {match.venue && ' · ' + match.venue.split(',')[0]}
                   {isFinished && <span style={{ color: '#ef4444', marginLeft: 6 }}>● Encerrado</span>}
                   {match.status === 'live' && <span style={{ color: '#f59e0b', marginLeft: 6 }}>● Ao vivo</span>}
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {/* Casa */}
                   <div style={{ flex: 1, textAlign: 'right' }}>
                     <div style={{ fontSize: 20, lineHeight: 1 }}>{FLAGS[match.home_team] || '🏳️'}</div>
-                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 2, color: '#111827' }}>
-                      {match.home_team}
-                    </div>
+                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 2, color: '#111827' }}>{match.home_team}</div>
                   </div>
 
-                  {/* Inputs de placar */}
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0 }}>
                     <input
                       type="number" min={0} max={30}
@@ -616,15 +542,14 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
                       disabled={isFinished}
                       onChange={e => setMyPreds(p => ({ ...p, [match.id]: { ...(p[match.id] || {}), h: e.target.value } }))}
                       onBlur={e => {
-                        const a = myPreds[match.id]?.a
+                        const a = myPreds[match.id] && myPreds[match.id].a
                         if (e.target.value !== '' && a !== undefined) savePrediction(match.id, e.target.value, a)
                       }}
                       style={{
                         width: 44, height: 40, textAlign: 'center', fontSize: 20,
                         fontWeight: 700, borderRadius: 8,
-                        border: `1.5px solid ${hasPred ? '#86efac' : '#e5e7eb'}`,
-                        background: hasPred ? '#f0fdf4' : '#fff',
-                        outline: 'none',
+                        border: '1.5px solid ' + (hasPred ? '#86efac' : '#e5e7eb'),
+                        background: hasPred ? '#f0fdf4' : '#fff', outline: 'none',
                       }}
                     />
                     <span style={{ fontSize: 16, color: '#9ca3af', fontWeight: 700 }}>–</span>
@@ -634,32 +559,26 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
                       disabled={isFinished}
                       onChange={e => setMyPreds(p => ({ ...p, [match.id]: { ...(p[match.id] || {}), a: e.target.value } }))}
                       onBlur={e => {
-                        const h = myPreds[match.id]?.h
+                        const h = myPreds[match.id] && myPreds[match.id].h
                         if (e.target.value !== '' && h !== undefined) savePrediction(match.id, h, e.target.value)
                       }}
                       style={{
                         width: 44, height: 40, textAlign: 'center', fontSize: 20,
                         fontWeight: 700, borderRadius: 8,
-                        border: `1.5px solid ${hasPred ? '#86efac' : '#e5e7eb'}`,
-                        background: hasPred ? '#f0fdf4' : '#fff',
-                        outline: 'none',
+                        border: '1.5px solid ' + (hasPred ? '#86efac' : '#e5e7eb'),
+                        background: hasPred ? '#f0fdf4' : '#fff', outline: 'none',
                       }}
                     />
                   </div>
 
-                  {/* Visitante */}
                   <div style={{ flex: 1, textAlign: 'left' }}>
                     <div style={{ fontSize: 20, lineHeight: 1 }}>{FLAGS[match.away_team] || '🏳️'}</div>
-                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 2, color: '#111827' }}>
-                      {match.away_team}
-                    </div>
+                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 2, color: '#111827' }}>{match.away_team}</div>
                   </div>
                 </div>
 
                 {saving[match.id] && (
-                  <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 4 }}>
-                    Salvando…
-                  </div>
+                  <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 4 }}>Salvando…</div>
                 )}
 
                 {isFinished && match.home_score !== null && (
@@ -679,11 +598,10 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
 
           {matches.length === 0 && (
             <div style={{ textAlign: 'center', color: '#9ca3af', padding: '32px 0' }}>
-              Nenhuma partida cadastrada ainda.<br />
-              <span style={{ fontSize: 12 }}>O administrador deve adicionar as partidas no Supabase.</span>
+              Nenhuma partida cadastrada ainda.
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   )
@@ -697,7 +615,7 @@ function StandingsView({ group, member, onBack }) {
 
   useEffect(() => {
     if (!group) return
-    fetch(`/api/bolao?action=standings&group_id=${group.id}`)
+    fetch('/api/bolao?action=standings&group_id=' + group.id)
       .then(r => r.json())
       .then(d => { setStandings(d.standings || []) })
       .catch(() => {})
@@ -709,29 +627,27 @@ function StandingsView({ group, member, onBack }) {
       <button onClick={onBack} style={{ background: 'none', border: 'none', fontSize: 13, color: '#6b7280', marginBottom: 12, cursor: 'pointer' }}>
         ← Voltar ao grupo
       </button>
-      <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>🏆 Ranking — {group?.name}</div>
-      <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>
-        Pontuação baseada nas partidas encerradas
-      </div>
+      <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>🏆 Ranking — {group && group.name}</div>
+      <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>Pontuação baseada nas partidas encerradas</div>
 
       {loading ? <Spinner /> : standings.length === 0 ? (
         <div style={{ textAlign: 'center', color: '#9ca3af', padding: '32px 0' }}>
-          Nenhuma partida encerrada ainda. O ranking aparece quando os resultados forem confirmados.
+          Nenhuma partida encerrada ainda.
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {standings.map((s, i) => {
             const medals = ['🥇', '🥈', '🥉']
-            const isMe = s.member_id === member?.id
+            const isMe = s.member_id === (member && member.id)
             return (
               <div key={s.member_id} style={{
                 background: isMe ? '#f0fdf4' : '#fff',
-                border: `1.5px solid ${isMe ? '#86efac' : '#e5e7eb'}`,
+                border: '1.5px solid ' + (isMe ? '#86efac' : '#e5e7eb'),
                 borderRadius: 12, padding: '12px 14px',
                 display: 'flex', alignItems: 'center', gap: 12,
               }}>
                 <div style={{ fontSize: 20, width: 28, textAlign: 'center', flexShrink: 0 }}>
-                  {medals[i] || `${i + 1}º`}
+                  {medals[i] || (i + 1) + 'º'}
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 15, fontWeight: 700 }}>
@@ -745,4 +661,69 @@ function StandingsView({ group, member, onBack }) {
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 22, fontWeight: 800, color: i === 0 ? '#f59e0b' : isMe ? GREEN : '#374151' }}>
                     {s.total_pts}
-           
+                  </div>
+                  <div style={{ fontSize: 10, color: '#9ca3af' }}>pts</div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── BolaoScreen Principal ─────────────────────────────────────────────────────
+
+export default function BolaoScreen() {
+  const [view,   setView]   = useState('home')
+  const [group,  setGroup]  = useState(null)
+  const [member, setMember] = useState(null)
+  const [toast,  setToast]  = useState(null)
+
+  useEffect(() => {
+    const mid  = localStorage.getItem('bolao_member_id')
+    const gid  = localStorage.getItem('bolao_group_id')
+    const code = localStorage.getItem('bolao_join_code')
+    if (!mid || !gid || !code) return
+    fetch('/api/bolao?action=group&code=' + code)
+      .then(r => r.json())
+      .then(d => {
+        if (d.group) {
+          setGroup(d.group)
+          const me = (d.members || []).find(m => m.id === mid)
+          if (me) { setMember(me); setView('group') }
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  function handleCreated(g, m) {
+    localStorage.setItem('bolao_join_code', g.join_code)
+    setGroup(g); setMember(m); setView('group')
+  }
+
+  function handleJoined(g, m) {
+    localStorage.setItem('bolao_join_code', g.join_code)
+    setGroup(g); setMember(m); setView('group')
+  }
+
+  function handleLeave() {
+    localStorage.removeItem('bolao_member_id')
+    localStorage.removeItem('bolao_group_id')
+    localStorage.removeItem('bolao_join_code')
+    setGroup(null); setMember(null); setView('home')
+  }
+
+  return (
+    <div style={{ padding: '0 0 16px' }}>
+      {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+      {view === 'home'      && <HomeView onCreateClick={() => setView('create')} onJoinClick={() => setView('join')} />}
+      {view === 'create'    && <CreateGroupView onBack={() => setView('home')} onCreated={handleCreated} setToast={setToast} />}
+      {view === 'join'      && <JoinGroupView onBack={() => setView('home')} onJoined={handleJoined} setToast={setToast} />}
+      {view === 'group'     && <GroupDashboard group={group} member={member} onPredict={() => setView('predict')} onStandings={() => setView('standings')} onLeave={handleLeave} />}
+      {view === 'predict'   && <PredictionsView member={member} groupId={group && group.id} onBack={() => setView('group')} setToast={setToast} />}
+      {view === 'standings' && <StandingsView group={group} member={member} onBack={() => setView('group')} />}
+    </div>
+  )
+}
