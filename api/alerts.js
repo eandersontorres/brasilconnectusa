@@ -5,7 +5,7 @@
  * Body POST: { email, target_rate, direction: 'above'|'below' }
  */
 
-const { createClient } = await import('@supabase/supabase-js')
+import { createClient } from '@supabase/supabase-js'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
