@@ -43,10 +43,12 @@ export default async function handler(req, res) {
 
   // Links de afiliado (retornados ao frontend para uso nos botões)
   const affiliateLinks = {
-    AFFILIATE_WISE_LINK:    process.env.AFFILIATE_WISE_LINK    || null,
-    AFFILIATE_REMITLY_LINK: process.env.AFFILIATE_REMITLY_LINK || null,
-    AFFILIATE_WU_LINK:      process.env.AFFILIATE_WU_LINK      || null,
-    AFFILIATE_KAYAK_LINK:   process.env.AFFILIATE_KAYAK_LINK   || null,
+    AFFILIATE_WISE_LINK:      process.env.AFFILIATE_WISE_LINK      || null,
+    AFFILIATE_REMITLY_LINK:   process.env.AFFILIATE_REMITLY_LINK   || null,
+    AFFILIATE_WU_LINK:        process.env.AFFILIATE_WU_LINK        || null,
+    AFFILIATE_KAYAK_LINK:     process.env.AFFILIATE_KAYAK_LINK     || null,
+    AFFILIATE_MONEYGRAM_LINK: process.env.AFFILIATE_MONEYGRAM_LINK || null,
+    AFFILIATE_PAYSEND_LINK:   process.env.AFFILIATE_PAYSEND_LINK   || null,
   }
 
   // Cache de 5 minutos

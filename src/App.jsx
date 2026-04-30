@@ -8,11 +8,16 @@ const PROVIDERS = [
     name: 'Wise',
     emoji: '🟢',
     color: '#00b9a5',
-    fee_pct: 0.0067,   // ~0.67% taxa média
-    spread_pct: 0.005, // 0.5% spread médio
-    label_fee: 'Taxa ~0.67%',
+    fee_pct: 0.0067,
+    fee_fixed: 0,       // taxa fixa em USD
+    spread_pct: 0.005,
+    label_fee: '~0.67% + câmbio interbancário',
+    speed: 'Até 2 dias úteis',
+    speedIcon: '🕐',
+    promo: null,
     envKey: 'AFFILIATE_WISE_LINK',
     fallback: 'https://wise.com/send#payouts',
+    minAmount: 1,
   },
   {
     id: 'remitly',
@@ -20,10 +25,15 @@ const PROVIDERS = [
     emoji: '🔵',
     color: '#1565c0',
     fee_pct: 0.0,
-    spread_pct: 0.025, // ~2.5% spread (taxa embutida no câmbio)
-    label_fee: 'Taxa embutida',
+    fee_fixed: 0,
+    spread_pct: 0.025,
+    label_fee: 'Taxa embutida no câmbio',
+    speed: 'Em minutos',
+    speedIcon: '⚡',
+    promo: '1ª transferência grátis',
     envKey: 'AFFILIATE_REMITLY_LINK',
     fallback: 'https://www.remitly.com/us/en/brazil',
+    minAmount: 1,
   },
   {
     id: 'western_union',
@@ -31,10 +41,47 @@ const PROVIDERS = [
     emoji: '🟡',
     color: '#f5a623',
     fee_pct: 0.0,
-    spread_pct: 0.03,  // ~3% spread
-    label_fee: 'Spread ~3%',
+    fee_fixed: 0,
+    spread_pct: 0.03,
+    label_fee: 'Spread ~3% no câmbio',
+    speed: 'Em minutos',
+    speedIcon: '⚡',
+    promo: null,
     envKey: 'AFFILIATE_WU_LINK',
     fallback: 'https://www.westernunion.com/us/en/send-money/app/start',
+    minAmount: 1,
+  },
+  {
+    id: 'moneygram',
+    name: 'MoneyGram',
+    emoji: '🔴',
+    color: '#d62b2b',
+    fee_pct: 0.0,
+    fee_fixed: 1.99,    // taxa fixa típica
+    spread_pct: 0.02,
+    label_fee: '$1.99 + spread ~2%',
+    speed: 'Em minutos',
+    speedIcon: '⚡',
+    promo: null,
+    envKey: 'AFFILIATE_MONEYGRAM_LINK',
+    fallback: 'https://www.moneygram.com/mgo/us/en/send-money/send-to/brazil/',
+    minAmount: 1,
+  },
+  {
+    id: 'paysend',
+    name: 'PaySend',
+    emoji: '🟣',
+    color: '#6d28d9',
+    fee_pct: 0.0,
+    fee_fixed: 2.0,     // taxa fixa ~$2
+    spread_pct: 0.015,
+    label_fee: '$2.00 + spread ~1.5%',
+    speed: '1–2 dias úteis',
+    speedIcon: '🕐',
+    promo: '1ª transferência grátis',
+    envKey: 'AFFILIATE_PAYSEND_LINK',
+    fallback: 'https://paysend.com/en-us/send-money/to/brazil',
+    minAmount: 10,
   },
 ]
 
@@ -61,9 +108,22 @@ const FLIGHT_DESTINATIONS = [
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
 function calcReceived(usd, provider, midRate) {
-  const afterFee = usd * (1 - provider.fee_pct)
+  if (!midRate || usd <= 0) return 0
+  const afterFee = (usd - provider.fee_fixed) * (1 - provider.fee_pct)
+  if (afterFee <= 0) return 0
   const effectiveRate = midRate * (1 - provider.spread_pct)
-  return (afterFee * effectiveRate).toFixed(2)
+  return afterFee * effectiveRate
+}
+
+// Calcula quanto enviar em USD para chegar um valor em BRL
+function calcSendAmount(brl, provider, midRate) {
+  if (!midRate || brl <= 0) return 0
+  const effectiveRate = midRate * (1 - provider.spread_pct)
+  if (effectiveRate <= 0) return 0
+  // received_brl = (usd - fee_fixed) * (1 - fee_pct) * effectiveRate
+  // usd = brl / (effectiveRate * (1 - fee_pct)) + fee_fixed
+  const usd = brl / (effectiveRate * (1 - provider.fee_pct)) + provider.fee_fixed
+  return usd
 }
 
 function fmtBRL(val) {
@@ -114,13 +174,113 @@ function Toast({ msg, type, onClose }) {
   )
 }
 
+// ─── Provider Detail Modal ─────────────────────────────────────────────────────
+
+function ProviderDetail({ provider, amount, midRate, isUSD, onClose, onSend }) {
+  const usdAmount = isUSD ? amount : calcSendAmount(amount, provider, midRate)
+  const brlAmount = isUSD ? calcReceived(amount, provider, midRate) : amount
+  const effectiveRate = midRate * (1 - provider.spread_pct)
+  const feeAmount = provider.fee_fixed + (usdAmount * provider.fee_pct)
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+      zIndex: 1000, display: 'flex', alignItems: 'flex-end',
+    }} onClick={onClose}>
+      <div
+        style={{
+          background: '#fff', borderRadius: '20px 20px 0 0',
+          padding: '24px 20px 40px', width: '100%', maxWidth: 480,
+          margin: '0 auto',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Handle */}
+        <div style={{
+          width: 36, height: 4, background: '#e5e7eb', borderRadius: 4,
+          margin: '0 auto 20px',
+        }} />
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+          <span style={{ fontSize: 28 }}>{provider.emoji}</span>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700 }}>{provider.name}</div>
+            <div style={{ fontSize: 12, color: '#6b7280' }}>{provider.speedIcon} {provider.speed}</div>
+          </div>
+          {provider.promo && (
+            <div style={{
+              marginLeft: 'auto',
+              background: '#fef3c7', color: '#92400e',
+              fontSize: 11, fontWeight: 700, padding: '4px 10px',
+              borderRadius: 20, border: '1px solid #fcd34d',
+            }}>
+              🎁 {provider.promo}
+            </div>
+          )}
+        </div>
+
+        {/* Breakdown */}
+        <div style={{
+          background: '#f9fafb', borderRadius: 12,
+          padding: '16px', marginBottom: 20,
+          border: '1px solid #e5e7eb',
+        }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+            Detalhamento
+          </div>
+          {[
+            ['Você envia', fmtUSD(usdAmount)],
+            ['Taxa do serviço', `− ${fmtUSD(feeAmount)}`],
+            ['Câmbio aplicado', `R$ ${effectiveRate.toFixed(4)}/USD`],
+            ['Taxa de mercado', `R$ ${midRate.toFixed(4)}/USD`],
+            ['Spread (custo câmbio)', `${(provider.spread_pct * 100).toFixed(1)}%`],
+          ].map(([label, value]) => (
+            <div key={label} style={{
+              display: 'flex', justifyContent: 'space-between',
+              fontSize: 13, padding: '5px 0',
+              borderBottom: '1px solid #f3f4f6',
+            }}>
+              <span style={{ color: '#6b7280' }}>{label}</span>
+              <span style={{ fontWeight: 500 }}>{value}</span>
+            </div>
+          ))}
+          <div style={{
+            display: 'flex', justifyContent: 'space-between',
+            marginTop: 10, paddingTop: 10,
+            borderTop: '2px solid #e5e7eb',
+          }}>
+            <span style={{ fontSize: 14, fontWeight: 700 }}>Destinatário recebe</span>
+            <span style={{ fontSize: 18, fontWeight: 800, color: provider.color }}>
+              {fmtBRL(brlAmount)}
+            </span>
+          </div>
+        </div>
+
+        <button
+          onClick={() => { onSend(provider); onClose() }}
+          style={{
+            width: '100%', padding: '14px 0', borderRadius: 12,
+            background: provider.color, color: '#fff',
+            fontSize: 15, fontWeight: 700, border: 'none',
+          }}
+        >
+          Enviar com {provider.name} →
+        </button>
+      </div>
+    </div>
+  )
+}
+
 // ─── Tela: Remessas ────────────────────────────────────────────────────────────
 
 function RemessasScreen({ affiliateLinks }) {
+  const [isUSD, setIsUSD] = useState(true)          // true = digita USD, false = digita BRL
   const [amount, setAmount] = useState(500)
   const [rateData, setRateData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [expandedId, setExpandedId] = useState(null) // provider detail modal
 
   const fetchRate = useCallback(async () => {
     setLoading(true)
@@ -142,32 +302,49 @@ function RemessasScreen({ affiliateLinks }) {
   const midRate = rateData?.mid_rate || 0
 
   async function handleSend(provider) {
-    // registrar clique no tracking
     try {
       await fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: provider.id, amount_usd: amount }),
+        body: JSON.stringify({ provider: provider.id, amount_usd: isUSD ? amount : calcSendAmount(amount, provider, midRate) }),
       })
     } catch (_) {}
-
     const link = affiliateLinks[provider.envKey] || provider.fallback
     window.open(link, '_blank', 'noopener')
   }
 
-  const sorted = [...PROVIDERS].sort((a, b) =>
-    Number(calcReceived(amount, b, midRate)) - Number(calcReceived(amount, a, midRate))
-  )
+  // Ordena por melhor valor recebido (ou menor valor a enviar no modo BRL)
+  const sorted = [...PROVIDERS].sort((a, b) => {
+    if (isUSD) {
+      return calcReceived(amount, b, midRate) - calcReceived(amount, a, midRate)
+    } else {
+      return calcSendAmount(amount, a, midRate) - calcSendAmount(amount, b, midRate)
+    }
+  })
+
+  const QUICK_AMOUNTS_USD = [100, 300, 500, 1000]
+  const QUICK_AMOUNTS_BRL = [500, 1000, 2000, 5000]
 
   return (
     <div style={{ padding: '0 0 16px' }}>
+      {expandedId && (
+        <ProviderDetail
+          provider={PROVIDERS.find(p => p.id === expandedId)}
+          amount={amount}
+          midRate={midRate}
+          isUSD={isUSD}
+          onClose={() => setExpandedId(null)}
+          onSend={handleSend}
+        />
+      )}
+
       {/* Cabeçalho taxa */}
       <div style={{
         background: 'linear-gradient(135deg, #009c3b 0%, #006428 100%)',
         borderRadius: 14, padding: '20px 18px', marginBottom: 16, color: '#fff',
       }}>
         <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6 }}>
-          Taxa de câmbio ao vivo (BRL/USD)
+          Taxa de câmbio ao vivo (USD → BRL)
         </div>
         {loading ? (
           <div style={{ fontSize: 28, fontWeight: 700 }}>Carregando…</div>
@@ -178,74 +355,130 @@ function RemessasScreen({ affiliateLinks }) {
             <div style={{ fontSize: 32, fontWeight: 700, letterSpacing: -1 }}>
               R$ {midRate.toFixed(4)}
             </div>
-            <div style={{ fontSize: 12, opacity: 0.75, marginTop: 4 }}>
-              {rateData?.source === 'exchangerate-api' ? '● Taxa real' : '○ Estimativa'} •{' '}
-              Atualizado agora
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+              <div style={{ fontSize: 12, opacity: 0.75 }}>
+                {rateData?.source === 'exchangerate-api' ? '● Taxa real' : '○ Estimativa'} • Atualizado agora
+              </div>
+              <button
+                onClick={fetchRate}
+                style={{
+                  background: 'rgba(255,255,255,0.2)', border: 'none',
+                  borderRadius: 6, padding: '3px 8px', color: '#fff',
+                  fontSize: 11, cursor: 'pointer',
+                }}
+              >
+                ↺ Atualizar
+              </button>
             </div>
           </>
         )}
       </div>
 
-      {/* Quanto enviar */}
+      {/* Toggle USD ↔ BRL + Input de valor */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8, fontWeight: 500 }}>
-          Quanto você quer enviar (USD)?
-        </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: '#fff', border: '1.5px solid #e5e7eb', borderRadius: 10,
-            padding: '10px 14px', flex: 1,
-          }}>
-            <span style={{ fontSize: 16, color: '#6b7280' }}>$</span>
-            <input
-              type="number"
-              value={amount}
-              min={1}
-              onChange={e => setAmount(Math.max(1, Number(e.target.value)))}
+        {/* Toggle */}
+        <div style={{
+          display: 'flex', background: '#f3f4f6', borderRadius: 10,
+          padding: 3, marginBottom: 10,
+        }}>
+          {[
+            { val: true,  label: 'Envio em USD 🇺🇸' },
+            { val: false, label: 'Chegada em BRL 🇧🇷' },
+          ].map(opt => (
+            <button
+              key={String(opt.val)}
+              onClick={() => { setIsUSD(opt.val); setAmount(opt.val ? 500 : 2500) }}
               style={{
-                border: 'none', outline: 'none', fontSize: 20, fontWeight: 600,
-                width: '100%', color: '#111827', background: 'transparent',
+                flex: 1, padding: '8px 0', borderRadius: 8, fontSize: 13, fontWeight: 600,
+                background: isUSD === opt.val ? '#fff' : 'transparent',
+                color: isUSD === opt.val ? '#111827' : '#6b7280',
+                border: 'none',
+                boxShadow: isUSD === opt.val ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
+                transition: 'all .15s',
               }}
-            />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {[100, 500, 1000].map(v => (
-              <button
-                key={v}
-                onClick={() => setAmount(v)}
-                style={{
-                  fontSize: 12, padding: '5px 10px', borderRadius: 7,
-                  background: amount === v ? '#009c3b' : '#f3f4f6',
-                  color: amount === v ? '#fff' : '#374151',
-                  fontWeight: 500, border: 'none',
-                }}
-              >
-                ${v}
-              </button>
-            ))}
-          </div>
+            >
+              {opt.label}
+            </button>
+          ))}
         </div>
+
+        {/* Input */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          background: '#fff', border: '1.5px solid #e5e7eb', borderRadius: 10,
+          padding: '10px 14px',
+        }}>
+          <span style={{ fontSize: 16, color: '#6b7280', fontWeight: 600, flexShrink: 0 }}>
+            {isUSD ? '$' : 'R$'}
+          </span>
+          <input
+            type="number"
+            value={amount}
+            min={isUSD ? 1 : 10}
+            onChange={e => setAmount(Math.max(isUSD ? 1 : 10, Number(e.target.value)))}
+            style={{
+              border: 'none', outline: 'none', fontSize: 22, fontWeight: 700,
+              width: '100%', color: '#111827', background: 'transparent',
+            }}
+          />
+          <span style={{ fontSize: 12, color: '#9ca3af', flexShrink: 0 }}>
+            {isUSD ? 'USD' : 'BRL'}
+          </span>
+        </div>
+
+        {/* Quick amounts */}
+        <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+          {(isUSD ? QUICK_AMOUNTS_USD : QUICK_AMOUNTS_BRL).map(v => (
+            <button
+              key={v}
+              onClick={() => setAmount(v)}
+              style={{
+                flex: 1, fontSize: 12, padding: '6px 0', borderRadius: 7,
+                background: amount === v ? '#009c3b' : '#f3f4f6',
+                color: amount === v ? '#fff' : '#374151',
+                fontWeight: 500, border: 'none',
+              }}
+            >
+              {isUSD ? `$${v}` : `R$${v}`}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Label */}
+      <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 10, fontWeight: 500 }}>
+        {isUSD
+          ? `Comparando quanto chega no Brasil para ${fmtUSD(amount)} enviados`
+          : `Comparando quanto você precisa enviar para chegarem ${fmtBRL(amount)}`
+        }
       </div>
 
       {/* Cards provedores */}
       {loading ? <Spinner /> : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {sorted.map((p, idx) => {
-            const received = calcReceived(amount, p, midRate)
+            const received = isUSD
+              ? calcReceived(amount, p, midRate)
+              : amount
+            const sendUsd = isUSD
+              ? amount
+              : calcSendAmount(amount, p, midRate)
+
             const isBest = idx === 0
+            const isInvalid = received <= 0 || sendUsd < p.minAmount
+
             return (
               <div
                 key={p.id}
                 style={{
                   background: '#fff',
                   border: isBest ? `2px solid ${p.color}` : '1.5px solid #e5e7eb',
-                  borderRadius: 14,
-                  padding: '14px 16px',
+                  borderRadius: 14, padding: '14px 16px',
                   position: 'relative',
+                  opacity: isInvalid ? 0.5 : 1,
                 }}
               >
-                {isBest && (
+                {isBest && !isInvalid && (
                   <div style={{
                     position: 'absolute', top: -10, left: 14,
                     background: p.color, color: '#fff',
@@ -254,31 +487,76 @@ function RemessasScreen({ affiliateLinks }) {
                     MELHOR OPÇÃO
                   </div>
                 )}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                      <span style={{ fontSize: 18 }}>{p.emoji}</span>
-                      <span style={{ fontSize: 15, fontWeight: 600 }}>{p.name}</span>
-                    </div>
-                    <div style={{ fontSize: 12, color: '#9ca3af' }}>{p.label_fee}</div>
+
+                {/* Promo badge */}
+                {p.promo && (
+                  <div style={{
+                    position: 'absolute', top: -10, right: 14,
+                    background: '#fef3c7', color: '#92400e',
+                    fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                    border: '1px solid #fcd34d',
+                  }}>
+                    🎁 {p.promo}
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: 20, fontWeight: 700, color: p.color }}>
-                      {fmtBRL(received)}
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                      <span style={{ fontSize: 18 }}>{p.emoji}</span>
+                      <span style={{ fontSize: 15, fontWeight: 700 }}>{p.name}</span>
                     </div>
-                    <div style={{ fontSize: 11, color: '#9ca3af' }}>recebido no Brasil</div>
+                    <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 4 }}>{p.label_fee}</div>
+                    <div style={{ fontSize: 11, color: '#6b7280' }}>
+                      {p.speedIcon} {p.speed}
+                    </div>
+                  </div>
+
+                  <div style={{ textAlign: 'right' }}>
+                    {isUSD ? (
+                      <>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: p.color }}>
+                          {isInvalid ? '—' : fmtBRL(received)}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#9ca3af' }}>recebido no Brasil</div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: p.color }}>
+                          {isInvalid ? '—' : fmtUSD(sendUsd)}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#9ca3af' }}>você envia</div>
+                      </>
+                    )}
                   </div>
                 </div>
-                <button
-                  onClick={() => handleSend(p)}
-                  style={{
-                    marginTop: 12, width: '100%', padding: '10px 0',
-                    background: p.color, color: '#fff',
-                    borderRadius: 9, fontSize: 13, fontWeight: 600,
-                  }}
-                >
-                  Enviar com {p.name} →
-                </button>
+
+                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                  {/* Detalhes */}
+                  <button
+                    onClick={() => setExpandedId(p.id)}
+                    style={{
+                      padding: '9px 14px', borderRadius: 9,
+                      background: '#f3f4f6', color: '#374151',
+                      fontSize: 12, fontWeight: 600, border: 'none',
+                    }}
+                  >
+                    Ver detalhes
+                  </button>
+                  {/* Enviar */}
+                  <button
+                    onClick={() => handleSend(p)}
+                    disabled={isInvalid}
+                    style={{
+                      flex: 1, padding: '9px 0', borderRadius: 9,
+                      background: isInvalid ? '#e5e7eb' : p.color,
+                      color: isInvalid ? '#9ca3af' : '#fff',
+                      fontSize: 13, fontWeight: 700, border: 'none',
+                    }}
+                  >
+                    Enviar com {p.name} →
+                  </button>
+                </div>
               </div>
             )
           })}
@@ -291,7 +569,7 @@ function RemessasScreen({ affiliateLinks }) {
         lineHeight: 1.5, textAlign: 'center', padding: '0 8px',
       }}>
         ⓘ Links são de afiliados. Recebemos comissão quando você completa uma transferência —
-        sem custo adicional para você.
+        sem custo adicional para você. Taxas são estimativas e podem variar.
       </div>
     </div>
   )
@@ -365,7 +643,7 @@ function AlertasScreen() {
             style={{
               width: '100%', padding: '12px 14px', borderRadius: 10,
               border: '1.5px solid #e5e7eb', fontSize: 15, outline: 'none',
-              background: '#fff',
+              background: '#fff', boxSizing: 'border-box',
             }}
           />
         </div>
@@ -423,6 +701,7 @@ function AlertasScreen() {
             background: loading ? '#9ca3af' : '#009c3b',
             color: '#fff', fontSize: 15, fontWeight: 600,
             opacity: !email || !targetRate ? 0.5 : 1,
+            border: 'none',
           }}
         >
           {loading ? 'Criando alerta…' : 'Criar alerta gratuito'}
@@ -590,6 +869,7 @@ function VoosScreen({ affiliateLinks }) {
             padding: '13px 0', borderRadius: 10,
             background: loading ? '#9ca3af' : '#1e3a5f',
             color: '#fff', fontSize: 15, fontWeight: 600,
+            border: 'none',
           }}
         >
           {loading ? 'Buscando voos…' : 'Buscar voos'}

@@ -1,0 +1,1 @@
+this folder is platform in development to attend brazilian comunity in USA
