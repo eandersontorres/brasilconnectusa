@@ -115,6 +115,9 @@ function formatDate(iso) {
   return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
+const GROUP_ORDER = ['A','B','C','D','E','F','G','H','I','J','K','L']
+const PHASE_ORDER = ['group','r32','r16','qf','sf','final']
+
 function groupByPhaseAndGroup(matches) {
   const phases = {}
   for (const m of matches) {
@@ -123,6 +126,23 @@ function groupByPhaseAndGroup(matches) {
     phases[key].push(m)
   }
   return phases
+}
+
+function sortedGroupKeys(grouped) {
+  return Object.keys(grouped).sort((a, b) => {
+    // Fase de grupos: ordenar A-L
+    const aIsGroup = a.startsWith('Grupo ')
+    const bIsGroup = b.startsWith('Grupo ')
+    if (aIsGroup && bIsGroup) {
+      const ai = GROUP_ORDER.indexOf(a.replace('Grupo ', ''))
+      const bi = GROUP_ORDER.indexOf(b.replace('Grupo ', ''))
+      return ai - bi
+    }
+    // Fases eliminatórias depois dos grupos
+    if (aIsGroup) return -1
+    if (bIsGroup) return 1
+    return 0
+  })
 }
 
 function phaseLabel(phase) {
@@ -523,7 +543,7 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
   }
 
   const grouped = groupByPhaseAndGroup(matches)
-  const groupKeys = Object.keys(grouped)
+  const groupKeys = sortedGroupKeys(grouped)
 
   return (
     <div style={{ padding: '0 0 16px' }}>
@@ -725,22 +745,4 @@ function StandingsView({ group, member, onBack }) {
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 22, fontWeight: 800, color: i === 0 ? '#f59e0b' : isMe ? GREEN : '#374151' }}>
                     {s.total_pts}
-                  </div>
-                  <div style={{ fontSize: 10, color: '#9ca3af' }}>pts</div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ─── BolaoScreen Principal ─────────────────────────────────────────────────────
-
-export default function BolaoScreen() {
-  const [view,   setView]   = useState('home')     // home|create|join|group|predict|standings
-  const [group,  setGroup]  = useState(null)
-  const [member, setMember] = useState(null)
-  const [toast,  setT
+           
