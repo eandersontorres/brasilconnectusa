@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import BolaoScreen from './BolaoScreen'
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 
@@ -937,6 +938,7 @@ const TABS = [
   { id: 'remessas', icon: '💸', label: 'Remessas' },
   { id: 'alertas',  icon: '🔔', label: 'Alertas' },
   { id: 'voos',     icon: '✈️',  label: 'Voos' },
+  { id: 'bolao',    icon: '⚽',  label: 'Bolão' },
 ]
 
 export default function App() {
@@ -968,6 +970,7 @@ export default function App() {
         {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
         {tab === 'alertas'  && <AlertasScreen />}
         {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
+        {tab === 'bolao'    && <BolaoScreen />}
       </div>
 
       {/* Bottom nav */}
