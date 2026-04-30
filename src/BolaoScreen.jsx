@@ -6,6 +6,36 @@ const GREEN  = '#009c3b'
 const BLUE   = '#002776'
 const YELLOW = '#ffdf00'
 
+// ─── Bandeiras por seleção ──────────────────────────────────────────────────
+const FLAGS = {
+  // Grupo A
+  'México': '🇲🇽', 'África do Sul': '🇿🇦', 'Coreia do Sul': '🇰🇷', 'Rep. Tcheca': '🇨🇿',
+  // Grupo B
+  'Canadá': '🇨🇦', 'Bósnia': '🇧🇦', 'Qatar': '🇶🇦', 'Suíça': '🇨🇭',
+  // Grupo C
+  'Brasil': '🇧🇷', 'Marrocos': '🇲🇦', 'Haiti': '🇭🇹', 'Escócia': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  // Grupo D
+  'EUA': '🇺🇸', 'Paraguai': '🇵🇾', 'Austrália': '🇦🇺', 'Turquia': '🇹🇷',
+  // Grupo E
+  'Alemanha': '🇩🇪', 'Curaçau': '🇨🇼', 'Costa do Marfim': '🇨🇮', 'Equador': '🇪🇨',
+  // Grupo F
+  'Holanda': '🇳🇱', 'Japão': '🇯🇵', 'Suécia': '🇸🇪', 'Tunísia': '🇹🇳',
+  // Grupo G
+  'Bélgica': '🇧🇪', 'Egito': '🇪🇬', 'Irã': '🇮🇷', 'Nova Zelândia': '🇳🇿',
+  // Grupo H
+  'Espanha': '🇪🇸', 'Cabo Verde': '🇨🇻', 'Arábia Saudita': '🇸🇦', 'Uruguai': '🇺🇾',
+  // Grupo I
+  'França': '🇫🇷', 'Senegal': '🇸🇳', 'Iraque': '🇮🇶', 'Noruega': '🇳🇴',
+  // Grupo J
+  'Argentina': '🇦🇷', 'Argélia': '🇩🇿', 'Áustria': '🇦🇹', 'Jordânia': '🇯🇴',
+  // Grupo K
+  'Portugal': '🇵🇹', 'Rep. Congo': '🇨🇩', 'Uzbequistão': '🇺🇿', 'Colômbia': '🇨🇴',
+  // Grupo L
+  'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Croácia': '🇭🇷', 'Gana': '🇬🇭', 'Panamá': '🇵🇦',
+}
+
+function flag(team) { return FLAGS[team] ? `${FLAGS[team]} ` : '' }
+
 function Spinner() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
@@ -550,10 +580,16 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ flex: 1, fontWeight: 600, fontSize: 14, textAlign: 'right' }}>
-                    {match.home_team}
+                  {/* Casa */}
+                  <div style={{ flex: 1, textAlign: 'right' }}>
+                    <div style={{ fontSize: 20, lineHeight: 1 }}>{FLAGS[match.home_team] || '🏳️'}</div>
+                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 2, color: '#111827' }}>
+                      {match.home_team}
+                    </div>
                   </div>
-                  <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+
+                  {/* Inputs de placar */}
+                  <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0 }}>
                     <input
                       type="number" min={0} max={30}
                       value={pred.h !== undefined ? pred.h : ''}
@@ -564,14 +600,14 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
                         if (e.target.value !== '' && a !== undefined) savePrediction(match.id, e.target.value, a)
                       }}
                       style={{
-                        width: 44, height: 38, textAlign: 'center', fontSize: 18,
+                        width: 44, height: 40, textAlign: 'center', fontSize: 20,
                         fontWeight: 700, borderRadius: 8,
                         border: `1.5px solid ${hasPred ? '#86efac' : '#e5e7eb'}`,
                         background: hasPred ? '#f0fdf4' : '#fff',
                         outline: 'none',
                       }}
                     />
-                    <span style={{ fontSize: 14, color: '#9ca3af', fontWeight: 600 }}>×</span>
+                    <span style={{ fontSize: 16, color: '#9ca3af', fontWeight: 700 }}>–</span>
                     <input
                       type="number" min={0} max={30}
                       value={pred.a !== undefined ? pred.a : ''}
@@ -582,7 +618,7 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
                         if (e.target.value !== '' && h !== undefined) savePrediction(match.id, h, e.target.value)
                       }}
                       style={{
-                        width: 44, height: 38, textAlign: 'center', fontSize: 18,
+                        width: 44, height: 40, textAlign: 'center', fontSize: 20,
                         fontWeight: 700, borderRadius: 8,
                         border: `1.5px solid ${hasPred ? '#86efac' : '#e5e7eb'}`,
                         background: hasPred ? '#f0fdf4' : '#fff',
@@ -590,8 +626,13 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
                       }}
                     />
                   </div>
-                  <div style={{ flex: 1, fontWeight: 600, fontSize: 14 }}>
-                    {match.away_team}
+
+                  {/* Visitante */}
+                  <div style={{ flex: 1, textAlign: 'left' }}>
+                    <div style={{ fontSize: 20, lineHeight: 1 }}>{FLAGS[match.away_team] || '🏳️'}</div>
+                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 2, color: '#111827' }}>
+                      {match.away_team}
+                    </div>
                   </div>
                 </div>
 
@@ -603,7 +644,7 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
 
                 {isFinished && match.home_score !== null && (
                   <div style={{ fontSize: 12, color: '#6b7280', textAlign: 'center', marginTop: 6 }}>
-                    Resultado: {match.home_score} – {match.away_score}
+                    Resultado: {FLAGS[match.home_team]} {match.home_score} – {match.away_score} {FLAGS[match.away_team]}
                     {pred.h !== undefined && (
                       <span style={{ marginLeft: 8, fontWeight: 700, color: GREEN }}>
                         {pred.h === match.home_score && pred.a === match.away_score ? '🎯 +3 pts' :
@@ -702,59 +743,4 @@ export default function BolaoScreen() {
   const [view,   setView]   = useState('home')     // home|create|join|group|predict|standings
   const [group,  setGroup]  = useState(null)
   const [member, setMember] = useState(null)
-  const [toast,  setToast]  = useState(null)
-
-  // Restaurar sessão do localStorage
-  useEffect(() => {
-    const mid = localStorage.getItem('bolao_member_id')
-    const gid = localStorage.getItem('bolao_group_id')
-    if (!mid || !gid) return
-
-    // Tenta recuperar o grupo
-    // Usamos o group_id guardado para buscar via standings (que retorna o group)
-    // Melhor: guardamos também o join_code
-    const code = localStorage.getItem('bolao_join_code')
-    if (!code) return
-
-    fetch(`/api/bolao?action=group&code=${code}`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.group) {
-          setGroup(d.group)
-          const me = (d.members || []).find(m => m.id === mid)
-          if (me) { setMember(me); setView('group') }
-        }
-      })
-      .catch(() => {})
-  }, [])
-
-  function handleCreated(g, m) {
-    localStorage.setItem('bolao_join_code', g.join_code)
-    setGroup(g); setMember(m); setView('group')
-  }
-
-  function handleJoined(g, m) {
-    localStorage.setItem('bolao_join_code', g.join_code)
-    setGroup(g); setMember(m); setView('group')
-  }
-
-  function handleLeave() {
-    localStorage.removeItem('bolao_member_id')
-    localStorage.removeItem('bolao_group_id')
-    localStorage.removeItem('bolao_join_code')
-    setGroup(null); setMember(null); setView('home')
-  }
-
-  return (
-    <div style={{ padding: '0 0 16px' }}>
-      {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
-
-      {view === 'home'       && <HomeView onCreateClick={() => setView('create')} onJoinClick={() => setView('join')} />}
-      {view === 'create'     && <CreateGroupView onBack={() => setView('home')} onCreated={handleCreated} setToast={setToast} />}
-      {view === 'join'       && <JoinGroupView onBack={() => setView('home')} onJoined={handleJoined} setToast={setToast} />}
-      {view === 'group'      && <GroupDashboard group={group} member={member} onPredict={() => setView('predict')} onStandings={() => setView('standings')} onLeave={handleLeave} />}
-      {view === 'predict'    && <PredictionsView member={member} groupId={group?.id} onBack={() => setView('group')} setToast={setToast} />}
-      {view === 'standings'  && <StandingsView group={group} member={member} onBack={() => setView('group')} />}
-    </div>
-  )
-}
+  const [toast,  setT
