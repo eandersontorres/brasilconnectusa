@@ -6,7 +6,7 @@
  * Protegido por CRON_SECRET no header Authorization.
  */
 
-const { createClient } = await import('@supabase/supabase-js')
+import { createClient } from '@supabase/supabase-js'
 
 const FALLBACK_RATE = 5.10
 
