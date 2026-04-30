@@ -147,9 +147,13 @@ function phaseLabel(phase) {
 
 function GroupTabs({ groupKeys, activeGroup, onSelect }) {
   const [canScrollRight, setCanScrollRight] = useState(true)
-  const ref = useCallback(node => {
+  const [canScrollLeft,  setCanScrollLeft]  = useState(false)
+  const scrollRef = useState(null)
+  const containerRef = useCallback(node => {
+    scrollRef[1](node)
     if (!node) return
     function check() {
+      setCanScrollLeft(node.scrollLeft > 4)
       setCanScrollRight(node.scrollLeft + node.clientWidth < node.scrollWidth - 4)
     }
     check()
@@ -157,12 +161,35 @@ function GroupTabs({ groupKeys, activeGroup, onSelect }) {
     window.addEventListener('resize', check)
   }, [])
 
+  function scrollBy(amount) {
+    if (scrollRef[0]) scrollRef[0].scrollBy({ left: amount, behavior: 'smooth' })
+  }
+
   return (
     <div style={{ position: 'relative', marginBottom: 16 }}>
+      {/* Fade + seta esquerda */}
+      {canScrollLeft && (
+        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 4, zIndex: 2, display: 'flex', alignItems: 'center' }}>
+          <div style={{
+            position: 'absolute', left: 0, top: 0, bottom: 0, width: 48, pointerEvents: 'none',
+            background: 'linear-gradient(to left, transparent, #f9fafb 80%)',
+          }} />
+          <button onClick={() => scrollBy(-120)} style={{
+            position: 'relative', background: '#fff', border: '1px solid #e5e7eb',
+            borderRadius: '50%', width: 24, height: 24, display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', fontSize: 14, color: '#374151', zIndex: 3,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.12)', marginLeft: 2,
+          }}>‹</button>
+        </div>
+      )}
+
       <div
-        ref={ref}
+        ref={containerRef}
         style={{
           display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4,
+          paddingLeft: canScrollLeft ? 32 : 0,
+          paddingRight: canScrollRight ? 32 : 0,
           scrollbarWidth: 'none', msOverflowStyle: 'none',
         }}
       >
@@ -183,16 +210,21 @@ function GroupTabs({ groupKeys, activeGroup, onSelect }) {
           </button>
         ))}
       </div>
-      {/* Fade direito indicando mais conteúdo */}
+
+      {/* Fade + seta direita */}
       {canScrollRight && (
-        <div style={{
-          position: 'absolute', right: 0, top: 0, bottom: 4,
-          width: 48, pointerEvents: 'none',
-          background: 'linear-gradient(to right, transparent, #f9fafb 80%)',
-          display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
-          paddingRight: 4,
-        }}>
-          <span style={{ fontSize: 14, color: '#9ca3af' }}>›</span>
+        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 4, zIndex: 2, display: 'flex', alignItems: 'center' }}>
+          <div style={{
+            position: 'absolute', right: 0, top: 0, bottom: 0, width: 48, pointerEvents: 'none',
+            background: 'linear-gradient(to right, transparent, #f9fafb 80%)',
+          }} />
+          <button onClick={() => scrollBy(120)} style={{
+            position: 'relative', background: '#fff', border: '1px solid #e5e7eb',
+            borderRadius: '50%', width: 24, height: 24, display: 'flex',
+            alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', fontSize: 14, color: '#374151', zIndex: 3,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.12)', marginRight: 2,
+          }}>›</button>
         </div>
       )}
     </div>
@@ -747,39 +779,4 @@ export default function BolaoScreen() {
       .then(d => {
         if (d.group) {
           setGroup(d.group)
-          const me = (d.members || []).find(m => m.id === mid)
-          if (me) { setMember(me); setView('group') }
-        }
-      })
-      .catch(() => {})
-  }, [])
-
-  function handleCreated(g, m) {
-    localStorage.setItem('bolao_join_code', g.join_code)
-    setGroup(g); setMember(m); setView('group')
-  }
-
-  function handleJoined(g, m) {
-    localStorage.setItem('bolao_join_code', g.join_code)
-    setGroup(g); setMember(m); setView('group')
-  }
-
-  function handleLeave() {
-    localStorage.removeItem('bolao_member_id')
-    localStorage.removeItem('bolao_group_id')
-    localStorage.removeItem('bolao_join_code')
-    setGroup(null); setMember(null); setView('home')
-  }
-
-  return (
-    <div style={{ padding: '0 0 16px' }}>
-      {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
-      {view === 'home'      && <HomeView onCreateClick={() => setView('create')} onJoinClick={() => setView('join')} />}
-      {view === 'create'    && <CreateGroupView onBack={() => setView('home')} onCreated={handleCreated} setToast={setToast} />}
-      {view === 'join'      && <JoinGroupView onBack={() => setView('home')} onJoined={handleJoined} setToast={setToast} />}
-      {view === 'group'     && <GroupDashboard group={group} member={member} onPredict={() => setView('predict')} onStandings={() => setView('standings')} onLeave={handleLeave} />}
-      {view === 'predict'   && <PredictionsView member={member} groupId={group && group.id} onBack={() => setView('group')} setToast={setToast} />}
-      {view === 'standings' && <StandingsView group={group} member={member} onBack={() => setView('group')} />}
-    </div>
-  )
-}
+          const me
