@@ -1,28 +1,36 @@
 import { useState, useEffect, useCallback } from 'react'
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
 const GREEN  = '#009c3b'
 const BLUE   = '#002776'
 const YELLOW = '#ffdf00'
 
-// ─── Bandeiras por seleção ──────────────────────────────────────────────────
-const FLAGS = {
-  'México': '🇲🇽', 'África do Sul': '🇿🇦', 'Coreia do Sul': '🇰🇷', 'Rep. Tcheca': '🇨🇿',
-  'Canadá': '🇨🇦', 'Bósnia': '🇧🇦', 'Qatar': '🇶🇦', 'Suíça': '🇨🇭',
-  'Brasil': '🇧🇷', 'Marrocos': '🇲🇦', 'Haiti': '🇭🇹', 'Escócia': '🏴󠁧󠁢󠁳󠁣󠁴󠁿',
-  'EUA': '🇺🇸', 'Paraguai': '🇵🇾', 'Austrália': '🇦🇺', 'Turquia': '🇹🇷',
-  'Alemanha': '🇩🇪', 'Curaçau': '🇨🇼', 'Costa do Marfim': '🇨🇮', 'Equador': '🇪🇨',
-  'Holanda': '🇳🇱', 'Japão': '🇯🇵', 'Suécia': '🇸🇪', 'Tunísia': '🇹🇳',
-  'Bélgica': '🇧🇪', 'Egito': '🇪🇬', 'Irã': '🇮🇷', 'Nova Zelândia': '🇳🇿',
-  'Espanha': '🇪🇸', 'Cabo Verde': '🇨🇻', 'Arábia Saudita': '🇸🇦', 'Uruguai': '🇺🇾',
-  'França': '🇫🇷', 'Senegal': '🇸🇳', 'Iraque': '🇮🇶', 'Noruega': '🇳🇴',
-  'Argentina': '🇦🇷', 'Argélia': '🇩🇿', 'Áustria': '🇦🇹', 'Jordânia': '🇯🇴',
-  'Portugal': '🇵🇹', 'Rep. Congo': '🇨🇩', 'Uzbequistão': '🇺🇿', 'Colômbia': '🇨🇴',
-  'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'Croácia': '🇭🇷', 'Gana': '🇬🇭', 'Panamá': '🇵🇦',
+// ISO 3166-1 alpha-2 codes para flagcdn.com
+const COUNTRY_CODES = {
+  'México': 'mx', 'África do Sul': 'za', 'Coreia do Sul': 'kr', 'Rep. Tcheca': 'cz',
+  'Canadá': 'ca', 'Bósnia': 'ba', 'Qatar': 'qa', 'Suíça': 'ch',
+  'Brasil': 'br', 'Marrocos': 'ma', 'Haiti': 'ht', 'Escócia': 'gb-sct',
+  'EUA': 'us', 'Paraguai': 'py', 'Austrália': 'au', 'Turquia': 'tr',
+  'Alemanha': 'de', 'Curaçau': 'cw', 'Costa do Marfim': 'ci', 'Equador': 'ec',
+  'Holanda': 'nl', 'Japão': 'jp', 'Suécia': 'se', 'Tunísia': 'tn',
+  'Bélgica': 'be', 'Egito': 'eg', 'Irã': 'ir', 'Nova Zelândia': 'nz',
+  'Espanha': 'es', 'Cabo Verde': 'cv', 'Arábia Saudita': 'sa', 'Uruguai': 'uy',
+  'França': 'fr', 'Senegal': 'sn', 'Iraque': 'iq', 'Noruega': 'no',
+  'Argentina': 'ar', 'Argélia': 'dz', 'Áustria': 'at', 'Jordânia': 'jo',
+  'Portugal': 'pt', 'Rep. Congo': 'cd', 'Uzbequistão': 'uz', 'Colômbia': 'co',
+  'Inglaterra': 'gb-eng', 'Croácia': 'hr', 'Gana': 'gh', 'Panamá': 'pa',
 }
 
-function flag(team) { return FLAGS[team] ? FLAGS[team] + ' ' : '' }
+function FlagImg({ team, size = 28 }) {
+  const code = COUNTRY_CODES[team]
+  if (!code) return <span style={{ fontSize: size * 0.7, lineHeight: 1 }}>🏳</span>
+  return (
+    <img
+      src={'https://flagcdn.com/w40/' + code + '.png'}
+      alt={team}
+      style={{ width: size, height: 'auto', borderRadius: 2, display: 'block' }}
+    />
+  )
+}
 
 function Spinner() {
   return (
@@ -39,7 +47,7 @@ function Spinner() {
 
 function Toast({ msg, type, onClose }) {
   useEffect(() => { const t = setTimeout(onClose, 4000); return () => clearTimeout(t) }, [onClose])
-  const colors = { success: '#dcfce7', error: '#fee2e2', info: '#dbeafe' }
+  const colors  = { success: '#dcfce7', error: '#fee2e2', info: '#dbeafe' }
   const borders = { success: '#86efac', error: '#fca5a5', info: '#93c5fd' }
   const icons   = { success: '✅', error: '❌', info: 'ℹ️' }
   return (
@@ -133,6 +141,62 @@ function sortedGroupKeys(grouped) {
 function phaseLabel(phase) {
   const map = { group: 'Fase de Grupos', r32: 'Oitavas', r16: 'Oitavas de Final', qf: 'Quartas de Final', sf: 'Semifinal', final: 'Final' }
   return map[phase] || phase
+}
+
+// ─── Tabs com scroll e indicador ─────────────────────────────────────────────
+
+function GroupTabs({ groupKeys, activeGroup, onSelect }) {
+  const [canScrollRight, setCanScrollRight] = useState(true)
+  const ref = useCallback(node => {
+    if (!node) return
+    function check() {
+      setCanScrollRight(node.scrollLeft + node.clientWidth < node.scrollWidth - 4)
+    }
+    check()
+    node.addEventListener('scroll', check)
+    window.addEventListener('resize', check)
+  }, [])
+
+  return (
+    <div style={{ position: 'relative', marginBottom: 16 }}>
+      <div
+        ref={ref}
+        style={{
+          display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4,
+          scrollbarWidth: 'none', msOverflowStyle: 'none',
+        }}
+      >
+        <style>{'div::-webkit-scrollbar { display: none }'}</style>
+        {groupKeys.map(key => (
+          <button
+            key={key}
+            onClick={() => onSelect(key)}
+            style={{
+              flexShrink: 0, padding: '6px 14px', borderRadius: 20,
+              fontSize: 12, fontWeight: 600, border: 'none',
+              background: activeGroup === key ? BLUE : '#f3f4f6',
+              color: activeGroup === key ? '#fff' : '#374151',
+              cursor: 'pointer', whiteSpace: 'nowrap',
+            }}
+          >
+            {key}
+          </button>
+        ))}
+      </div>
+      {/* Fade direito indicando mais conteúdo */}
+      {canScrollRight && (
+        <div style={{
+          position: 'absolute', right: 0, top: 0, bottom: 4,
+          width: 48, pointerEvents: 'none',
+          background: 'linear-gradient(to right, transparent, #f9fafb 80%)',
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+          paddingRight: 4,
+        }}>
+          <span style={{ fontSize: 14, color: '#9ca3af' }}>›</span>
+        </div>
+      )}
+    </div>
+  )
 }
 
 // ─── View: Home ──────────────────────────────────────────────────────────────
@@ -489,27 +553,12 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
       </button>
       <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>📝 Meus Palpites</div>
       <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>
-        Salvo automaticamente ao sair do campo. Palpites salvos ficam em verde.
+        Salvo automaticamente ao sair do campo · palpites salvos ficam em verde
       </div>
 
       {loading ? <Spinner /> : (
         <div>
-          <div style={{
-            display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2,
-            marginBottom: 16, scrollbarWidth: 'none',
-          }}>
-            {groupKeys.map(key => (
-              <button key={key} onClick={() => setActiveGroup(key)} style={{
-                flexShrink: 0, padding: '6px 12px', borderRadius: 20,
-                fontSize: 12, fontWeight: 600, border: 'none',
-                background: activeGroup === key ? BLUE : '#f3f4f6',
-                color: activeGroup === key ? '#fff' : '#374151',
-                cursor: 'pointer',
-              }}>
-                {key}
-              </button>
-            ))}
-          </div>
+          <GroupTabs groupKeys={groupKeys} activeGroup={activeGroup} onSelect={setActiveGroup} />
 
           {activeGroup && (grouped[activeGroup] || []).map(match => {
             const pred = myPreds[match.id] || {}
@@ -522,19 +571,23 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
                 padding: '12px 14px', marginBottom: 10,
                 opacity: isFinished ? 0.7 : 1,
               }}>
-                <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 8 }}>
+                <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 10 }}>
                   {formatDate(match.match_date)}
                   {match.venue && ' · ' + match.venue.split(',')[0]}
                   {isFinished && <span style={{ color: '#ef4444', marginLeft: 6 }}>● Encerrado</span>}
                   {match.status === 'live' && <span style={{ color: '#f59e0b', marginLeft: 6 }}>● Ao vivo</span>}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ flex: 1, textAlign: 'right' }}>
-                    <div style={{ fontSize: 20, lineHeight: 1 }}>{FLAGS[match.home_team] || '🏳️'}</div>
-                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 2, color: '#111827' }}>{match.home_team}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {/* Time da casa */}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <FlagImg team={match.home_team} size={32} />
+                    <div style={{ fontWeight: 600, fontSize: 11, color: '#111827', textAlign: 'center', lineHeight: 1.2 }}>
+                      {match.home_team}
+                    </div>
                   </div>
 
+                  {/* Inputs */}
                   <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0 }}>
                     <input
                       type="number" min={0} max={30}
@@ -546,13 +599,13 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
                         if (e.target.value !== '' && a !== undefined) savePrediction(match.id, e.target.value, a)
                       }}
                       style={{
-                        width: 44, height: 40, textAlign: 'center', fontSize: 20,
+                        width: 44, height: 44, textAlign: 'center', fontSize: 20,
                         fontWeight: 700, borderRadius: 8,
-                        border: '1.5px solid ' + (hasPred ? '#86efac' : '#e5e7eb'),
-                        background: hasPred ? '#f0fdf4' : '#fff', outline: 'none',
+                        border: '1.5px solid ' + (hasPred ? '#86efac' : '#d1d5db'),
+                        background: hasPred ? '#f0fdf4' : '#f9fafb', outline: 'none',
                       }}
                     />
-                    <span style={{ fontSize: 16, color: '#9ca3af', fontWeight: 700 }}>–</span>
+                    <span style={{ fontSize: 18, color: '#9ca3af', fontWeight: 700 }}>–</span>
                     <input
                       type="number" min={0} max={30}
                       value={pred.a !== undefined ? pred.a : ''}
@@ -563,27 +616,30 @@ function PredictionsView({ member, groupId, onBack, setToast }) {
                         if (e.target.value !== '' && h !== undefined) savePrediction(match.id, h, e.target.value)
                       }}
                       style={{
-                        width: 44, height: 40, textAlign: 'center', fontSize: 20,
+                        width: 44, height: 44, textAlign: 'center', fontSize: 20,
                         fontWeight: 700, borderRadius: 8,
-                        border: '1.5px solid ' + (hasPred ? '#86efac' : '#e5e7eb'),
-                        background: hasPred ? '#f0fdf4' : '#fff', outline: 'none',
+                        border: '1.5px solid ' + (hasPred ? '#86efac' : '#d1d5db'),
+                        background: hasPred ? '#f0fdf4' : '#f9fafb', outline: 'none',
                       }}
                     />
                   </div>
 
-                  <div style={{ flex: 1, textAlign: 'left' }}>
-                    <div style={{ fontSize: 20, lineHeight: 1 }}>{FLAGS[match.away_team] || '🏳️'}</div>
-                    <div style={{ fontWeight: 600, fontSize: 12, marginTop: 2, color: '#111827' }}>{match.away_team}</div>
+                  {/* Time visitante */}
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <FlagImg team={match.away_team} size={32} />
+                    <div style={{ fontWeight: 600, fontSize: 11, color: '#111827', textAlign: 'center', lineHeight: 1.2 }}>
+                      {match.away_team}
+                    </div>
                   </div>
                 </div>
 
                 {saving[match.id] && (
-                  <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 4 }}>Salvando…</div>
+                  <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 6 }}>Salvando…</div>
                 )}
 
                 {isFinished && match.home_score !== null && (
-                  <div style={{ fontSize: 12, color: '#6b7280', textAlign: 'center', marginTop: 6 }}>
-                    Resultado: {FLAGS[match.home_team]} {match.home_score} – {match.away_score} {FLAGS[match.away_team]}
+                  <div style={{ fontSize: 12, color: '#6b7280', textAlign: 'center', marginTop: 8, paddingTop: 8, borderTop: '1px solid #f3f4f6' }}>
+                    Resultado: {match.home_score} – {match.away_score}
                     {pred.h !== undefined && (
                       <span style={{ marginLeft: 8, fontWeight: 700, color: GREEN }}>
                         {pred.h === match.home_score && pred.a === match.away_score ? '🎯 +3 pts' :
