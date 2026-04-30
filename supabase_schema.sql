@@ -112,6 +112,24 @@ CREATE INDEX IF NOT EXISTS idx_bc_rate_alerts_email   ON bc_rate_alerts(email);
 ALTER TABLE bc_rate_alerts ENABLE ROW LEVEL SECURITY;
 
 -- ───────────────────────────────────────────────────────────────
+-- Tracking de cliques em links de afiliado
+-- ───────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS bc_affiliate_clicks (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  provider    TEXT NOT NULL,              -- 'wise','remitly','western_union','moneygram','paysend','flight_kayak' etc
+  amount_usd  NUMERIC(10,2),              -- valor que o usuário pretendia enviar
+  ip_address  TEXT,
+  user_agent  TEXT,
+  referer     TEXT,
+  clicked_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_bc_affiliate_clicks_provider   ON bc_affiliate_clicks(provider);
+CREATE INDEX IF NOT EXISTS idx_bc_affiliate_clicks_clicked_at ON bc_affiliate_clicks(clicked_at);
+
+-- Sem RLS — inserção apenas via service key no backend
+
+-- ───────────────────────────────────────────────────────────────
 -- Row Level Security — bc_businesses (leitura pública dos aprovados)
 -- ───────────────────────────────────────────────────────────────
 ALTER TABLE bc_businesses ENABLE ROW LEVEL SECURITY;

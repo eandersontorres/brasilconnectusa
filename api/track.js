@@ -4,7 +4,7 @@
  * Body: { provider: string, amount_usd?: number }
  */
 
-const { createClient } = await import('@supabase/supabase-js')
+import { createClient } from '@supabase/supabase-js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
