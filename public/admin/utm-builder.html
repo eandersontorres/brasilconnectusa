@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin · UTM Builder · BrasilConnect USA</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    body { background: var(--paper); }
+    .topbar { background: var(--paper-elevated); border-bottom: 1px solid var(--line); padding: 18px 24px; }
+    .topbar .brand { display: flex; align-items: center; gap: 14px; max-width: 1200px; margin: 0 auto; }
+    .topbar .brand img { height: 36px; }
+    .topbar .nav-links { display: flex; gap: 14px; margin-left: 8px; }
+    .topbar .nav-links a { font-size: 13px; color: var(--ink-soft); text-decoration: none; }
+    .topbar .nav-links a.active { color: var(--brand-green); font-weight: 600; }
+    .topbar .meta { margin-left: auto; font-size: 13px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; }
+
+    .container-narrow { max-width: 760px; margin: 32px auto; padding: 0 24px; }
+
+    .form-grid { display: grid; gap: 16px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; color: var(--ink-muted); margin-bottom: 6px; display: block; }
+    input, select, textarea {
+      width: 100%; padding: 11px 14px; font-size: 14px;
+      border: 1px solid var(--line); border-radius: var(--r-md);
+      box-sizing: border-box; font-family: inherit; outline: none;
+      background: var(--paper); color: var(--ink);
+    }
+    input:focus, select:focus { border-color: var(--brand-gold); }
+
+    .result-box {
+      background: var(--paper-elevated);
+      border: 1px solid var(--brand-gold);
+      border-radius: var(--r-md);
+      padding: 22px 24px;
+      margin-top: 24px;
+    }
+    .result-box .label { text-transform: uppercase; letter-spacing: 0.18em; font-size: 11px; font-weight: 600; color: var(--brand-gold-dark); margin-bottom: 10px; }
+    .result-box .url-out { font-family: 'SF Mono', Menlo, Monaco, monospace; font-size: 13px; color: var(--ink); background: var(--paper); padding: 12px 14px; border-radius: var(--r-sm); border: 1px solid var(--line); word-break: break-all; line-height: 1.5; }
+    .actions { display: flex; gap: 8px; margin-top: 14px; }
+    .actions button { font-family: inherit; font-size: 14px; padding: 10px 18px; border-radius: var(--r-md); cursor: pointer; font-weight: 600; }
+    .btn-copy { background: var(--ink); color: var(--paper); border: none; }
+    .btn-copy:hover { background: var(--brand-green); }
+    .btn-qr { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    .btn-qr:hover { border-color: var(--brand-gold); }
+
+    .preset-btn {
+      display: inline-block;
+      padding: 6px 12px;
+      background: var(--paper-elevated);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--ink-soft);
+      cursor: pointer;
+      margin: 0 6px 6px 0;
+      font-family: inherit;
+    }
+    .preset-btn:hover { border-color: var(--brand-gold); color: var(--ink); }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <img src="/img/logo.svg" alt="BrasilConnect USA" />
+      <div class="nav-links">
+        <a href="/admin/mindmap">Mind Map</a>
+        <a href="/admin/waitlist">Lista de espera</a>
+        <a href="/admin/analytics">Analytics</a>
+        <a href="/admin/utm-builder" class="active">UTM Builder</a>
+      </div>
+      <div class="meta">Admin Console</div>
+    </div>
+  </div>
+
+  <main class="container-narrow">
+    <div class="eyebrow" style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-bottom:12px;">CRIAR LINK COM UTM</div>
+    <h1 style="font-family:var(--font-display);margin:0 0 8px 0;">UTM Builder</h1>
+    <p class="muted" style="margin-bottom:24px;">Gere links UTM consistentes para campanhas pagas, posts em redes sociais e emails. Os parâmetros vão automaticamente para o Google Analytics e nossa view <code>bc_clicks_by_source</code>.</p>
+
+    <div style="margin-bottom:18px;">
+      <label>Atalhos de campanha</label>
+      <div>
+        <button class="preset-btn" data-preset="meta_remessas">Meta · Remessas</button>
+        <button class="preset-btn" data-preset="meta_custo">Meta · Custo de vida</button>
+        <button class="preset-btn" data-preset="meta_ugc">Meta · UGC stories</button>
+        <button class="preset-btn" data-preset="google_cnh">Google · Guia CNH</button>
+        <button class="preset-btn" data-preset="google_conta">Google · Conta sem SSN</button>
+        <button class="preset-btn" data-preset="reddit_boston">Reddit · Boston</button>
+        <button class="preset-btn" data-preset="email_drip">Email Drip</button>
+        <button class="preset-btn" data-preset="whatsapp_share">WhatsApp share</button>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div>
+        <label for="url">URL base do site</label>
+        <select id="url">
+          <option value="https://brasilconnectusa.com/">/ (home)</option>
+          <option value="https://brasilconnectusa.com/custo-de-vida/">/custo-de-vida/</option>
+          <option value="https://brasilconnectusa.com/custo-de-vida/austin-tx/">Austin, TX</option>
+          <option value="https://brasilconnectusa.com/custo-de-vida/miami-fl/">Miami, FL</option>
+          <option value="https://brasilconnectusa.com/custo-de-vida/boston-ma/">Boston, MA</option>
+          <option value="https://brasilconnectusa.com/custo-de-vida/houston-tx/">Houston, TX</option>
+          <option value="https://brasilconnectusa.com/custo-de-vida/orlando-fl/">Orlando, FL</option>
+          <option value="https://brasilconnectusa.com/custo-de-vida/new-york-ny/">New York, NY</option>
+          <option value="https://brasilconnectusa.com/guias/">/guias/</option>
+          <option value="https://brasilconnectusa.com/guias/cnh/">Guia CNH</option>
+          <option value="https://brasilconnectusa.com/guias/conta-bancaria/">Guia Conta sem SSN</option>
+          <option value="https://brasilconnectusa.com/guias/itin/">Guia ITIN</option>
+          <option value="https://brasilconnectusa.com/guias/abrir-llc/">Guia Abrir LLC</option>
+          <option value="https://brasilconnectusa.com/guia-chegada/">Guia de Chegada</option>
+          <option value="https://brasilconnectusa.com/indique/">/indique/</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div>
+          <label for="source">utm_source (canal)</label>
+          <select id="source">
+            <option value="meta">meta (Facebook/Instagram)</option>
+            <option value="google">google</option>
+            <option value="reddit">reddit</option>
+            <option value="instagram">instagram</option>
+            <option value="whatsapp">whatsapp</option>
+            <option value="email_drip">email_drip</option>
+            <option value="newsletter">newsletter</option>
+            <option value="tiktok">tiktok</option>
+            <option value="pinterest">pinterest</option>
+            <option value="custom">— outro —</option>
+          </select>
+        </div>
+        <div>
+          <label for="medium">utm_medium (tipo)</label>
+          <select id="medium">
+            <option value="cpc">cpc (paid click)</option>
+            <option value="cpm">cpm (impressões)</option>
+            <option value="social">social (orgânico)</option>
+            <option value="email">email</option>
+            <option value="referral">referral</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label for="campaign">utm_campaign (nome da campanha — snake_case)</label>
+        <input id="campaign" type="text" placeholder="ex: q2_remessas_video" />
+      </div>
+
+      <div>
+        <label for="content">utm_content (variante do criativo — opcional)</label>
+        <input id="content" type="text" placeholder="ex: video_a_392reais" />
+      </div>
+
+      <div>
+        <label for="term">utm_term (keyword — apenas Google Ads)</label>
+        <input id="term" type="text" placeholder="opcional, só pra Google Ads" />
+      </div>
+    </div>
+
+    <div class="result-box">
+      <div class="label">URL FINAL</div>
+      <div class="url-out" id="urlOut">https://brasilconnectusa.com/</div>
+      <div class="actions">
+        <button class="btn-copy" id="copyBtn">Copiar</button>
+        <button class="btn-qr" id="qrBtn">Gerar QR Code</button>
+      </div>
+      <div id="qrWrap" style="margin-top:16px;"></div>
+    </div>
+
+    <h2 style="font-family:var(--font-display);margin-top:40px;">Convenção</h2>
+    <ul style="color:var(--ink-soft);font-size:14px;line-height:1.7;padding-left:20px;">
+      <li><strong>utm_source:</strong> sempre minúsculo, sem acento. Use "meta" não "Facebook".</li>
+      <li><strong>utm_campaign:</strong> snake_case com período + tema. Ex: <code>q2_remessas_video</code>, <code>q3_custo_vida_carrossel</code>.</li>
+      <li><strong>utm_content:</strong> use para variantes A/B. Ex: <code>video_a</code>, <code>video_b</code>, <code>carrossel_austin</code>.</li>
+      <li>Códigos compridos demais quebram em redes sociais — use shortener (bit.ly) se passar de 80 chars.</li>
+    </ul>
+  </main>
+
+  <script>
+    const PRESETS = {
+      meta_remessas:   { source: 'meta', medium: 'cpc', campaign: 'q2_remessas_video', content: 'video_a_392reais', url: 'https://brasilconnectusa.com/' },
+      meta_custo:      { source: 'meta', medium: 'cpc', campaign: 'q2_custo_vida', content: 'carrossel_austin', url: 'https://brasilconnectusa.com/custo-de-vida/austin-tx/' },
+      meta_ugc:        { source: 'meta', medium: 'cpc', campaign: 'q2_ugc_stories', content: 'depoimento_chegada', url: 'https://brasilconnectusa.com/guia-chegada/' },
+      google_cnh:      { source: 'google', medium: 'cpc', campaign: 'q2_burocracia', content: 'cnh_keywords', url: 'https://brasilconnectusa.com/guias/cnh/' },
+      google_conta:    { source: 'google', medium: 'cpc', campaign: 'q2_burocracia', content: 'conta_keywords', url: 'https://brasilconnectusa.com/guias/conta-bancaria/' },
+      reddit_boston:   { source: 'reddit', medium: 'social', campaign: 'q2_custo_vida', content: 'r_boston_post', url: 'https://brasilconnectusa.com/custo-de-vida/boston-ma/' },
+      email_drip:      { source: 'email_drip', medium: 'email', campaign: 'drip_d3_erros', content: 'cta_guias', url: 'https://brasilconnectusa.com/guias/' },
+      whatsapp_share:  { source: 'whatsapp', medium: 'social', campaign: 'organic_share', content: 'usuario_compartilhou', url: 'https://brasilconnectusa.com/' },
+    }
+
+    const $ = id => document.getElementById(id)
+
+    function build() {
+      const url = $('url').value
+      const params = new URLSearchParams()
+      if ($('source').value)   params.set('utm_source',   $('source').value)
+      if ($('medium').value)   params.set('utm_medium',   $('medium').value)
+      if ($('campaign').value) params.set('utm_campaign', $('campaign').value.trim().toLowerCase().replace(/\s+/g, '_'))
+      if ($('content').value)  params.set('utm_content',  $('content').value.trim().toLowerCase().replace(/\s+/g, '_'))
+      if ($('term').value)     params.set('utm_term',     $('term').value.trim().toLowerCase().replace(/\s+/g, '_'))
+      const qs = params.toString()
+      const sep = url.includes('?') ? '&' : '?'
+      $('urlOut').textContent = qs ? url + sep + qs : url
+    }
+
+    ['url','source','medium','campaign','content','term'].forEach(id => {
+      $(id).addEventListener('input', build)
+      $(id).addEventListener('change', build)
+    })
+
+    document.querySelectorAll('.preset-btn').forEach(btn => {
+      btn.onclick = () => {
+        const p = PRESETS[btn.dataset.preset]
+        if (!p) return
+        $('source').value = p.source
+        $('medium').value = p.medium
+        $('campaign').value = p.campaign
+        $('content').value = p.content
+        $('url').value = p.url
+        build()
+      }
+    })
+
+    $('copyBtn').onclick = async () => {
+      try {
+        await navigator.clipboard.writeText($('urlOut').textContent)
+        $('copyBtn').textContent = '✓ Copiado'
+        setTimeout(() => { $('copyBtn').textContent = 'Copiar' }, 2000)
+      } catch (e) {
+        const r = document.createRange()
+        r.selectNode($('urlOut'))
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(r)
+        document.execCommand('copy')
+      }
+    }
+
+    $('qrBtn').onclick = () => {
+      const url = $('urlOut').textContent
+      const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(url) + '&size=240x240&color=1A1F1C&bgcolor=FAF7F0'
+      $('qrWrap').innerHTML = `<img src="${qrUrl}" alt="QR Code" style="border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--paper);" />`
+    }
+
+    build()
+  </script>
+</body>
+</html>

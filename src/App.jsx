@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import BolaoScreen from './BolaoScreen'
+import NegociosScreen from './NegociosScreen'
+import AgendaApp from './AgendaApp'
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 
@@ -7,7 +9,7 @@ const PROVIDERS = [
   {
     id: 'wise',
     name: 'Wise',
-    emoji: '🟢',
+    logoDomain: 'wise.com',
     color: '#00b9a5',
     fee_pct: 0.0067,
     fee_fixed: 0,       // taxa fixa em USD
@@ -23,7 +25,7 @@ const PROVIDERS = [
   {
     id: 'remitly',
     name: 'Remitly',
-    emoji: '🔵',
+    logoDomain: 'remitly.com',
     color: '#1565c0',
     fee_pct: 0.0,
     fee_fixed: 0,
@@ -39,7 +41,7 @@ const PROVIDERS = [
   {
     id: 'western_union',
     name: 'Western Union',
-    emoji: '🟡',
+    logoDomain: 'westernunion.com',
     color: '#f5a623',
     fee_pct: 0.0,
     fee_fixed: 0,
@@ -55,7 +57,7 @@ const PROVIDERS = [
   {
     id: 'moneygram',
     name: 'MoneyGram',
-    emoji: '🔴',
+    logoDomain: 'moneygram.com',
     color: '#d62b2b',
     fee_pct: 0.0,
     fee_fixed: 1.99,    // taxa fixa típica
@@ -71,7 +73,7 @@ const PROVIDERS = [
   {
     id: 'paysend',
     name: 'PaySend',
-    emoji: '🟣',
+    logoDomain: 'paysend.com',
     color: '#6d28d9',
     fee_pct: 0.0,
     fee_fixed: 2.0,     // taxa fixa ~$2
@@ -105,6 +107,37 @@ const FLIGHT_DESTINATIONS = [
   { code: 'BEL', city: 'Belém' },
   { code: 'MAO', city: 'Manaus' },
 ]
+
+// ─── Logo do parceiro (Clearbit + fallback) ────────────────────────────────────
+
+function ProviderLogo({ provider, size = 28 }) {
+  const [errored, setErrored] = useState(false)
+  const initials = provider.name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+  if (errored || !provider.logoDomain) {
+    return (
+      <span style={{
+        width: size, height: size, display: 'inline-flex',
+        alignItems: 'center', justifyContent: 'center',
+        background: '#F1ECDF', color: '#8C6D3D',
+        fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 700,
+        fontSize: size * 0.45, borderRadius: size * 0.18,
+        border: '1px solid #E5E1D6', flexShrink: 0,
+      }}>{initials}</span>
+    )
+  }
+  return (
+    <img
+      src={`https://logo.clearbit.com/${provider.logoDomain}`}
+      alt={provider.name}
+      onError={() => setErrored(true)}
+      style={{
+        width: size, height: size, objectFit: 'contain',
+        background: '#FAF7F0', borderRadius: size * 0.18,
+        border: '1px solid #E5E1D6', padding: 4, flexShrink: 0,
+      }}
+    />
+  )
+}
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -203,20 +236,21 @@ function ProviderDetail({ provider, amount, midRate, isUSD, onClose, onSend }) {
         }} />
 
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-          <span style={{ fontSize: 28 }}>{provider.emoji}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <ProviderLogo provider={provider} size={40} />
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700 }}>{provider.name}</div>
-            <div style={{ fontSize: 12, color: '#6b7280' }}>{provider.speedIcon} {provider.speed}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#1A1F1C' }}>{provider.name}</div>
+            <div style={{ fontSize: 12, color: '#6B6E68' }}>{provider.speed}</div>
           </div>
           {provider.promo && (
             <div style={{
               marginLeft: 'auto',
-              background: '#fef3c7', color: '#92400e',
-              fontSize: 11, fontWeight: 700, padding: '4px 10px',
-              borderRadius: 20, border: '1px solid #fcd34d',
+              background: '#F5EFE0', color: '#8C6D3D',
+              fontSize: 10, fontWeight: 600, padding: '4px 10px',
+              borderRadius: 20, border: '1px solid #B89968',
+              textTransform: 'uppercase', letterSpacing: '0.05em',
             }}>
-              🎁 {provider.promo}
+              {provider.promo}
             </div>
           )}
         </div>
@@ -251,8 +285,8 @@ function ProviderDetail({ provider, amount, midRate, isUSD, onClose, onSend }) {
             marginTop: 10, paddingTop: 10,
             borderTop: '2px solid #e5e7eb',
           }}>
-            <span style={{ fontSize: 14, fontWeight: 700 }}>Destinatário recebe</span>
-            <span style={{ fontSize: 18, fontWeight: 800, color: provider.color }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#4B4F4D' }}>Destinatário recebe</span>
+            <span style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#1A1F1C' }}>
               {fmtBRL(brlAmount)}
             </span>
           </div>
@@ -261,9 +295,10 @@ function ProviderDetail({ provider, amount, midRate, isUSD, onClose, onSend }) {
         <button
           onClick={() => { onSend(provider); onClose() }}
           style={{
-            width: '100%', padding: '14px 0', borderRadius: 12,
-            background: provider.color, color: '#fff',
-            fontSize: 15, fontWeight: 700, border: 'none',
+            width: '100%', padding: '14px 0', borderRadius: 10,
+            background: '#1A1F1C', color: '#FAF7F0',
+            fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer',
+            letterSpacing: '0.01em',
           }}
         >
           Enviar com {provider.name} →
@@ -472,8 +507,8 @@ function RemessasScreen({ affiliateLinks }) {
               <div
                 key={p.id}
                 style={{
-                  background: '#fff',
-                  border: isBest ? `2px solid ${p.color}` : '1.5px solid #e5e7eb',
+                  background: '#FFFFFF',
+                  border: isBest ? '1.5px solid #B89968' : '1px solid #E5E1D6',
                   borderRadius: 14, padding: '14px 16px',
                   position: 'relative',
                   opacity: isInvalid ? 0.5 : 1,
@@ -482,10 +517,11 @@ function RemessasScreen({ affiliateLinks }) {
                 {isBest && !isInvalid && (
                   <div style={{
                     position: 'absolute', top: -10, left: 14,
-                    background: p.color, color: '#fff',
-                    fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
+                    background: '#1A1F1C', color: '#FAF7F0',
+                    fontSize: 9, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+                    textTransform: 'uppercase', letterSpacing: '0.1em',
                   }}>
-                    MELHOR OPÇÃO
+                    Melhor opção
                   </div>
                 )}
 
@@ -493,53 +529,53 @@ function RemessasScreen({ affiliateLinks }) {
                 {p.promo && (
                   <div style={{
                     position: 'absolute', top: -10, right: 14,
-                    background: '#fef3c7', color: '#92400e',
-                    fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 20,
-                    border: '1px solid #fcd34d',
+                    background: '#F5EFE0', color: '#8C6D3D',
+                    fontSize: 9, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
+                    border: '1px solid #B89968',
+                    textTransform: 'uppercase', letterSpacing: '0.05em',
                   }}>
-                    🎁 {p.promo}
+                    {p.promo}
                   </div>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                      <span style={{ fontSize: 18 }}>{p.emoji}</span>
-                      <span style={{ fontSize: 15, fontWeight: 700 }}>{p.name}</span>
-                    </div>
-                    <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 4 }}>{p.label_fee}</div>
-                    <div style={{ fontSize: 11, color: '#6b7280' }}>
-                      {p.speedIcon} {p.speed}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                  <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                    <ProviderLogo provider={p} size={36} />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: '#1A1F1C', marginBottom: 2 }}>{p.name}</div>
+                      <div style={{ fontSize: 11, color: '#6B6E68', marginBottom: 4 }}>{p.label_fee}</div>
+                      <div style={{ fontSize: 11, color: '#8C8E89' }}>{p.speed}</div>
                     </div>
                   </div>
 
                   <div style={{ textAlign: 'right' }}>
                     {isUSD ? (
                       <>
-                        <div style={{ fontSize: 20, fontWeight: 800, color: p.color }}>
+                        <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#1A1F1C' }}>
                           {isInvalid ? '—' : fmtBRL(received)}
                         </div>
-                        <div style={{ fontSize: 11, color: '#9ca3af' }}>recebido no Brasil</div>
+                        <div style={{ fontSize: 10, color: '#8C8E89', textTransform: 'uppercase', letterSpacing: '0.06em' }}>recebido no Brasil</div>
                       </>
                     ) : (
                       <>
-                        <div style={{ fontSize: 20, fontWeight: 800, color: p.color }}>
+                        <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#1A1F1C' }}>
                           {isInvalid ? '—' : fmtUSD(sendUsd)}
                         </div>
-                        <div style={{ fontSize: 11, color: '#9ca3af' }}>você envia</div>
+                        <div style={{ fontSize: 10, color: '#8C8E89', textTransform: 'uppercase', letterSpacing: '0.06em' }}>você envia</div>
                       </>
                     )}
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
                   {/* Detalhes */}
                   <button
                     onClick={() => setExpandedId(p.id)}
                     style={{
-                      padding: '9px 14px', borderRadius: 9,
-                      background: '#f3f4f6', color: '#374151',
-                      fontSize: 12, fontWeight: 600, border: 'none',
+                      padding: '9px 16px', borderRadius: 8,
+                      background: 'transparent', color: '#1A1F1C',
+                      fontSize: 12, fontWeight: 500, border: '1px solid #E5E1D6',
+                      cursor: 'pointer',
                     }}
                   >
                     Ver detalhes
@@ -549,10 +585,11 @@ function RemessasScreen({ affiliateLinks }) {
                     onClick={() => handleSend(p)}
                     disabled={isInvalid}
                     style={{
-                      flex: 1, padding: '9px 0', borderRadius: 9,
-                      background: isInvalid ? '#e5e7eb' : p.color,
-                      color: isInvalid ? '#9ca3af' : '#fff',
-                      fontSize: 13, fontWeight: 700, border: 'none',
+                      flex: 1, padding: '9px 0', borderRadius: 8,
+                      background: isInvalid ? '#E5E1D6' : '#1A1F1C',
+                      color: isInvalid ? '#8C8E89' : '#FAF7F0',
+                      fontSize: 13, fontWeight: 600, border: 'none', cursor: isInvalid ? 'default' : 'pointer',
+                      letterSpacing: '0.01em',
                     }}
                   >
                     Enviar com {p.name} →
@@ -935,10 +972,11 @@ function VoosScreen({ affiliateLinks }) {
 // ─── App Principal ──────────────────────────────────────────────────────────────
 
 const TABS = [
-  { id: 'remessas', icon: '💸', label: 'Remessas' },
-  { id: 'alertas',  icon: '🔔', label: 'Alertas' },
-  { id: 'voos',     icon: '✈️',  label: 'Voos' },
-  { id: 'bolao',    icon: '⚽',  label: 'Bolão' },
+  { id: 'remessas',  icon: '💸', label: 'Remessas' },
+  { id: 'voos',      icon: '✈️',  label: 'Voos' },
+  { id: 'agenda',    icon: '📅', label: 'Agenda' },
+  { id: 'negocios',  icon: '🏪', label: 'Negócios' },
+  { id: 'bolao',     icon: '⚽',  label: 'Bolão' },
 ]
 
 export default function App() {
@@ -953,29 +991,28 @@ export default function App() {
   }, [])
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100dvh' }}>
+    <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: '#FAF7F0' }}>
       {/* Top bar */}
       <div style={{
-        background: '#fff', borderBottom: '1px solid #e5e7eb',
-        padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 8,
+        background: '#FFFFFF', borderBottom: '1px solid #E5E1D6',
+        padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 8,
         position: 'sticky', top: 0, zIndex: 100,
       }}>
-        <span style={{ fontSize: 20 }}>🇧🇷</span>
-        <span style={{ fontSize: 16, fontWeight: 700, color: '#009c3b' }}>Brasil</span>
-        <span style={{ fontSize: 16, fontWeight: 700, color: '#002776' }}>Connect</span>
+        <img src="/img/logo.svg" alt="BrasilConnect USA" style={{ height: 44 }} />
       </div>
 
       {/* Content */}
-      <div style={{ flex: 1, padding: '16px' }}>
+      <div style={{ flex: 1, padding: tab === 'agenda' ? 0 : '16px' }}>
         {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
-        {tab === 'alertas'  && <AlertasScreen />}
         {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
+        {tab === 'agenda'   && <AgendaApp />}
+        {tab === 'negocios' && <NegociosScreen />}
         {tab === 'bolao'    && <BolaoScreen />}
       </div>
 
       {/* Bottom nav */}
       <div style={{
-        background: '#fff', borderTop: '1px solid #e5e7eb',
+        background: '#FFFFFF', borderTop: '1px solid #E5E1D6',
         display: 'flex', position: 'sticky', bottom: 0,
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}>
@@ -987,8 +1024,9 @@ export default function App() {
               flex: 1, padding: '10px 0 8px', border: 'none',
               background: 'transparent', display: 'flex',
               flexDirection: 'column', alignItems: 'center', gap: 3,
-              color: tab === t.id ? '#009c3b' : '#9ca3af',
-              borderTop: `2px solid ${tab === t.id ? '#009c3b' : 'transparent'}`,
+              cursor: 'pointer',
+              color: tab === t.id ? '#1A1F1C' : '#8C8E89',
+              borderTop: `2px solid ${tab === t.id ? '#0F5132' : 'transparent'}`,
               transition: 'color .15s',
             }}
           >

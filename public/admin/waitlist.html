@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin · Lista de Espera · BrasilConnect USA</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    body { background: var(--paper); }
+
+    .admin-topbar {
+      background: var(--paper-elevated);
+      border-bottom: 1px solid var(--line);
+      padding: 18px 24px;
+    }
+    .admin-topbar .brand {
+      display: flex; align-items: center; gap: 14px;
+      max-width: 1200px; margin: 0 auto;
+    }
+    .admin-topbar .brand img { height: 36px; }
+    .admin-topbar .meta {
+      margin-left: auto;
+      font-size: 13px;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 600;
+    }
+
+    .admin-container { max-width: 1100px; margin: 32px auto; padding: 0 24px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 24px; }
+
+    .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+    .toolbar input { flex: 1; min-width: 220px; padding: 10px 14px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r-md); font-family: inherit; background: var(--paper-elevated); color: var(--ink); outline: none; }
+    .toolbar input:focus { border-color: var(--brand-gold); }
+
+    .login-card {
+      max-width: 380px; margin: 80px auto;
+      background: var(--paper-elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      padding: 36px 28px;
+      text-align: center;
+    }
+    .login-card .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--brand-gold-dark);
+      margin-bottom: 12px;
+    }
+    .login-card h2 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; margin: 0 0 8px 0; }
+    .login-card p { font-size: 14px; color: var(--ink-muted); margin: 0 0 22px 0; }
+    .login-card input { width: 100%; padding: 12px 14px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r-md); margin-bottom: 12px; box-sizing: border-box; font-family: inherit; outline: none; background: var(--paper); }
+
+    .err-banner { background: #FBE9E7; color: #802020; border: 1px solid #E8C2BC; padding: 10px 14px; border-radius: var(--r-sm); font-size: 13px; margin-bottom: 14px; text-align: left; }
+
+    .empty { padding: 48px; text-align: center; color: var(--ink-muted); font-style: italic; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--brand-gold-soft);
+      color: var(--brand-gold-dark);
+      letter-spacing: 0.04em;
+    }
+    .small { font-size: 12px; color: var(--ink-muted); }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const STORAGE_KEY = 'bc_admin_secret';
+
+    const root = document.getElementById('app');
+    const getSecret = () => { try { return sessionStorage.getItem(STORAGE_KEY) || ''; } catch (e) { return ''; } };
+    const setSecret = s => { try { sessionStorage.setItem(STORAGE_KEY, s); } catch (e) {} };
+    const clearSecret = () => { try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {} };
+    const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+    function topbar(metaLine) {
+      return `
+        <div class="admin-topbar">
+          <div class="brand">
+            <img src="/img/logo.svg" alt="BrasilConnect USA" />
+            <div style="display:flex;gap:14px;margin-left:8px;flex-wrap:wrap;">
+              <a href="/admin/mindmap" style="font-size:13px;color:var(--ink-soft);text-decoration:none;">Mind Map</a>
+              <a href="/admin/waitlist" style="font-size:13px;color:var(--brand-green);font-weight:600;text-decoration:none;">Lista de espera</a>
+              <a href="/admin/analytics" style="font-size:13px;color:var(--ink-soft);text-decoration:none;">Analytics</a>
+              <a href="/admin/utm-builder" style="font-size:13px;color:var(--ink-soft);text-decoration:none;">UTM Builder</a>
+            </div>
+            <div class="meta">${escapeHtml(metaLine)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLogin(errMsg) {
+      root.innerHTML = topbar('Admin · Acesso Restrito') + `
+        <div class="login-card">
+          <div class="eyebrow">ACESSO RESTRITO</div>
+          <h2>Painel da lista de espera</h2>
+          <p>Use o segredo administrativo (variável <code style="font-size:0.85rem;background:var(--paper-soft);padding:1px 6px;border-radius:4px;">ADMIN_SECRET</code>) para entrar.</p>
+          ${errMsg ? `<div class="err-banner">${escapeHtml(errMsg)}</div>` : ''}
+          <input id="secret" type="password" placeholder="ADMIN_SECRET" autocomplete="off" />
+          <button class="btn btn-primary" id="loginBtn" style="width:100%;">Entrar</button>
+        </div>
+      `;
+      document.getElementById('loginBtn').onclick = doLogin;
+      document.getElementById('secret').onkeydown = e => { if (e.key === 'Enter') doLogin(); };
+      setTimeout(() => document.getElementById('secret').focus(), 100);
+    }
+
+    async function doLogin() {
+      const v = document.getElementById('secret').value.trim();
+      if (!v) return;
+      setSecret(v);
+      await loadData();
+    }
+
+    async function loadData() {
+      const secret = getSecret();
+      if (!secret) return renderLogin();
+
+      root.innerHTML = topbar('Carregando…');
+
+      try {
+        const r = await fetch('/api/admin/waitlist?limit=500', { headers: { 'x-admin-secret': secret } });
+        if (r.status === 401) { clearSecret(); return renderLogin('Senha incorreta'); }
+        if (!r.ok) {
+          const data = await r.json().catch(() => ({}));
+          return renderLogin(data.error || 'Erro ao carregar');
+        }
+        const data = await r.json();
+        renderDashboard(data);
+      } catch (e) {
+        renderLogin('Erro de rede: ' + e.message);
+      }
+    }
+
+    function renderDashboard(data) {
+      const signups = data.signups || [];
+      const byCity = data.stats?.byCity || [];
+
+      const today = new Date();
+      const todayCount = signups.filter(s => new Date(s.created_at).toDateString() === today.toDateString()).length;
+      const last7 = signups.filter(s => Date.now() - new Date(s.created_at).getTime() < 7*24*3600*1000).length;
+      const distinctCities = new Set(signups.filter(s => s.city).map(s => s.city.toLowerCase())).size;
+
+      root.innerHTML = topbar(`Lista de Espera · ${data.total} cadastros`) + `
+        <div class="admin-container">
+          <div class="stats-row">
+            <div class="card-stat"><div class="label">TOTAL</div><div class="value">${data.total}</div></div>
+            <div class="card-stat"><div class="label">HOJE</div><div class="value">${todayCount}</div></div>
+            <div class="card-stat"><div class="label">7 DIAS</div><div class="value">${last7}</div></div>
+            <div class="card-stat"><div class="label">CIDADES</div><div class="value">${distinctCities}</div></div>
+          </div>
+
+          <div class="card">
+            <div class="toolbar">
+              <input id="filter" placeholder="Filtrar por email ou cidade…" />
+              <button class="btn btn-secondary" onclick="downloadCsv()">Baixar CSV</button>
+              <button class="btn btn-secondary" onclick="logout()">Sair</button>
+            </div>
+            <table class="data">
+              <thead>
+                <tr>
+                  <th style="width:48px;">#</th>
+                  <th>Email</th>
+                  <th>Cidade</th>
+                  <th>Fonte</th>
+                  <th>Quando</th>
+                </tr>
+              </thead>
+              <tbody id="rows">
+                ${signups.length === 0 ? '<tr><td colspan="5" class="empty">Nenhum cadastro ainda</td></tr>' : signups.map((s, i) => row(s, i)).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          ${byCity.length > 0 ? `
+          <div class="card" style="margin-top:24px;">
+            <h3 style="margin-top:0;font-family:var(--font-display);font-weight:600;">Top cidades</h3>
+            <table class="data">
+              <thead><tr><th>Cidade</th><th style="text-align:right;width:120px;">Cadastros</th></tr></thead>
+              <tbody>
+                ${byCity.slice(0, 10).map(c => `<tr><td>${escapeHtml(c.city)}</td><td style="text-align:right;">${c.total}</td></tr>`).join('')}
+              </tbody>
+            </table>
+          </div>` : ''}
+        </div>
+      `;
+
+      document.getElementById('filter').oninput = e => {
+        const q = e.target.value.toLowerCase();
+        const filtered = signups.filter(s => (s.email || '').toLowerCase().includes(q) || (s.city || '').toLowerCase().includes(q));
+        document.getElementById('rows').innerHTML = filtered.length === 0
+          ? '<tr><td colspan="5" class="empty">Nenhum resultado</td></tr>'
+          : filtered.map((s, i) => row(s, i)).join('');
+      };
+    }
+
+    function row(s, i) {
+      const when = new Date(s.created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+      return `
+        <tr>
+          <td class="small">${i + 1}</td>
+          <td>${escapeHtml(s.email)}</td>
+          <td>${escapeHtml(s.city || '—')}</td>
+          <td><span class="badge">${escapeHtml(s.source || '—')}</span></td>
+          <td class="small">${when}</td>
+        </tr>
+      `;
+    }
+
+    async function downloadCsv() {
+      const secret = getSecret();
+      const r = await fetch('/api/admin/waitlist?format=csv&limit=1000', { headers: { 'x-admin-secret': secret } });
+      if (!r.ok) return alert('Erro ao baixar');
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `waitlist_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function logout() { clearSecret(); renderLogin(); }
+
+    if (getSecret()) loadData(); else renderLogin();
+  </script>
+</body>
+</html>

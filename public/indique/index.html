@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Indique brasileiros e ganhe — BrasilConnect USA</title>
+  <meta name="description" content="Indique 3 brasileiros que se cadastrem e usem nossos parceiros — receba US$ 10 em gift card Amazon.">
+  <meta name="robots" content="noindex, follow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+
+  <style>
+    .code-display {
+      background: var(--paper-elevated);
+      border: 1px solid var(--brand-gold);
+      border-radius: var(--r-md);
+      padding: 28px 24px;
+      text-align: center;
+      margin: 24px 0;
+    }
+    .code-display .label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--brand-gold-dark);
+      margin-bottom: 12px;
+    }
+    .code-display .code {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: 0.04em;
+      margin: 0;
+    }
+    .code-display .copy-row {
+      display: flex;
+      gap: 8px;
+      max-width: 480px;
+      margin: 18px auto 0;
+    }
+    .code-display .copy-row input {
+      flex: 1;
+      padding: 11px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      font-family: inherit;
+      font-size: 13px;
+      background: var(--paper);
+      color: var(--ink);
+      outline: none;
+    }
+    .progress-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .progress-step {
+      background: var(--paper-elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      padding: 18px 16px;
+      text-align: center;
+    }
+    .progress-step.done { border-color: var(--brand-gold); background: var(--brand-gold-soft); }
+    .progress-step .num {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .progress-step .lbl {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-muted);
+      margin-top: 6px;
+      font-weight: 600;
+    }
+    .share-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .share-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 18px;
+      background: var(--paper-elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      color: var(--ink);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .share-btn:hover { border-color: var(--brand-gold); }
+    .share-btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .share-btn.primary:hover { background: var(--brand-green); border-color: var(--brand-green); }
+
+    .access-form {
+      max-width: 480px;
+      margin: 32px auto;
+      padding: 32px 28px;
+      background: var(--paper-elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+    }
+    .access-form input {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      margin-bottom: 12px;
+      box-sizing: border-box;
+      font-family: inherit;
+      outline: none;
+      background: var(--paper);
+    }
+    .err-box { background: #FBE9E7; color: #802020; border: 1px solid #E8C2BC; padding: 10px 14px; border-radius: var(--r-sm); font-size: 13px; margin: 12px 0; }
+    .ok-box { background: var(--brand-gold-soft); color: var(--brand-gold-dark); border: 1px solid var(--brand-gold); padding: 14px; border-radius: var(--r-md); margin: 16px 0; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <a class="logo" href="/"><img src="/img/logo.svg" alt="BrasilConnect USA" /></a>
+      <nav class="site-nav">
+        <a href="/custo-de-vida/">Custo de Vida</a>
+        <a href="/guias/">Guias</a>
+        <a href="/?preview=brasil2026">App</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container-narrow">
+        <div class="eyebrow">PROGRAMA DE INDICAÇÃO</div>
+        <h1>Indique brasileiros — receba US$ 10 em Amazon Gift Card</h1>
+        <p class="lede">Compartilhe o BrasilConnect com outros brasileiros nos EUA. Quando 3 deles usarem nossos parceiros recomendados (Lemonade, Mint, Mercury, MyUS, ZenBusiness ou Capital One), enviamos um gift card de US$ 10 da Amazon para o seu email.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="container-narrow">
+        <div id="content"></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container-narrow">
+        <h2>Como funciona</h2>
+        <ol style="padding-left:20px;color:var(--ink-soft);font-size:15px;line-height:1.8;">
+          <li><strong>Você compartilha seu link</strong> com brasileiros nos EUA via WhatsApp, Telegram ou redes sociais.</li>
+          <li><strong>Cada pessoa que clica</strong> e se cadastra na lista de espera conta como signup.</li>
+          <li><strong>Quando essa pessoa clica em um dos parceiros recomendados</strong> (Lemonade, Mint, Mercury, MyUS, ZenBusiness, Capital One), ela vira "qualificada".</li>
+          <li><strong>Após 3 indicações qualificadas</strong>, enviamos US$ 10 em Amazon Gift Card para o seu email em até 7 dias úteis.</li>
+        </ol>
+        <div class="callout">
+          <strong>Limite:</strong> Atualmente honramos até 100 gift cards por mês total. Em caso de fila, processamos por ordem de quem qualificou primeiro.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container-narrow">
+        <h2>Por que vale a pena indicar</h2>
+        <p>O BrasilConnect USA está sendo construído para ajudar brasileiros nos EUA a economizar e navegar a vida americana com menos atrito. Cada pessoa que você indica recebe os mesmos benefícios:</p>
+        <ul style="padding-left:20px;color:var(--ink-soft);font-size:15px;line-height:1.7;">
+          <li>Acesso ao guia de chegada nos EUA</li>
+          <li>Comparativo de custo de vida em 12 cidades</li>
+          <li>Guias passo a passo de CNH, ITIN, conta bancária e mais</li>
+          <li>Aviso prioritário quando o app completo lançar</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-logo"><img src="/img/logo.svg" alt="BrasilConnect USA" /></div>
+          <p class="footer-tagline">A plataforma para brasileiros nos EUA — feita por brasileiros, para brasileiros.</p>
+        </div>
+        <div>
+          <h4>Cidades</h4>
+          <a href="/custo-de-vida/austin-tx/">Austin, TX</a>
+          <a href="/custo-de-vida/miami-fl/">Miami, FL</a>
+          <a href="/custo-de-vida/boston-ma/">Boston, MA</a>
+        </div>
+        <div>
+          <h4>Guias</h4>
+          <a href="/guias/cnh/">CNH</a>
+          <a href="/guias/conta-bancaria/">Conta sem SSN</a>
+          <a href="/guia-chegada/">Guia de Chegada</a>
+        </div>
+        <div>
+          <h4>Sobre</h4>
+          <a href="/">Início</a>
+          <a href="/custo-de-vida/">Todas as cidades</a>
+          <a href="/guias/">Todos os guias</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        © 2026 BrasilConnect USA · Todos os direitos reservados.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const content = document.getElementById('content')
+    const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
+
+    function getEmailFromUrl() {
+      const u = new URL(window.location.href)
+      return u.searchParams.get('email') || ''
+    }
+
+    function renderAccessForm(errMsg) {
+      content.innerHTML = `
+        <div class="access-form">
+          <h3 style="font-family:var(--font-display);margin-top:0;">Ver meu progresso</h3>
+          <p class="muted" style="font-size:14px;">Digite o email com que você se cadastrou na lista de espera.</p>
+          ${errMsg ? `<div class="err-box">${escapeHtml(errMsg)}</div>` : ''}
+          <input id="email" type="email" placeholder="seu@email.com" />
+          <button class="btn btn-primary" id="loadBtn" style="width:100%;">Ver meu código →</button>
+          <p class="muted" style="font-size:12px;margin-top:14px;text-align:center;">
+            Ainda não está na lista de espera? <a href="/">Cadastre-se aqui primeiro.</a>
+          </p>
+        </div>
+      `
+      document.getElementById('loadBtn').onclick = () => loadStatus()
+      document.getElementById('email').onkeydown = e => { if (e.key === 'Enter') loadStatus() }
+      const pre = getEmailFromUrl()
+      if (pre) document.getElementById('email').value = pre
+      setTimeout(() => document.getElementById('email').focus(), 80)
+    }
+
+    async function loadStatus(emailArg) {
+      const email = (emailArg || document.getElementById('email')?.value || getEmailFromUrl()).trim()
+      if (!email || !email.includes('@')) {
+        return renderAccessForm('Email inválido')
+      }
+
+      content.innerHTML = '<p class="muted" style="text-align:center;padding:32px;">Carregando…</p>'
+
+      try {
+        const r = await fetch('/api/referral/status?email=' + encodeURIComponent(email))
+        if (r.status === 404) {
+          return renderAccessForm('Email não encontrado. Cadastre-se primeiro na lista de espera.')
+        }
+        if (!r.ok) {
+          const data = await r.json().catch(() => ({}))
+          return renderAccessForm(data.error || 'Erro ao carregar')
+        }
+        const data = await r.json()
+        renderDashboard(data)
+        // Persistir email na URL para próximas visitas
+        const url = new URL(window.location.href)
+        url.searchParams.set('email', email)
+        window.history.replaceState({}, '', url)
+      } catch (e) {
+        renderAccessForm('Erro de rede: ' + e.message)
+      }
+    }
+
+    function renderDashboard(d) {
+      const link = `https://brasilconnectusa.com/r/${d.code}`
+      const shareMsg = encodeURIComponent(`Olha que legal essa plataforma para brasileiros nos EUA — guias, custo de vida, simulador de remessa: ${link}`)
+
+      content.innerHTML = `
+        <div class="code-display">
+          <div class="label">SEU CÓDIGO DE INDICAÇÃO</div>
+          <div class="code">${escapeHtml(d.code)}</div>
+          <div class="copy-row">
+            <input id="linkInput" type="text" value="${escapeHtml(link)}" readonly onclick="this.select()" />
+            <button class="btn btn-primary" id="copyBtn">Copiar</button>
+          </div>
+        </div>
+
+        <h3 style="font-family:var(--font-display);margin-top:32px;">Seu progresso</h3>
+        <div class="progress-row">
+          <div class="progress-step ${d.stats.clicks > 0 ? 'done' : ''}">
+            <div class="num">${d.stats.clicks}</div>
+            <div class="lbl">Cliques</div>
+          </div>
+          <div class="progress-step ${d.stats.signups > 0 ? 'done' : ''}">
+            <div class="num">${d.stats.signups}</div>
+            <div class="lbl">Cadastros</div>
+          </div>
+          <div class="progress-step ${d.stats.qualified >= 3 ? 'done' : ''}">
+            <div class="num">${d.stats.qualified} <span style="font-size:0.7em;color:var(--ink-muted);">/ 3</span></div>
+            <div class="lbl">Qualificados</div>
+          </div>
+        </div>
+
+        ${d.reward.status === 'eligible' ? `
+        <div class="ok-box">
+          🎉 <strong>Você atingiu a meta!</strong> Vamos enviar seu Amazon Gift Card de US$ 10 para ${escapeHtml(d.email)} em até 7 dias úteis.
+        </div>` : d.reward.status === 'paid' ? `
+        <div class="ok-box">
+          ✓ Recompensa já enviada em ${d.reward.rewardedAt ? new Date(d.reward.rewardedAt).toLocaleDateString('pt-BR') : 'data desconhecida'}.
+        </div>` : `
+        <p class="muted" style="font-size:14px;">Faltam <strong style="color:var(--ink);">${d.reward.remaining}</strong> indicações qualificadas para receber seu gift card.</p>
+        `}
+
+        <h3 style="font-family:var(--font-display);margin-top:32px;">Compartilhar</h3>
+        <div class="share-grid">
+          <a class="share-btn primary" href="https://wa.me/?text=${shareMsg}" target="_blank" rel="noopener">WhatsApp</a>
+          <a class="share-btn" href="https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Plataforma para brasileiros nos EUA')}" target="_blank" rel="noopener">Telegram</a>
+          <a class="share-btn" href="mailto:?subject=${encodeURIComponent('Plataforma para brasileiros nos EUA')}&body=${shareMsg}">Email</a>
+          <a class="share-btn" href="sms:?&body=${shareMsg}">SMS</a>
+        </div>
+
+        <p class="muted" style="font-size:13px;margin-top:24px;text-align:center;">
+          <a href="?email=" onclick="event.preventDefault(); window.history.replaceState({},'','/indique/'); window.location.reload();">Acessar com outro email</a>
+        </p>
+      `
+
+      document.getElementById('copyBtn').onclick = async () => {
+        const input = document.getElementById('linkInput')
+        try {
+          await navigator.clipboard.writeText(input.value)
+          document.getElementById('copyBtn').textContent = '✓ Copiado'
+          setTimeout(() => { document.getElementById('copyBtn').textContent = 'Copiar' }, 2000)
+        } catch (e) {
+          input.select()
+          document.execCommand('copy')
+        }
+      }
+    }
+
+    // Bootstrap
+    const initEmail = getEmailFromUrl()
+    if (initEmail) {
+      loadStatus(initEmail)
+    } else {
+      renderAccessForm()
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://brasilconnectusa.com/negocio/">
+  <title>Negócios brasileiros nos EUA — Diretório | BrasilConnect USA</title>
+  <meta name="description" content="Encontre restaurantes, mercados, advogados, contadores, médicos e outros negócios brasileiros nos Estados Unidos. Diretório completo com avaliações.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0F5132">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    .filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+    .filter-bar input, .filter-bar select { padding: 10px 14px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r-md); font-family: inherit; }
+    .filter-bar input { flex: 1; min-width: 200px; }
+    .cat-pills { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 18px; }
+    .cat-pill { padding: 8px 16px; background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 999px; font-size: 13px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    .cat-pill.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .biz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+    .biz-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px; }
+    .biz-card .cat-tag { font-size: 10px; color: var(--brand-gold-dark); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; }
+    .biz-card .name { font-family: var(--font-display); font-size: 1.2rem; font-weight: 600; color: var(--ink); margin: 6px 0 4px; }
+    .biz-card .loc { font-size: 13px; color: var(--ink-muted); margin-bottom: 10px; }
+    .biz-card .rating { color: var(--brand-gold-dark); font-size: 13px; font-weight: 600; margin-bottom: 10px; }
+    .biz-card .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .biz-card .actions a { font-size: 12px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 8px; text-decoration: none; color: var(--ink); }
+    .biz-card .actions a:hover { border-color: var(--brand-gold); }
+    .biz-card.premium { border-color: var(--brand-gold); }
+    .biz-card.premium::before { content: '✓ Verificado'; position: absolute; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="logo" href="/"><img src="/img/logo.svg" alt="BrasilConnect" /></a>
+      <nav class="site-nav"><a href="/custo-de-vida/">Cidades</a><a href="/guias/">Guias</a><a href="/agenda/">Agenda</a><a href="/negocio/" style="color:var(--brand-green);font-weight:600;">Negócios</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container-narrow">
+        <div class="eyebrow">Diretório · Brasileiros nos EUA</div>
+        <h1>Negócios brasileiros perto de você</h1>
+        <p class="lede">Restaurantes, mercados, salões, advogados, contadores, médicos, igrejas — toda a comunidade brasileira nos Estados Unidos em um só lugar.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="filter-bar">
+          <input id="searchInput" type="text" placeholder="Buscar negócio..." />
+          <select id="stateSelect">
+            <option value="">Todos os estados</option>
+            <option value="TX">Texas</option><option value="FL">Flórida</option><option value="MA">Massachusetts</option>
+            <option value="NY">Nova York</option><option value="CA">Califórnia</option><option value="GA">Geórgia</option>
+            <option value="NJ">Nova Jersey</option><option value="IL">Illinois</option>
+          </select>
+          <a href="#cadastro" class="btn btn-primary">+ Cadastrar negócio</a>
+        </div>
+
+        <div class="cat-pills" id="catPills">
+          <button class="cat-pill active" data-cat="">Todos</button>
+          <button class="cat-pill" data-cat="restaurante">Restaurantes</button>
+          <button class="cat-pill" data-cat="mercado">Mercados</button>
+          <button class="cat-pill" data-cat="beleza">Beleza</button>
+          <button class="cat-pill" data-cat="juridico">Jurídico</button>
+          <button class="cat-pill" data-cat="contabilidade">Contabilidade</button>
+          <button class="cat-pill" data-cat="saude">Saúde</button>
+          <button class="cat-pill" data-cat="igreja">Igreja</button>
+          <button class="cat-pill" data-cat="imoveis">Imóveis</button>
+          <button class="cat-pill" data-cat="educacao">Educação</button>
+          <button class="cat-pill" data-cat="transporte">Transporte</button>
+        </div>
+
+        <div id="results" class="biz-grid">
+          <p class="muted" style="grid-column:1/-1;">Carregando…</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="cadastro">
+      <div class="container-narrow">
+        <h2>Cadastre seu negócio</h2>
+        <p class="muted">Plano <strong>Free</strong>: nome, categoria, cidade, telefone. Aprovação em 48h. <a href="#planos">Ver planos pagos</a></p>
+        <form id="submitForm" style="background:var(--paper-elevated);border:1px solid var(--line);border-radius:var(--r-lg);padding:24px;margin-top:14px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <input name="name" placeholder="Nome do negócio *" required style="padding:12px;border:1px solid var(--line);border-radius:8px;" />
+            <select name="category" required style="padding:12px;border:1px solid var(--line);border-radius:8px;">
+              <option value="">Categoria *</option>
+              <option value="restaurante">Restaurante</option><option value="mercado">Mercado</option>
+              <option value="beleza">Beleza</option><option value="juridico">Jurídico</option>
+              <option value="contabilidade">Contabilidade</option><option value="saude">Saúde</option>
+              <option value="igreja">Igreja</option><option value="imoveis">Imóveis</option>
+              <option value="educacao">Educação</option><option value="transporte">Transporte</option>
+            </select>
+            <input name="city" placeholder="Cidade *" required style="padding:12px;border:1px solid var(--line);border-radius:8px;" />
+            <input name="state" placeholder="Estado (ex: TX) *" required maxlength="2" style="padding:12px;border:1px solid var(--line);border-radius:8px;text-transform:uppercase;" />
+            <input name="phone" placeholder="Telefone" style="padding:12px;border:1px solid var(--line);border-radius:8px;" />
+            <input name="whatsapp" placeholder="WhatsApp" style="padding:12px;border:1px solid var(--line);border-radius:8px;" />
+            <input name="website" placeholder="Site (opcional)" style="padding:12px;border:1px solid var(--line);border-radius:8px;grid-column:1/-1;" />
+            <input name="address" placeholder="Endereço" style="padding:12px;border:1px solid var(--line);border-radius:8px;grid-column:1/-1;" />
+            <textarea name="description" placeholder="Descrição (até 200 caracteres)" maxlength="200" rows="3" style="padding:12px;border:1px solid var(--line);border-radius:8px;grid-column:1/-1;font-family:inherit;"></textarea>
+            <input name="submitted_email" type="email" placeholder="Seu email (pra confirmação) *" required style="padding:12px;border:1px solid var(--line);border-radius:8px;grid-column:1/-1;" />
+          </div>
+          <button type="submit" class="btn btn-primary" style="margin-top:14px;width:100%;">Enviar cadastro</button>
+          <p id="submitMsg" style="text-align:center;margin-top:10px;font-size:14px;display:none;"></p>
+        </form>
+      </div>
+    </section>
+
+    <section id="planos">
+      <div class="container-narrow">
+        <h2>Planos do diretório</h2>
+        <table class="data" style="margin-top:14px;">
+          <thead><tr><th>Plano</th><th style="text-align:right;">Preço</th><th>Inclui</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Free</strong></td><td style="text-align:right;">Grátis</td><td>Nome, categoria, cidade, telefone. Aprovação em 48h.</td></tr>
+            <tr><td><strong>Pro</strong></td><td style="text-align:right;">$29/mês</td><td>Logo, fotos, WhatsApp no card, destaque em busca, descrição completa.</td></tr>
+            <tr><td><strong>Premium</strong></td><td style="text-align:right;">$59/mês</td><td>Badge verificado ✓, topo da categoria, painel de analytics, prioridade SEO.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">© 2026 BrasilConnect USA · <a href="/" style="color:var(--paper-soft);">Início</a> · <a href="/negocio/">Negócios</a></div>
+    </div>
+  </footer>
+
+  <script>
+    const $ = id => document.getElementById(id)
+    const escapeHtml = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
+    let allBiz = [], filterCat = '', filterState = '', filterQ = ''
+
+    async function load() {
+      try {
+        const r = await fetch('/api/businesses/list')
+        const data = await r.json()
+        allBiz = data.businesses || []
+        render()
+      } catch (e) {
+        $('results').innerHTML = '<p class="muted" style="grid-column:1/-1;">Erro ao carregar. Tente novamente.</p>'
+      }
+    }
+
+    function render() {
+      const list = allBiz.filter(b =>
+        (!filterCat || b.category === filterCat) &&
+        (!filterState || b.state === filterState) &&
+        (!filterQ || (b.name + ' ' + (b.description||'')).toLowerCase().includes(filterQ.toLowerCase()))
+      )
+      $('results').innerHTML = list.length === 0
+        ? '<p class="muted" style="grid-column:1/-1;text-align:center;padding:40px;">Nenhum negócio encontrado. <a href="#cadastro">Cadastre o primeiro!</a></p>'
+        : list.map(b => `
+          <div class="biz-card ${b.listing_plan === 'premium' ? 'premium' : ''}">
+            <div class="cat-tag">${escapeHtml(b.category)} · ${escapeHtml(b.state)}</div>
+            <div class="name">${escapeHtml(b.name)}${b.verified ? ' <span style="color:var(--brand-gold-dark);">✓</span>' : ''}</div>
+            <div class="loc">${escapeHtml(b.city)}, ${escapeHtml(b.state)}</div>
+            ${b.rating_avg ? `<div class="rating">★ ${b.rating_avg} (${b.reviews_count} ${b.reviews_count === 1 ? 'review' : 'reviews'})</div>` : ''}
+            ${b.description ? `<p style="font-size:13px;color:var(--ink-soft);margin:8px 0;">${escapeHtml(b.description.slice(0,120))}${b.description.length > 120 ? '…' : ''}</p>` : ''}
+            <div class="actions">
+              ${b.whatsapp ? `<a href="https://wa.me/${b.whatsapp.replace(/\D/g,'')}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+              ${b.phone ? `<a href="tel:${b.phone}">Ligar</a>` : ''}
+              ${b.website ? `<a href="${b.website}" target="_blank" rel="noopener">Site</a>` : ''}
+            </div>
+          </div>
+        `).join('')
+    }
+
+    $('searchInput').oninput = e => { filterQ = e.target.value; render() }
+    $('stateSelect').onchange = e => { filterState = e.target.value; render() }
+    document.querySelectorAll('.cat-pill').forEach(p => p.onclick = () => {
+      document.querySelectorAll('.cat-pill').forEach(x => x.classList.remove('active'))
+      p.classList.add('active'); filterCat = p.dataset.cat; render()
+    })
+
+    $('submitForm').onsubmit = async e => {
+      e.preventDefault()
+      const fd = new FormData(e.target)
+      const body = Object.fromEntries(fd)
+      body.state = body.state.toUpperCase()
+      const msg = $('submitMsg')
+      try {
+        const r = await fetch('/api/businesses/submit', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        msg.textContent = '✓ ' + d.message
+        msg.style.color = '#065F46'; msg.style.display = 'block'
+        e.target.reset()
+      } catch (err) {
+        msg.textContent = err.message; msg.style.color = '#9F2D2D'; msg.style.display = 'block'
+      }
+    }
+
+    load()
+  </script>
+</body>
+</html>

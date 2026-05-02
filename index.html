@@ -2,12 +2,110 @@
 <html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BrasilConnect — Remessas, Câmbio e Voos</title>
-    <meta name="description" content="Compare taxas de remessa, receba alertas de câmbio e encontre voos para o Brasil. Para brasileiros nos EUA." />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/img/logo-mark.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href="https://brasilconnectusa.com/" />
+
+    <!-- ── SEO básico ─────────────────────────────────────────────── -->
+    <title>BrasilConnect USA — Em breve · Plataforma para brasileiros nos EUA</title>
+    <meta name="description" content="Em breve: a plataforma completa para brasileiros nos EUA. Remessas, câmbio, voos, negócios e comunidade. Cadastre seu email e seja avisado(a) no lançamento." />
+    <meta name="keywords" content="brasileiros nos EUA, remessa para o Brasil, câmbio dólar real, voos Brasil, comunidade brasileira EUA, negócios brasileiros, custo de vida EUA" />
+    <meta name="author" content="BrasilConnect USA" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="theme-color" content="#009C3B" />
+    <meta name="language" content="Portuguese" />
+
+    <!-- ── Open Graph (Facebook, WhatsApp, LinkedIn) ──────────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="BrasilConnect USA" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:url" content="https://brasilconnectusa.com/" />
+    <meta property="og:title" content="BrasilConnect USA — Em breve" />
+    <meta property="og:description" content="Em breve a plataforma completa para brasileiros nos EUA. Cadastre-se na lista de espera." />
+    <meta property="og:image" content="https://brasilconnectusa.com/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="BrasilConnect USA — plataforma para brasileiros nos EUA" />
+
+    <!-- ── Twitter Card ───────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="BrasilConnect USA" />
+    <meta name="twitter:description" content="Remessas, câmbio, voos e comunidade brasileira nos EUA." />
+    <meta name="twitter:image" content="https://brasilconnectusa.com/og-image.png" />
+
+    <!-- ── PWA / Apple ────────────────────────────────────────────── -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="BrasilConnect" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- ── JSON-LD Organization ───────────────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "BrasilConnect USA",
+      "alternateName": "BrasilConnect",
+      "url": "https://brasilconnectusa.com",
+      "logo": "https://brasilconnectusa.com/logo.png",
+      "description": "Plataforma para brasileiros nos EUA: remessas, câmbio, voos e comunidade.",
+      "areaServed": [
+        { "@type": "Country", "name": "United States" },
+        { "@type": "Country", "name": "Brazil" }
+      ],
+      "sameAs": [
+        "https://www.instagram.com/brasilconnectusa",
+        "https://www.facebook.com/brasilconnectusa"
+      ]
+    }
+    </script>
+
+    <!-- ── JSON-LD WebSite + SearchAction ─────────────────────────── -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "BrasilConnect USA",
+      "url": "https://brasilconnectusa.com",
+      "inLanguage": "pt-BR",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://brasilconnectusa.com/buscar?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- ── Google Analytics 4 (GA4) ───────────────────────────────── -->
+    <!-- TODO: substituir G-XXXXXXXXXX pelo ID real depois de criar GA4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX', { anonymize_ip: true });
+    </script>
+
+    <!-- ── Meta Pixel (Facebook/Instagram Ads) ────────────────────── -->
+    <!-- TODO: substituir XXXXXXXXXXXXXXX pelo Pixel ID real -->
+    <script>
+      !function(f,b,e,v,n,t,s)
+      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+      n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t,s)}(window, document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', 'XXXXXXXXXXXXXXX');
+      fbq('track', 'PageView');
+    </script>
   </head>
   <body>
+    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=XXXXXXXXXXXXXXX&ev=PageView&noscript=1"/></noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

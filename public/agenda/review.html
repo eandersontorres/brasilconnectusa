@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Avaliar atendimento — BrasilConnect</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    .star-row { display: flex; gap: 6px; justify-content: center; margin: 24px 0; }
+    .star { font-size: 36px; cursor: pointer; color: var(--line); transition: color 0.1s; }
+    .star.active, .star.hover { color: var(--brand-gold); }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <p class="muted" style="text-align:center; padding: 60px;">Carregando…</p>
+  </div>
+
+  <script>
+    const root = document.getElementById('app')
+    const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
+
+    // Token vem da URL: /agenda/review/abc123 ou ?token=abc123
+    const path = window.location.pathname
+    const fromPath = path.match(/\/agenda\/review\/([^\/?]+)/)
+    const token = fromPath ? fromPath[1] : (new URL(window.location.href).searchParams.get('token'))
+
+    if (!token) renderError('Link inválido')
+    else load(token)
+
+    let info, rating = 0
+
+    async function load(token) {
+      try {
+        const r = await fetch(`/api/agenda/review?token=${encodeURIComponent(token)}`)
+        const data = await r.json()
+        if (!r.ok) throw new Error(data.error || 'Erro')
+        info = data
+        renderForm()
+      } catch (e) {
+        renderError(e.message)
+      }
+    }
+
+    function renderForm() {
+      root.innerHTML = `
+        <main><div class="container-narrow" style="padding-top:64px; padding-bottom:64px;">
+          <div style="text-align:center;">
+            <img src="/img/logo.svg" alt="BrasilConnect" style="height:48px;" />
+          </div>
+          <h1 style="font-family:var(--font-display); text-align:center; margin-top:32px;">Como foi sua experiência com ${escapeHtml(info.provider_name)}?</h1>
+          <p class="muted" style="text-align:center;">Sua avaliação ajuda outras brasileiras a encontrar bons profissionais.</p>
+          <div class="star-row" id="stars">
+            ${[1,2,3,4,5].map(i => `<span class="star" data-r="${i}">★</span>`).join('')}
+          </div>
+          <textarea id="comment" rows="5" placeholder="Conte algo sobre o atendimento (opcional)" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:14px;margin-bottom:14px;"></textarea>
+          <button id="submitBtn" class="btn btn-primary" style="width:100%;justify-content:center;" disabled>Enviar avaliação</button>
+          <p id="err" style="color:#9F2D2D;font-size:13px;text-align:center;margin-top:10px;display:none;"></p>
+        </div></main>
+      `
+      document.querySelectorAll('.star').forEach(s => {
+        s.onclick = () => { rating = parseInt(s.dataset.r); update() }
+        s.onmouseover = () => { document.querySelectorAll('.star').forEach((x, i) => x.classList.toggle('hover', i < parseInt(s.dataset.r))) }
+        s.onmouseout = () => document.querySelectorAll('.star').forEach(x => x.classList.remove('hover'))
+      })
+      document.getElementById('submitBtn').onclick = submit
+    }
+
+    function update() {
+      document.querySelectorAll('.star').forEach((x, i) => x.classList.toggle('active', i < rating))
+      document.getElementById('submitBtn').disabled = rating === 0
+    }
+
+    async function submit() {
+      const comment = document.getElementById('comment').value.trim()
+      const btn = document.getElementById('submitBtn')
+      const err = document.getElementById('err')
+      btn.disabled = true; btn.textContent = 'Enviando…'
+      try {
+        const r = await fetch('/api/agenda/review', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, rating, comment })
+        })
+        const data = await r.json()
+        if (!r.ok) throw new Error(data.error || 'Erro')
+        root.innerHTML = `
+          <main><div class="container-narrow" style="padding-top:120px; text-align:center;">
+            <div style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);">OBRIGADO</div>
+            <h1 style="font-family:var(--font-display); margin-top:14px;">Avaliação enviada!</h1>
+            <p class="lede">${rating}/5 estrelas. ${escapeHtml(info.provider_name)} agradece.</p>
+            <a href="/agenda/${info.provider_slug}" class="btn btn-secondary" style="margin-top:20px;">Ver perfil</a>
+          </div></main>
+        `
+      } catch (e) {
+        err.textContent = e.message; err.style.display = 'block'
+        btn.disabled = false; btn.textContent = 'Enviar avaliação'
+      }
+    }
+
+    function renderError(msg) {
+      root.innerHTML = `<main><div class="container-narrow" style="padding:80px 16px; text-align:center;"><h1>Link inválido ou expirado</h1><p class="muted">${escapeHtml(msg)}</p><a href="/" class="btn btn-secondary" style="margin-top:20px;">Voltar</a></div></main>`
+    }
+  </script>
+</body>
+</html>

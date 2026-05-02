@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin · Mind Map · BrasilConnect USA</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    body { background: var(--paper); }
+
+    /* ── Topbar ─────────────────────────────────────────────── */
+    .admin-topbar { background: var(--paper-elevated); border-bottom: 1px solid var(--line); padding: 18px 24px; }
+    .admin-topbar .brand { display: flex; align-items: center; gap: 14px; max-width: 1400px; margin: 0 auto; flex-wrap: wrap; }
+    .admin-topbar .brand img { height: 36px; }
+    .admin-topbar .nav-links { display: flex; gap: 14px; margin-left: 8px; flex-wrap: wrap; }
+    .admin-topbar .nav-links a { font-size: 13px; color: var(--ink-soft); text-decoration: none; }
+    .admin-topbar .nav-links a.active { color: var(--brand-green); font-weight: 600; }
+    .admin-topbar .meta { margin-left: auto; font-size: 13px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; }
+
+    .admin-container { max-width: 1400px; margin: 24px auto; padding: 0 24px; }
+
+    /* ── Login ──────────────────────────────────────────────── */
+    .login-card { max-width: 380px; margin: 80px auto; background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 36px 28px; text-align: center; }
+    .login-card .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 11px; font-weight: 600; color: var(--brand-gold-dark); margin-bottom: 12px; }
+    .login-card h2 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; margin: 0 0 8px 0; }
+    .login-card input { width: 100%; padding: 12px 14px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r-md); margin-bottom: 12px; box-sizing: border-box; font-family: inherit; outline: none; background: var(--paper); }
+    .err-banner { background: #FBE9E7; color: #802020; border: 1px solid #E8C2BC; padding: 10px 14px; border-radius: var(--r-sm); font-size: 13px; margin-bottom: 14px; text-align: left; }
+
+    /* ── Header / Hero ──────────────────────────────────────── */
+    .hero-strip {
+      background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%);
+      color: #FAF7F0; padding: 28px 32px; border-radius: var(--r-lg); margin-bottom: 22px;
+    }
+    .hero-strip .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 10px; font-weight: 600; opacity: 0.75; margin-bottom: 8px; }
+    .hero-strip h1 { font-family: var(--font-display); font-size: 1.8rem; margin: 0 0 6px 0; color: #FAF7F0; font-weight: 600; }
+    .hero-strip p { color: #FAF7F0; opacity: 0.85; font-size: 14px; margin: 0; max-width: 720px; }
+
+    /* ── Resumo / Stats ─────────────────────────────────────── */
+    .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 22px; }
+    .stat-block { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px 20px; }
+    .stat-block .label { text-transform: uppercase; letter-spacing: 0.1em; font-size: 10px; color: var(--ink-muted); margin-bottom: 6px; font-weight: 600; }
+    .stat-block .value { font-family: var(--font-display); font-size: 1.7rem; font-weight: 600; color: var(--ink); line-height: 1; }
+    .stat-block .sub { font-size: 11px; color: var(--ink-muted); margin-top: 5px; }
+    .stat-block.ok .value { color: var(--brand-green); }
+    .stat-block.warn .value { color: #B45309; }
+    .stat-block.miss .value { color: #C2410C; }
+
+    /* ── Filter chips ───────────────────────────────────────── */
+    .filter-row { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+    .chip {
+      padding: 7px 14px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--line); background: var(--paper-elevated);
+      color: var(--ink-soft); transition: all .15s; user-select: none;
+    }
+    .chip:hover { border-color: var(--brand-gold); }
+    .chip.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .chip .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+    .dot.ok   { background: #16A34A; }
+    .dot.warn { background: #D97706; }
+    .dot.miss { background: #DC2626; }
+    .dot.note { background: #6B7280; }
+
+    /* ── Mind Map SVG ───────────────────────────────────────── */
+    .panel { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px 28px; margin-bottom: 18px; }
+    .panel h3 { font-family: var(--font-display); margin: 0 0 6px 0; color: var(--ink); font-size: 1.2rem; font-weight: 600; }
+    .panel .panel-eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 10px; font-weight: 600; color: var(--brand-gold-dark); margin-bottom: 6px; }
+    .panel .panel-sub { color: var(--ink-muted); font-size: 13px; margin: 0 0 16px 0; }
+
+    .mindmap-wrap { width: 100%; overflow-x: auto; padding: 8px 0; }
+    .mindmap-wrap svg { display: block; min-width: 980px; }
+    .mm-node-rect { rx: 12; ry: 12; stroke-width: 1.5; }
+    .mm-link { fill: none; stroke-width: 1.5; }
+    .mm-text { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; fill: var(--ink); }
+    .mm-text.sub { font-size: 10px; font-weight: 500; fill: var(--ink-muted); }
+    .mm-root { fill: var(--brand-green); stroke: var(--brand-green-dark); }
+    .mm-root-text { fill: #FAF7F0; font-size: 14px; font-weight: 700; }
+    .mm-ok       { fill: #DCFCE7; stroke: #16A34A; }
+    .mm-warn     { fill: #FEF3C7; stroke: #D97706; }
+    .mm-miss     { fill: #FEE2E2; stroke: #DC2626; }
+    .mm-note     { fill: #F3F4F6; stroke: #6B7280; }
+    .mm-node { cursor: pointer; transition: transform .15s; }
+    .mm-node:hover { filter: brightness(1.05); }
+
+    /* ── Cards detalhados ──────────────────────────────────── */
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; }
+    .feature-card {
+      background: var(--paper-elevated); border: 1px solid var(--line);
+      border-radius: var(--r-md); padding: 18px 20px; position: relative;
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .feature-card:hover { border-color: var(--brand-gold); box-shadow: var(--shadow-sm); }
+    .feature-card.hidden { display: none; }
+    .feature-card .head { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+    .feature-card .icon { font-size: 22px; line-height: 1; flex-shrink: 0; }
+    .feature-card h4 { margin: 0 0 2px 0; font-family: var(--font-display); font-size: 1.05rem; font-weight: 600; color: var(--ink); }
+    .feature-card .sub-label { font-size: 11px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .feature-card .badge {
+      margin-left: auto; padding: 4px 10px; border-radius: 999px;
+      font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+      flex-shrink: 0;
+    }
+    .badge.ok   { background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
+    .badge.warn { background: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+    .badge.miss { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+    .badge.note { background: #F3F4F6; color: #374151; border: 1px solid #D1D5DB; }
+
+    .feature-card .check-list { margin: 8px 0 0 0; padding: 0; list-style: none; font-size: 13px; }
+    .feature-card .check-list li { padding: 4px 0; color: var(--ink-soft); display: flex; gap: 8px; align-items: flex-start; line-height: 1.45; }
+    .feature-card .check-list li::before { flex-shrink: 0; }
+    .feature-card .check-list li.done::before    { content: '✅'; }
+    .feature-card .check-list li.partial::before { content: '🟡'; }
+    .feature-card .check-list li.missing::before { content: '⬜'; }
+    .feature-card .check-list li.note::before    { content: '·'; font-weight: 700; padding: 0 6px; }
+
+    .feature-card .footer-meta {
+      margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line-soft);
+      font-size: 11px; color: var(--ink-muted); display: flex; gap: 12px; flex-wrap: wrap;
+    }
+    .feature-card .footer-meta span { display: inline-flex; align-items: center; gap: 4px; }
+
+    /* ── Roadmap ─────────────────────────────────────────────── */
+    .roadmap { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 8px; }
+    .road-col { background: var(--paper); border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 16px; }
+    .road-col h5 { margin: 0 0 10px 0; font-family: var(--font-display); font-size: 14px; color: var(--ink); }
+    .road-col ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--ink-soft); }
+    .road-col ul li { padding: 3px 0; line-height: 1.4; }
+    .road-col.now   { border-top: 3px solid #DC2626; }
+    .road-col.next  { border-top: 3px solid #D97706; }
+    .road-col.later { border-top: 3px solid var(--brand-green); }
+
+    /* ── Security ──────────────────────────────────────────── */
+    .sec-list li { padding: 8px 0; border-bottom: 1px solid var(--line-soft); display: flex; gap: 10px; align-items: flex-start; }
+    .sec-list li:last-child { border-bottom: none; }
+    .sec-list .sev { flex-shrink: 0; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .sev.high { background: #FEE2E2; color: #991B1B; }
+    .sev.med  { background: #FEF3C7; color: #92400E; }
+    .sev.low  { background: #DCFCE7; color: #166534; }
+    .sec-list .text { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+    .sec-list .text strong { color: var(--ink); }
+
+    /* ── Print / mobile ─────────────────────────────────────── */
+    @media (max-width: 720px) {
+      .admin-topbar .meta { display: none; }
+      .panel { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const STORAGE_KEY = 'bc_admin_secret';
+    const root = document.getElementById('app');
+    const getSecret = () => { try { return sessionStorage.getItem(STORAGE_KEY) || ''; } catch (e) { return ''; } };
+    const setSecret = s => { try { sessionStorage.setItem(STORAGE_KEY, s); } catch (e) {} };
+    const clearSecret = () => { try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {} };
+    const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+    function topbar(active) {
+      return `
+        <div class="admin-topbar">
+          <div class="brand">
+            <img src="/img/logo.svg" alt="BrasilConnect USA" />
+            <div class="nav-links">
+              <a href="/admin/mindmap" class="${active==='mindmap'?'active':''}">Mind Map</a>
+              <a href="/admin/waitlist" class="${active==='waitlist'?'active':''}">Lista de espera</a>
+              <a href="/admin/analytics" class="${active==='analytics'?'active':''}">Analytics</a>
+              <a href="/admin/utm-builder" class="${active==='utm'?'active':''}">UTM Builder</a>
+            </div>
+            <div class="meta">Admin Console</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLogin(errMsg) {
+      root.innerHTML = topbar() + `
+        <div class="login-card">
+          <div class="eyebrow">ACESSO RESTRITO</div>
+          <h2>Mind Map da Plataforma</h2>
+          <p class="muted">Use o segredo administrativo (variável <code>ADMIN_SECRET</code>) para entrar.</p>
+          ${errMsg ? `<div class="err-banner">${escapeHtml(errMsg)}</div>` : ''}
+          <input id="secret" type="password" placeholder="ADMIN_SECRET" autocomplete="off" />
+          <button class="btn btn-primary" id="loginBtn" style="width:100%;">Entrar</button>
+        </div>
+      `;
+      document.getElementById('loginBtn').onclick = doLogin;
+      document.getElementById('secret').onkeydown = e => { if (e.key === 'Enter') doLogin(); };
+      setTimeout(() => document.getElementById('secret').focus(), 80);
+    }
+
+    async function doLogin() {
+      const v = document.getElementById('secret').value.trim();
+      if (!v) return;
+      // Validamos o secret contra a API analytics (mesmo backend) só pra validar.
+      try {
+        const r = await fetch('/api/admin/analytics', { headers: { 'x-admin-secret': v } });
+        if (r.status === 401) return renderLogin('Senha incorreta');
+        // 200 ou outro erro: aceitamos e seguimos (mind map é estático).
+        setSecret(v);
+        renderPage();
+      } catch (e) {
+        // Sem rede / sem API: aceita localmente porque mindmap é client-side.
+        setSecret(v);
+        renderPage();
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    //   DADOS — auditoria das features (atualizar conforme evolução)
+    // ════════════════════════════════════════════════════════════════
+    const FEATURES = [
+      {
+        id: 'cambio',
+        icon: '💱',
+        title: 'Comparador de Câmbio + Remessas',
+        category: 'Monetização (afiliados)',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: '5 parceiros configurados (Wise, Remitly, WU, MoneyGram, PaySend)' },
+          { type: 'done',    text: 'Taxa de câmbio ao vivo via /api/rates (ExchangeRate API)' },
+          { type: 'done',    text: 'Toggle USD ↔ BRL com cálculo de fees + spread' },
+          { type: 'done',    text: 'Tracking de cliques afiliados (/api/track)' },
+          { type: 'done',    text: 'Alertas de câmbio por email (Resend) com cron' },
+          { type: 'partial', text: 'Links de afiliado: precisa preencher AFFILIATE_*_LINK no Vercel' },
+          { type: 'missing', text: 'Dashboard de receita real (CPA estimado já existe, falta receita confirmada)' },
+        ],
+        api: ['/api/rates', '/api/track', '/api/alerts', '/api/check-alerts'],
+        sql: ['supabase_affiliate_tracking.sql', 'bc_affiliate_clicks_v2.sql'],
+        ui: ['App.jsx → RemessasScreen', 'public/landing.html (compare grid)'],
+      },
+      {
+        id: 'voos',
+        icon: '✈️',
+        title: 'Buscador de Voos',
+        category: 'Monetização (afiliados)',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Busca via Travelpayouts API com fallback' },
+          { type: 'done',    text: '6 origens × 8 destinos (BR ↔ USA)' },
+          { type: 'done',    text: 'Deep links: Skyscanner, Google Flights, KAYAK' },
+          { type: 'partial', text: 'Travelpayouts marker precisa estar configurado em produção' },
+        ],
+        api: ['/api/flights'],
+        sql: [],
+        ui: ['App.jsx → VoosScreen', 'public/viagem/index.html'],
+      },
+      {
+        id: 'bolao',
+        icon: '⚽',
+        title: 'Bolão Copa 2026',
+        category: 'Engajamento',
+        status: 'warn',
+        items: [
+          { type: 'done',    text: 'Schema completo (bc_copa_matches, bc_bolao_groups, bc_bolao_members, bc_bolao_predictions)' },
+          { type: 'done',    text: 'Dados oficiais do sorteio (12 grupos A–L) carregados via bolao_schema_v2.sql' },
+          { type: 'done',    text: 'Bolão POR GRUPO (criar grupo + join_code)' },
+          { type: 'missing', text: 'Bolão GERAL (ranking nacional de todos os usuários)' },
+          { type: 'missing', text: 'Bolão POR ESTADO (ranking entre brasileiros do mesmo estado nos EUA)' },
+          { type: 'missing', text: 'Sistema de pontuação automático após cada jogo' },
+          { type: 'missing', text: 'Premiação / gamificação (badges, prêmios)' },
+          { type: 'note',    text: 'Confirmar no Supabase se bolao_schema_v2.sql foi executado' },
+        ],
+        api: ['/api/bolao'],
+        sql: ['supabase/bolao_schema.sql', 'supabase/bolao_schema_v2.sql'],
+        ui: ['src/BolaoScreen.jsx'],
+      },
+      {
+        id: 'agenda',
+        icon: '📅',
+        title: 'Agendamento de Serviços',
+        category: 'Marketplace',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Schema completo: ag_providers, ag_services, ag_appointments, ag_payments, ag_reviews, ag_clients' },
+          { type: 'done',    text: 'Profissionais: cabeleireira, manicure, etc. (categorias livres)' },
+          { type: 'done',    text: 'Stripe Checkout para depósitos/pagamentos' },
+          { type: 'done',    text: 'Lembretes (api/agenda/reminders.js)' },
+          { type: 'done',    text: 'Reviews (api/agenda/review.js + request-review.js)' },
+          { type: 'done',    text: 'Planos: basic / pro / premium (monetização)' },
+          { type: 'partial', text: 'Páginas públicas existem (public/agenda/) mas precisam de teste end-to-end' },
+        ],
+        api: ['/api/agenda/*'],
+        sql: ['supabase/agenda_schema.sql'],
+        ui: ['src/AgendaApp.jsx', 'public/agenda/index.html', 'public/agenda/profile.html', 'public/agenda/review.html'],
+      },
+      {
+        id: 'profile',
+        icon: '👤',
+        title: 'Perfil de Usuário',
+        category: 'Conta',
+        status: 'warn',
+        items: [
+          { type: 'done',    text: 'Schema bc_profiles: nome, avatar, bio, cidade, estado, whatsapp, instagram' },
+          { type: 'done',    text: 'Privacidade em 4 níveis: public / community / group / private (bc_privacy_settings)' },
+          { type: 'done',    text: 'API /api/profile/update' },
+          { type: 'missing', text: 'Tela de criação/edição de perfil no app (componente ProfileApp.jsx existe mas não está nas TABS de App.jsx)' },
+          { type: 'missing', text: 'Auth de usuário (Supabase Auth) — hoje é só email anônimo' },
+          { type: 'missing', text: 'Upload de avatar (Supabase Storage)' },
+        ],
+        api: ['/api/profile/update'],
+        sql: ['supabase/bc_profiles_schema.sql'],
+        ui: ['src/ProfileApp.jsx (não plugado em App.jsx)'],
+      },
+      {
+        id: 'negocios',
+        icon: '🏪',
+        title: 'Diretório de Negócios',
+        category: 'Marketplace',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Categorias: Restaurante, Mercado, Salão & Beleza, Serviços, Saúde' },
+          { type: 'done',    text: 'Submissão de novo negócio (api/businesses/submit.js)' },
+          { type: 'done',    text: 'Plano featured (monetização)' },
+          { type: 'partial', text: 'Mapa / busca por proximidade — não confirmado' },
+        ],
+        api: ['/api/businesses/list', '/api/businesses/submit'],
+        sql: ['supabase/bc_businesses_schema.sql', 'supabase/bc_businesses_v2.sql'],
+        ui: ['src/NegociosScreen.jsx', 'public/negocio/index.html'],
+      },
+      {
+        id: 'grupos-interesse',
+        icon: '🎯',
+        title: 'Grupos de Interesse',
+        category: 'Comunidade',
+        status: 'warn',
+        items: [
+          { type: 'done',    text: 'Página /grupos/index.html existe' },
+          { type: 'done',    text: 'API /api/interests/signup (signup por interesse)' },
+          { type: 'done',    text: 'Schema bc_interests_schema.sql' },
+          { type: 'missing', text: 'Feed/timeline dentro do grupo' },
+          { type: 'missing', text: 'Mensagens / chat entre membros' },
+          { type: 'missing', text: 'Moderação (admin do grupo, banir, reportar)' },
+        ],
+        api: ['/api/interests/signup'],
+        sql: ['supabase/bc_interests_schema.sql'],
+        ui: ['public/grupos/index.html'],
+      },
+      {
+        id: 'grupo-maes',
+        icon: '👶',
+        title: 'Grupo de Mães',
+        category: 'Comunidade',
+        status: 'miss',
+        items: [
+          { type: 'missing', text: 'Não existe ainda — pode ser implementado como sub-grupo de "Grupos de Interesse"' },
+          { type: 'note',    text: 'Sugestão: criar interesse "Mães Brasileiras" + features extras (creche, pediatra, escolas)' },
+          { type: 'note',    text: 'Pode integrar com guias existentes (escola, plano-de-saude)' },
+        ],
+        api: [],
+        sql: [],
+        ui: [],
+      },
+      {
+        id: 'admin',
+        icon: '🛠',
+        title: 'Painel Admin',
+        category: 'Gestão',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Mind Map (esta página) — visão consolidada da plataforma' },
+          { type: 'done',    text: 'Lista de espera (/admin/waitlist)' },
+          { type: 'done',    text: 'Analytics (/admin/analytics) — receita estimada por parceiro' },
+          { type: 'done',    text: 'UTM Builder (/admin/utm-builder)' },
+          { type: 'done',    text: 'Auth via ADMIN_SECRET (header x-admin-secret)' },
+          { type: 'partial', text: 'Falta: gestão de usuários, moderação, edição direta de negócios/profissionais' },
+        ],
+        api: ['/api/admin/analytics', '/api/admin/waitlist'],
+        sql: [],
+        ui: ['public/admin/*.html'],
+      },
+      {
+        id: 'referral',
+        icon: '🎁',
+        title: 'Programa de Indicação',
+        category: 'Crescimento',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Página pública /indique' },
+          { type: 'done',    text: 'API /api/referral/track + /api/referral/status' },
+          { type: 'done',    text: 'Schema bc_referrals com qualificação' },
+          { type: 'partial', text: 'Recompensas (reward_status existe mas não há fluxo de pagamento)' },
+        ],
+        api: ['/api/referral/track', '/api/referral/status'],
+        sql: ['supabase/bc_referrals.sql'],
+        ui: ['public/indique/index.html'],
+      },
+      {
+        id: 'guias',
+        icon: '📚',
+        title: 'Guias & Custo de Vida',
+        category: 'Conteúdo (SEO)',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: '13 cidades de custo de vida (Austin, Round Rock, Dallas, Houston, Miami, Orlando, Tampa, Boston, NY, LA, Atlanta, Chicago, etc)' },
+          { type: 'done',    text: '7 guias informativos (CNH, conta bancária, ITIN, escola, plano de saúde, abrir LLC)' },
+          { type: 'done',    text: 'Guia de chegada (/guia-chegada)' },
+        ],
+        api: [],
+        sql: [],
+        ui: ['public/custo-de-vida/*', 'public/guias/*', 'public/guia-chegada/index.html'],
+      },
+      {
+        id: 'pwa',
+        icon: '📱',
+        title: 'PWA + Push Notifications',
+        category: 'Infra',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Service Worker (public/sw.js)' },
+          { type: 'done',    text: 'Página offline (public/offline.html)' },
+          { type: 'done',    text: 'Push subscriptions (api/push/subscribe.js + notify.js)' },
+          { type: 'partial', text: 'VAPID keys precisam estar nas env vars' },
+        ],
+        api: ['/api/push/subscribe', '/api/push/notify'],
+        sql: ['supabase/bc_push_subscriptions.sql'],
+        ui: ['src/pwa.js', 'public/sw.js', 'public/offline.html'],
+      },
+      {
+        id: 'email-drip',
+        icon: '📧',
+        title: 'Drip Email Marketing',
+        category: 'Crescimento',
+        status: 'warn',
+        items: [
+          { type: 'done',    text: 'Cron job /api/cron/drip' },
+          { type: 'done',    text: 'Log em bc_drip_log' },
+          { type: 'done',    text: 'Integração Resend' },
+          { type: 'missing', text: 'Templates de email não auditados (verificar conteúdo + remetente)' },
+        ],
+        api: ['/api/cron/drip'],
+        sql: ['supabase/bc_drip_log.sql'],
+        ui: [],
+      },
+    ];
+
+    const STATUS_LABELS = {
+      ok:   { label: 'Funcionando', dot: 'ok' },
+      warn: { label: 'Parcial',     dot: 'warn' },
+      miss: { label: 'Faltando',    dot: 'miss' },
+      note: { label: 'Nota',        dot: 'note' },
+    };
+
+    // ════════════════════════════════════════════════════════════════
+    //   MIND MAP SVG (gerado dinamicamente)
+    // ════════════════════════════════════════════════════════════════
+    function buildMindMap() {
+      // Layout em 2 colunas (esquerda / direita do nó central) — radial-ish
+      const leftCol  = ['cambio', 'voos', 'guias', 'email-drip', 'pwa', 'referral'];
+      const rightCol = ['bolao', 'agenda', 'profile', 'negocios', 'grupos-interesse', 'grupo-maes'];
+
+      const W = 1280, H = 720;
+      const cx = W / 2, cy = H / 2;
+      const rootW = 200, rootH = 70;
+
+      const nodeW = 240, nodeH = 60;
+      const stepY = 110;
+      const leftX  = 30;
+      const rightX = W - nodeW - 30;
+      const topL = cy - ((leftCol.length - 1) * stepY) / 2;
+      const topR = cy - ((rightCol.length - 1) * stepY) / 2;
+
+      const findFeat = id => FEATURES.find(f => f.id === id);
+      const statusClass = s => 'mm-' + s;
+
+      const nodesSvg = [];
+      const linksSvg = [];
+
+      // Helpers de path curvo
+      const curveLeft  = (x1, y1, x2, y2) => `M ${x1} ${y1} C ${(x1 + x2) / 2} ${y1}, ${(x1 + x2) / 2} ${y2}, ${x2} ${y2}`;
+      const curveRight = curveLeft; // simétrico
+
+      leftCol.forEach((id, i) => {
+        const f = findFeat(id); if (!f) return;
+        const y = topL + i * stepY;
+        const nodeRight = leftX + nodeW;
+        // Link
+        linksSvg.push(`<path class="mm-link" d="${curveLeft(nodeRight, y + nodeH / 2, cx - rootW / 2, cy)}" stroke="${strokeFor(f.status)}" />`);
+        // Node
+        nodesSvg.push(renderNode(leftX, y, nodeW, nodeH, f));
+      });
+
+      rightCol.forEach((id, i) => {
+        const f = findFeat(id); if (!f) return;
+        const y = topR + i * stepY;
+        const nodeLeft = rightX;
+        linksSvg.push(`<path class="mm-link" d="${curveRight(cx + rootW / 2, cy, nodeLeft, y + nodeH / 2)}" stroke="${strokeFor(f.status)}" />`);
+        nodesSvg.push(renderNode(rightX, y, nodeW, nodeH, f));
+      });
+
+      // Root node
+      const rootSvg = `
+        <g>
+          <rect class="mm-node-rect mm-root" x="${cx - rootW / 2}" y="${cy - rootH / 2}" width="${rootW}" height="${rootH}" />
+          <text class="mm-text mm-root-text" x="${cx}" y="${cy - 4}" text-anchor="middle">Brasil Connect</text>
+          <text class="mm-text mm-root-text" x="${cx}" y="${cy + 16}" text-anchor="middle" style="font-size:11px;font-weight:500;opacity:0.85">Plataforma · Comunidade BR-USA</text>
+        </g>
+      `;
+
+      return `
+        <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+          ${linksSvg.join('\n')}
+          ${rootSvg}
+          ${nodesSvg.join('\n')}
+        </svg>
+      `;
+    }
+
+    function strokeFor(s) {
+      return ({ ok: '#86EFAC', warn: '#FCD34D', miss: '#FCA5A5' })[s] || '#D1D5DB';
+    }
+
+    function renderNode(x, y, w, h, f) {
+      const cls = 'mm-node-rect ' + ('mm-' + f.status);
+      const cx = x + w / 2;
+      const dot = f.status === 'ok' ? '●' : f.status === 'warn' ? '◐' : '○';
+      const dotColor = f.status === 'ok' ? '#16A34A' : f.status === 'warn' ? '#D97706' : '#DC2626';
+      return `
+        <g class="mm-node" data-id="${f.id}" onclick="scrollToFeature('${f.id}')">
+          <rect class="${cls}" x="${x}" y="${y}" width="${w}" height="${h}" />
+          <text x="${x + 12}" y="${y + 24}" font-size="18">${f.icon}</text>
+          <text class="mm-text" x="${x + 38}" y="${y + 24}">${escapeHtml(f.title)}</text>
+          <text class="mm-text sub" x="${x + 38}" y="${y + 42}">${escapeHtml(f.category)}</text>
+          <text x="${x + w - 16}" y="${y + 24}" text-anchor="end" font-size="13" font-weight="700" fill="${dotColor}">${dot}</text>
+        </g>
+      `;
+    }
+
+    window.scrollToFeature = function (id) {
+      const el = document.getElementById('feat-' + id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.style.transition = 'background .25s';
+        el.style.background = '#FEF3C7';
+        setTimeout(() => { el.style.background = ''; }, 1200);
+      }
+    };
+
+    // ════════════════════════════════════════════════════════════════
+    //   RENDER
+    // ════════════════════════════════════════════════════════════════
+    function summary() {
+      const total = FEATURES.length;
+      const ok    = FEATURES.filter(f => f.status === 'ok').length;
+      const warn  = FEATURES.filter(f => f.status === 'warn').length;
+      const miss  = FEATURES.filter(f => f.status === 'miss').length;
+      const pct   = Math.round((ok / total) * 100);
+      return { total, ok, warn, miss, pct };
+    }
+
+    function renderPage() {
+      const s = summary();
+
+      root.innerHTML = topbar('mindmap') + `
+        <div class="admin-container">
+
+          <div class="hero-strip">
+            <div class="eyebrow">PLATFORM AUDIT · ${new Date().toLocaleDateString('pt-BR')}</div>
+            <h1>Mind Map da Plataforma</h1>
+            <p>Visão consolidada de tudo que existe no Brasil Connect: o que está funcionando, o que está parcial, e o que ainda falta construir. Clique em qualquer nó do mapa para pular para o detalhe da feature.</p>
+          </div>
+
+          <!-- Stats resumo -->
+          <div class="summary-row">
+            <div class="stat-block ok">
+              <div class="label">Funcionando</div>
+              <div class="value">${s.ok}</div>
+              <div class="sub">de ${s.total} features (${s.pct}%)</div>
+            </div>
+            <div class="stat-block warn">
+              <div class="label">Parcial</div>
+              <div class="value">${s.warn}</div>
+              <div class="sub">precisa atenção</div>
+            </div>
+            <div class="stat-block miss">
+              <div class="label">Faltando</div>
+              <div class="value">${s.miss}</div>
+              <div class="sub">não construído</div>
+            </div>
+            <div class="stat-block">
+              <div class="label">Total auditado</div>
+              <div class="value">${s.total}</div>
+              <div class="sub">áreas da plataforma</div>
+            </div>
+          </div>
+
+          <!-- Mind map SVG -->
+          <div class="panel">
+            <div class="panel-eyebrow">VISÃO GERAL</div>
+            <h3>Mapa Mental</h3>
+            <p class="panel-sub">Cada nó representa uma área da plataforma. Cor verde = funcionando · âmbar = parcial · vermelho = faltando.</p>
+            <div class="mindmap-wrap">${buildMindMap()}</div>
+          </div>
+
+          <!-- Filter chips -->
+          <div class="filter-row" id="filters">
+            <div class="chip active" data-filter="all"><span class="dot note"></span>Tudo (${s.total})</div>
+            <div class="chip" data-filter="ok"><span class="dot ok"></span>Funcionando (${s.ok})</div>
+            <div class="chip" data-filter="warn"><span class="dot warn"></span>Parcial (${s.warn})</div>
+            <div class="chip" data-filter="miss"><span class="dot miss"></span>Faltando (${s.miss})</div>
+          </div>
+
+          <!-- Feature cards -->
+          <div class="panel">
+            <div class="panel-eyebrow">DETALHE POR FEATURE</div>
+            <h3>Status detalhado</h3>
+            <p class="panel-sub">Para cada área: o que está pronto (✅), parcial (🟡), ou faltando (⬜).</p>
+            <div class="feature-grid" id="featureGrid">
+              ${FEATURES.map(renderFeatureCard).join('')}
+            </div>
+          </div>
+
+          <!-- Roadmap -->
+          <div class="panel">
+            <div class="panel-eyebrow">PRIORIZAÇÃO SUGERIDA</div>
+            <h3>Roadmap</h3>
+            <p class="panel-sub">Ordem sugerida pra fechar gaps — baseada em impacto e esforço.</p>
+            <div class="roadmap">
+              <div class="road-col now">
+                <h5>Agora (1–2 sem)</h5>
+                <ul>
+                  <li>Plugar <strong>ProfileApp.jsx</strong> nas TABS do App.jsx</li>
+                  <li>Auth de usuário via Supabase Auth (email/Google)</li>
+                  <li>Confirmar execução de <strong>bolao_schema_v2.sql</strong> no Supabase</li>
+                  <li>Preencher <strong>AFFILIATE_*_LINK</strong> em produção</li>
+                  <li>Auditoria de RLS (ver seção segurança abaixo)</li>
+                </ul>
+              </div>
+              <div class="road-col next">
+                <h5>Próximo (3–6 sem)</h5>
+                <ul>
+                  <li><strong>Bolão geral + por estado</strong> (rankings agregados)</li>
+                  <li>Sistema de pontuação automático no Bolão</li>
+                  <li>Grupo de Mães como sub-interesse + features extras</li>
+                  <li>Feed/chat dentro de Grupos de Interesse</li>
+                  <li>Upload de avatar (Supabase Storage)</li>
+                </ul>
+              </div>
+              <div class="road-col later">
+                <h5>Depois (7+ sem)</h5>
+                <ul>
+                  <li>Mapa/busca por proximidade nos Negócios</li>
+                  <li>Moderação avançada (banir, reportar)</li>
+                  <li>Premiação real do Bolão (badges, prêmios)</li>
+                  <li>Pagamento de recompensas do Indique</li>
+                  <li>App nativo (React Native) — opcional</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <!-- Segurança -->
+          <div class="panel">
+            <div class="panel-eyebrow">SEGURANÇA · CHECK</div>
+            <h3>Auditoria de Segurança</h3>
+            <p class="panel-sub">Revisão dos pontos críticos exigidos pelas instruções do projeto.</p>
+            <ul class="sec-list" style="list-style:none;padding:0;margin:0;">
+              <li>
+                <span class="sev high">ALTO</span>
+                <span class="text"><strong>Row Level Security DESABILITADO</strong> em todas tabelas (10 schemas, 34 ocorrências de DISABLE ROW LEVEL SECURITY). APIs usam SUPABASE_SERVICE_KEY, mas o cliente também tem VITE_SUPABASE_ANON_KEY exposto — qualquer um pode tentar consultar tabelas direto. Recomendado: ativar RLS + policies por tabela, mesmo que APIs usem service key.</span>
+              </li>
+              <li>
+                <span class="sev high">ALTO</span>
+                <span class="text"><strong>Sem rate-limit no /api/admin/*</strong>. ADMIN_SECRET pode ser brute-forced. Adicionar rate limit (Upstash Ratelimit ou middleware Vercel) e logs de tentativas falhadas.</span>
+              </li>
+              <li>
+                <span class="sev med">MÉDIO</span>
+                <span class="text"><strong>Webhooks Stripe</strong> — confirmar que api/stripe/webhook.js valida a assinatura com STRIPE_WEBHOOK_SECRET (caso contrário, qualquer um pode forjar pagamentos).</span>
+              </li>
+              <li>
+                <span class="sev med">MÉDIO</span>
+                <span class="text"><strong>CORS</strong> — verificar headers nas APIs. /api/admin/analytics responde a OPTIONS sem restrição de origem; melhor restringir para o domínio de produção.</span>
+              </li>
+              <li>
+                <span class="sev med">MÉDIO</span>
+                <span class="text"><strong>Sanitização de inputs</strong> — checar /api/businesses/submit, /api/agenda/book e /api/profile/update contra XSS armazenado e SQL injection (apesar de Supabase fazer escape, validar payload é boa prática).</span>
+              </li>
+              <li>
+                <span class="sev low">BAIXO</span>
+                <span class="text"><strong>.env.local</strong> está corretamente no .gitignore. ✅</span>
+              </li>
+              <li>
+                <span class="sev low">BAIXO</span>
+                <span class="text"><strong>Headers de segurança</strong> — adicionar CSP, X-Frame-Options, Strict-Transport-Security via vercel.json.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- SQL Status -->
+          <div class="panel">
+            <div class="panel-eyebrow">SUPABASE · CHECK</div>
+            <h3>Status do SQL</h3>
+            <p class="panel-sub">Lista de todos schemas em <code>supabase/</code>. <strong>Verificar manualmente no painel do Supabase</strong> se cada um foi executado.</p>
+            <ul class="check-list" style="font-size:13px;color:var(--ink-soft);list-style:none;padding:0;margin:0;">
+              ${[
+                'supabase_schema.sql — bc_regions (cidades)',
+                'supabase_cron_tables.sql — bc_cron_logs',
+                'supabase_affiliate_tracking.sql — bc_affiliate_clicks',
+                'supabase/bolao_schema.sql — bc_copa_matches/groups/members/predictions',
+                'supabase/bolao_schema_v2.sql — DADOS OFICIAIS dos 12 grupos (executar depois do v1)',
+                'supabase/agenda_schema.sql — ag_providers/services/appointments/payments/reviews/clients',
+                'supabase/bc_profiles_schema.sql — bc_profiles + bc_privacy_settings',
+                'supabase/bc_businesses_schema.sql — bc_businesses',
+                'supabase/bc_businesses_v2.sql — schema atualizado',
+                'supabase/bc_waitlist.sql — bc_waitlist',
+                'supabase/bc_drip_log.sql — bc_drip_log',
+                'supabase/bc_referrals.sql — bc_referrals + views (bc_top_referrers)',
+                'supabase/bc_affiliate_clicks_v2.sql — view bc_clicks_by_provider, bc_clicks_daily',
+                'supabase/bc_interests_schema.sql — bc_interests',
+                'supabase/bc_push_subscriptions.sql — bc_push_subscriptions',
+              ].map(s => `<li style="padding:6px 0;border-bottom:1px solid var(--line-soft);">${escapeHtml(s)}</li>`).join('')}
+            </ul>
+            <p style="font-size:12px;color:var(--ink-muted);margin-top:14px;">
+              💡 Para conferir: abra o <a href="https://supabase.com/dashboard" target="_blank" rel="noopener">painel Supabase</a> → Table Editor → veja se cada tabela existe. Se algum schema não foi executado, abra SQL Editor e cole o conteúdo do arquivo correspondente.
+            </p>
+          </div>
+
+        </div>
+      `;
+
+      // Filtros
+      document.querySelectorAll('#filters .chip').forEach(c => {
+        c.addEventListener('click', () => {
+          document.querySelectorAll('#filters .chip').forEach(x => x.classList.remove('active'));
+          c.classList.add('active');
+          const f = c.dataset.filter;
+          document.querySelectorAll('.feature-card').forEach(card => {
+            card.classList.toggle('hidden', f !== 'all' && card.dataset.status !== f);
+          });
+        });
+      });
+    }
+
+    function renderFeatureCard(f) {
+      const lbl = STATUS_LABELS[f.status] || STATUS_LABELS.note;
+      return `
+        <div class="feature-card" id="feat-${f.id}" data-status="${f.status}">
+          <div class="head">
+            <span class="icon">${f.icon}</span>
+            <div>
+              <h4>${escapeHtml(f.title)}</h4>
+              <div class="sub-label">${escapeHtml(f.category)}</div>
+            </div>
+            <span class="badge ${f.status}">${lbl.label}</span>
+          </div>
+          <ul class="check-list">
+            ${f.items.map(it => `<li class="${it.type}">${escapeHtml(it.text)}</li>`).join('')}
+          </ul>
+          <div class="footer-meta">
+            ${f.api && f.api.length ? `<span title="API endpoints">🔌 ${f.api.length} API${f.api.length > 1 ? 's' : ''}</span>` : ''}
+            ${f.sql && f.sql.length ? `<span title="SQL schemas">🗄️ ${f.sql.length} schema${f.sql.length > 1 ? 's' : ''}</span>` : ''}
+            ${f.ui && f.ui.length ? `<span title="UI files">🎨 ${f.ui.length} UI</span>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // Boot
+    if (getSecret()) renderPage();
+    else renderLogin();
+  </script>
+</body>
+</html>

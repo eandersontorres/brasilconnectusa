@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://brasilconnectusa.com/viagem/">
+  <title>Viagem nos EUA — Hotéis, Parques e Simulador | BrasilConnect</title>
+  <meta name="description" content="Planeje sua viagem turística nos EUA: compare hotéis, ingressos de parques (Disney, Universal, SeaWorld) e use nosso simulador de roteiro completo.">
+  <meta name="theme-color" content="#0F5132">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
+    .tab { padding: 12px 20px; border: none; background: transparent; cursor: pointer; font-family: inherit; font-size: 14px; color: var(--ink-muted); border-bottom: 2px solid transparent; }
+    .tab.active { color: var(--ink); font-weight: 600; border-bottom-color: var(--brand-green); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+    .card-item { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px; }
+    .card-item .name { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+    .card-item .meta { font-size: 12px; color: var(--ink-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .card-item .price { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: var(--ink); margin-top: 8px; }
+    .card-item a.cta { display: block; margin-top: 12px; padding: 10px; background: var(--ink); color: var(--paper); text-decoration: none; text-align: center; border-radius: 8px; font-weight: 600; font-size: 13px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-bottom: 6px; }
+    .field select, .field input { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md); font-family: inherit; font-size: 14px; box-sizing: border-box; }
+    .park-check { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line-soft); cursor: pointer; }
+    .park-check input { width: 18px; height: 18px; }
+    .totals { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px; margin-top: 18px; }
+    .totals .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line-soft); }
+    .totals .row.total { border-top: 2px solid var(--ink); border-bottom: none; padding-top: 14px; margin-top: 8px; font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="logo" href="/"><img src="/img/logo.svg" alt="BrasilConnect" /></a>
+      <nav class="site-nav"><a href="/custo-de-vida/">Cidades</a><a href="/guias/">Guias</a><a href="/agenda/">Agenda</a><a href="/viagem/" style="color:var(--brand-green);font-weight:600;">Viagem</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container-narrow">
+        <div class="eyebrow">Viagem · Brasileiros nos EUA</div>
+        <h1>Planeje sua viagem turística nos Estados Unidos</h1>
+        <p class="lede">Hotéis, parques e roteiro completo. Tudo com afiliados confiáveis (Booking, Expedia, Undercover Tourist) — você economiza, a gente recebe uma comissão.</p>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <div class="tabs">
+          <button class="tab active" data-tab="hoteis">Hotéis</button>
+          <button class="tab" data-tab="parques">Parques</button>
+          <button class="tab" data-tab="sim">Simulador</button>
+        </div>
+        <div id="content"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-bottom">© 2026 BrasilConnect USA · Links afiliados — sem custo extra para você</div>
+    </div>
+  </footer>
+
+  <script>
+    // Hotéis por cidade — links afiliados via /go/[partner]
+    const HOTELS = [
+      // Orlando — capital dos parques pra brasileiros
+      { city:'Orlando, FL', name:'Orlando — Hotéis perto da Disney', stars:'★★★★', priceRange:'$120-280/noite', partner:'booking', category:'Família' },
+      { city:'Orlando, FL', name:'Orlando — Resorts oficiais Disney', stars:'★★★★★', priceRange:'$280-600/noite', partner:'expedia', category:'Família' },
+      { city:'Miami, FL', name:'Miami Beach', stars:'★★★★', priceRange:'$200-450/noite', partner:'booking', category:'Praia' },
+      { city:'New York, NY', name:'Times Square / Manhattan', stars:'★★★★', priceRange:'$220-500/noite', partner:'booking', category:'Urbano' },
+      { city:'Las Vegas, NV', name:'Strip — Bellagio, MGM, Wynn', stars:'★★★★★', priceRange:'$150-400/noite', partner:'expedia', category:'Entretenimento' },
+      { city:'Los Angeles, CA', name:'Hollywood / Beverly Hills', stars:'★★★★', priceRange:'$200-450/noite', partner:'booking', category:'Urbano' },
+      { city:'Chicago, IL', name:'Chicago Downtown', stars:'★★★★', priceRange:'$180-380/noite', partner:'booking', category:'Urbano' },
+      { city:'Washington, DC', name:'DC — Smithsonian / Capitol', stars:'★★★★', priceRange:'$190-400/noite', partner:'expedia', category:'Cultural' },
+      { city:'Recém-chegado', name:'Extended Stay (semanas/meses)', stars:'★★★', priceRange:'$80-150/noite', partner:'booking', category:'Hospedagem temporária' },
+    ]
+
+    // Parques por cidade
+    const PARKS = {
+      orlando: [
+        { name:'Magic Kingdom (Disney)', adult:139, child:134, partner:'undercover', tip:'Chegue 30min antes da abertura' },
+        { name:'EPCOT (Disney)', adult:139, child:134, partner:'undercover', tip:'Festival de comida no outono' },
+        { name:'Hollywood Studios (Disney)', adult:139, child:134, partner:'undercover', tip:'Star Wars: Galaxy\'s Edge é imperdível' },
+        { name:'Animal Kingdom (Disney)', adult:139, child:134, partner:'undercover', tip:'Avatar Pandora à noite' },
+        { name:'Universal Studios', adult:124, child:119, partner:'undercover', tip:'Express Pass economiza horas' },
+        { name:'Islands of Adventure', adult:124, child:119, partner:'undercover', tip:'Harry Potter aqui!' },
+        { name:'SeaWorld Orlando', adult:99, child:99, partner:'klook', tip:'Combo com Aquatica' },
+        { name:'LEGOLAND Florida', adult:114, child:109, partner:'klook', tip:'Bom pra crianças até 12' },
+      ],
+      losangeles: [
+        { name:'Disneyland', adult:159, child:149, partner:'undercover', tip:'Mais clássico que Florida' },
+        { name:'Universal Studios Hollywood', adult:114, child:109, partner:'undercover', tip:'Studio Tour é único' },
+        { name:'Six Flags Magic Mountain', adult:85, child:65, partner:'klook', tip:'Maior coleção de roller coasters' },
+      ],
+      newyork: [
+        { name:'Empire State Building', adult:55, child:45, partner:'viator', tip:'Pôr do sol é mágico' },
+        { name:'Statue of Liberty + Ellis Island', adult:25, child:18, partner:'viator', tip:'Reserve com antecedência' },
+        { name:'9/11 Memorial Museum', adult:33, child:21, partner:'getyourguide', tip:'Emocionalmente forte' },
+        { name:'Top of the Rock', adult:42, child:38, partner:'viator', tip:'Vista do Empire State' },
+      ],
+      miami: [
+        { name:'Everglades Airboat Tour', adult:85, child:65, partner:'viator', tip:'Sai de Miami' },
+        { name:'Miami Boat Tour', adult:48, child:35, partner:'getyourguide', tip:'Casas de celebridades' },
+        { name:'Zoo Miami', adult:28, child:23, partner:'klook', tip:'Bom pra famílias' },
+      ],
+      lasvegas: [
+        { name:'High Roller Ferris Wheel', adult:32, child:25, partner:'viator', tip:'Vista panorâmica do Strip' },
+        { name:'Grand Canyon Tour', adult:140, child:120, partner:'viator', tip:'Day trip clássico' },
+      ],
+      sanfrancisco: [
+        { name:'Alcatraz Island', adult:45, child:28, partner:'viator', tip:'Reserve com 2-4 semanas' },
+        { name:'Cable Car + Sausalito Ferry', adult:55, child:35, partner:'getyourguide', tip:'Combo clássico' },
+      ],
+    }
+
+    const $ = id => document.getElementById(id)
+    const escapeHtml = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
+
+    document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+      document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'))
+      t.classList.add('active')
+      render(t.dataset.tab)
+    })
+
+    function render(tab) {
+      if (tab === 'hoteis') return renderHoteis()
+      if (tab === 'parques') return renderParques()
+      if (tab === 'sim') return renderSimulador()
+    }
+
+    function renderHoteis() {
+      $('content').innerHTML = `
+        <h2 style="font-family:var(--font-display);">Hotéis nas cidades top do turismo brasileiro</h2>
+        <p class="muted">Reserve via parceiros oficiais. Comissão de afiliado já incluída no preço — você não paga nada a mais.</p>
+        <div class="grid" style="margin-top:18px;">
+          ${HOTELS.map(h => `
+            <div class="card-item">
+              <div class="meta">${escapeHtml(h.city)} · ${escapeHtml(h.category)}</div>
+              <div class="name">${escapeHtml(h.name)}</div>
+              <div style="color:var(--brand-gold-dark);font-size:14px;margin:6px 0;">${h.stars}</div>
+              <div class="price">${escapeHtml(h.priceRange)}</div>
+              <a class="cta" href="/go/${h.partner}?campaign=viagem_hotel" target="_blank" rel="noopener nofollow sponsored">Reservar via ${h.partner === 'booking' ? 'Booking' : 'Expedia'}</a>
+            </div>
+          `).join('')}
+        </div>
+      `
+    }
+
+    function renderParques() {
+      const cities = [['orlando','Orlando, FL'],['losangeles','Los Angeles, CA'],['newyork','New York, NY'],['miami','Miami, FL'],['lasvegas','Las Vegas, NV'],['sanfrancisco','San Francisco, CA']]
+      $('content').innerHTML = `
+        <h2 style="font-family:var(--font-display);">Parques e atrações por cidade</h2>
+        <p class="muted">Ingressos com desconto via Undercover Tourist (Disney/Universal), Klook (vários) e Viator (TripAdvisor) e GetYourGuide.</p>
+        ${cities.map(([key,name]) => `
+          <h3 style="font-family:var(--font-display);margin-top:32px;">${escapeHtml(name)}</h3>
+          <div class="grid">
+            ${(PARKS[key] || []).map(p => `
+              <div class="card-item">
+                <div class="name">${escapeHtml(p.name)}</div>
+                <div class="meta">Adulto $${p.adult} · Criança $${p.child}</div>
+                <p style="font-size:13px;color:var(--ink-soft);margin:8px 0;">💡 ${escapeHtml(p.tip)}</p>
+                <a class="cta" href="/go/${p.partner}?campaign=viagem_parque_${escapeHtml(key)}" target="_blank" rel="noopener nofollow sponsored">Comprar ingresso</a>
+              </div>
+            `).join('')}
+          </div>
+        `).join('')}
+      `
+    }
+
+    function renderSimulador() {
+      $('content').innerHTML = `
+        <h2 style="font-family:var(--font-display);">Simulador de viagem</h2>
+        <p class="muted">Monte seu roteiro e veja quanto vai gastar.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:600px;">
+          <div class="field">
+            <label>Destino</label>
+            <select id="simCity">
+              <option value="orlando">Orlando, FL</option>
+              <option value="losangeles">Los Angeles, CA</option>
+              <option value="newyork">New York, NY</option>
+              <option value="miami">Miami, FL</option>
+              <option value="lasvegas">Las Vegas, NV</option>
+              <option value="sanfrancisco">San Francisco, CA</option>
+            </select>
+          </div>
+          <div class="field"><label>Adultos</label><input id="simAdults" type="number" min="1" value="2" /></div>
+          <div class="field"><label>Crianças</label><input id="simKids" type="number" min="0" value="2" /></div>
+          <div class="field"><label>Dias</label><input id="simDays" type="number" min="1" value="5" /></div>
+          <div class="field"><label>Categoria do hotel</label>
+            <select id="simHotel">
+              <option value="120">3★ ($120/noite)</option>
+              <option value="220" selected>4★ ($220/noite)</option>
+              <option value="380">5★ ($380/noite)</option>
+            </select>
+          </div>
+        </div>
+
+        <h3 style="font-family:var(--font-display);margin-top:18px;">Parques desejados</h3>
+        <div id="simParks"></div>
+
+        <button onclick="calcSim()" class="btn btn-primary" style="margin-top:18px;">Calcular meu roteiro →</button>
+        <div id="simResult"></div>
+      `
+      renderSimParks()
+      $('simCity').onchange = renderSimParks
+    }
+
+    function renderSimParks() {
+      const city = $('simCity').value
+      $('simParks').innerHTML = (PARKS[city] || []).map(p => `
+        <label class="park-check">
+          <input type="checkbox" data-park='${JSON.stringify(p).replace(/'/g, "&#39;")}' />
+          <div style="flex:1;">
+            <div style="font-weight:600;">${escapeHtml(p.name)}</div>
+            <div style="font-size:13px;color:var(--ink-muted);">$${p.adult} adulto · $${p.child} criança</div>
+          </div>
+        </label>
+      `).join('')
+    }
+
+    function calcSim() {
+      const adults = parseInt($('simAdults').value) || 0
+      const kids = parseInt($('simKids').value) || 0
+      const days = parseInt($('simDays').value) || 0
+      const nightlyRate = parseInt($('simHotel').value) || 0
+      const cityName = $('simCity').selectedOptions[0].text
+
+      const hotelTotal = nightlyRate * days
+      const selectedParks = Array.from(document.querySelectorAll('#simParks input:checked'))
+        .map(el => JSON.parse(el.dataset.park.replace(/&#39;/g, "'")))
+      const parksTotal = selectedParks.reduce((sum, p) => sum + (p.adult * adults + p.child * kids), 0)
+      const foodPerDay = 60 * adults + 30 * kids
+      const foodTotal = foodPerDay * days
+      const transportTotal = days * 50  // estimativa carro/uber
+      const extras = days * 30 * (adults + kids) // souvenirs, lanches
+
+      const total = hotelTotal + parksTotal + foodTotal + transportTotal + extras
+      const perPerson = total / (adults + kids)
+
+      $('simResult').innerHTML = `
+        <div class="totals">
+          <h3 style="font-family:var(--font-display);margin-top:0;">Seu roteiro: ${days} dias em ${escapeHtml(cityName)}</h3>
+          <div class="row"><span>Hospedagem (${days} noites)</span><span>$${hotelTotal.toLocaleString()}</span></div>
+          <div class="row"><span>Parques (${selectedParks.length} ingressos × ${adults+kids} pessoas)</span><span>$${parksTotal.toLocaleString()}</span></div>
+          <div class="row"><span>Alimentação (estimativa)</span><span>$${foodTotal.toLocaleString()}</span></div>
+          <div class="row"><span>Transporte / Uber</span><span>$${transportTotal.toLocaleString()}</span></div>
+          <div class="row"><span>Extras e souvenirs</span><span>$${extras.toLocaleString()}</span></div>
+          <div class="row total"><span>Total estimado</span><span>$${total.toLocaleString()}</span></div>
+          <p class="muted" style="font-size:13px;margin-top:14px;">$${Math.round(perPerson).toLocaleString()} por pessoa · valores aproximados em USD</p>
+          <button onclick='window.open("https://wa.me/?text=" + encodeURIComponent("Olha esse roteiro de ${days} dias em " + ${JSON.stringify(cityName)} + ": $${total.toLocaleString()} total ($${Math.round(perPerson).toLocaleString()}/pessoa). Calculado em https://brasilconnectusa.com/viagem/"), "_blank")' class="btn btn-secondary" style="margin-top:14px;">Compartilhar no WhatsApp</button>
+        </div>
+      `
+    }
+
+    window.calcSim = calcSim
+    renderHoteis()
+  </script>
+</body>
+</html>

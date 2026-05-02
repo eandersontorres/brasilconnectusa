@@ -1,0 +1,405 @@
+{
+  "guides": [
+    {
+      "slug": "cnh",
+      "title": "Como tirar CNH (carteira de motorista) nos EUA — guia completo para brasileiros",
+      "shortTitle": "Como tirar CNH nos EUA",
+      "metaDesc": "Tirar a Driver's License (CNH americana) é diferente em cada estado. Veja o passo a passo completo, documentos necessários, custos e dicas para brasileiros.",
+      "difficulty": "Médio",
+      "timeEstimate": "30 a 90 dias",
+      "cost": "$50 a $150 + custo do seguro",
+      "intro": "A Driver's License (Driver License em alguns estados) é o equivalente americano à CNH brasileira. Ao contrário do Brasil, nos EUA cada estado tem suas próprias regras, prazos e exigências. Mesmo brasileiros com CNH válida precisam tirar a americana após estabelecer residência — geralmente 30 a 90 dias após chegada. Este guia cobre o processo padrão e os principais pontos de atenção por estado.",
+      "prereqs": [
+        "Documento de identificação válido (passaporte brasileiro com visto válido ou green card)",
+        "Comprovante de residência no estado (contrato de aluguel, conta de luz/água em seu nome)",
+        "Social Security Number (SSN) — alguns estados aceitam ITIN",
+        "Tradução juramentada da CNH brasileira (em alguns estados, ajuda no processo)",
+        "Idade mínima: geralmente 18 anos para licença comum (16 com restrições)"
+      ],
+      "steps": [
+        {
+          "title": "Estude o manual do motorista do estado",
+          "body": "Cada estado publica gratuitamente seu Driver Manual em PDF (geralmente disponível em português em alguns estados como FL, MA, NJ). Leia com atenção — a prova teórica é baseada nele. Aplicativos como 'Driving-Tests.org' têm simulados gratuitos por estado, em inglês. Reservar 1-2 semanas para estudar é razoável."
+        },
+        {
+          "title": "Agende o teste no DMV / DPS / RMV",
+          "body": "O órgão muda de nome por estado: DMV (CA, NY, TX para algumas operações), DPS (Texas para CNH), RMV (Massachusetts). Agendamento online geralmente é obrigatório. Em estados de alta demanda (Texas, Califórnia), pode haver fila de 30-90 dias. Verifique o site oficial do seu estado."
+        },
+        {
+          "title": "Faça a prova teórica (knowledge test)",
+          "body": "Prova de múltipla escolha, geralmente 25-50 questões. Em alguns estados, disponível em português (FL, MA, NJ entre outros). Taxa varia entre US$ 25-50. Se passar, você recebe a Learner's Permit (ou similar), que permite dirigir com motorista habilitado ao lado."
+        },
+        {
+          "title": "Pratique direção (período mínimo varia por estado)",
+          "body": "Com a Learner's Permit, alguns estados exigem período mínimo de prática (30-180 dias) antes da prova prática. Outros (como Texas para adultos) permitem fazer direto. Treinar em estacionamentos vazios e ruas tranquilas inicialmente é fundamental."
+        },
+        {
+          "title": "Faça a prova prática (driving test)",
+          "body": "Você precisa levar um carro com seguro válido para a prova. O examinador avalia: parar em sinais e placas, mudança de faixa com sinalização, baliza (parallel parking — não em todos os estados), três pontos, direção defensiva geral. Reprovações são comuns — 30-40% reprovam na primeira tentativa."
+        },
+        {
+          "title": "Pague taxa e tire foto",
+          "body": "Após aprovado, pagamento da taxa de emissão (US$ 25-80 dependendo do estado e validade). A licença chega pelo correio em 2-4 semanas. Você recebe um documento temporário válido para dirigir imediatamente."
+        }
+      ],
+      "documentsTable": [
+        { "doc": "Passaporte (visto válido) ou Green Card", "notes": "Original — não cópia" },
+        { "doc": "SSN ou comprovação de não elegibilidade", "notes": "Carta da Social Security em alguns estados" },
+        { "doc": "Comprovante de residência (1-2)", "notes": "Conta de luz, gás, contrato de aluguel" },
+        { "doc": "Pagamento das taxas (cartão ou cheque)", "notes": "Dinheiro nem sempre é aceito" }
+      ],
+      "commonErrors": [
+        "Não estudar o manual do estado específico — regras variam significativamente entre Texas, Flórida, Massachusetts e outros",
+        "Levar carro sem seguro válido para a prova prática (reprovação automática)",
+        "Esquecer de trazer comprovante de residência aceito (verifique a lista oficial)",
+        "Aplicar com Learner's Permit em estados que exigem período mínimo antes da prática (resulta em rejeição)",
+        "Subestimar a baliza — em estados que ainda exigem (NY, MA, IL), pratique muito antes"
+      ],
+      "stateNotes": [
+        { "state": "Texas (DPS)", "note": "Sem income tax facilita a vida, mas demanda é alta. Brasileiros frequentemente esperam 60+ dias para agendar prova prática. Pode-se ir a cidades menores (não Austin/Houston) e conseguir vaga em 2-3 semanas." },
+        { "state": "Flórida (FLHSMV)", "note": "Manual disponível em português. Aceita vários documentos como prova de residência. Processo geralmente rápido (4-6 semanas total)." },
+        { "state": "Massachusetts (RMV)", "note": "Disponível em português também. Período obrigatório de 6 meses com permit antes da prática para menores de 18, sem essa exigência para adultos. Inverno dificulta prática." },
+        { "state": "Califórnia (DMV)", "note": "Demanda extremamente alta. Prepare-se para esperar 2-4 meses. Considere agendar em condados menores (Sacramento, Fresno) se o tempo for crítico." }
+      ],
+      "partnerSlots": [
+        { "partner": "lemonade", "name": "Lemonade Auto", "desc": "Seguro de carro digital, simula em 90 segundos. A partir de US$ 60/mês para condutores com bom histórico.", "campaign": "guia_cnh" }
+      ],
+      "faqs": [
+        { "q": "Posso dirigir com a CNH brasileira nos EUA?", "a": "Por curto período sim — a maioria dos estados aceita a CNH internacional ou brasileira por 30 a 90 dias após chegada (varia). Após esse período, é preciso tirar a americana, mesmo que você seja turista que está estendendo a estadia. Polícia que aborda alguém com CNH brasileira após esse prazo geralmente dá multa." },
+        { "q": "Preciso de SSN para tirar Driver's License?", "a": "Na maioria dos estados, sim — mas alguns aceitam ITIN (Texas, Califórnia, Nova York entre outros). Ainda outros aceitam declaração de não-elegibilidade. Verifique a lista oficial do estado antes de agendar." },
+        { "q": "Quanto custa tirar a CNH americana?", "a": "Custo direto entre US$ 50-150 (taxas de prova + emissão). Custo indireto que pesa: seguro de carro, que pode ser US$ 1.500-3.000/ano sem histórico americano. O valor cai significativamente após 1-2 anos com bom histórico." },
+        { "q": "Vale a pena fazer aulas com instrutor americano?", "a": "Para quem nunca dirigiu, sim. Para brasileiros experientes, geralmente uma ou duas aulas focadas nas regras americanas (faixas, placas, prioridade nos cruzamentos de quatro paradas) são suficientes. Custo médio: US$ 60-100/hora." },
+        { "q": "Posso tirar Driver's License em outro estado para evitar fila?", "a": "Tecnicamente, você precisa estar residindo no estado e comprovar isso. Tirar em estado diferente do seu de residência pode ser considerado fraude. Para acelerar, vá a DMV/DPS de cidade pequena dentro do seu estado — geralmente filas são menores." }
+      ]
+    },
+    {
+      "slug": "conta-bancaria",
+      "title": "Como abrir conta bancária nos EUA sem SSN — guia completo para brasileiros",
+      "shortTitle": "Conta bancária sem SSN",
+      "metaDesc": "Brasileiros recém chegados podem abrir conta bancária nos EUA mesmo sem SSN. Veja quais bancos aceitam ITIN, passaporte e quanto custa abrir.",
+      "difficulty": "Fácil",
+      "timeEstimate": "1 a 3 dias",
+      "cost": "Geralmente gratuito",
+      "intro": "Diferente do que muita gente pensa, é totalmente possível abrir conta bancária nos EUA mesmo sem Social Security Number. Vários bancos aceitam ITIN (Individual Taxpayer Identification Number) ou simplesmente passaporte como identificação. Este guia cobre as melhores opções para brasileiros recém chegados, incluindo bancos digitais que abriram caminho para imigrantes nos últimos anos.",
+      "prereqs": [
+        "Passaporte válido com visto americano (ou green card)",
+        "Comprovante de endereço nos EUA (conta de luz, contrato, carta de aceite de universidade)",
+        "ITIN (opcional — facilita em alguns bancos tradicionais)",
+        "Endereço americano para receber correspondência e cartão"
+      ],
+      "steps": [
+        {
+          "title": "Decida entre banco digital ou tradicional",
+          "body": "Para recém chegados, bancos digitais como Mercury, Wise, Revolut e SoFi geralmente aprovam mais rápido e exigem menos documentação. Bancos tradicionais (Chase, Bank of America, Wells Fargo) podem ser melhores para serviços mais amplos como financiamento de carro/casa, mas costumam exigir SSN para abertura."
+        },
+        {
+          "title": "Reúna documentos",
+          "body": "Passaporte com visto válido é o documento principal. Comprovante de endereço pode ser conta de luz, contrato de aluguel, carta da universidade (W-9 da empresa também conta em alguns casos). Para bancos online, fotos digitalizadas geralmente bastam."
+        },
+        {
+          "title": "Aplicação online (bancos digitais)",
+          "body": "Mercury, Wise e SoFi têm aplicação 100% online. Tempo médio: 15-30 minutos para completar formulário, 1-3 dias úteis para aprovação. Aprovação não é garantida — score de fraude e características da aplicação influenciam. Mercury exige negócio formalizado (LLC ou EIN)."
+        },
+        {
+          "title": "Visita à agência (bancos tradicionais)",
+          "body": "Chase, Bank of America e Wells Fargo geralmente exigem visita presencial. Marque horário, leve passaporte, comprovante de endereço e ITIN se já tiver. O atendente ajudará a abrir Checking + Savings. Depósito inicial mínimo: US$ 25-100 dependendo da conta."
+        },
+        {
+          "title": "Configure depósito direto e transferências",
+          "body": "Após conta aberta, configure: depósito direto do empregador (formulário com routing number e account number), Zelle para receber/enviar dinheiro de outros americanos, débito automático para contas (luz, internet). Para enviar dinheiro para o Brasil, prefira Wise/Remitly em vez do banco tradicional (taxas até 95% menores)."
+        },
+        {
+          "title": "Construa histórico de crédito (separado da conta)",
+          "body": "Conta corrente NÃO constrói credit score. Para isso, você precisa de cartão de crédito (mesmo que secured card como Capital One Quicksilver Secured). Após 6-12 meses com pagamentos em dia, score começa a subir. Sem credit score, financiamentos de carro/casa são extremamente caros ou inviáveis."
+        }
+      ],
+      "documentsTable": [
+        { "doc": "Passaporte com visto", "notes": "Original (banco tradicional) ou foto (digital)" },
+        { "doc": "Comprovante de endereço", "notes": "Recente (até 90 dias)" },
+        { "doc": "ITIN (opcional)", "notes": "Facilita em bancos tradicionais e para impostos" },
+        { "doc": "Depósito inicial", "notes": "US$ 25-100 dependendo da conta" }
+      ],
+      "commonErrors": [
+        "Achar que precisa do SSN para abrir conta — vários bancos aceitam ITIN ou só passaporte",
+        "Confundir conta corrente com construção de credit score (são processos separados)",
+        "Usar banco tradicional para enviar dinheiro ao Brasil — taxas escondidas no spread podem chegar a 5-7%, contra menos de 1% no Wise",
+        "Não configurar Zelle — é gratuito, instantâneo e usado por praticamente todos os americanos para transferências entre pessoas"
+      ],
+      "partnerSlots": [
+        { "partner": "mercury", "name": "Mercury Bank", "desc": "Conta para empresas (LLC) sem taxa mensal. Ideal para brasileiros empreendendo nos EUA. Aprovação em 1-3 dias.", "campaign": "guia_conta_mercury" },
+        { "partner": "capitalone", "name": "Capital One Secured", "desc": "Cartão de crédito para começar a construir credit score. Depósito de garantia que vira limite.", "campaign": "guia_conta_capitalone" }
+      ],
+      "faqs": [
+        { "q": "Qual o melhor banco para brasileiro recém chegado nos EUA?", "a": "Para uso pessoal sem complicações: Chase ou Bank of America (presença física em todo o país, ATMs gratuitos). Para uso de negócios ou freelance: Mercury (digital, sem fee). Para quem viaja muito: Wise multi-currency. Não há resposta única — depende do uso." },
+        { "q": "Posso abrir conta com passaporte sem visto americano?", "a": "Geralmente não para residência — bancos exigem alguma comprovação de presença legal nos EUA. Existem opções específicas para turistas em alguns bancos (HSBC Premier internacional), mas são contas premium com requisitos altos." },
+        { "q": "Quanto demora para o cartão de débito chegar?", "a": "Bancos digitais: 7-10 dias úteis pelo correio. Bancos tradicionais com agência: muitas vezes entrega na hora ou em 2-3 dias úteis." }, 
+        { "q": "Vale a pena ter conta no Brasil e nos EUA simultaneamente?", "a": "Sim, especialmente nos primeiros anos. Manter conta no Brasil facilita pagar contas brasileiras (financiamentos, plano de saúde, família) e receber valores ocasionais. Para transferências EUA→Brasil, use Wise ou Remitly em vez de TED bancária tradicional." },
+        { "q": "Vou pagar imposto sobre dinheiro que mando do Brasil para os EUA?", "a": "Trazer dinheiro do Brasil pode ter implicações fiscais que dependem do seu status (residente para fins fiscais ou não). Para valores significativos (acima de US$ 10 mil em uma única transferência ou em viagem), há obrigações de declaração. Consulte CPA brasileiro especializado em duplo regime." }
+      ]
+    },
+    {
+      "slug": "itin",
+      "title": "Como conseguir ITIN — Individual Taxpayer Identification Number para brasileiros",
+      "shortTitle": "Como conseguir ITIN",
+      "metaDesc": "ITIN é o equivalente fiscal ao SSN para quem não pode obter Social Security. Veja o passo a passo, prazos e custos para brasileiros conseguirem o ITIN.",
+      "difficulty": "Médio",
+      "timeEstimate": "7 a 11 semanas",
+      "cost": "$0 (DIY) a $200 (com profissional)",
+      "intro": "ITIN (Individual Taxpayer Identification Number) é um número de 9 dígitos emitido pelo IRS para indivíduos que precisam declarar imposto de renda americano mas não são elegíveis ao SSN. É essencial para brasileiros que ganham renda nos EUA sem autorização de trabalho, têm investimentos americanos, ou são dependentes de pessoa que declara imposto. Este guia cobre o processo completo do W-7.",
+      "prereqs": [
+        "Razão válida segundo o IRS para precisar de ITIN (mais comum: declarar imposto, dependente em declaração, investidor)",
+        "Passaporte válido com pelo menos 6 meses até o vencimento",
+        "Documentação que comprove a razão (1099, K-1, contrato de aluguel imobiliário etc.)",
+        "Formulário W-7 preenchido"
+      ],
+      "steps": [
+        {
+          "title": "Identifique sua razão para o ITIN",
+          "body": "O IRS lista categorias específicas. As mais comuns para brasileiros: (a) Não residente que precisa declarar (ex: investidor em imóvel americano), (b) Cônjuge ou dependente em declaração conjunta, (c) Estudante com bolsa, (d) Não residente reivindicando benefícios de tratado entre Brasil e EUA. Sem razão válida, a aplicação é rejeitada."
+        },
+        {
+          "title": "Obtenha o formulário W-7",
+          "body": "Disponível gratuitamente em IRS.gov/forms-pubs/about-form-w-7 em PDF. Existem versões em outros idiomas, mas a oficial é em inglês. Para preencher, você precisa do passaporte e da razão (categoria a-h conforme instruções)."
+        },
+        {
+          "title": "Decida entre 3 caminhos de aplicação",
+          "body": "Caminho 1 (mais lento, gratuito): enviar W-7 + passaporte original + declaração de imposto pelos correios ao IRS. O IRS DEVOLVE o passaporte ao final. Caminho 2 (mais rápido): ir a um IRS Taxpayer Assistance Center com agendamento — eles autenticam o documento e devolvem na hora. Caminho 3 (mais caro mas conveniente): contratar Certified Acceptance Agent (CAA) — geralmente CPA ou advogado especializado, custo US$ 100-300."
+        },
+        {
+          "title": "Anexe declaração de imposto (na maioria dos casos)",
+          "body": "Para a maioria das categorias, o W-7 deve ser enviado JUNTO com a declaração 1040 ou 1040-NR. Sem isso, o IRS rejeita. Algumas exceções: dependentes ou cônjuges em declaração de outra pessoa, ou casos específicos com documentação alternativa."
+        },
+        {
+          "title": "Envie e aguarde",
+          "body": "Pelo correio, prazo médio 7-11 semanas (pode estender em períodos de pico — janeiro a abril). Pelo IRS Center, geralmente 7-9 semanas. Você receberá pelo correio uma carta com o ITIN. Guarde essa carta para sempre."
+        },
+        {
+          "title": "Mantenha o ITIN ativo",
+          "body": "ITIN expira se não for usado em declaração de imposto por 3 anos consecutivos. Para reativar, é preciso passar pelo processo novamente. Quem ganha SSN posteriormente deve notificar o IRS e o ITIN passa a ser substituído pelo SSN para fins fiscais."
+        }
+      ],
+      "documentsTable": [
+        { "doc": "Formulário W-7", "notes": "Preenchido e assinado" },
+        { "doc": "Passaporte", "notes": "Original (correio) ou autenticado por CAA" },
+        { "doc": "Declaração de imposto (1040 ou 1040-NR)", "notes": "Geralmente obrigatória" },
+        { "doc": "Documentos da razão", "notes": "1099, contrato, etc." }
+      ],
+      "commonErrors": [
+        "Aplicar sem razão válida do IRS — rejeição automática",
+        "Esquecer de anexar declaração de imposto quando ela é obrigatória para a categoria",
+        "Enviar passaporte por correio sem rastreamento (USPS Certified ou FedEx é altamente recomendado)",
+        "Confundir ITIN com SSN — eles têm propósitos diferentes; ITIN não autoriza trabalho",
+        "Aplicar perto da deadline de 15 de abril — atrasos no processamento podem fazer você perder prazo de declaração"
+      ],
+      "partnerSlots": [],
+      "faqs": [
+        { "q": "ITIN serve para trabalhar legalmente nos EUA?", "a": "Não. ITIN é exclusivamente para fins fiscais. Para trabalhar legalmente é preciso autorização de trabalho (geralmente atrelada ao visto, como H-1B, L-1, ou Green Card). Trabalhar com ITIN sem autorização constitui violação imigratória." }, 
+          { "q": "Posso abrir conta bancária com ITIN?", "a": "Sim, vários bancos aceitam ITIN para abertura de conta corrente e cartões de crédito. Bank of America, Citi, Wells Fargo e Capital One são alguns que aceitam. É uma boa estratégia para começar a construir histórico financeiro americano." },
+        { "q": "Quanto tempo dura o ITIN?", "a": "Indefinidamente, desde que você o use em declaração de imposto pelo menos uma vez a cada 3 anos. Sem uso por 3 anos, expira e precisa ser reativado pelo mesmo processo." },
+        { "q": "Posso conseguir ITIN online?", "a": "O preenchimento e impressão do W-7 sim. Mas o processo final exige envio físico do passaporte (ou comparecimento presencial em IRS Center / CAA), então não é 100% online. Ainda assim, com CAA muitas etapas podem ser feitas remotamente." },
+        { "q": "Vale a pena pagar um Certified Acceptance Agent?", "a": "Para quem tem caso simples e quer economizar, processo direto com o IRS funciona. Para quem tem caso complexo (múltiplas categorias, cônjuge no Brasil, situação fiscal complicada), CAA economiza tempo e reduz risco de rejeição. Custo médio US$ 150-300 por aplicante." }
+      ]
+    },
+    {
+      "slug": "escola",
+      "title": "Como matricular filhos na escola pública nos EUA — guia para brasileiros",
+      "shortTitle": "Matrícula na escola americana",
+      "metaDesc": "Matrícula em escola pública americana é gratuita e independe de status migratório. Veja documentos necessários, sistema escolar e dicas para brasileiros.",
+      "difficulty": "Fácil",
+      "timeEstimate": "1 a 4 semanas",
+      "cost": "Gratuito",
+      "intro": "Educação pública nos EUA é gratuita e universal — qualquer criança em idade escolar tem direito a frequentar a escola pública do distrito onde mora, independentemente do status migratório dos pais. A jurisprudência (Plyler v. Doe, Suprema Corte 1982) é clara nesse ponto. Este guia cobre o processo de matrícula, o sistema escolar americano e dicas práticas para famílias brasileiras recém chegadas.",
+      "prereqs": [
+        "Comprovante de residência no distrito escolar (contrato de aluguel, conta de luz)",
+        "Identidade da criança (passaporte ou certidão de nascimento)",
+        "Histórico escolar do Brasil (boletins, cartas de transferência) — traduzidos é melhor mas não obrigatório",
+        "Vacinação atualizada (cartão de vacinas — se faltar alguma, pediatra americano completa)",
+        "Comprovante de tutoria/guarda dos pais (passaporte da criança + dos pais geralmente bastam)"
+      ],
+      "steps": [
+        {
+          "title": "Identifique seu distrito escolar",
+          "body": "Cada endereço pertence a um district com escolas designadas. Use o site do estado ou do município, ou ferramentas como GreatSchools.org para descobrir qual escola sua criança frequentará. A escola é determinada pelo endereço onde a família vive — você não escolhe livremente entre escolas públicas (a menos que o distrito tenha programa de open enrollment ou magnet schools)."
+        },
+        {
+          "title": "Avalie a escola designada",
+          "body": "GreatSchools dá nota 1-10 baseada em performance acadêmica e diversidade. Niche.com complementa com avaliações de pais. Visite a escola se possível antes de fechar contrato de aluguel — em alguns estados, a qualidade varia drasticamente entre distritos próximos. Para muitas famílias brasileiras, escolha do bairro é determinada pela escola."
+        },
+        {
+          "title": "Reúna documentação",
+          "body": "Cada distrito tem checklist próprio. Geralmente: prova de residência (1-2 documentos recentes em nome de um dos pais), passaporte da criança, certidão de nascimento (com tradução juramentada se em português), histórico escolar, cartão de vacinas, formulários internos do distrito."
+        },
+        {
+          "title": "Visite o departamento de matrícula",
+          "body": "A maioria dos distritos tem um Central Enrollment Office. Vá presencialmente — telefone e email costumam ser lentos. Atendentes geralmente falam inglês; alguns distritos com muitos imigrantes têm intérpretes (em Texas/Flórida/Massachusetts é comum encontrar atendente que fala português). Leve TODOS os documentos originais + cópias."
+        },
+        {
+          "title": "Avaliação de nível e ESL",
+          "body": "Se sua criança não fala inglês fluente, ela passa por avaliação rápida e é colocada em programa ESL (English as Second Language) ou ELL (English Language Learners). Esses programas são EXCELENTES nos EUA — em geral, crianças saem fluentes em 1-3 anos. ESL não é educação especial — é apenas suporte adicional dentro da sala regular."
+        },
+        {
+          "title": "Início das aulas e acompanhamento",
+          "body": "Ano letivo começa em agosto/setembro e termina em maio/junho. Reuniões com professor (parent-teacher conferences) acontecem em outubro e fevereiro. Aplicativos como ClassDojo e PowerSchool permitem acompanhar tarefas e notas online. Para crianças com dificuldades específicas, escolas oferecem IEP (Individualized Education Plan) — peça avaliação se notar atraso."
+        }
+      ],
+      "documentsTable": [
+        { "doc": "Comprovante de endereço", "notes": "1-2 documentos no nome do responsável" },
+        { "doc": "Identidade da criança", "notes": "Passaporte ou certidão" },
+        { "doc": "Cartão de vacinas", "notes": "Atualizado conforme regras americanas" },
+        { "doc": "Histórico escolar do Brasil", "notes": "Boletins traduzidos ajudam mas não são obrigatórios" },
+        { "doc": "Comprovação de guarda", "notes": "Passaporte da criança + dos pais" }
+      ],
+      "commonErrors": [
+        "Achar que precisa de status migratório regular — escola pública é direito de toda criança nos EUA",
+        "Escolher casa antes de pesquisar a escola — em distritos como Plano TX ou Naperville IL a diferença entre distritos vizinhos é enorme",
+        "Não atualizar vacinação antes da matrícula — algumas vacinas exigidas nos EUA não são padrão no Brasil (varicela, HPV em alguns estados)",
+        "Subestimar ESL — programa é forte nos EUA e crianças se adaptam mais rápido do que pais imaginam",
+        "Não aproveitar reuniões parent-teacher conference — são gratuitas e essenciais para acompanhar progresso"
+      ],
+      "partnerSlots": [],
+      "faqs": [
+        { "q": "Preciso de SSN para matricular meu filho na escola pública?", "a": "Não. Escola pública é direito constitucional de toda criança vivendo nos EUA, independentemente do status migratório dela ou dos pais. A escola não pode pedir SSN como requisito para matrícula." },
+        { "q": "Quanto tempo leva para criança aprender inglês?", "a": "Varia muito. Pré-escolar e ensino fundamental: geralmente 6-18 meses para conversação básica e 2-3 anos para fluência acadêmica. Adolescentes (high school): 1-3 anos para conversação, 3-5 para fluência total. Programa ESL acelera o processo significativamente." },
+        { "q": "Escola pública americana é boa?", "a": "Varia drasticamente por distrito. Em distritos bons (Frisco TX, Lexington MA, Palo Alto CA, etc.), educação pública é comparável ou superior a escolas particulares brasileiras de elite. Em distritos com problemas (algumas áreas urbanas pobres), qualidade pode ser inferior. Pesquisa de distrito é fundamental." },
+        { "q": "E se quisermos colocar em escola particular?", "a": "Escolas particulares custam US$ 15-50 mil/ano (mais caras em metrópoles). Charter schools são uma alternativa intermediária — públicas mas com mais autonomia, geralmente gratuitas e com processo seletivo (lottery). Para brasileiros recém chegados, escola pública boa costuma ser a primeira escolha pelo custo." },
+        { "q": "Como fica a alimentação da criança na escola?", "a": "Escolas oferecem almoço (e às vezes café da manhã) por US$ 2-4 por refeição. Famílias com renda mais baixa qualificam para Free/Reduced Lunch (gratuito ou US$ 0.40), independente de status migratório. Aplicação é confidencial e não compartilhada com imigração." }
+      ]
+    },
+    {
+      "slug": "plano-de-saude",
+      "title": "Como contratar plano de saúde nos EUA — guia para brasileiros",
+      "shortTitle": "Plano de saúde americano",
+      "metaDesc": "Sistema de saúde americano é caótico mas navegável. Veja como brasileiros podem conseguir plano de saúde, marketplace, custos e dicas.",
+      "difficulty": "Difícil",
+      "timeEstimate": "1 a 6 semanas",
+      "cost": "$200 a $2.000+/mês",
+      "intro": "Saúde nos EUA é privada, cara e complexa — mas com planejamento, dá para conseguir cobertura adequada sem quebrar. Para brasileiros recém chegados, há quatro caminhos principais: plano via empregador (mais comum e barato), Healthcare.gov / marketplace (subsidiado por renda), planos privados diretos com seguradora, e cobertura de curto prazo. Este guia explica cada um.",
+      "prereqs": [
+        "Status migratório legal (a maioria dos planos exige, embora marketplace tenha algumas exceções)",
+        "Renda comprovada (afeta subsídios disponíveis)",
+        "SSN ou ITIN (para muitos planos)",
+        "Documento de identidade",
+        "Compreensão básica de termos: deductible, copay, coinsurance, out-of-pocket max"
+      ],
+      "steps": [
+        {
+          "title": "Tente primeiro o plano via empregador",
+          "body": "Se você ou cônjuge tem emprego formal nos EUA, a primeira opção sempre é o plano oferecido pela empresa. Empregadores cobrem 70-90% do custo do prêmio do funcionário e parte da família. É de longe a opção mais barata. Período de inscrição (open enrollment) é geralmente em outubro/novembro para o ano seguinte, com janela menor para novos contratados (geralmente 30 dias)."
+        },
+        {
+          "title": "Avalie Healthcare.gov / marketplace",
+          "body": "Sem plano via empregador, o Affordable Care Act (Obamacare) cria marketplaces estaduais onde você compara planos. Período principal: 1 nov a 15 jan. Eventos de vida (mudança de estado, perda de emprego, casamento) abrem janela especial. Subsídios federais reduzem custo conforme sua renda — para muitas famílias brasileiras de classe média, plano sai por US$ 200-500/mês após subsídio."
+        },
+        {
+          "title": "Compare metais: Bronze, Silver, Gold, Platinum",
+          "body": "Bronze: prêmio mais baixo, deductible alto (US$ 6-9k). Você paga muito antes do plano cobrir. Bom para gente saudável que quer apenas proteção contra emergências. Silver: equilíbrio — recomendado para a maioria. Subsídios extras se renda baixa. Gold/Platinum: prêmio alto, deductible baixo. Bom para quem usa muito (gravidez planejada, condição crônica)."
+        },
+        {
+          "title": "Verifique a rede de provedores",
+          "body": "Cada plano tem rede de hospitais e médicos. Ir fora da rede pode multiplicar o custo por 5x. Antes de comprar, confirme: (a) seu hospital preferido está na rede, (b) seus médicos atuais aceitam o plano, (c) farmácia próxima aceita. Erros aqui são caros."
+        },
+        {
+          "title": "Considere planos suplementares para o que falta",
+          "body": "Maioria dos planos médicos NÃO cobre: dental (dentista) e vision (oftalmologia/óculos). Planos suplementares dental + vision custam US$ 30-80/mês adicionais. Para famílias com filhos, vale muito. Empresas costumam oferecer essas opções junto do plano principal."
+        },
+        {
+          "title": "Entenda os custos no uso",
+          "body": "Mesmo com plano, você paga: (a) Copay — taxa fixa por consulta (US$ 20-60), (b) Deductible — valor anual antes do plano cobrir (US$ 1.000-9.000), (c) Coinsurance — % após deductible (10-30%), (d) Out-of-pocket maximum — teto anual (US$ 8-18 mil). Plano começa a 'pagar tudo' só quando você atinge o teto."
+        }
+      ],
+      "documentsTable": [
+        { "doc": "Identidade dos membros da família", "notes": "Passaporte ou ID estadual" },
+        { "doc": "Comprovante de renda", "notes": "Pay stub, declaração de imposto" },
+        { "doc": "SSN ou ITIN", "notes": "Para todos os membros" },
+        { "doc": "Status migratório", "notes": "Cópia do visto, green card etc." }
+      ],
+      "commonErrors": [
+        "Pular plano via empregador para ir direto ao marketplace — empregador costuma ser MUITO mais barato",
+        "Escolher Bronze sem entender que deductible alto significa pagar tudo até US$ 7-9 mil/ano antes do plano cobrir",
+        "Não verificar se hospital/médicos preferidos estão na rede — uso fora da rede multiplica custos",
+        "Ignorar dental e vision — gastos com dentista podem facilmente passar de US$ 1.000 sem cobertura",
+        "Subestimar urgent care — visitar urgent care em vez de ER (emergência) economiza muito quando o caso é não-grave",
+        "Não saber que prevenção (check-up anual, vacinação) é gratuita em quase todo plano via ACA"
+      ],
+      "partnerSlots": [],
+      "faqs": [
+        { "q": "Posso contratar plano de saúde sem SSN?", "a": "Para o marketplace federal (Healthcare.gov), geralmente sim usando ITIN — mas regras de subsídio podem ser diferentes. Para planos via empregador, depende da empresa (a maioria aceita ITIN). Para planos privados diretos com seguradora, varia." },
+        { "q": "Quanto custa um plano de saúde nos EUA?", "a": "Sem subsídio, marketplace: US$ 400-1.200/mês para pessoa única e US$ 1.200-2.500/mês para família. Com subsídio (renda média familiar): US$ 100-500/mês. Plano via empregador: US$ 80-400/mês para funcionário, US$ 300-800 para família." },
+        { "q": "O que faço em emergência sem plano?", "a": "Vá ao Emergency Room — eles NÃO podem recusar atendimento por falta de plano (lei EMTALA). A conta vem depois. Hospitais têm programas de assistência financeira para quem comprova baixa renda — você pode acabar pagando muito menos ou nada. Negocie SEMPRE — preços de hospital são quase sempre negociáveis." },
+        { "q": "Vale a pena ter plano dental e vision?", "a": "Para a maioria das famílias, sim. Ortodontia para criança facilmente custa US$ 5-7 mil sem plano; com dental cobrindo 50%, sai por metade. Visão: óculos US$ 200-600 por par sem plano, com plano US$ 50-150. ROI positivo para qualquer família com criança ou uso recorrente." },
+        { "q": "Telemedicina vale a pena nos EUA?", "a": "Sim. Plataformas como Teladoc, MDLIVE e Amwell oferecem consultas por US$ 0-75 (várias gratuitas com plano). Para casos não-emergenciais (resfriado, dor leve, dúvida sobre medicação), economiza muito tempo e dinheiro. Não substitui exame físico para casos sérios." }
+      ]
+    },
+    {
+      "slug": "abrir-llc",
+      "title": "Como abrir uma LLC nos EUA como brasileiro — guia completo 2026",
+      "shortTitle": "Como abrir uma LLC",
+      "metaDesc": "Brasileiros podem abrir LLC nos EUA mesmo sem cidadania. Veja qual estado escolher, custos, EIN, conta bancária empresarial e impostos.",
+      "difficulty": "Médio",
+      "timeEstimate": "5 a 30 dias",
+      "cost": "$50 a $800 (taxas de registro)",
+      "intro": "LLC (Limited Liability Company) é a forma mais comum de empresa nos EUA — e brasileiros, mesmo morando no Brasil ou sem green card, podem abrir uma. A LLC oferece proteção patrimonial (separação entre patrimônio pessoal e empresarial), flexibilidade tributária e legitimidade para fazer negócios nos EUA, vender em marketplaces como Amazon, contratar fornecedores e abrir conta empresarial. Este guia cobre o processo do início ao fim.",
+      "prereqs": [
+        "Identidade brasileira (passaporte é o mais aceito)",
+        "Endereço físico OU registered agent no estado da LLC",
+        "Decisão de qual estado abrir (Delaware, Wyoming e Florida são os mais populares para não-residentes)",
+        "Conta bancária americana (pode ser aberta após criar a LLC)"
+      ],
+      "steps": [
+        {
+          "title": "Escolha o estado",
+          "body": "Para brasileiros não residentes, três estados se destacam: Delaware (tradição em direito empresarial, recomendado para negócios maiores ou que pretendem captar investimento), Wyoming (privacidade alta, taxas baixas, sem state tax), Florida (proximidade cultural com Brasil, comunidade brasileira forte, custo médio). Se você mora nos EUA, geralmente é melhor abrir no seu estado de residência por simplicidade fiscal."
+        },
+        {
+          "title": "Defina nome e verifique disponibilidade",
+          "body": "Cada estado mantém banco de dados de nomes registrados. O nome deve incluir 'LLC' ou 'Limited Liability Company' ao final. Não pode confundir com órgão governamental ou ser idêntico a outro registrado. Verifique no site do Secretary of State do estado escolhido. Reservar nome (US$ 25-75) é opcional mas evita perder para concorrente."
+        },
+        {
+          "title": "Contrate Registered Agent",
+          "body": "Toda LLC precisa de um Registered Agent — pessoa ou empresa com endereço físico no estado da LLC para receber notificações legais. Brasileiros que não moram nos EUA precisam contratar serviço (US$ 100-300/ano). Empresas como Northwest Registered Agent, ZenBusiness e LegalZoom oferecem o serviço. Se você mora no estado, pode ser você mesmo."
+        },
+        {
+          "title": "Registre os Articles of Organization",
+          "body": "Documento principal de criação da LLC. Submetido online (na maioria dos estados) ao Secretary of State. Custo: US$ 50 (Wyoming) a US$ 500 (Massachusetts), em média US$ 100-150. Tempo de aprovação: imediato (Wyoming, Delaware via expedited service) a 3-15 dias úteis. Algumas plataformas (ZenBusiness, LegalZoom) fazem isso por você por taxa adicional."
+        },
+        {
+          "title": "Obtenha EIN do IRS",
+          "body": "EIN (Employer Identification Number) é o 'CNPJ americano'. Necessário para abrir conta empresarial e declarar impostos. Aplicação online em IRS.gov é gratuita — leva 10-15 minutos. PORÉM: aplicação online só funciona para quem tem SSN/ITIN. Brasileiros sem SSN/ITIN precisam aplicar via fax ou correio (form SS-4) — prazo de 4-6 semanas. Para acelerar, contrate Certified Acceptance Agent ou serviços especializados."
+        },
+        {
+          "title": "Crie Operating Agreement",
+          "body": "Contrato interno entre os sócios definindo: percentual de participação, distribuição de lucros, processo de admissão/saída de sócios, regras de votação. Não é obrigatório registrar em todos os estados, mas é altamente recomendado. Templates estão disponíveis online (RocketLawyer, LegalZoom) por US$ 30-100. Para LLCs com múltiplos sócios, vale investir em advogado (US$ 500-1.500)."
+        },
+        {
+          "title": "Abra conta bancária empresarial",
+          "body": "Mercury Bank é a opção mais usada por brasileiros não residentes — abre conta empresarial 100% online. Requisitos: Articles of Organization, EIN, Operating Agreement, identidade dos sócios. Aprovação em 1-3 dias. Bancos tradicionais (Chase, BoA) também abrem mas geralmente exigem visita presencial."
+        }
+      ],
+      "documentsTable": [
+        { "doc": "Articles of Organization", "notes": "Registrado no estado" },
+        { "doc": "EIN do IRS", "notes": "Federal — leva 4-6 semanas para não-residentes" },
+        { "doc": "Operating Agreement", "notes": "Interno, mas recomendado" },
+        { "doc": "Registered Agent", "notes": "Endereço físico no estado" }
+      ],
+      "commonErrors": [
+        "Escolher Delaware quando o negócio é simples — para a maioria dos brasileiros, Wyoming ou estado de residência é mais adequado",
+        "Aplicar para EIN online quando não tem SSN/ITIN — a aplicação será rejeitada; use SS-4 por fax",
+        "Não fazer Operating Agreement em LLC com múltiplos sócios — sem ele, conflitos futuros são quase inevitáveis",
+        "Misturar contas pessoal e da LLC — quebra a 'corporate veil' e elimina a proteção patrimonial",
+        "Esquecer da declaração anual e taxas estaduais — Wyoming, Delaware e outros cobram annual report (US$ 50-300/ano)",
+        "Não declarar imposto da LLC mesmo sem ter operado — penalidades por não submissão são US$ 25.000+ para LLCs com sócio estrangeiro"
+      ],
+      "partnerSlots": [
+        { "partner": "zenbusiness", "name": "ZenBusiness", "desc": "Abertura completa de LLC em até 7 dias, com Registered Agent incluído. Pacote completo a partir de US$ 0 + taxas estaduais.", "campaign": "guia_llc_zenbusiness" },
+        { "partner": "mercury", "name": "Mercury Bank", "desc": "Conta empresarial digital sem taxa mensal. Aceita LLC criada por brasileiros. Aprovação em 1-3 dias.", "campaign": "guia_llc_mercury" }
+      ],
+      "faqs": [
+        { "q": "Brasileiro morando no Brasil pode abrir LLC nos EUA?", "a": "Sim. Não há requisito de residência ou cidadania americana para ser sócio de LLC. Você precisa de Registered Agent no estado, EIN do IRS, e seguir as obrigações fiscais (especialmente declaração 5472 + 1120, obrigatória para LLCs com sócio estrangeiro mesmo se não houver atividade)." },
+        { "q": "Qual a diferença entre LLC e Corporation?", "a": "LLC é mais simples e flexível tributariamente — é tributada como pessoa física (pass-through) por padrão. Corporation (especialmente C-Corp) tem dupla tributação (empresa + dividendos) mas é melhor para captar investimento. Para 95% dos brasileiros começando negócio nos EUA, LLC é a escolha." },
+        { "q": "Quanto custa manter uma LLC ao ano?", "a": "Custo recorrente: Registered Agent (US$ 100-300/ano), Annual Report do estado (US$ 50-300/ano), Contabilidade/declaração de imposto (US$ 500-2.000/ano com CPA), Renovação de licenças se aplicável. Total típico: US$ 800-3.000/ano para LLC inativa, mais para operacional." },
+        { "q": "LLC me dá visto americano?", "a": "Não automaticamente. Ter LLC pode ajudar em processos de visto E-2 (investidor de tratado, requer investimento substancial) ou L-1 (transferência intracompany), mas não há visto que seja concedido apenas por possuir LLC. Consulte advogado de imigração para casos específicos." },
+        { "q": "Como pago imposto da LLC sendo não residente?", "a": "LLC com único sócio não residente é geralmente tratada como 'disregarded entity' — sócio declara como pessoa física via 1040-NR. LLC com múltiplos sócios é parceria (1065). Em ambos os casos, declaração do form 5472 + 1120 'pro forma' é OBRIGATÓRIA mesmo sem atividade. Penalidade por não submeter: US$ 25.000. CPA especialista em duplo regime Brasil-EUA é essencial." }
+      ]
+    }
+  ]
+}

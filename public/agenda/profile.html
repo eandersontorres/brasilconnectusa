@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Agendar — BrasilConnect USA</title>
+  <meta name="description" content="Agende seu horário com profissionais brasileiros no BrasilConnect USA.">
+  <meta name="robots" content="index, follow">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+
+  <style>
+    .pro-cover {
+      background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%);
+      color: var(--paper);
+      padding: 64px 0 80px;
+      position: relative;
+    }
+    .pro-cover .container { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .avatar-circle {
+      width: 96px; height: 96px; border-radius: 50%;
+      background: var(--brand-gold); color: var(--paper);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 2.4rem; font-weight: 700;
+      flex-shrink: 0; border: 3px solid var(--paper);
+    }
+    .pro-cover h1 { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 0; color: var(--paper); }
+    .pro-cover .specialty { font-size: 1rem; opacity: 0.9; margin-top: 4px; }
+    .pro-cover .bio { font-size: 0.95rem; opacity: 0.85; margin-top: 8px; max-width: 600px; line-height: 1.6; }
+
+    .service-card {
+      background: var(--paper-elevated); border: 1px solid var(--line);
+      border-radius: var(--r-md); padding: 18px 20px; margin-bottom: 12px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .service-card:hover { border-color: var(--brand-gold); }
+    .service-card.selected { border-color: var(--brand-green); background: var(--brand-green-soft); }
+    .service-card .head { display: flex; justify-content: space-between; gap: 12px; }
+    .service-card .name { font-weight: 600; color: var(--ink); }
+    .service-card .price { font-family: var(--font-display); font-weight: 700; color: var(--ink); font-size: 1.1rem; }
+    .service-card .meta { display: flex; gap: 16px; font-size: 0.85rem; color: var(--ink-muted); margin-top: 6px; }
+
+    .step-progress { display: flex; gap: 8px; margin: 24px 0; }
+    .step-dot {
+      flex: 1; height: 4px; background: var(--line); border-radius: 2px;
+      position: relative;
+    }
+    .step-dot.active, .step-dot.done { background: var(--brand-green); }
+
+    .slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin: 16px 0; }
+    .slot-btn {
+      padding: 10px 8px; border: 1px solid var(--line); border-radius: var(--r-sm);
+      background: var(--paper-elevated); cursor: pointer;
+      font-family: inherit; font-size: 14px; color: var(--ink);
+    }
+    .slot-btn:hover { border-color: var(--brand-gold); }
+    .slot-btn.selected { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+
+    .date-input { padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--r-md); font-size: 14px; font-family: inherit; }
+
+    .review-list { margin-top: 32px; }
+    .review-item { padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
+    .review-item .stars { color: var(--brand-gold-dark); margin-bottom: 4px; }
+    .review-item .who { font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <p class="muted" style="text-align:center; padding: 60px;">Carregando…</p>
+  </div>
+
+  <script>
+    const root = document.getElementById('app')
+    const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
+    const fmtUSD = c => '$' + (c / 100).toFixed(2)
+
+    // Pega slug da URL: /agenda/ana-torres ou query ?slug=
+    const path = window.location.pathname
+    const fromPath = path.match(/\/agenda\/([^\/?]+)/)
+    const slug = (fromPath ? fromPath[1] : (new URL(window.location.href).searchParams.get('slug')))?.toLowerCase()
+
+    if (!slug || slug === 'profile.html' || slug === 'review.html') {
+      root.innerHTML = '<div style="padding:60px;text-align:center;"><h1>Profissional não encontrada</h1><p><a href="/agenda/">Ver todos os profissionais</a></p></div>'
+    } else {
+      loadProvider(slug)
+    }
+
+    let provider, services, selected = { service: null, date: null, slot: null }
+
+    async function loadProvider(slug) {
+      try {
+        const r = await fetch(`/api/agenda/provider?slug=${encodeURIComponent(slug)}`)
+        if (!r.ok) throw new Error('not_found')
+        const data = await r.json()
+        provider = data.provider
+        services = data.services || []
+        document.title = `${provider.name} — Agendar | BrasilConnect`
+        renderProfile()
+      } catch (e) {
+        root.innerHTML = `<div style="padding:60px;text-align:center;"><h1>Profissional não encontrada</h1><p>O perfil <code>${escapeHtml(slug)}</code> não existe ou está inativo.</p><p><a href="/agenda/">Ver todos os profissionais</a></p></div>`
+      }
+    }
+
+    function renderProfile() {
+      const initials = provider.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
+      root.innerHTML = `
+        <header class="site-header">
+          <div class="container">
+            <a class="logo" href="/"><img src="/img/logo.svg" alt="BrasilConnect USA" /></a>
+            <nav class="site-nav"><a href="/agenda/">AgendaPro</a><a href="/">Início</a></nav>
+          </div>
+        </header>
+
+        <section class="pro-cover">
+          <div class="container">
+            <div class="avatar-circle">${escapeHtml(initials)}</div>
+            <div>
+              <h1>${escapeHtml(provider.name)}</h1>
+              ${provider.specialty ? `<div class="specialty">${escapeHtml(provider.specialty)}</div>` : ''}
+              ${provider.city ? `<div class="specialty" style="font-size:0.9rem;">${escapeHtml(provider.city)}${provider.state ? ', ' + escapeHtml(provider.state) : ''}</div>` : ''}
+              ${provider.bio ? `<p class="bio">${escapeHtml(provider.bio)}</p>` : ''}
+            </div>
+          </div>
+        </section>
+
+        <main>
+          <section>
+            <div class="container-narrow">
+              <div class="eyebrow" style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-top:32px;margin-bottom:14px;">PASSO 1 · ESCOLHA O SERVIÇO</div>
+              <div id="services-list">${services.length === 0 ? '<p class="muted">Sem serviços cadastrados ainda.</p>' : services.map(serviceCard).join('')}</div>
+              <div id="step2" style="display:none;"></div>
+              <div id="step3" style="display:none;"></div>
+              <div id="step4" style="display:none;"></div>
+            </div>
+          </section>
+        </main>
+      `
+      services.forEach(s => {
+        const el = document.querySelector(`[data-svc="${s.id}"]`)
+        if (el) el.onclick = () => selectService(s)
+      })
+    }
+
+    function serviceCard(s) {
+      return `
+        <div class="service-card" data-svc="${s.id}">
+          <div class="head">
+            <div>
+              <div class="name">${escapeHtml(s.name)}</div>
+              ${s.category ? `<div class="meta"><span>${escapeHtml(s.category)}</span> · <span>${s.duration_min} min</span></div>` : `<div class="meta">${s.duration_min} min</div>`}
+              ${s.description ? `<div style="font-size:13px;color:var(--ink-muted);margin-top:6px;">${escapeHtml(s.description)}</div>` : ''}
+            </div>
+            <div style="text-align:right;">
+              <div class="price">${fmtUSD(s.price_cents)}</div>
+              ${s.deposit_cents > 0 ? `<div style="font-size:11px;color:var(--brand-gold-dark);">Depósito ${fmtUSD(s.deposit_cents)}</div>` : ''}
+            </div>
+          </div>
+        </div>
+      `
+    }
+
+    async function selectService(s) {
+      selected.service = s
+      document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'))
+      document.querySelector(`[data-svc="${s.id}"]`).classList.add('selected')
+      renderStep2()
+    }
+
+    function renderStep2() {
+      const today = new Date().toISOString().slice(0, 10)
+      const max = new Date(Date.now() + 60 * 24 * 3600 * 1000).toISOString().slice(0, 10)
+      document.getElementById('step2').style.display = 'block'
+      document.getElementById('step2').innerHTML = `
+        <div class="eyebrow" style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-top:32px;margin-bottom:14px;">PASSO 2 · ESCOLHA A DATA</div>
+        <input type="date" id="dateInput" class="date-input" min="${today}" max="${max}" />
+        <div id="slots-area"></div>
+      `
+      document.getElementById('dateInput').onchange = e => loadSlots(e.target.value)
+    }
+
+    async function loadSlots(date) {
+      selected.date = date
+      const area = document.getElementById('slots-area')
+      area.innerHTML = '<p class="muted" style="font-size:14px;">Carregando horários…</p>'
+      try {
+        const r = await fetch(`/api/agenda/availability?provider_id=${provider.id}&date=${date}&duration=${selected.service.duration_min}`)
+        const data = await r.json()
+        if (!data.slots || data.slots.length === 0) {
+          area.innerHTML = '<p class="muted" style="font-size:14px;">Nenhum horário disponível neste dia.</p>'
+          return
+        }
+        area.innerHTML = `<div class="eyebrow" style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-top:24px;margin-bottom:14px;">PASSO 3 · ESCOLHA O HORÁRIO</div>
+          <div class="slot-grid">${data.slots.map(s => `<button class="slot-btn" data-slot="${s}">${s}</button>`).join('')}</div>`
+        document.querySelectorAll('.slot-btn').forEach(b => b.onclick = () => selectSlot(b.dataset.slot))
+      } catch (e) {
+        area.innerHTML = '<p class="muted" style="font-size:14px;color:#9F2D2D;">Erro ao carregar horários.</p>'
+      }
+    }
+
+    function selectSlot(slot) {
+      selected.slot = slot
+      document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'))
+      document.querySelector(`[data-slot="${slot}"]`).classList.add('selected')
+      renderStep4()
+    }
+
+    function renderStep4() {
+      document.getElementById('step4').style.display = 'block'
+      document.getElementById('step4').innerHTML = `
+        <div class="eyebrow" style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-top:32px;margin-bottom:14px;">PASSO 4 · CONFIRMAR</div>
+        <div class="card" style="margin-bottom:16px;">
+          <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--ink);">${escapeHtml(selected.service.name)}</div>
+          <div style="color:var(--ink-soft);font-size:14px;margin-top:6px;">${selected.date} · ${selected.slot} · ${selected.service.duration_min} min</div>
+          <div style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--ink);margin-top:10px;">${fmtUSD(selected.service.price_cents)}</div>
+          ${selected.service.deposit_cents > 0 ? `<div style="font-size:12px;color:var(--brand-gold-dark);margin-top:4px;">Depósito antecipado: ${fmtUSD(selected.service.deposit_cents)} (descontado do valor total)</div>` : ''}
+        </div>
+        <input id="cName" type="text" placeholder="Seu nome" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;font-family:inherit;font-size:14px;" required />
+        <input id="cWa" type="tel" placeholder="WhatsApp (com DDD)" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;font-family:inherit;font-size:14px;" />
+        <textarea id="cNotes" placeholder="Observações (opcional)" rows="3" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:14px;font-family:inherit;font-size:14px;"></textarea>
+        <button id="bookBtn" class="btn btn-primary" style="width:100%;justify-content:center;">Confirmar agendamento →</button>
+        <p id="bookErr" style="color:#9F2D2D;font-size:13px;text-align:center;margin-top:10px;display:none;"></p>
+      `
+      document.getElementById('bookBtn').onclick = doBook
+    }
+
+    async function doBook() {
+      const name = document.getElementById('cName').value.trim()
+      const wa = document.getElementById('cWa').value.trim()
+      const notes = document.getElementById('cNotes').value.trim()
+      const err = document.getElementById('bookErr')
+      if (!name) { err.textContent = 'Nome é obrigatório'; err.style.display = 'block'; return }
+      const btn = document.getElementById('bookBtn')
+      btn.disabled = true; btn.textContent = 'Confirmando…'
+      try {
+        const sched = `${selected.date}T${selected.slot}:00`
+        const r = await fetch('/api/agenda/book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider_id: provider.id,
+            service_id: selected.service.id,
+            scheduled_for: sched,
+            client_name: name, client_whatsapp: wa, client_notes: notes,
+          })
+        })
+        const data = await r.json()
+        if (!r.ok) throw new Error(data.error || 'Erro ao agendar')
+
+        if (data.requires_deposit) {
+          const co = await fetch('/api/agenda/checkout', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ appointment_id: data.appointment_id }),
+          })
+          const co2 = await co.json()
+          if (co2.checkout_url) { window.location = co2.checkout_url; return }
+        }
+        renderSuccess(data, name)
+      } catch (e) {
+        err.textContent = e.message; err.style.display = 'block'
+        btn.disabled = false; btn.textContent = 'Confirmar agendamento →'
+      }
+    }
+
+    function renderSuccess(data, name) {
+      root.innerHTML = `
+        <header class="site-header">
+          <div class="container"><a class="logo" href="/"><img src="/img/logo.svg" alt="BrasilConnect" /></a></div>
+        </header>
+        <main>
+          <section><div class="container-narrow" style="text-align:center; padding-top:80px;">
+            <div style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-bottom:12px;">CONFIRMADO</div>
+            <h1 style="font-family:var(--font-display);">Agendamento marcado, ${escapeHtml(name)}!</h1>
+            <p class="lede">Você fica com <strong>${escapeHtml(provider.name)}</strong> em ${selected.date} às ${selected.slot} — ${escapeHtml(selected.service.name)}.</p>
+            <p class="muted">${data.requires_deposit ? 'Depósito recebido. ' : ''}Você vai receber um lembrete no WhatsApp 24 horas antes do horário.</p>
+            <a href="/agenda/${escapeHtml(provider.slug)}" class="btn btn-secondary" style="margin-top:20px;">Voltar pro perfil</a>
+          </div></section>
+        </main>
+      `
+    }
+  </script>
+</body>
+</html>

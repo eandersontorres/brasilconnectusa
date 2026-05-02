@@ -1,0 +1,496 @@
+{
+  "cities": [
+    {
+      "slug": "austin-tx",
+      "name": "Austin",
+      "state": "Texas",
+      "stateCode": "TX",
+      "intro": "Austin se consolidou como um dos maiores polos de imigração brasileira nos EUA na última década, atraindo profissionais de tecnologia, empreendedores e famílias pelo equilíbrio entre crescimento econômico e qualidade de vida. Estimativas comunitárias apontam mais de 25 mil brasileiros vivendo na região metropolitana.",
+      "rent1br": 1650,
+      "rent2br": 2150,
+      "rentHouse": 2800,
+      "groceriesSingle": 380,
+      "groceriesFamily": 1100,
+      "transportCar": 850,
+      "healthSingle": 320,
+      "salaryAvg": 78000,
+      "highlights": [
+        "Mercado de trabalho aquecido em tecnologia, com salários competitivos especialmente em engenharia, dados e produto",
+        "Carga tributária estadual zero (Texas não cobra income tax), o que aumenta o salário líquido em até 8% comparado à Califórnia",
+        "Comunidade brasileira concentrada em Round Rock, Cedar Park e Pflugerville — mais de 4 igrejas evangélicas brasileiras ativas",
+        "Custo de moradia subiu cerca de 30% nos últimos 4 anos, mas ainda fica abaixo de São Francisco e Boston",
+        "Aeroporto AUS tem voos diretos para São Paulo via American Airlines — facilita visitas ao Brasil"
+      ],
+      "neighborhoods": [
+        { "name": "Round Rock", "desc": "Maior concentração de brasileiros. Casas familiares e bom sistema escolar." },
+        { "name": "Cedar Park", "desc": "Comunidade próspera, mais cara que Round Rock, escolas A+." },
+        { "name": "Pflugerville", "desc": "Opção mais acessível, bom para famílias começando." },
+        { "name": "South Austin", "desc": "Vida urbana, ideal para solteiros e jovens casais sem filhos." }
+      ],
+      "totals": {
+        "single": 2950,
+        "couple": 4400,
+        "family4": 6800
+      },
+      "faqs": [
+        { "q": "Vale a pena se mudar para Austin como brasileiro em 2026?", "a": "Sim, se você trabalha em tecnologia, engenharia, saúde ou empreendedorismo. O mercado de trabalho continua robusto e a ausência de income tax estadual é uma vantagem significativa. Para profissões de menor remuneração, o custo de moradia pode pesar — vale comparar com cidades como Houston ou Atlanta." },
+        { "q": "Onde a maioria dos brasileiros mora em Austin?", "a": "A maior concentração está em Round Rock, ao norte da cidade, seguida por Cedar Park e Pflugerville. Essas áreas oferecem casas familiares, escolas bem avaliadas e proximidade com mercados, igrejas e serviços de profissionais brasileiros." },
+        { "q": "Qual a melhor escola para filhos de brasileiros em Austin?", "a": "Round Rock ISD e Leander ISD são consistentemente avaliadas como as melhores da região metropolitana. Para famílias recém-chegadas, escolas com programa ESL (English as Second Language) bem estruturado fazem diferença — Forest Creek Elementary e Stony Point High são referências." },
+        { "q": "Preciso de carro em Austin?", "a": "Praticamente sim. Austin tem transporte público limitado (CapMetro) e a maioria das áreas residenciais não é caminhável. Orçar carro próprio é essencial — financiamento médio gira em torno de US$ 450/mês mais seguro de US$ 150-220/mês." },
+        { "q": "Como conseguir SSN sem visto de trabalho ainda?", "a": "Sem autorização de trabalho válida não é possível obter SSN. A alternativa é o ITIN (Individual Taxpayer Identification Number), que cobre obrigações fiscais e permite abrir contas em alguns bancos. Veja nosso guia de ITIN para o passo a passo." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "escola"]
+    },
+    {
+      "slug": "round-rock-tx",
+      "name": "Round Rock",
+      "state": "Texas",
+      "stateCode": "TX",
+      "intro": "Subúrbio de Austin com a maior concentração proporcional de brasileiros do Texas — estima-se que cerca de 8% da população local seja de origem brasileira. Conhecida pela qualidade do sistema escolar (Round Rock ISD), serviços orientados à comunidade brasileira e proximidade com o mercado de trabalho de Austin.",
+      "rent1br": 1450,
+      "rent2br": 1850,
+      "rentHouse": 2400,
+      "groceriesSingle": 360,
+      "groceriesFamily": 1050,
+      "transportCar": 800,
+      "healthSingle": 310,
+      "salaryAvg": 72000,
+      "highlights": [
+        "Round Rock ISD é classificado A pelo Texas Education Agency, com forte programa de ESL para alunos brasileiros",
+        "Concentra padarias, restaurantes, salões de beleza e mercadinhos brasileiros em um raio de 5 milhas",
+        "Aluguel é em média 12% mais barato que em Austin central, com casas familiares mais espaçosas",
+        "Forte presença de igrejas evangélicas e católicas brasileiras com cultos em português aos domingos",
+        "Acesso direto ao centro de Austin via I-35 — 25-35 minutos de deslocamento dependendo do horário"
+      ],
+      "neighborhoods": [
+        { "name": "Stone Oak", "desc": "Bairro residencial popular entre famílias brasileiras estabelecidas." },
+        { "name": "Forest Creek", "desc": "Escola elementar excelente, casas mais novas, condomínios fechados." },
+        { "name": "Teravista", "desc": "Comunidade planejada com piscinas e parques — comum entre famílias com filhos pequenos." },
+        { "name": "Egger Acres", "desc": "Área mais acessível para quem está começando." }
+      ],
+      "totals": {
+        "single": 2700,
+        "couple": 4000,
+        "family4": 6300
+      },
+      "faqs": [
+        { "q": "Round Rock ou Austin: qual é melhor para famílias brasileiras?", "a": "Round Rock costuma vencer para famílias com filhos pelo equilíbrio entre custo, escolas e densidade da comunidade brasileira. Austin central faz mais sentido para profissionais solteiros ou casais sem filhos que valorizam vida noturna e proximidade do trabalho." },
+        { "q": "Qual a igreja brasileira mais conhecida em Round Rock?", "a": "Algumas das mais ativas são a Igreja Batista Brasileira de Austin (com unidade em Round Rock), a Comunidade Cristã Internacional e a Igreja Mundial do Poder de Deus em Round Rock. Existem também grupos católicos com missas mensais em português." },
+        { "q": "Onde encontrar produtos brasileiros em Round Rock?", "a": "Mercado Brasileiro Round Rock e Brazilian Market são as duas principais lojas, com produtos como pão de queijo congelado, queijo coalho, caldo Knorr, açúcar mascavo e marcas brasileiras tradicionais. Padarias brasileiras locais também vendem mercearia básica." },
+        { "q": "Round Rock tem programa de ESL nas escolas?", "a": "Sim. Round Rock ISD tem um dos programas de ESL mais estruturados do Texas, com professores bilíngues em várias escolas elementares. Para famílias recém-chegadas é uma das principais vantagens da cidade." },
+        { "q": "Quanto tempo leva para chegar em Austin trabalhando em Round Rock?", "a": "De carro, 25-40 minutos para o downtown de Austin via I-35 dependendo do horário. Picos de trânsito (7-9h e 17-19h) podem estender para 50 minutos. Trabalho híbrido é comum e reduz o impacto." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "escola"]
+    },
+    {
+      "slug": "houston-tx",
+      "name": "Houston",
+      "state": "Texas",
+      "stateCode": "TX",
+      "intro": "Quarta maior cidade dos EUA e um dos polos brasileiros mais antigos e estabelecidos do país, com mais de 50 mil brasileiros segundo estimativas comunitárias. Houston combina forte mercado de óleo e gás, complexo médico de classe mundial e custo de vida significativamente menor que outras metrópoles americanas.",
+      "rent1br": 1380,
+      "rent2br": 1750,
+      "rentHouse": 2200,
+      "groceriesSingle": 350,
+      "groceriesFamily": 1000,
+      "transportCar": 820,
+      "healthSingle": 300,
+      "salaryAvg": 71000,
+      "highlights": [
+        "Custo de moradia entre os mais baixos das grandes metrópoles americanas — em média 35% mais barato que Boston",
+        "Texas Medical Center é o maior complexo médico do mundo, com forte demanda por profissionais de saúde brasileiros",
+        "Aeroporto IAH tem voos diretos diários para São Paulo, Rio e Manaus — vantagem logística para quem viaja com frequência",
+        "Comunidade brasileira concentrada em Sugar Land, Katy e The Woodlands — bairros com bom sistema escolar",
+        "Sem income tax estadual (Texas), o que aumenta significativamente o salário líquido"
+      ],
+      "neighborhoods": [
+        { "name": "Sugar Land", "desc": "Maior concentração brasileira histórica, escolas A, custo médio-alto." },
+        { "name": "Katy", "desc": "Crescimento acelerado, bom para famílias jovens, casas novas." },
+        { "name": "The Woodlands", "desc": "Comunidade planejada, alta renda, escolas excelentes." },
+        { "name": "Memorial / Spring Branch", "desc": "Mais central, opção para profissionais que trabalham downtown." }
+      ],
+      "totals": {
+        "single": 2580,
+        "couple": 3850,
+        "family4": 6000
+      },
+      "faqs": [
+        { "q": "Por que tantos brasileiros escolhem Houston?", "a": "Três fatores principais: custo de vida mais baixo que outras metrópoles, mercado de trabalho diversificado (energia, saúde, aeroespacial) e comunidade brasileira já estabelecida há décadas. Para profissionais de óleo e gás especificamente, Houston é a capital americana do setor." },
+        { "q": "Qual a melhor região de Houston para famílias brasileiras?", "a": "Sugar Land tem a comunidade mais consolidada e melhor reputação escolar, mas é mais cara. Katy é a alternativa em crescimento — custo menor e escolas igualmente boas. Para famílias com orçamento mais ajustado, Spring Branch e partes de Memorial são opções viáveis." },
+        { "q": "Como é o calor em Houston?", "a": "Verão (junho a setembro) é quente e úmido — temperaturas frequentemente acima de 35°C com alta umidade. Casas e carros precisam de ar-condicionado em ótimas condições. Inverno é ameno, raramente cai abaixo de 5°C. Brasileiros do nordeste se adaptam mais rápido." },
+        { "q": "Existe metrô ou é necessário carro?", "a": "Houston tem light rail (METROrail) limitado ao centro, mas a cidade é extensa demais para depender só de transporte público. Carro é praticamente obrigatório. Felizmente o trânsito é melhor que Los Angeles e estacionamento é mais barato." },
+        { "q": "Quais hospitais têm médicos brasileiros?", "a": "MD Anderson, Memorial Hermann, Houston Methodist e Texas Children's têm médicos brasileiros entre seus quadros. Para atendimento com médicos que falam português, vale buscar no aplicativo Doutor Brasileiro USA ou pedir indicação na comunidade local." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "plano-de-saude"]
+    },
+    {
+      "slug": "dallas-tx",
+      "name": "Dallas",
+      "state": "Texas",
+      "stateCode": "TX",
+      "intro": "Dallas-Fort Worth é a quarta maior região metropolitana dos EUA e tem visto crescimento expressivo da comunidade brasileira nos últimos 10 anos, especialmente em Frisco, Plano e Irving. A região combina mercado de trabalho diversificado, custo de moradia razoável e forte presença corporativa.",
+      "rent1br": 1450,
+      "rent2br": 1850,
+      "rentHouse": 2350,
+      "groceriesSingle": 360,
+      "groceriesFamily": 1020,
+      "transportCar": 830,
+      "healthSingle": 305,
+      "salaryAvg": 75000,
+      "highlights": [
+        "Sede de mais de 20 empresas Fortune 500, incluindo AT&T, ExxonMobil e Texas Instruments",
+        "Frisco e Plano figuram entre os melhores municípios para se viver nos EUA segundo Money Magazine",
+        "DFW International Airport tem voos diretos para São Paulo via American Airlines",
+        "Sem income tax estadual (Texas) e custo de vida 20% abaixo da média das grandes metrópoles",
+        "Comunidade brasileira concentrada em Irving (área Las Colinas), Frisco e Plano"
+      ],
+      "neighborhoods": [
+        { "name": "Frisco", "desc": "Crescimento exponencial, escolas A+, casas novas, alta renda média." },
+        { "name": "Plano", "desc": "Mais consolidado, com sede de várias empresas, comunidade indiana e brasileira." },
+        { "name": "Irving / Las Colinas", "desc": "Comum entre brasileiros pela proximidade ao aeroporto e custo médio." },
+        { "name": "McKinney", "desc": "Opção em crescimento, mais acessível, boas escolas." }
+      ],
+      "totals": {
+        "single": 2700,
+        "couple": 4050,
+        "family4": 6300
+      },
+      "faqs": [
+        { "q": "Dallas ou Houston: qual é melhor para brasileiros?", "a": "Dallas tem mercado de trabalho mais diversificado (corporativo, tech, telecom) enquanto Houston é mais focado em energia e saúde. Em qualidade de vida, Dallas costuma ter clima ligeiramente mais ameno e acesso mais fácil a outros estados. Para famílias com filhos, Frisco/Plano ganham de Sugar Land em escolas. Para quem busca cultura brasileira mais densa, Houston tem comunidade mais antiga." },
+        { "q": "Onde estão os brasileiros em Dallas?", "a": "Concentração maior em Irving (especialmente Las Colinas), Frisco, Plano e McKinney. Há também brasileiros em Arlington (mais acessível) e Coppell. Igrejas brasileiras e mercearias estão concentradas em Irving e Plano." },
+        { "q": "Qual a melhor região para famílias com filhos?", "a": "Frisco e Plano são imbatíveis em qualidade escolar — Frisco ISD e Plano ISD estão entre os melhores distritos do Texas. McKinney é alternativa em crescimento com custo um pouco menor. Para orçamentos mais apertados, Allen e Wylie são opções." },
+        { "q": "Como é o trânsito em Dallas?", "a": "Há picos significativos nas principais vias (I-635, I-35E, US-75 e Tollway), mas comparado a Los Angeles ou Boston o trânsito é mais administrável. Trabalhar em Plano ou Frisco e morar próximo reduz muito o impacto." },
+        { "q": "Tem voos diretos do DFW para o Brasil?", "a": "Sim. American Airlines opera voos diretos do DFW para São Paulo (GRU). Conexões via Miami também são frequentes. Para Rio e outras cidades, geralmente requer escala em Miami ou São Paulo." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "abrir-llc"]
+    },
+    {
+      "slug": "miami-fl",
+      "name": "Miami",
+      "state": "Florida",
+      "stateCode": "FL",
+      "intro": "Miami é provavelmente a cidade mais brasileira dos EUA — estima-se mais de 100 mil brasileiros na região metropolitana, com forte concentração em Orlando, Pompano Beach e Aventura. Combina cultura latina, ausência de income tax estadual e proximidade aérea com o Brasil.",
+      "rent1br": 2100,
+      "rent2br": 2750,
+      "rentHouse": 3400,
+      "groceriesSingle": 420,
+      "groceriesFamily": 1200,
+      "transportCar": 880,
+      "healthSingle": 340,
+      "salaryAvg": 65000,
+      "highlights": [
+        "Maior comunidade brasileira dos EUA — em algumas regiões, português é tão comum quanto inglês",
+        "Sem income tax estadual (Flórida), o que compensa parte do alto custo de moradia",
+        "Aeroporto MIA tem dezenas de voos diretos diários para Brasil — opção logística inigualável",
+        "Custo de moradia subiu cerca de 45% nos últimos 5 anos — atualmente entre os mais altos dos EUA",
+        "Forte mercado em turismo, hospitalidade, comércio internacional e imobiliário — setores onde brasileiros têm vantagem"
+      ],
+      "neighborhoods": [
+        { "name": "Aventura", "desc": "Apartamentos modernos, alto custo, forte concentração de brasileiros e judeus brasileiros." },
+        { "name": "Pompano Beach", "desc": "Mais acessível, ainda com forte presença brasileira, boas escolas." },
+        { "name": "Coral Springs", "desc": "Famílias estabelecidas, escolas excelentes, casas familiares." },
+        { "name": "Doral", "desc": "Comunidade venezuelana e brasileira, próximo ao aeroporto." }
+      ],
+      "totals": {
+        "single": 3250,
+        "couple": 4800,
+        "family4": 7400
+      },
+      "faqs": [
+        { "q": "Vale a pena morar em Miami como brasileiro?", "a": "Para quem prioriza viver perto da cultura brasileira, ter voos frequentes para o Brasil e gosta de clima quente, Miami é praticamente imbatível. O ponto de atenção é o custo de moradia, que se aproxima de Nova York em algumas áreas. Salários costumam ser menores que outras metrópoles em setores não-financeiros." },
+        { "q": "Onde estão os brasileiros em Miami?", "a": "Aventura tem a maior densidade. Pompano Beach, Coral Springs, Sunrise e Plantation também têm comunidades fortes. No condado de Orange (Orlando) há concentração ainda maior, embora seja outra região." },
+        { "q": "Quanto preciso ganhar para viver bem em Miami?", "a": "Para um casal sem filhos, salário familiar a partir de US$ 100 mil/ano permite vida confortável. Família com 2 filhos requer cerca de US$ 140 mil para uma vida padrão classe média em bairros com boas escolas. Solteiros conseguem viver bem a partir de US$ 65 mil." },
+        { "q": "Qual a diferença entre Miami e Orlando para brasileiros?", "a": "Miami é mais cosmopolita, com vida noturna intensa, praia e altos preços. Orlando é mais familiar, com custo significativamente menor, parques temáticos e comunidade brasileira igualmente forte. Famílias com filhos pequenos costumam preferir Orlando; jovens profissionais e empreendedores costumam preferir Miami." },
+        { "q": "Tem furacões em Miami?", "a": "Sim. A temporada vai de junho a novembro, com pico em setembro. Casas modernas são construídas com janelas resistentes a impacto e a maioria das áreas tem códigos rigorosos de construção pós-Andrew (1992). Seguro residencial inclui cobertura específica e é mais caro que em outros estados." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "plano-de-saude", "abrir-llc"]
+    },
+    {
+      "slug": "orlando-fl",
+      "name": "Orlando",
+      "state": "Florida",
+      "stateCode": "FL",
+      "intro": "Orlando tornou-se o segundo maior destino de brasileiros nos EUA, com forte concentração em Kissimmee, Davenport e Celebration. Combina custo de moradia razoável (especialmente para Flórida), clima ameno, sem income tax estadual e proximidade dos parques, que geram emprego direto e indireto.",
+      "rent1br": 1550,
+      "rent2br": 2050,
+      "rentHouse": 2500,
+      "groceriesSingle": 380,
+      "groceriesFamily": 1080,
+      "transportCar": 820,
+      "healthSingle": 310,
+      "salaryAvg": 58000,
+      "highlights": [
+        "Comunidade brasileira em forte crescimento — cerca de 50 mil brasileiros na região metropolitana",
+        "Sem income tax estadual (Flórida) e custo de moradia 30% menor que Miami",
+        "Aeroporto MCO tem voos diretos diários para São Paulo via Azul e LATAM",
+        "Forte mercado em hospitalidade, parques temáticos e setor imobiliário voltado para turismo",
+        "Kissimmee e Davenport concentram a comunidade brasileira com mercados, salões e padarias"
+      ],
+      "neighborhoods": [
+        { "name": "Kissimmee", "desc": "Coração da comunidade brasileira, custo médio, próximo aos parques." },
+        { "name": "Davenport", "desc": "Crescimento acelerado, casas novas, popular entre famílias jovens." },
+        { "name": "Celebration", "desc": "Comunidade planejada Disney, alto custo, casas elegantes." },
+        { "name": "Lake Nona", "desc": "Bairro premium, escolas excelentes, hospital e tecnologia." }
+      ],
+      "totals": {
+        "single": 2750,
+        "couple": 4100,
+        "family4": 6300
+      },
+      "faqs": [
+        { "q": "Por que Orlando atrai tantos brasileiros?", "a": "Custo de moradia razoável para o padrão da Flórida, ausência de income tax estadual, clima ameno o ano todo, comunidade brasileira em rápido crescimento e mercado de trabalho amigável para imigrantes (turismo, hospitalidade, construção). Para famílias com filhos pequenos, a proximidade dos parques é um bônus." },
+        { "q": "Tem trabalho para brasileiro em Orlando?", "a": "Sim, especialmente em hospitalidade, turismo, construção, limpeza, real estate e serviços orientados a brasileiros (restaurantes, mercados, salões). Para profissões com licença (médicos, dentistas, advogados), o caminho de revalidação é o mesmo de outros estados." },
+        { "q": "Kissimmee é uma boa cidade para morar?", "a": "Sim, especialmente para famílias brasileiras que valorizam ter mercado, igreja e comunidade próximos. Algumas áreas centrais são mais antigas, mas há condomínios novos e seguros. Para escolas, Davenport e Celebration tendem a ser melhores que partes de Kissimmee." },
+        { "q": "Qual o salário médio para brasileiros em Orlando?", "a": "Setor de hospitalidade e parques: US$ 35-50 mil/ano. Construção e serviços: US$ 40-65 mil. Profissões com diploma reconhecido: US$ 55-90 mil. Empreendedores podem superar substancialmente esses valores no comércio brasileiro local." },
+        { "q": "Como é a escola para crianças brasileiras em Orlando?", "a": "Orange County Public Schools tem programa ESL bem estabelecido. Lake Nona, Windermere e partes de Celebration têm as melhores escolas públicas. Famílias com mais recursos optam por escolas charter ou particulares como The First Academy ou Lake Highland Prep." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "escola"]
+    },
+    {
+      "slug": "tampa-fl",
+      "name": "Tampa",
+      "state": "Florida",
+      "stateCode": "FL",
+      "intro": "Tampa-St. Petersburg vem ganhando destaque entre brasileiros como alternativa mais acessível a Miami e Orlando — com economia diversificada (saúde, finanças, defesa), clima de costa oeste mais seco e custo de moradia significativamente menor. A comunidade brasileira é menor mas crescente, especialmente em Brandon, Riverview e Wesley Chapel.",
+      "rent1br": 1480,
+      "rent2br": 1900,
+      "rentHouse": 2350,
+      "groceriesSingle": 370,
+      "groceriesFamily": 1050,
+      "transportCar": 800,
+      "healthSingle": 305,
+      "salaryAvg": 62000,
+      "highlights": [
+        "Custo de moradia 25% menor que Miami e similar a Orlando, com clima ainda mais ameno (costa oeste é mais seca)",
+        "Sem income tax estadual e mercado de trabalho diversificado em saúde, defesa e finanças",
+        "Aeroporto TPA tem voos com 1 conexão para Brasil via Miami ou Atlanta",
+        "Comunidade brasileira em formação — boa para quem busca menos competição em negócios próprios",
+        "Praias da costa oeste (Clearwater, St. Pete) consistentemente entre as melhores dos EUA"
+      ],
+      "neighborhoods": [
+        { "name": "Brandon", "desc": "Subúrbio popular, custo médio, comunidade hispânica e brasileira em crescimento." },
+        { "name": "Wesley Chapel", "desc": "Crescimento rápido, casas novas, boas escolas, popular com famílias." },
+        { "name": "Riverview", "desc": "Mais acessível, casas familiares, distância média ao centro." },
+        { "name": "South Tampa", "desc": "Bairros tradicionais como Hyde Park, mais cosmopolita." }
+      ],
+      "totals": {
+        "single": 2620,
+        "couple": 3900,
+        "family4": 6100
+      },
+      "faqs": [
+        { "q": "Tampa ou Orlando: qual escolher?", "a": "Tampa costuma vencer em qualidade de praia, em economia diversificada (não depende dos parques) e em clima mais seco. Orlando vence em comunidade brasileira já estabelecida, em voos diretos para o Brasil e em opções de lazer para famílias com filhos pequenos. Para profissionais de saúde e finanças, Tampa tem mercado mais robusto." },
+        { "q": "Tem comunidade brasileira em Tampa?", "a": "Sim, mas significativamente menor que Orlando ou Miami. Está em formação, com algumas igrejas e mercearias brasileiras em Brandon e Riverview. Para quem valoriza imersão cultural brasileira diária, Orlando ou Miami são opções mais consolidadas." },
+        { "q": "Qual o melhor bairro para famílias com filhos?", "a": "Wesley Chapel se destaca por casas novas, boas escolas e crescimento ordenado. Para quem busca custo menor, Riverview e Brandon são alternativas. South Tampa é mais cara mas próxima ao centro." },
+        { "q": "Como é trabalhar em Tampa?", "a": "Mercado de saúde é forte (Tampa General, AdventHealth, BayCare). MacDill Air Force Base sustenta cadeia de fornecedores em defesa. Hospitalidade e turismo também são importantes. Para profissões corporativas, há sedes de empresas como Raymond James e PwC regional." },
+        { "q": "Tem furacões em Tampa?", "a": "Risco existe, embora historicamente Tampa tenha sido menos atingida que Miami. Furacão Ian (2022) e Helene (2024) trouxeram preocupação. Casas modernas têm códigos de construção rigorosos e seguro residencial cobre o evento." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "plano-de-saude"]
+    },
+    {
+      "slug": "boston-ma",
+      "name": "Boston",
+      "state": "Massachusetts",
+      "stateCode": "MA",
+      "intro": "Massachusetts abriga uma das maiores e mais antigas comunidades brasileiras dos EUA, com forte presença em Framingham, Marlborough, Everett e Somerville. Combina mercado de trabalho qualificado em saúde, educação e tecnologia com salários elevados — embora o custo de moradia esteja entre os mais altos do país.",
+      "rent1br": 2400,
+      "rent2br": 3100,
+      "rentHouse": 3600,
+      "groceriesSingle": 440,
+      "groceriesFamily": 1250,
+      "transportCar": 950,
+      "healthSingle": 360,
+      "salaryAvg": 89000,
+      "highlights": [
+        "Maior comunidade brasileira da Nova Inglaterra — Framingham é frequentemente chamada de 'Pequena Brasília'",
+        "Salários médios entre os mais altos dos EUA, especialmente em saúde, biotecnologia e educação",
+        "Income tax estadual de 5% (flat) — pesa no salário líquido comparado a Texas/Flórida",
+        "Sistema de transporte público (MBTA) é decente, especialmente para quem mora dentro de Boston",
+        "Inverno rigoroso (nov-mar) com nevascas frequentes — adaptação requer roupa adequada e seguro de carro robusto"
+      ],
+      "neighborhoods": [
+        { "name": "Framingham", "desc": "Maior comunidade brasileira do estado, mercados, padarias e igrejas em português." },
+        { "name": "Marlborough", "desc": "Crescimento brasileiro forte, custo médio, próximo de empresas tech." },
+        { "name": "Everett / Somerville", "desc": "Mais próximo de Boston, custo alto, comunidade brasileira tradicional." },
+        { "name": "Lowell", "desc": "Mais acessível, comunidade brasileira em crescimento, mais distante." }
+      ],
+      "totals": {
+        "single": 3550,
+        "couple": 5200,
+        "family4": 8000
+      },
+      "faqs": [
+        { "q": "Por que tantos brasileiros moram em Boston?", "a": "Imigração brasileira para Massachusetts é uma das mais antigas do país, começando nos anos 1980. Hoje a comunidade é multigeracional, com forte presença em Framingham (mais conhecida como capital brasileira da Nova Inglaterra). O mercado de trabalho qualificado e a presença de universidades atraem profissionais." },
+        { "q": "Vale a pena pelo custo de moradia tão alto?", "a": "Para profissionais qualificados em saúde, biotecnologia, finanças e educação, sim — salários compensam parcialmente. Para profissões de menor remuneração, o trade-off é mais difícil. Cidades a 30-45 min de Boston (Framingham, Marlborough, Lowell) reduzem significativamente o custo de moradia mantendo acesso ao mercado de trabalho." },
+        { "q": "Como é o inverno para quem vem do Brasil?", "a": "Pesado e prolongado. Nevascas começam em novembro e podem se estender até março. Temperaturas frequentemente abaixo de -10°C com sensação térmica pior. Equipar-se bem (casaco pesado, botas, luvas, gorro) é essencial. Adaptação leva 1-2 invernos para a maioria dos brasileiros." },
+        { "q": "Qual a melhor escola brasileira em Framingham?", "a": "Framingham Public Schools tem programa ESL forte e várias escolas com alta concentração de alunos brasileiros. Para escolas particulares, MetroWest Christian Academy e Marian High School são opções com famílias brasileiras." },
+        { "q": "Preciso de carro morando em Framingham?", "a": "Sim, idealmente. O comuter rail conecta Framingham a Boston, mas para deslocamentos locais (mercado, escola, médico) carro é praticamente essencial. Para quem mora em Boston (Allston, Cambridge), o T (metrô) cobre a maior parte das necessidades." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "plano-de-saude", "escola"]
+    },
+    {
+      "slug": "new-york-ny",
+      "name": "New York",
+      "state": "New York",
+      "stateCode": "NY",
+      "intro": "Nova York abriga uma comunidade brasileira diversa e estabelecida, com forte presença em Newark e Astoria (Queens). Cidade que oferece mercado de trabalho de classe mundial em finanças, mídia, moda e tecnologia, com a contrapartida do custo de vida mais alto do país.",
+      "rent1br": 3200,
+      "rent2br": 4400,
+      "rentHouse": 5500,
+      "groceriesSingle": 480,
+      "groceriesFamily": 1380,
+      "transportCar": 0,
+      "healthSingle": 380,
+      "salaryAvg": 95000,
+      "highlights": [
+        "Mercado de trabalho mais diversificado e competitivo dos EUA — finanças, mídia, moda, tech, arte",
+        "Único entre as grandes cidades onde NÃO precisa de carro (transporte público cobre quase tudo)",
+        "Income tax estadual de NY + city tax somam até 12% — peso significativo no salário líquido",
+        "Aeroportos JFK e EWR têm voos diretos diários para Brasil",
+        "Comunidade brasileira espalhada — Astoria, Newark, Long Island City, Mount Vernon"
+      ],
+      "neighborhoods": [
+        { "name": "Astoria (Queens)", "desc": "Comunidade brasileira histórica, custo alto mas viável, ótimo transporte." },
+        { "name": "Newark (NJ)", "desc": "Maior concentração brasileira da região, custo significativamente menor que NY." },
+        { "name": "Long Island City", "desc": "Crescimento, prédios novos, próximo a Manhattan." },
+        { "name": "Mount Vernon (Westchester)", "desc": "Subúrbio com casas, comunidade brasileira em formação." }
+      ],
+      "totals": {
+        "single": 4400,
+        "couple": 6600,
+        "family4": 10500
+      },
+      "faqs": [
+        { "q": "Vale a pena morar em Nova York?", "a": "Para quem trabalha em finanças, mídia, tech, moda ou arte e quer ter acesso ao topo das respectivas indústrias, sim — embora o custo seja brutal. Para outras profissões, o trade-off custo/benefício costuma favorecer outras cidades. Newark e Astoria oferecem alternativas mais viáveis dentro da região metropolitana." },
+        { "q": "Newark é mais barato que NY?", "a": "Significativamente. Aluguel pode ser 40-50% menor para apartamento similar, com PATH train conectando à Manhattan em 25 minutos. Newark tem reputação ruim em algumas áreas mas tem bairros bons como Ironbound (forte presença portuguesa e brasileira) e Forest Hill." },
+        { "q": "Como é morar sem carro em NY?", "a": "Funciona muito bem em Manhattan, Brooklyn central e Queens. Ônibus, metrô e Uber cobrem 95% das necessidades. Custo mensal de transporte (cartão MetroCard ilimitado) é cerca de US$ 130 — fração do que se gasta com carro em outras cidades." },
+        { "q": "Quanto preciso ganhar para viver bem em NY?", "a": "Para solteiros vivendo em Manhattan ou Brooklyn em condições razoáveis: salário a partir de US$ 100 mil. Família com 2 filhos em bairro decente: a partir de US$ 200 mil. Newark e outras áreas dos arredores reduzem significativamente esses números." },
+        { "q": "Onde estão os brasileiros em NY?", "a": "Astoria (Queens) é o bairro brasileiro mais clássico, com restaurantes, padarias e mercearias. Newark (NJ) tem a maior densidade da região. Mount Vernon e Yonkers têm comunidades crescentes nos subúrbios. Long Island City também tem presença em prédios novos." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "plano-de-saude", "abrir-llc"]
+    },
+    {
+      "slug": "los-angeles-ca",
+      "name": "Los Angeles",
+      "state": "California",
+      "stateCode": "CA",
+      "intro": "Los Angeles tem uma comunidade brasileira menor que Miami ou Boston mas culturalmente vibrante, especialmente em Culver City, Long Beach e Glendale. A cidade combina indústrias de entretenimento, tecnologia e startup com clima ameno o ano todo — porém com custo de moradia entre os mais altos dos EUA e income tax estadual elevado.",
+      "rent1br": 2500,
+      "rent2br": 3300,
+      "rentHouse": 4200,
+      "groceriesSingle": 460,
+      "groceriesFamily": 1300,
+      "transportCar": 920,
+      "healthSingle": 370,
+      "salaryAvg": 82000,
+      "highlights": [
+        "Indústria de entretenimento e mídia — Hollywood, streaming, música — atrai brasileiros do setor criativo",
+        "Income tax estadual da Califórnia chega a 13.3% — entre os mais altos dos EUA",
+        "Clima ameno o ano todo, sem inverno rigoroso, próximo da praia e montanhas",
+        "Trânsito notoriamente pesado — distâncias curtas podem levar 1h em horário de pico",
+        "Aeroporto LAX tem voos diretos para São Paulo via LATAM"
+      ],
+      "neighborhoods": [
+        { "name": "Culver City", "desc": "Comunidade brasileira em formação, próximo a estúdios, custo alto." },
+        { "name": "Long Beach", "desc": "Mais acessível que LA central, clima de praia, comunidade diversa." },
+        { "name": "Glendale", "desc": "Subúrbio com famílias armênias e brasileiras, escolas decentes." },
+        { "name": "Studio City / Sherman Oaks", "desc": "Para profissionais de entretenimento, custo alto." }
+      ],
+      "totals": {
+        "single": 3650,
+        "couple": 5400,
+        "family4": 8400
+      },
+      "faqs": [
+        { "q": "Vale a pena morar em LA como brasileiro?", "a": "Para profissionais do setor criativo (cinema, música, mídia, design) é praticamente obrigatório. Para outras profissões, o trade-off entre clima ótimo e custo extremamente alto + income tax pesado é mais difícil. Solteiros em tech podem fazer funcionar; famílias precisam de orçamento significativo." },
+        { "q": "Onde estão os brasileiros em LA?", "a": "A comunidade é menor que em Miami ou Boston. Pequenos núcleos em Culver City, Glendale, Long Beach e Burbank. Restaurantes brasileiros pontuais. Para quem valoriza imersão cultural, Miami ou Orlando entregam mais." },
+        { "q": "Como é o trânsito em LA?", "a": "Notoriamente pesado. Distância de 15 milhas pode levar 1 hora em horário de pico. Trabalho remoto/híbrido reduz muito o impacto. Morar próximo do trabalho é altamente recomendado, mesmo que custe mais aluguel." },
+        { "q": "Qual a faixa salarial para vida boa em LA?", "a": "Solteiro vivendo bem: a partir de US$ 110 mil. Casal sem filhos em bairro decente: US$ 180 mil familiar. Família com 2 filhos em escola pública boa: US$ 250 mil. Income tax estadual reduz substancialmente o que sobra." },
+        { "q": "Tem voo direto de LA para o Brasil?", "a": "Sim. LATAM opera voos diretos LAX-GRU. Para outras cidades brasileiras, geralmente requer escala em São Paulo ou Miami." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "abrir-llc"]
+    },
+    {
+      "slug": "atlanta-ga",
+      "name": "Atlanta",
+      "state": "Georgia",
+      "stateCode": "GA",
+      "intro": "Atlanta vem se firmando como destino crescente entre brasileiros, especialmente em Decatur, Marietta e Alpharetta. Combina custo de vida razoável (significativamente menor que Boston ou Miami), mercado de trabalho diversificado (Coca-Cola, Delta, CDC, UPS) e aeroporto que é um dos maiores hubs do mundo.",
+      "rent1br": 1550,
+      "rent2br": 1950,
+      "rentHouse": 2400,
+      "groceriesSingle": 360,
+      "groceriesFamily": 1020,
+      "transportCar": 810,
+      "healthSingle": 310,
+      "salaryAvg": 72000,
+      "highlights": [
+        "Custo de vida 30% menor que Boston e 40% menor que NY, com salários competitivos",
+        "Income tax estadual da Geórgia: 5.39% (mais baixo que NY/CA mas maior que Texas/Flórida)",
+        "Aeroporto ATL é o mais movimentado do mundo — voos diretos diários para Brasil via Delta",
+        "Comunidade brasileira em forte crescimento, especialmente em Decatur e Alpharetta",
+        "Sede de mais de 15 empresas Fortune 500: Coca-Cola, Delta, Home Depot, UPS, Mercedes-Benz USA"
+      ],
+      "neighborhoods": [
+        { "name": "Decatur", "desc": "Cidade dentro da metrópole, escolas excelentes, comunidade liberal e diversa." },
+        { "name": "Alpharetta", "desc": "Subúrbio premium ao norte, sede de várias empresas tech, escolas A+." },
+        { "name": "Marietta", "desc": "Custo médio, casas familiares, comunidade brasileira em crescimento." },
+        { "name": "Smyrna", "desc": "Mais acessível que Marietta, próximo ao centro de Atlanta." }
+      ],
+      "totals": {
+        "single": 2750,
+        "couple": 4100,
+        "family4": 6300
+      },
+      "faqs": [
+        { "q": "Atlanta é boa cidade para brasileiros?", "a": "Está entre as melhores opções na relação custo-benefício. Salários decentes, custo de moradia razoável, comunidade brasileira crescendo, voos diretos para Brasil e mercado de trabalho diversificado. Famílias têm encontrado boas escolas e ambientes acolhedores em Decatur e Alpharetta." },
+        { "q": "Onde estão os brasileiros em Atlanta?", "a": "Decatur tem comunidade visível e crescente, com restaurantes brasileiros e algumas igrejas em português. Alpharetta concentra famílias mais estabelecidas em tech. Marietta também tem presença significativa. Algumas igrejas evangélicas em português operam na região." },
+        { "q": "Como é o clima de Atlanta?", "a": "Verão quente e úmido (mas menos extremo que Houston), inverno ameno com geadas ocasionais e raras nevascas. Primavera e outono são as estações mais agradáveis. Comparado a Boston, é noite e dia em conforto térmico." },
+        { "q": "Qual a melhor escola em Atlanta?", "a": "Decatur City Schools tem reputação excelente. Fulton County (Alpharetta) e Forsyth County têm várias escolas A+. Para escolas particulares, Westminster, Lovett e Pace Academy são tradicionais — porém caras (US$ 25-35 mil/ano)." },
+        { "q": "Tem voos diretos de Atlanta para o Brasil?", "a": "Sim. Delta opera voos diretos ATL-GRU diariamente. ATL é hub global da Delta, então conexões para outras cidades brasileiras (Rio, Brasília) são frequentes via São Paulo." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "abrir-llc"]
+    },
+    {
+      "slug": "chicago-il",
+      "name": "Chicago",
+      "state": "Illinois",
+      "stateCode": "IL",
+      "intro": "Chicago tem uma comunidade brasileira menor mas estabelecida, especialmente em Schaumburg, Naperville e algumas áreas do North Side. A cidade combina mercado de trabalho qualificado (finanças, advocacia, tecnologia), arquitetura impressionante e cultura vibrante — com o desafio de invernos brutais.",
+      "rent1br": 1900,
+      "rent2br": 2500,
+      "rentHouse": 2900,
+      "groceriesSingle": 410,
+      "groceriesFamily": 1180,
+      "transportCar": 850,
+      "healthSingle": 340,
+      "salaryAvg": 80000,
+      "highlights": [
+        "Mercado financeiro forte (CME, Northern Trust), advocacia internacional e tecnologia em expansão",
+        "Custo de moradia 35% menor que Boston e 50% menor que NY com salários comparáveis em finanças",
+        "Income tax estadual de Illinois: 4.95% (flat) — moderado",
+        "Inverno extremamente rigoroso (dez-fev) — temperaturas abaixo de -20°C com vento são comuns",
+        "Aeroporto ORD é hub internacional — voos para Brasil geralmente com 1 conexão"
+      ],
+      "neighborhoods": [
+        { "name": "Schaumburg", "desc": "Subúrbio noroeste, comunidade brasileira pequena mas presente, custo médio." },
+        { "name": "Naperville", "desc": "Frequentemente listada entre melhores cidades dos EUA para se viver, escolas A+." },
+        { "name": "Lincoln Park / Lakeview", "desc": "Bairros urbanos populares entre profissionais jovens, alto custo." },
+        { "name": "Oak Park", "desc": "Subúrbio próximo, casas históricas, escolas decentes, custo médio." }
+      ],
+      "totals": {
+        "single": 3300,
+        "couple": 4800,
+        "family4": 7400
+      },
+      "faqs": [
+        { "q": "Vale a pena morar em Chicago como brasileiro?", "a": "Para profissionais de finanças, advocacia internacional ou tecnologia, sim — salários e oportunidades são excelentes com custo de vida menor que Boston ou NY. Para outros perfis e especialmente para quem não tolera bem inverno extremo, outras cidades costumam ser mais atraentes." },
+        { "q": "Como é o inverno em Chicago para um brasileiro?", "a": "Extremamente difícil, especialmente nos primeiros dois anos. Janeiro pode ter dias com sensação térmica abaixo de -30°C. Equipamento adequado é não-negociável: casaco grosso (down ou parka), botas impermeáveis, luvas, gorro, cachecol. Vitamina D suplementar é praticamente obrigatória dezembro-fevereiro." },
+        { "q": "Onde estão os brasileiros em Chicago?", "a": "A comunidade é menor que em outras grandes cidades. Schaumburg e Naperville têm presença suburbana. Algumas igrejas evangélicas brasileiras operam em Schaumburg. Lincoln Park tem alguns restaurantes brasileiros. Para imersão cultural densa, Chicago não é a melhor opção." }, 
+        { "q": "Naperville ou Schaumburg para famílias?", "a": "Naperville tem reputação superior em escolas (District 203 e 204 são entre os melhores de Illinois) e qualidade de vida geral, mas custo é maior. Schaumburg tem custo mais acessível e ainda boas escolas, com vantagem de ter alguma comunidade brasileira." },
+        { "q": "Como é o transporte público em Chicago?", "a": "CTA (Chicago Transit Authority) cobre bem o centro e muitos bairros via L (metrô elevado) e ônibus. Para morar nos subúrbios e trabalhar no Loop, Metra (trem suburbano) é a opção. Vivendo em bairros como Lincoln Park ou Lakeview, dá para viver sem carro." }
+      ],
+      "relatedGuides": ["cnh", "conta-bancaria", "abrir-llc"]
+    }
+  ]
+}

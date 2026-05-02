@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin · Analytics · BrasilConnect USA</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    body { background: var(--paper); }
+    .admin-topbar {
+      background: var(--paper-elevated);
+      border-bottom: 1px solid var(--line);
+      padding: 18px 24px;
+    }
+    .admin-topbar .brand { display: flex; align-items: center; gap: 14px; max-width: 1200px; margin: 0 auto; }
+    .admin-topbar .brand img { height: 36px; }
+    .admin-topbar .meta { margin-left: auto; font-size: 13px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; }
+    .admin-topbar .nav-links { display: flex; gap: 14px; margin-right: 16px; }
+    .admin-topbar .nav-links a { font-size: 13px; color: var(--ink-soft); text-decoration: none; }
+    .admin-topbar .nav-links a.active { color: var(--brand-green); font-weight: 600; }
+
+    .admin-container { max-width: 1200px; margin: 24px auto; padding: 0 24px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 18px; }
+    .stat-block { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px 20px; }
+    .stat-block .label { text-transform: uppercase; letter-spacing: 0.1em; font-size: 10px; color: var(--ink-muted); margin-bottom: 6px; font-weight: 600; }
+    .stat-block .value { font-family: var(--font-display); font-size: 1.7rem; font-weight: 600; color: var(--ink); line-height: 1; }
+    .stat-block .sub { font-size: 11px; color: var(--ink-muted); margin-top: 5px; }
+
+    .panel { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px 28px; margin-bottom: 18px; }
+    .panel h3 { font-family: var(--font-display); margin: 0 0 16px 0; color: var(--ink); font-size: 1.2rem; font-weight: 600; }
+    .panel .panel-eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 10px; font-weight: 600; color: var(--brand-gold-dark); margin-bottom: 6px; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; }
+
+    .login-card {
+      max-width: 380px; margin: 80px auto;
+      background: var(--paper-elevated); border: 1px solid var(--line);
+      border-radius: var(--r-lg); padding: 36px 28px; text-align: center;
+    }
+    .login-card .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 11px; font-weight: 600; color: var(--brand-gold-dark); margin-bottom: 12px; }
+    .login-card h2 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; margin: 0 0 8px 0; }
+    .login-card input { width: 100%; padding: 12px 14px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r-md); margin-bottom: 12px; box-sizing: border-box; font-family: inherit; outline: none; background: var(--paper); }
+    .err-banner { background: #FBE9E7; color: #802020; border: 1px solid #E8C2BC; padding: 10px 14px; border-radius: var(--r-sm); font-size: 13px; margin-bottom: 14px; text-align: left; }
+
+    canvas { max-width: 100%; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const STORAGE_KEY = 'bc_admin_secret';
+    const root = document.getElementById('app');
+    const getSecret = () => { try { return sessionStorage.getItem(STORAGE_KEY) || ''; } catch (e) { return ''; } };
+    const setSecret = s => { try { sessionStorage.setItem(STORAGE_KEY, s); } catch (e) {} };
+    const clearSecret = () => { try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {} };
+    const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    const fmtUSD = n => '$' + (n || 0).toLocaleString('en-US');
+
+    function topbar(active) {
+      return `
+        <div class="admin-topbar">
+          <div class="brand">
+            <img src="/img/logo.svg" alt="BrasilConnect USA" />
+            <div class="nav-links">
+              <a href="/admin/mindmap" class="${active==='mindmap'?'active':''}">Mind Map</a>
+              <a href="/admin/waitlist" class="${active==='waitlist'?'active':''}">Lista de espera</a>
+              <a href="/admin/analytics" class="${active==='analytics'?'active':''}">Analytics</a>
+              <a href="/admin/utm-builder" class="${active==='utm'?'active':''}">UTM Builder</a>
+            </div>
+            <div class="meta">Admin Console</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLogin(errMsg) {
+      root.innerHTML = topbar() + `
+        <div class="login-card">
+          <div class="eyebrow">ACESSO RESTRITO</div>
+          <h2>Analytics</h2>
+          <p class="muted">Use o segredo administrativo (variável <code>ADMIN_SECRET</code>) para entrar.</p>
+          ${errMsg ? `<div class="err-banner">${escapeHtml(errMsg)}</div>` : ''}
+          <input id="secret" type="password" placeholder="ADMIN_SECRET" autocomplete="off" />
+          <button class="btn btn-primary" id="loginBtn" style="width:100%;">Entrar</button>
+        </div>
+      `;
+      document.getElementById('loginBtn').onclick = doLogin;
+      document.getElementById('secret').onkeydown = e => { if (e.key === 'Enter') doLogin(); };
+      setTimeout(() => document.getElementById('secret').focus(), 80);
+    }
+
+    async function doLogin() {
+      const v = document.getElementById('secret').value.trim();
+      if (!v) return;
+      setSecret(v);
+      await loadData();
+    }
+
+    async function loadData() {
+      const secret = getSecret();
+      if (!secret) return renderLogin();
+
+      root.innerHTML = topbar('analytics') + '<div class="admin-container"><p class="muted">Carregando…</p></div>';
+
+      try {
+        const r = await fetch('/api/admin/analytics', { headers: { 'x-admin-secret': secret } });
+        if (r.status === 401) { clearSecret(); return renderLogin('Senha incorreta'); }
+        if (!r.ok) {
+          const data = await r.json().catch(() => ({}));
+          return renderLogin(data.error || 'Erro ao carregar');
+        }
+        const data = await r.json();
+        renderDashboard(data);
+      } catch (e) {
+        renderLogin('Erro de rede: ' + e.message);
+      }
+    }
+
+    function renderDashboard(d) {
+      const aff = d.affiliates;
+      const ref = d.referrals;
+      const wl = d.waitlist;
+
+      root.innerHTML = topbar('analytics') + `
+        <div class="admin-container">
+
+          <!-- KPIs principais -->
+          <div class="stats-row">
+            <div class="stat-block">
+              <div class="label">RECEITA ESTIMADA</div>
+              <div class="value">${fmtUSD(aff.totalEstimatedRevenue)}</div>
+              <div class="sub">All-time, baseado em CPA × cliques</div>
+            </div>
+            <div class="stat-block">
+              <div class="label">WAITLIST</div>
+              <div class="value">${wl.total}</div>
+              <div class="sub">${wl.today} cadastros hoje</div>
+            </div>
+            <div class="stat-block">
+              <div class="label">CLIQUES AFILIADO</div>
+              <div class="value">${aff.byProvider.reduce((s,p)=>s+p.clicks,0)}</div>
+              <div class="sub">Em ${aff.byProvider.length} parceiros</div>
+            </div>
+            <div class="stat-block">
+              <div class="label">INDICAÇÕES QUALIFICADAS</div>
+              <div class="value">${ref.totalQualified}</div>
+              <div class="sub">${ref.eligibleForReward} elegíveis para recompensa</div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-eyebrow">CADASTROS</div>
+              <h3>Waitlist — últimos 30 dias</h3>
+              <canvas id="signupsChart" height="180"></canvas>
+            </div>
+
+            <div class="panel">
+              <div class="panel-eyebrow">CLIQUES AFILIADO</div>
+              <h3>Volume diário</h3>
+              <canvas id="clicksChart" height="180"></canvas>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-eyebrow">RECEITA</div>
+            <h3>Receita estimada por parceiro</h3>
+            <table class="data" style="margin-top:10px;">
+              <thead>
+                <tr>
+                  <th>Parceiro</th>
+                  <th style="text-align:right;">Cliques</th>
+                  <th style="text-align:right;">CPA</th>
+                  <th style="text-align:right;">Conv.</th>
+                  <th style="text-align:right;">Receita estimada</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${aff.byProvider.length === 0 ? '<tr><td colspan="5" style="text-align:center;color:var(--ink-muted);padding:24px;">Sem dados ainda</td></tr>' : aff.byProvider.map(p => `
+                  <tr>
+                    <td><strong>${escapeHtml(p.provider)}</strong></td>
+                    <td style="text-align:right;">${p.clicks}</td>
+                    <td style="text-align:right;">${fmtUSD(p.cpa)}</td>
+                    <td style="text-align:right;color:var(--ink-muted);">${(p.conversionRate*100).toFixed(0)}%</td>
+                    <td style="text-align:right;font-family:var(--font-display);font-weight:700;">${fmtUSD(p.estimatedRevenue)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="grid-2">
+            <div class="panel">
+              <div class="panel-eyebrow">DRIP CAMPAIGN</div>
+              <h3>Emails enviados por etapa</h3>
+              <table class="data">
+                <thead><tr><th>Etapa</th><th style="text-align:right;">Enviados</th><th style="text-align:right;">Falhas</th></tr></thead>
+                <tbody>
+                  ${[1,2,3,4,5].map(s => {
+                    const k = 'step_' + s
+                    const data = d.drip.byStep[k] || { sent: 0, failed: 0 }
+                    const labels = ['Boas-vindas (D+0)','Erros comuns (D+3)','Remessas (D+7)','Lead magnet (D+14)','Cidades (D+21)']
+                    return `<tr><td>${labels[s-1]}</td><td style="text-align:right;">${data.sent}</td><td style="text-align:right;color:${data.failed>0?'#9F2D2D':'var(--ink-muted)'}">${data.failed}</td></tr>`
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="panel">
+              <div class="panel-eyebrow">INDICAÇÕES</div>
+              <h3>Top indicadores</h3>
+              ${ref.topReferrers.length === 0 ? '<p class="muted">Ninguém qualificou ainda</p>' : `
+              <table class="data">
+                <thead><tr><th>#</th><th>Email</th><th style="text-align:right;">Qualificadas</th></tr></thead>
+                <tbody>
+                  ${ref.topReferrers.map((r, i) => `
+                    <tr>
+                      <td class="muted" style="width:32px;">${i+1}</td>
+                      <td>${escapeHtml(r.email)}</td>
+                      <td style="text-align:right;font-family:var(--font-display);font-weight:700;">${r.total_qualified}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+              `}
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-eyebrow">CIDADES</div>
+            <h3>Top 10 cidades dos cadastros</h3>
+            <canvas id="citiesChart" height="220"></canvas>
+          </div>
+
+          <p class="muted" style="text-align:center;font-size:12px;margin:24px 0;">
+            Dados gerados em ${new Date(d.generatedAt).toLocaleString('pt-BR')} ·
+            <a href="#" onclick="event.preventDefault();loadData()">Atualizar</a> ·
+            <a href="#" onclick="event.preventDefault();clearSecret();renderLogin();">Sair</a>
+          </p>
+        </div>
+      `;
+
+      // ── Charts ──
+      const PALETTE_GREEN = '#0F5132';
+      const PALETTE_GOLD = '#B89968';
+      const PALETTE_NAVY = '#1B2845';
+      const PALETTE_INK = '#1A1F1C';
+
+      const chartDefaults = {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#6B6E68', font: { size: 11 } } },
+          y: { grid: { color: '#F0EBE0' }, ticks: { color: '#6B6E68', font: { size: 11 } } }
+        }
+      };
+
+      // Signups
+      new Chart(document.getElementById('signupsChart'), {
+        type: 'line',
+        data: {
+          labels: wl.dailyLast30.map(r => r.day.slice(5)),
+          datasets: [{ data: wl.dailyLast30.map(r => r.count), borderColor: PALETTE_GREEN, backgroundColor: 'rgba(15,81,50,0.08)', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: PALETTE_GREEN, borderWidth: 2 }]
+        },
+        options: chartDefaults,
+      });
+
+      // Clicks
+      new Chart(document.getElementById('clicksChart'), {
+        type: 'bar',
+        data: {
+          labels: aff.byDay.map(r => r.day.slice(5)),
+          datasets: [{ data: aff.byDay.map(r => r.total), backgroundColor: PALETTE_GOLD, borderRadius: 4 }]
+        },
+        options: chartDefaults,
+      });
+
+      // Cidades
+      new Chart(document.getElementById('citiesChart'), {
+        type: 'bar',
+        data: {
+          labels: wl.byCity.map(r => r.city),
+          datasets: [{ data: wl.byCity.map(r => r.total), backgroundColor: PALETTE_NAVY, borderRadius: 4 }]
+        },
+        options: { ...chartDefaults, indexAxis: 'y' },
+      });
+    }
+
+    // Bootstrap
+    if (getSecret()) loadData(); else renderLogin();
+  </script>
+</body>
+</html>
