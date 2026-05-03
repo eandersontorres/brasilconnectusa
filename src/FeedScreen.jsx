@@ -385,12 +385,13 @@ export default function FeedScreen({ onNavigate }) {
         </div>
       )}
 
-      {/* Sidebar tools (mobile fica embaixo, desktop seria à direita) */}
-      <div style={{ marginTop: 12 }}>
+      {/* Sidebar tools — só aparece no mobile (no desktop o AppShell já mostra à direita) */}
+      <div className="bc-tools-mobile-only" style={{ marginTop: 12 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10, padding: '0 4px' }}>
-          ⚡ Ferramentas
+          Ferramentas
         </div>
         <ToolsSidebar onNavigate={onNavigate} />
+        <style>{'@media(min-width:768px){.bc-tools-mobile-only{display:none}}'}</style>
       </div>
 
       {/* Modais */}

@@ -3,6 +3,7 @@ import BolaoScreen from './BolaoScreen'
 import NegociosScreen from './NegociosScreen'
 import AgendaApp from './AgendaApp'
 import FeedScreen from './FeedScreen'
+import AppShell from './AppShell'
 
 // â”€â”€â”€ Constantes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -992,55 +993,13 @@ export default function App() {
   }, [])
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: '#FAF7F0', fontFamily: "'Sora', -apple-system, BlinkMacSystemFont, sans-serif" }}>
-      <div style={{
-        background: '#FFFFFF', borderBottom: '1px solid #E5E1D6',
-        padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 8,
-        position: 'sticky', top: 0, zIndex: 100,
-      }}>
-        <a href="/?preview=brasil2026" style={{
-          textDecoration: 'none',
-          fontFamily: "'Fraunces', Georgia, serif",
-          fontSize: 22, fontWeight: 600, color: '#002776', letterSpacing: '-0.01em',
-        }}>
-          Brasil<em style={{ color: '#FFD700', fontStyle: 'normal', fontWeight: 600 }}>Connect</em>
-        </a>
-      </div>
-
-      <div style={{ flex: 1, padding: tab === 'agenda' ? 0 : '16px' }}>
-        {tab === 'feed'     && <FeedScreen onNavigate={setTab} />}
-        {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
-        {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
-        {tab === 'agenda'   && <AgendaApp />}
-        {tab === 'negocios' && <NegociosScreen />}
-        {tab === 'bolao'    && <BolaoScreen />}
-      </div>
-
-      <div style={{
-        background: '#FFFFFF', borderTop: '1px solid #E5E1D6',
-        display: 'flex', position: 'sticky', bottom: 0,
-        paddingBottom: 'env(safe-area-inset-bottom)',
-      }}>
-        {TABS.map(t => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            style={{
-              flex: 1, padding: '10px 0 8px', border: 'none',
-              background: 'transparent', display: 'flex',
-              flexDirection: 'column', alignItems: 'center', gap: 3,
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              color: tab === t.id ? '#002776' : '#6B6E68',
-              borderTop: `2px solid ${tab === t.id ? '#009c3b' : 'transparent'}`,
-              transition: 'color .15s',
-            }}
-          >
-            <span style={{ fontSize: 20 }}>{t.icon}</span>
-            <span style={{ fontSize: 11, fontWeight: tab === t.id ? 600 : 400 }}>{t.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
+    <AppShell tab={tab} setTab={setTab}>
+      {tab === 'feed'     && <FeedScreen onNavigate={setTab} />}
+      {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
+      {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
+      {tab === 'agenda'   && <AgendaApp />}
+      {tab === 'negocios' && <NegociosScreen />}
+      {tab === 'bolao'    && <BolaoScreen />}
+    </AppShell>
   )
 }
