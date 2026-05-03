@@ -1,23 +1,23 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { C, FONT, useIsMobile } from './lib/colors'
 import { useAuth } from './AuthModal'
 import OnboardingFlow from './OnboardingFlow'
 
-// ════════════════════════════════════════════════════════════════════════════
-//   AppShell — layout responsivo (mobile bottom nav | desktop 3 colunas)
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//   AppShell â€” layout responsivo (mobile bottom nav | desktop 3 colunas)
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 const TABS = [
-  { id: 'feed',      icon: '⌂',  label: 'Feed' },
-  { id: 'discover',  icon: '⌕',  label: 'Buscar' },
-  { id: 'remessas',  icon: '$',  label: 'Câmbio' },
-  { id: 'negocios',  icon: '◫',  label: 'Negócios' },
-  { id: 'bolao',     icon: '⚽', label: 'Bolão' },
+  { id: 'feed',      icon: 'âŒ‚',  label: 'Feed' },
+  { id: 'discover',  icon: 'âŒ•',  label: 'Buscar' },
+  { id: 'remessas',  icon: '$',  label: 'CÃ¢mbio' },
+  { id: 'negocios',  icon: 'â—«',  label: 'NegÃ³cios' },
+  { id: 'bolao',     icon: 'âš½', label: 'BolÃ£o' },
 ]
 
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //   Logo (texto)
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function Logo({ size = 22 }) {
   return (
     <a href="/?preview=brasil2026" style={{
@@ -34,9 +34,9 @@ function Logo({ size = 22 }) {
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //   Mobile Top Bar
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function MobileTopBar({ user, onSignIn, onSignOut }) {
   return (
     <div style={{
@@ -67,9 +67,9 @@ function MobileTopBar({ user, onSignIn, onSignOut }) {
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //   Mobile Bottom Nav
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function MobileBottomNav({ tab, setTab }) {
   return (
     <div style={{
@@ -93,9 +93,9 @@ function MobileBottomNav({ tab, setTab }) {
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //   Desktop Top Bar (com busca centralizada)
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function DesktopTopBar({ user, onSignIn, onSignOut, search, setSearch }) {
   return (
     <div style={{
@@ -108,7 +108,7 @@ function DesktopTopBar({ user, onSignIn, onSignOut, search, setSearch }) {
       <div style={{ flex: 1, maxWidth: 480, position: 'relative' }}>
         <input
           type="text" value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Buscar comunidades, posts, negócios..."
+          placeholder="Buscar comunidades, posts, negÃ³cios..."
           style={{
             width: '100%', padding: '9px 14px 9px 36px', borderRadius: 18,
             border: '1px solid ' + C.line, background: C.paper,
@@ -119,17 +119,17 @@ function DesktopTopBar({ user, onSignIn, onSignOut, search, setSearch }) {
         <span style={{
           position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
           fontSize: 14, color: C.inkMuted, pointerEvents: 'none',
-        }}>⌕</span>
+        }}>âŒ•</span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         {user ? (
           <>
-            <button title="Notificações" style={{
+            <button title="NotificaÃ§Ãµes" style={{
               background: 'transparent', border: 'none', cursor: 'pointer',
               fontSize: 18, color: C.inkSoft, padding: 4,
-            }}>♪</button>
-            <button onClick={onSignOut} title={user.email + ' — clique pra sair'} style={{
+            }}>â™ª</button>
+            <button onClick={onSignOut} title={user.email + ' â€” clique pra sair'} style={{
               width: 34, height: 34, borderRadius: '50%', background: C.green,
               color: C.white, border: 'none', cursor: 'pointer',
               fontFamily: FONT.sans, fontSize: 13, fontWeight: 600,
@@ -151,9 +151,9 @@ function DesktopTopBar({ user, onSignIn, onSignOut, search, setSearch }) {
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//   Desktop Sidebar Esquerda — Comunidades + Tools
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//   Desktop Sidebar Esquerda â€” Comunidades + Tools
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function LeftSidebar({ tab, setTab, user, myCommunities }) {
   const sectionTitle = (txt) => (
     <div style={{
@@ -181,8 +181,8 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
       background: C.white, borderRadius: 12, border: '1px solid ' + C.line,
       padding: 8, position: 'sticky', top: 80, alignSelf: 'start',
     }}>
-      {sectionTitle('Navegação')}
-      {item(tab === 'feed', '⌂', 'Feed', () => setTab('feed'))}
+      {sectionTitle('NavegaÃ§Ã£o')}
+      {item(tab === 'feed', 'âŒ‚', 'Feed', () => setTab('feed'))}
 
       {user && (
         <>
@@ -200,17 +200,17 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
       )}
 
       {sectionTitle('Ferramentas')}
-      {item(tab === 'remessas', '$',  'Câmbio',   () => setTab('remessas'))}
-      {item(tab === 'voos',     '✈',  'Voos',     () => setTab('voos'))}
-      {item(tab === 'negocios', '◫',  'Negócios', () => setTab('negocios'))}
-      {item(tab === 'bolao',    '⚽', 'Bolão',    () => setTab('bolao'))}
+      {item(tab === 'remessas', '$',  'CÃ¢mbio',   () => setTab('remessas'))}
+      {item(tab === 'voos',     'âœˆ',  'Voos',     () => setTab('voos'))}
+      {item(tab === 'negocios', 'â—«',  'NegÃ³cios', () => setTab('negocios'))}
+      {item(tab === 'bolao',    'âš½', 'BolÃ£o',    () => setTab('bolao'))}
     </div>
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//   Desktop Sidebar Direita — Câmbio rápido + Eventos
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//   Desktop Sidebar Direita â€” CÃ¢mbio rÃ¡pido + Eventos
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function RightSidebar({ rate }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'sticky', top: 80, alignSelf: 'start' }}>
@@ -218,19 +218,19 @@ function RightSidebar({ rate }) {
         background: C.navy, color: C.white, borderRadius: 12, padding: '14px 16px',
       }}>
         <div style={{ fontSize: 10, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 1, fontWeight: 600, marginBottom: 4 }}>
-          USD → BRL agora
+          USD â†’ BRL agora
         </div>
         <div style={{ fontFamily: FONT.serif, fontSize: 22, fontWeight: 600 }}>
           {rate ? 'R$ ' + rate.toFixed(4) : 'Carregando...'}
         </div>
-        <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>Compare 5 parceiros →</div>
+        <div style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>Compare 5 parceiros â†’</div>
       </div>
 
       <div style={{
         background: C.white, border: '1px solid ' + C.line, borderRadius: 12, padding: '14px 16px',
       }}>
         <div style={{ fontSize: 10, fontWeight: 700, color: C.inkMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-          Eventos próximos
+          Eventos prÃ³ximos
         </div>
         <div style={{ fontSize: 12, color: C.inkSoft, fontStyle: 'italic' }}>
           Nenhum evento agendado.
@@ -265,15 +265,15 @@ function RightSidebar({ rate }) {
           width: '100%', padding: '7px 0', borderRadius: 8, background: C.green,
           color: C.white, border: 'none', cursor: 'pointer',
           fontFamily: FONT.sans, fontSize: 12, fontWeight: 600,
-        }}>Compartilhar →</button>
+        }}>Compartilhar â†’</button>
       </div>
     </div>
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//   AppShell — wrapper principal
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//   AppShell â€” wrapper principal
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 export default function AppShell({ tab, setTab, children }) {
   const isMobile = useIsMobile()
   const { user, signOut } = useAuth()
@@ -322,7 +322,7 @@ export default function AppShell({ tab, setTab, children }) {
     fontFamily: FONT.sans,
   }
 
-  // ── MOBILE LAYOUT ───────────────────────────────────────────────────────
+  // â”€â”€ MOBILE LAYOUT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (isMobile) {
     return (
       <div style={{ ...baseStyle, display: 'flex', flexDirection: 'column' }}>
@@ -337,7 +337,7 @@ export default function AppShell({ tab, setTab, children }) {
     )
   }
 
-  // ── DESKTOP LAYOUT (3 colunas) ──────────────────────────────────────────
+  // â”€â”€ DESKTOP LAYOUT (3 colunas) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   return (
     <div style={baseStyle}>
       <DesktopTopBar
@@ -365,9 +365,9 @@ export default function AppShell({ tab, setTab, children }) {
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//   AuthModalLazy — carrega o AuthModal só quando precisa
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//   AuthModalLazy â€” carrega o AuthModal sÃ³ quando precisa
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function AuthModalLazy({ onClose }) {
   const [Mod, setMod] = useState(null)
   useEffect(() => {
@@ -375,22 +375,4 @@ function AuthModalLazy({ onClose }) {
   }, [])
   if (!Mod) return null
   return <Mod onClose={onClose} onAuthenticated={onClose} />
-}
-er && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
-    </div>
-  )
-}
-
-// ════════════════════════════════════════════════════════════════════════════
-//   AuthModalLazy
-// ════════════════════════════════════════════════════════════════════════════
-function AuthModalLazy({ onClose }) {
-  const [Mod, setMod] = useState(null)
-  useEffect(() => {
-    import('./AuthModal').then(m => setMod(() => m.default))
-  }, [])
-  if (!Mod) return null
-  return <Mod onClose={onClose} onAuthenticated={onClose} />
-}
-e={onClose} onAuthenticated={onClose} />
 }
