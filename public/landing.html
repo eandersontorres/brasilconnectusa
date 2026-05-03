@@ -732,4 +732,80 @@ function goFlight() {
 // ── ALERT FORM ────────────────────────────────────────────────────────────────
 function doAlert() {
   const email  = document.getElementById('aEmail').value.trim()
-  const target = document.getElementById('aTarget').value.
+  const target = document.getElementById('aTarget').value.trim()
+  const dir    = document.getElementById('aDir').value
+
+  if (!email || !email.includes('@')) { document.getElementById('aEmail').style.borderColor = '#C04040'; return }
+  if (!target || parseFloat(target) <= 0) { document.getElementById('aTarget').style.borderColor = '#C04040'; return }
+
+  const btn = document.getElementById('aBtnEl')
+  btn.disabled = true; btn.textContent = 'Criando...'
+
+  fetch('/api/alerts', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, target_rate: parseFloat(target), direction: dir })
+  }).catch(() => {}).finally(() => {
+    btn.style.display = 'none'
+    document.getElementById('aOk').style.display = 'block'
+  })
+}
+
+// WAITLIST (rodape)
+function doWL() {
+  const email = document.getElementById('wlEmail').value.trim()
+  if (!email || !email.includes('@')) return
+  fetch('/api/alerts', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, target_rate: 0, direction: 'waitlist' })
+  }).catch(() => {})
+  document.getElementById('wlEmail').style.display = 'none'
+  document.querySelector('.wl-btn').style.display = 'none'
+  document.getElementById('wlOk').style.display = 'block'
+}
+
+// SCROLL REVEAL
+const obs = new IntersectionObserver(es => {
+  es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target) } })
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' })
+document.querySelectorAll('.rv').forEach(el => obs.observe(el))
+
+// HERO WAITLIST FORM (lista de espera no topo)
+const wlHeroForm = document.getElementById('wlHeroForm')
+if (wlHeroForm) {
+  wlHeroForm.addEventListener('submit', async function(e) {
+    e.preventDefault()
+    const emailEl = document.getElementById('wlHeroEmail')
+    const email = emailEl.value.trim()
+    if (!email || !email.includes('@')) { emailEl.style.borderColor = '#E07065'; return }
+    emailEl.style.borderColor = 'rgba(255,255,255,.15)'
+    const btn = wlHeroForm.querySelector('button[type="submit"]')
+    if (btn) { btn.disabled = true; btn.textContent = 'Enviando...' }
+    try {
+      await fetch('/api/alerts', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, target_rate: 0, direction: 'waitlist' })
+      })
+    } catch (_) {}
+    wlHeroForm.style.display = 'none'
+    document.getElementById('wlHeroOk').style.display = 'block'
+  })
+}
+
+// INIT (defensivo: so chama se elementos existirem)
+const hasResList = !!document.getElementById('resList')
+const hasOtab    = !!document.querySelector('.otab.on')
+
+if (hasResList) renderRes(curAmt)
+if (hasOtab)    filterR(document.querySelector('.otab.on'), 'AUS')
+
+fetch('/api/rates')
+  .then(r => r.ok ? r.json() : null)
+  .then(d => { if (d && d.success) updateRate(d.mid_rate) })
+  .catch(() => {})
+
+setInterval(() => {
+  fetch('/api/rates').then(r => r.ok ? r.json() : null).then(d => { if (d && d.success) updateRate(d.mid_rate) }).catch(() => {})
+}, 300000)
+</script>
+</body>
+</html>
