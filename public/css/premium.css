@@ -6,31 +6,31 @@
 
 :root {
   /* ── Brand ─────────────────────────────────────────────────── */
-  --brand-green:        #2A7A4F;   /* Verde floresta editorial */
-  --brand-green-dark:   #1F5E3D;
-  --brand-green-light:  #35A066;
-  --brand-green-soft:   #EAF3EE;   /* Tinte de fundo */
-  --brand-navy:         #0B1928;   /* Navy quase preto */
-  --brand-navy-light:   #162840;
-  --brand-navy-soft:    #E5EAF1;
-  --brand-gold:         #C9953A;   /* Dourado quente */
+  --brand-green:        #009c3b;   /* Verde floresta editorial */
+  --brand-green-dark:   #006428;
+  --brand-green-light:  #00b34d;
+  --brand-green-soft:   #E6F4EB;   /* Tinte de fundo */
+  --brand-navy:         #002776;   /* Navy quase preto */
+  --brand-navy-light:   #1e3a5f;
+  --brand-navy-soft:    #E8EBF1;
+  --brand-gold:         #FFD700;   /* Dourado quente */
   --brand-gold-dark:    #8C6D3D;
-  --brand-gold-light:   #E5B85A;
+  --brand-gold-light:   #ffdf00;
   --brand-gold-soft:    #F5EFE0;
 
   /* ── Surfaces ──────────────────────────────────────────────── */
-  --paper:              #F7F3ED;   /* Creme editorial */
-  --paper-soft:         #EDE6DA;
+  --paper:              #FAF7F0;   /* Creme editorial */
+  --paper-soft:         #F1ECDF;
   --paper-elevated:     #FFFFFF;
 
   /* ── Ink (tipografia) ──────────────────────────────────────── */
-  --ink:                #1A2B3C;
-  --ink-soft:           #4A6070;
-  --ink-muted:          #8496AA;
+  --ink:                #1A1F1C;
+  --ink-soft:           #4B4F4D;
+  --ink-muted:          #6B6E68;
 
   /* ── Hairlines / dividers ──────────────────────────────────── */
-  --line:               #E2E8F0;
-  --line-soft:          #EDE6DA;
+  --line:               #E5E1D6;
+  --line-soft:          #F1ECDF;
 
   /* ── Tipografia ────────────────────────────────────────────── */
   --font-serif:         'Fraunces', Georgia, 'Cormorant Garamond', 'Times New Roman', serif;

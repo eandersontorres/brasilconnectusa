@@ -11,10 +11,10 @@ import { useState, useEffect, useMemo } from 'react'
  */
 
 const PALETTE = {
-  paper: '#F7F3ED', paperEl: '#FFFFFF', paperSft: '#F1ECDF',
-  green: '#2A7A4F', greenDk: '#1F5E3D', greenSft: '#E8EFEB',
+  paper: '#FAF7F0', paperEl: '#FFFFFF', paperSft: '#F1ECDF',
+  green: '#009c3b', greenDk: '#006428', greenSft: '#E8EFEB',
   navy: '#1B2845', gold: '#B89968', goldDk: '#8C6D3D', goldSft: '#F5EFE0',
-  ink: '#1A2B3C', inkSoft: '#4B4F4D', inkMuted: '#6B6E68', line: '#E2E8F0',
+  ink: '#1A1F1C', inkSoft: '#4B4F4D', inkMuted: '#6B6E68', line: '#E5E1D6',
 }
 
 const FONT_SERIF = "'Fraunces', Georgia, serif"

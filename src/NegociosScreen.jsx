@@ -54,7 +54,7 @@ const PLANS = [
     id: 'pro',
     name: 'Pro',
     price: 29,
-    color: '#2A7A4F',
+    color: '#009c3b',
     bg: '#f0fdf4',
     border: '#86efac',
     popular: true,
@@ -72,7 +72,7 @@ const PLANS = [
     id: 'premium',
     name: 'Premium',
     price: 79,
-    color: '#0B1928',
+    color: '#002776',
     bg: '#eff6ff',
     border: '#93c5fd',
     features: [
@@ -108,8 +108,8 @@ function StarRating({ rating, reviews }) {
 
 function PlanBadge({ plan }) {
   const config = {
-    pro: { label: 'Pro', color: '#2A7A4F', bg: '#dcfce7' },
-    premium: { label: '✓ Verificado', color: '#0B1928', bg: '#dbeafe' },
+    pro: { label: 'Pro', color: '#009c3b', bg: '#dcfce7' },
+    premium: { label: '✓ Verificado', color: '#002776', bg: '#dbeafe' },
     basic: null,
   }
   const c = config[plan]
@@ -183,7 +183,7 @@ function BusinessCard({ biz, onSelect }) {
         ))}
       </div>
 
-      <div style={{ marginTop: 12, fontSize: 12, color: '#2A7A4F', fontWeight: 600 }}>
+      <div style={{ marginTop: 12, fontSize: 12, color: '#009c3b', fontWeight: 600 }}>
         Ver detalhes →
       </div>
     </div>
@@ -316,7 +316,7 @@ function PlansSection() {
   return (
     <div style={{ marginTop: 8 }}>
       <div style={{
-        background: 'linear-gradient(135deg, #0B1928 0%, #1e40af 100%)',
+        background: 'linear-gradient(135deg, #002776 0%, #1e40af 100%)',
         borderRadius: 14, padding: '20px 16px', marginBottom: 16, color: '#fff',
       }}>
         <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>
@@ -418,7 +418,7 @@ export default function NegociosScreen() {
     <div style={{ paddingBottom: 16 }}>
       {/* Header */}
       <div style={{
-        background: 'linear-gradient(135deg, #0B1928 0%, #1e40af 100%)',
+        background: 'linear-gradient(135deg, #002776 0%, #1e40af 100%)',
         borderRadius: 14, padding: '18px 16px', marginBottom: 16, color: '#fff',
       }}>
         <div style={{ fontSize: 20, fontWeight: 700, marginBottom: 4 }}>🏪 Negócios Brasileiros</div>
@@ -436,7 +436,7 @@ export default function NegociosScreen() {
             style={{
               flexShrink: 0, padding: '6px 14px', borderRadius: 20, fontSize: 12,
               fontWeight: activeCategory === cat ? 600 : 400,
-              background: activeCategory === cat ? '#0B1928' : '#f3f4f6',
+              background: activeCategory === cat ? '#002776' : '#f3f4f6',
               color: activeCategory === cat ? '#fff' : '#374151',
               border: 'none', cursor: 'pointer',
               whiteSpace: 'nowrap',
@@ -475,7 +475,7 @@ export default function NegociosScreen() {
           onClick={() => setShowPlans(true)}
           style={{
             width: '100%', padding: '11px 0', borderRadius: 9,
-            background: '#2A7A4F', color: '#fff',
+            background: '#009c3b', color: '#fff',
             fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer',
           }}
         >

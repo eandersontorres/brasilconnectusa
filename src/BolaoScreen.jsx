@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 
 // ── Paleta editorial ──────────────────────────────────────────────────────
-const GREEN  = '#2A7A4F'   // Verde floresta
-const BLUE   = '#0B1928'   // Navy quase preto
-const YELLOW = '#E5B85A'   // Dourado claro (substitui o amarelo brilhante)
-const GOLD   = '#C9953A'   // Dourado quente (acentos)
-const NAVY_LIGHT = '#162840'
-const CREAM  = '#F7F3ED'
+const GREEN  = '#009c3b'   // Verde floresta
+const BLUE   = '#002776'   // Navy quase preto
+const YELLOW = '#ffdf00'   // Dourado claro (substitui o amarelo brilhante)
+const GOLD   = '#FFD700'   // Dourado quente (acentos)
+const NAVY_LIGHT = '#1e3a5f'
+const CREAM  = '#FAF7F0'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   Constantes — Estados USA, Bandeiras, Curiosidades, Histórico do Brasil
@@ -232,7 +232,7 @@ function CountdownBlock({ targetDate, label, sub, gradient }) {
   )
   return (
     <div style={{
-      background: gradient || 'linear-gradient(135deg, ' + BLUE + ' 0%, #162840 100%)',
+      background: gradient || 'linear-gradient(135deg, ' + BLUE + ' 0%, #1e3a5f 100%)',
       borderRadius: 14, padding: '16px', color: '#fff', marginBottom: 12,
     }}>
       <div style={{ fontSize: 11, opacity: 0.85, textTransform: 'uppercase', letterSpacing: 1.5, fontWeight: 600 }}>
@@ -380,7 +380,7 @@ function SimuladorBrasil() {
   ]
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #2A7A4F 0%, #1F5E3D 100%)',
+      background: 'linear-gradient(135deg, #009c3b 0%, #006428 100%)',
       borderRadius: 14, padding: '16px', color: '#fff', marginBottom: 12,
     }}>
       <button
@@ -523,7 +523,7 @@ function HomeView({ onCreateClick, onJoinClick, config, setToast }) {
     <div style={{ padding: '0 0 16px' }}>
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(135deg, ' + BLUE + ' 0%, #162840 100%)',
+        background: 'linear-gradient(135deg, ' + BLUE + ' 0%, #1e3a5f 100%)',
         borderRadius: 14, padding: '24px 18px', marginBottom: 14, color: '#fff',
         textAlign: 'center', position: 'relative', overflow: 'hidden',
       }}>
@@ -547,7 +547,7 @@ function HomeView({ onCreateClick, onJoinClick, config, setToast }) {
         targetDate={copaStart}
         label="Faltam para a abertura da Copa"
         sub="11 de Junho de 2026 · México vs África do Sul"
-        gradient={'linear-gradient(135deg, ' + GREEN + ' 0%, #1F5E3D 100%)'}
+        gradient={'linear-gradient(135deg, ' + GREEN + ' 0%, #006428 100%)'}
       />
       <CountdownBlock
         targetDate={brasilFirst}
