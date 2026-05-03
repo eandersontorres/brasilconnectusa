@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './lib/supabase'
 import AuthModal, { useAuth } from './AuthModal'
 import GetStartedChecklist from './GetStartedChecklist'
 
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //   Paleta Brasil
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 const GREEN  = '#009c3b'
 const BLUE   = '#002776'
 const YELLOW = '#ffdf00'
@@ -14,17 +14,17 @@ const NAVY   = '#0B1928'
 const CREAM  = '#FAF7F0'
 
 const POST_TYPES = {
-  question:       { label: 'Pergunta',      color: '#3B82F6', bg: '#DBEAFE', icon: '🤔' },
-  recommendation: { label: 'Indicação',     color: '#10B981', bg: '#D1FAE5', icon: '⭐' },
-  event:          { label: 'Evento',        color: '#F59E0B', bg: '#FEF3C7', icon: '🎉' },
-  classified:     { label: 'Vende/Compra',  color: '#8B5CF6', bg: '#EDE9FE', icon: '🛒' },
-  job:            { label: 'Vaga',          color: GREEN,     bg: '#D1FAE5', icon: '💼' },
-  announcement:   { label: 'Aviso',         color: '#EF4444', bg: '#FEE2E2', icon: '📢' },
+  question:       { label: 'Pergunta',      color: '#3B82F6', bg: '#DBEAFE', icon: 'ðŸ¤”' },
+  recommendation: { label: 'IndicaÃ§Ã£o',     color: '#10B981', bg: '#D1FAE5', icon: 'â­' },
+  event:          { label: 'Evento',        color: '#F59E0B', bg: '#FEF3C7', icon: 'ðŸŽ‰' },
+  classified:     { label: 'Vende/Compra',  color: '#8B5CF6', bg: '#EDE9FE', icon: 'ðŸ›’' },
+  job:            { label: 'Vaga',          color: GREEN,     bg: '#D1FAE5', icon: 'ðŸ’¼' },
+  announcement:   { label: 'Aviso',         color: '#EF4444', bg: '#FEE2E2', icon: 'ðŸ“¢' },
 }
 
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //   Helpers
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function timeAgo(date) {
   const d = new Date(date)
   const seconds = Math.floor((Date.now() - d.getTime()) / 1000)
@@ -51,9 +51,9 @@ function Avatar({ name, size = 28 }) {
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 //   PostCard
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function PostCard({ post, onClick, currentUser, onVote }) {
   const t = POST_TYPES[post.type] || POST_TYPES.question
   const score = (post.upvotes || 0) - (post.downvotes || 0)
@@ -97,7 +97,7 @@ function PostCard({ post, onClick, currentUser, onVote }) {
             {post.community.icon} {post.community.name}
           </span>
         )}
-        <span style={{ color: '#9ca3af' }}>· {timeAgo(post.created_at)}</span>
+        <span style={{ color: '#9ca3af' }}>Â· {timeAgo(post.created_at)}</span>
       </div>
 
       {/* Title */}
@@ -118,20 +118,20 @@ function PostCard({ post, onClick, currentUser, onVote }) {
       {/* Type-specific content */}
       {post.type === 'event' && post.event_date && (
         <div style={{ fontSize: 12, color: '#92400E', background: '#FEF3C7', padding: '6px 10px', borderRadius: 6, marginBottom: 8 }}>
-          📅 {new Date(post.event_date).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
-          {post.event_location && ' · ' + post.event_location}
-          {post.event_rsvp_count > 0 && ` · ${post.event_rsvp_count} confirmados`}
+          ðŸ“… {new Date(post.event_date).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+          {post.event_location && ' Â· ' + post.event_location}
+          {post.event_rsvp_count > 0 && ` Â· ${post.event_rsvp_count} confirmados`}
         </div>
       )}
       {post.type === 'classified' && post.classified_price && (
         <div style={{ fontSize: 13, color: '#6D28D9', background: '#EDE9FE', padding: '6px 10px', borderRadius: 6, marginBottom: 8, fontWeight: 600 }}>
-          💰 ${Number(post.classified_price).toLocaleString('en-US')}
+          ðŸ’° ${Number(post.classified_price).toLocaleString('en-US')}
         </div>
       )}
       {post.type === 'job' && (post.job_pay || post.job_category) && (
         <div style={{ fontSize: 12, color: '#065F46', background: '#D1FAE5', padding: '6px 10px', borderRadius: 6, marginBottom: 8 }}>
-          {post.job_pay && '💵 ' + post.job_pay}
-          {post.job_pay && post.job_category && ' · '}
+          {post.job_pay && 'ðŸ’µ ' + post.job_pay}
+          {post.job_pay && post.job_category && ' Â· '}
           {post.job_category}
         </div>
       )}
@@ -142,25 +142,25 @@ function PostCard({ post, onClick, currentUser, onVote }) {
           <button onClick={e => handleVote(e, 1)} style={{
             background: voted === 1 ? GREEN : 'transparent', color: voted === 1 ? '#fff' : '#6b7280',
             border: 'none', borderRadius: 4, padding: '2px 6px', cursor: 'pointer', fontSize: 14,
-          }}>▲</button>
+          }}>â–²</button>
           <span style={{ fontWeight: 700, color: voted ? GREEN : '#374151', minWidth: 18, textAlign: 'center' }}>
             {score + voted}
           </span>
           <button onClick={e => handleVote(e, -1)} style={{
             background: voted === -1 ? '#EF4444' : 'transparent', color: voted === -1 ? '#fff' : '#6b7280',
             border: 'none', borderRadius: 4, padding: '2px 6px', cursor: 'pointer', fontSize: 14,
-          }}>▼</button>
+          }}>â–¼</button>
         </div>
-        <span>💬 {post.comment_count || 0}</span>
-        <span style={{ marginLeft: 'auto' }}>👁 {post.view_count || 0}</span>
+        <span>ðŸ’¬ {post.comment_count || 0}</span>
+        <span style={{ marginLeft: 'auto' }}>ðŸ‘ {post.view_count || 0}</span>
       </div>
     </div>
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//   Sidebar Esquerda — Comunidades
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//   Sidebar Esquerda â€” Comunidades
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function CommunitiesList({ user, myCommunities, onSelectCommunity, activeSlug }) {
   return (
     <div style={{ background: '#fff', border: '1px solid #E5E1D6', borderRadius: 12, padding: 14 }}>
@@ -169,12 +169,12 @@ function CommunitiesList({ user, myCommunities, onSelectCommunity, activeSlug })
       </div>
       {!user && (
         <div style={{ fontSize: 12, color: '#9ca3af', fontStyle: 'italic', padding: '10px 0' }}>
-          Faça login pra seguir comunidades
+          FaÃ§a login pra seguir comunidades
         </div>
       )}
       {user && myCommunities.length === 0 && (
         <div style={{ fontSize: 12, color: '#9ca3af', fontStyle: 'italic', padding: '10px 0' }}>
-          Você ainda não segue nenhuma comunidade. Clique em &quot;Descobrir&quot; abaixo.
+          VocÃª ainda nÃ£o segue nenhuma comunidade. Clique em &quot;Descobrir&quot; abaixo.
         </div>
       )}
       {myCommunities.map(c => (
@@ -193,9 +193,9 @@ function CommunitiesList({ user, myCommunities, onSelectCommunity, activeSlug })
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//   Sidebar Direita — Tools (Câmbio, Voos, Bolão)
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//   Sidebar Direita â€” Tools (CÃ¢mbio, Voos, BolÃ£o)
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function ToolsSidebar({ onNavigate }) {
   const [rate, setRate] = useState(null)
   useEffect(() => {
@@ -204,18 +204,18 @@ function ToolsSidebar({ onNavigate }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      {/* Câmbio */}
+      {/* CÃ¢mbio */}
       <div style={{
         background: 'linear-gradient(135deg, ' + GREEN + ' 0%, #006428 100%)',
         borderRadius: 12, padding: '14px 16px', color: '#fff', cursor: 'pointer',
       }} onClick={() => onNavigate('remessas')}>
         <div style={{ fontSize: 10, opacity: 0.85, textTransform: 'uppercase', letterSpacing: 1, fontWeight: 600, marginBottom: 4 }}>
-          💱 Câmbio agora
+          ðŸ’± CÃ¢mbio agora
         </div>
         <div style={{ fontSize: 22, fontWeight: 800 }}>
           {rate ? `R$ ${rate.toFixed(4)}` : 'Carregando...'}
         </div>
-        <div style={{ fontSize: 11, opacity: 0.85, marginTop: 4 }}>USD → BRL · Comparar 5 parceiros →</div>
+        <div style={{ fontSize: 11, opacity: 0.85, marginTop: 4 }}>USD â†’ BRL Â· Comparar 5 parceiros â†’</div>
       </div>
 
       {/* Voos */}
@@ -224,37 +224,37 @@ function ToolsSidebar({ onNavigate }) {
         padding: '12px 14px', cursor: 'pointer',
       }} onClick={() => onNavigate('voos')}>
         <div style={{ fontSize: 10, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>
-          ✈️ Voos pro Brasil
+          âœˆï¸ Voos pro Brasil
         </div>
         <div style={{ fontSize: 13, color: NAVY, fontWeight: 600 }}>
           A partir de $480
         </div>
-        <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>Skyscanner, KAYAK e mais →</div>
+        <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>Skyscanner, KAYAK e mais â†’</div>
       </div>
 
-      {/* Bolão */}
+      {/* BolÃ£o */}
       <div style={{
         background: '#fff', border: '1px solid ' + YELLOW, borderRadius: 12,
         padding: '12px 14px', cursor: 'pointer',
       }} onClick={() => onNavigate('bolao')}>
         <div style={{ fontSize: 10, fontWeight: 700, color: '#92400E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>
-          ⚽ Bolão Copa 2026
+          âš½ BolÃ£o Copa 2026
         </div>
         <div style={{ fontSize: 13, color: NAVY, fontWeight: 600 }}>
           Faltam 40 dias
         </div>
-        <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>Crie ou entre num bolão →</div>
+        <div style={{ fontSize: 11, color: '#6b7280', marginTop: 4 }}>Crie ou entre num bolÃ£o â†’</div>
       </div>
 
-      {/* Negócios */}
+      {/* NegÃ³cios */}
       <div style={{
         background: '#fff', border: '1px solid #E5E1D6', borderRadius: 12,
         padding: '12px 14px', cursor: 'pointer',
       }} onClick={() => onNavigate('negocios')}>
         <div style={{ fontSize: 10, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>
-          🏪 Negócios brasileiros
+          ðŸª NegÃ³cios brasileiros
         </div>
-        <div style={{ fontSize: 11, color: '#6b7280' }}>Restaurantes, mercados, salões →</div>
+        <div style={{ fontSize: 11, color: '#6b7280' }}>Restaurantes, mercados, salÃµes â†’</div>
       </div>
 
       {/* Agenda */}
@@ -263,17 +263,17 @@ function ToolsSidebar({ onNavigate }) {
         padding: '12px 14px', cursor: 'pointer',
       }} onClick={() => onNavigate('agenda')}>
         <div style={{ fontSize: 10, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>
-          📅 Agendar serviços
+          ðŸ“… Agendar serviÃ§os
         </div>
-        <div style={{ fontSize: 11, color: '#6b7280' }}>Cabeleireira, manicure, etc →</div>
+        <div style={{ fontSize: 11, color: '#6b7280' }}>Cabeleireira, manicure, etc â†’</div>
       </div>
     </div>
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//   FeedScreen — componente principal
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//   FeedScreen â€” componente principal
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 export default function FeedScreen({ onNavigate }) {
   const { user, loading: authLoading } = useAuth()
   const [posts, setPosts] = useState([])
@@ -321,7 +321,7 @@ export default function FeedScreen({ onNavigate }) {
       gap: 16,
       fontFamily: "'Sora', -apple-system, sans-serif",
     }}>
-      {/* Hero / topo só aparece se não logado */}
+      {/* Hero / topo sÃ³ aparece se nÃ£o logado */}
       {!user && !authLoading && (
         <div style={{
           background: 'linear-gradient(135deg, ' + GREEN + ' 0%, ' + BLUE + ' 100%)',
@@ -329,16 +329,16 @@ export default function FeedScreen({ onNavigate }) {
           textAlign: 'center',
         }}>
           <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>
-            🇧🇷 Comunidade brasileira nos EUA
+            ðŸ‡§ðŸ‡· Comunidade brasileira nos EUA
           </div>
           <div style={{ fontSize: 13, opacity: 0.9, marginBottom: 12, lineHeight: 1.5 }}>
-            Pergunte, indique, encontre brasileiros perto de você
+            Pergunte, indique, encontre brasileiros perto de vocÃª
           </div>
           <button onClick={() => setShowAuth(true)} style={{
             background: '#fff', color: GREEN, border: 'none', borderRadius: 8,
             padding: '10px 20px', fontSize: 13, fontWeight: 700, cursor: 'pointer',
           }}>
-            Entrar / criar conta grátis →
+            Entrar / criar conta grÃ¡tis â†’
           </button>
         </div>
       )}
@@ -349,7 +349,7 @@ export default function FeedScreen({ onNavigate }) {
         else if (act === 'navigate' && key) onNavigate && onNavigate(key)
       }} />}
 
-      {/* Botão criar post */}
+      {/* BotÃ£o criar post */}
       <div style={{
         background: '#fff', border: '1px solid #E5E1D6', borderRadius: 12,
         padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10,
@@ -360,19 +360,19 @@ export default function FeedScreen({ onNavigate }) {
           background: '#F9FAFB', color: '#6b7280', fontSize: 13, cursor: 'pointer',
           textAlign: 'left', fontFamily: 'inherit',
         }}>
-          Pergunte algo, indique, ou compartilhe…
+          Pergunte algo, indique, ou compartilheâ€¦
         </button>
       </div>
 
       {/* Feed */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: 32, color: '#9ca3af' }}>Carregando feed…</div>
+        <div style={{ textAlign: 'center', padding: 32, color: '#9ca3af' }}>Carregando feedâ€¦</div>
       ) : posts.length === 0 ? (
         <div style={{
           textAlign: 'center', padding: 32, color: '#9ca3af',
           background: '#fff', border: '1px dashed #E5E1D6', borderRadius: 12,
         }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>🌱</div>
+          <div style={{ fontSize: 32, marginBottom: 8 }}>ðŸŒ±</div>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 4 }}>
             Nada por aqui ainda
           </div>
@@ -385,14 +385,14 @@ export default function FeedScreen({ onNavigate }) {
               key={p.id}
               post={p}
               currentUser={user}
-              onClick={() => alert('Detalhe do post — em breve')}
+              onClick={() => alert('Detalhe do post â€” em breve')}
               onVote={r => { if (r === 'need-auth') setShowAuth(true) }}
             />
           ))}
         </div>
       )}
 
-      {/* Sidebar tools — só aparece no mobile (no desktop o AppShell já mostra à direita) */}
+      {/* Sidebar tools â€” sÃ³ aparece no mobile (no desktop o AppShell jÃ¡ mostra Ã  direita) */}
       <div className="bc-tools-mobile-only" style={{ marginTop: 12 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10, padding: '0 4px' }}>
           Ferramentas
@@ -417,9 +417,9 @@ export default function FeedScreen({ onNavigate }) {
   )
 }
 
-// ════════════════════════════════════════════════════════════════════════════
-//   CreatePostModal — formulário pra criar post
-// ════════════════════════════════════════════════════════════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+//   CreatePostModal â€” formulÃ¡rio pra criar post
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 function CreatePostModal({ user, myCommunities, onClose, onCreated }) {
   const [communities, setCommunities] = useState(myCommunities)
   const [communityId, setCommunityId] = useState('')
@@ -438,7 +438,7 @@ function CreatePostModal({ user, myCommunities, onClose, onCreated }) {
   const [submitting, setSubmitting]   = useState(false)
   const [error, setError]             = useState(null)
 
-  // Se user não segue nenhuma, busca as públicas pra ele escolher
+  // Se user nÃ£o segue nenhuma, busca as pÃºblicas pra ele escolher
   useEffect(() => {
     if (myCommunities.length > 0) {
       setCommunities(myCommunities)
@@ -454,7 +454,7 @@ function CreatePostModal({ user, myCommunities, onClose, onCreated }) {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (!communityId || !title) { setError('Comunidade e título obrigatórios'); return }
+    if (!communityId || !title) { setError('Comunidade e tÃ­tulo obrigatÃ³rios'); return }
     setSubmitting(true)
     setError(null)
     try {
@@ -462,7 +462,7 @@ function CreatePostModal({ user, myCommunities, onClose, onCreated }) {
         user_id: user.id, community_id: communityId, type, title, body,
       }
       if (type === 'event') {
-        if (!eventDate) throw new Error('Data do evento obrigatória')
+        if (!eventDate) throw new Error('Data do evento obrigatÃ³ria')
         payload.event_date = new Date(eventDate).toISOString()
         payload.event_location = eventLocation
       }
@@ -507,11 +507,11 @@ function CreatePostModal({ user, myCommunities, onClose, onCreated }) {
         maxHeight: '90vh', overflowY: 'auto',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-          <div style={{ fontSize: 17, fontWeight: 700, color: NAVY }}>📝 Criar post</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: NAVY }}>ðŸ“ Criar post</div>
           <button onClick={onClose} style={{
             background: 'transparent', border: 'none', fontSize: 20, color: '#9ca3af',
             cursor: 'pointer', padding: 0,
-          }}>×</button>
+          }}>Ã—</button>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -547,10 +547,10 @@ function CreatePostModal({ user, myCommunities, onClose, onCreated }) {
             </select>
           </div>
 
-          {/* Título */}
+          {/* TÃ­tulo */}
           <div>
             <label style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 6 }}>
-              Título
+              TÃ­tulo
             </label>
             <input type="text" value={title} onChange={e => setTitle(e.target.value)} required maxLength={200}
               placeholder="Ex: Onde acho mandioca em Boston?"
@@ -596,13 +596,13 @@ function CreatePostModal({ user, myCommunities, onClose, onCreated }) {
                   <select value={classifiedKind} onChange={e => setKind(e.target.value)} style={inputStyle}>
                     <option value="sell">Vendendo</option>
                     <option value="buy">Procurando</option>
-                    <option value="donate">Doação</option>
+                    <option value="donate">DoaÃ§Ã£o</option>
                     <option value="rent">Alugando</option>
                   </select>
                 </div>
                 <div style={{ flex: 1 }}>
                   <label style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 6 }}>
-                    Preço (USD)
+                    PreÃ§o (USD)
                   </label>
                   <input type="number" min="0" step="0.01" value={classifiedPrice} onChange={e => setPrice(e.target.value)}
                     placeholder="ex: 200" style={inputStyle} />
@@ -627,9 +627,9 @@ function CreatePostModal({ user, myCommunities, onClose, onCreated }) {
                 <select value={jobCategory} onChange={e => setJobCategory(e.target.value)} style={inputStyle}>
                   <option value="">Selecione...</option>
                   <option value="cleaning">Limpeza</option>
-                  <option value="construction">Construção</option>
+                  <option value="construction">ConstruÃ§Ã£o</option>
                   <option value="restaurant">Restaurante</option>
-                  <option value="nanny">Babá / cuidado</option>
+                  <option value="nanny">BabÃ¡ / cuidado</option>
                   <option value="driver">Motorista</option>
                   <option value="cdl">CDL / Caminhoneiro</option>
                   <option value="tech">Tecnologia</option>
@@ -674,18 +674,7 @@ function CreatePostModal({ user, myCommunities, onClose, onCreated }) {
             fontSize: 14, fontWeight: 700, border: 'none', cursor: submitting ? 'default' : 'pointer',
             fontFamily: 'inherit',
           }}>
-            {submitting ? 'Publicando…' : 'Publicar →'}
-          </button>
-        </form>
-      </div>
-    </div>
-  )
-}
-            background: submitting ? '#9ca3af' : GREEN, color: '#fff',
-            fontSize: 14, fontWeight: 700, border: 'none', cursor: submitting ? 'default' : 'pointer',
-            fontFamily: 'inherit',
-          }}>
-            {submitting ? 'Publicando…' : 'Publicar →'}
+            {submitting ? 'Publicandoâ€¦' : 'Publicar â†’'}
           </button>
         </form>
       </div>
