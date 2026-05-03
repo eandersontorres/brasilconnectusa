@@ -1005,8 +1005,3 @@ export default function App() {
     </AppShell>
   )
 }
-      {tab === 'negocios' && <NegociosScreen />}
-      {tab === 'bolao'    && <BolaoScreen />}
-    </AppShell>
-  )
-}
