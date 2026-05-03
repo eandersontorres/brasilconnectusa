@@ -203,12 +203,26 @@ export default async function handler(req, res) {
       const { user_id, community_id } = req.body || {}
       if (!user_id || !community_id) return err(res, 400, 'user_id e community_id obrigatórios')
 
+      // Verifica se ja era membro pra nao incrementar duas vezes
+      const { data: existing } = await supabase
+        .from('bc_community_members').select('id')
+        .eq('user_id', user_id).eq('community_id', community_id).maybeSingle()
+
       const { data, error } = await supabase
         .from('bc_community_members')
         .upsert({ user_id, community_id }, { onConflict: 'community_id,user_id' })
         .select()
         .single()
       if (error) throw error
+
+      // Se acabou de virar membro, incrementa contador
+      if (!existing) {
+        await supabase.rpc('increment_member_count', { c_id: community_id }).catch(async () => {
+          // Fallback: faz UPDATE direto se a function nao existir
+          const { data: c } = await supabase.from('bc_communities').select('member_count').eq('id', community_id).single()
+          if (c) await supabase.from('bc_communities').update({ member_count: (c.member_count || 0) + 1 }).eq('id', community_id)
+        })
+      }
       return res.status(200).json({ success: true, member: data })
     }
 
@@ -217,12 +231,21 @@ export default async function handler(req, res) {
       const { user_id, community_id } = req.body || {}
       if (!user_id || !community_id) return err(res, 400, 'user_id e community_id obrigatórios')
 
+      const { data: existing } = await supabase
+        .from('bc_community_members').select('id')
+        .eq('user_id', user_id).eq('community_id', community_id).maybeSingle()
+
       const { error } = await supabase
         .from('bc_community_members')
         .delete()
         .eq('user_id', user_id)
         .eq('community_id', community_id)
       if (error) throw error
+
+      if (existing) {
+        const { data: c } = await supabase.from('bc_communities').select('member_count').eq('id', community_id).single()
+        if (c) await supabase.from('bc_communities').update({ member_count: Math.max(0, (c.member_count || 0) - 1) }).eq('id', community_id)
+      }
       return res.status(200).json({ success: true })
     }
 
@@ -265,6 +288,12 @@ export default async function handler(req, res) {
       const { data, error } = await supabase.from('bc_posts').insert(insert).select().single()
       if (error) throw error
 
+      // Incrementa post_count na comunidade (manualmente, sem trigger)
+      const { data: community } = await supabase.from('bc_communities').select('post_count').eq('id', b.community_id).single()
+      if (community) {
+        await supabase.from('bc_communities').update({ post_count: (community.post_count || 0) + 1 }).eq('id', b.community_id)
+      }
+
       // Garante que o autor é membro da comunidade
       supabase.from('bc_community_members').upsert(
         { user_id: b.user_id, community_id: b.community_id },
@@ -280,7 +309,7 @@ export default async function handler(req, res) {
       if (!user_id || !post_id || !body) return err(res, 400, 'user_id, post_id e body obrigatórios')
 
       // Verifica que o post não está locked nem deletado
-      const { data: post } = await supabase.from('bc_posts').select('is_locked, is_deleted').eq('id', post_id).single()
+      const { data: post } = await supabase.from('bc_posts').select('is_locked, is_deleted, comment_count').eq('id', post_id).single()
       if (!post || post.is_deleted) return err(res, 404, 'Post não encontrado')
       if (post.is_locked) return err(res, 403, 'Post está fechado para comentários')
 
@@ -290,6 +319,9 @@ export default async function handler(req, res) {
         .select()
         .single()
       if (error) throw error
+
+      // Incrementa comment_count no post
+      await supabase.from('bc_posts').update({ comment_count: (post.comment_count || 0) + 1 }).eq('id', post_id)
 
       return res.status(201).json({ success: true, comment: data })
     }
@@ -302,12 +334,27 @@ export default async function handler(req, res) {
       const v = Number(value)
       if (![1, -1, 0].includes(v)) return err(res, 400, 'value deve ser 1, -1 ou 0')
 
+      // Helper: recalcula upvotes/downvotes do alvo a partir da tabela bc_votes
+      const recalcCounts = async () => {
+        const { count: upCount } = await supabase.from('bc_votes')
+          .select('*', { count: 'exact', head: true })
+          .eq('target_type', target_type).eq('target_id', target_id).eq('value', 1)
+        const { count: downCount } = await supabase.from('bc_votes')
+          .select('*', { count: 'exact', head: true })
+          .eq('target_type', target_type).eq('target_id', target_id).eq('value', -1)
+        const tableName = target_type === 'post' ? 'bc_posts' : 'bc_comments'
+        await supabase.from(tableName)
+          .update({ upvotes: upCount || 0, downvotes: downCount || 0 })
+          .eq('id', target_id)
+      }
+
       if (v === 0) {
         // remove voto
         const { error } = await supabase.from('bc_votes')
           .delete()
           .eq('user_id', user_id).eq('target_type', target_type).eq('target_id', target_id)
         if (error) throw error
+        await recalcCounts()
         return res.status(200).json({ success: true, removed: true })
       } else {
         // upsert
