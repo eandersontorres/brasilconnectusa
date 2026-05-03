@@ -198,12 +198,32 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, communities })
     }
 
-    // ══════════ POST: join ═════════════════════════════════════════════════
+    // ══════════ POST: join (verifica se requires_approval) ═══════════════
     if (req.method === 'POST' && action === 'join') {
-      const { user_id, community_id } = req.body || {}
+      const { user_id, community_id, answer } = req.body || {}
       if (!user_id || !community_id) return err(res, 400, 'user_id e community_id obrigatórios')
 
-      // Verifica se ja era membro pra nao incrementar duas vezes
+      // Checa se a comunidade requer aprovacao
+      const { data: community } = await supabase
+        .from('bc_communities').select('requires_approval, name')
+        .eq('id', community_id).maybeSingle()
+
+      if (community?.requires_approval) {
+        // Cria join request em vez de virar membro direto
+        const { data: req_data, error: req_err } = await supabase
+          .from('bc_community_join_requests')
+          .upsert({ community_id, user_id, answer: answer || null, status: 'pending' },
+                  { onConflict: 'community_id,user_id' })
+          .select().single()
+        if (req_err) throw req_err
+        return res.status(202).json({
+          success: true, pending_approval: true,
+          request: req_data,
+          message: 'Pedido enviado. Os admins vão revisar.',
+        })
+      }
+
+      // Comunidade aberta — vira membro direto
       const { data: existing } = await supabase
         .from('bc_community_members').select('id')
         .eq('user_id', user_id).eq('community_id', community_id).maybeSingle()
@@ -211,19 +231,56 @@ export default async function handler(req, res) {
       const { data, error } = await supabase
         .from('bc_community_members')
         .upsert({ user_id, community_id }, { onConflict: 'community_id,user_id' })
-        .select()
-        .single()
+        .select().single()
       if (error) throw error
 
-      // Se acabou de virar membro, incrementa contador
       if (!existing) {
-        await supabase.rpc('increment_member_count', { c_id: community_id }).catch(async () => {
-          // Fallback: faz UPDATE direto se a function nao existir
-          const { data: c } = await supabase.from('bc_communities').select('member_count').eq('id', community_id).single()
-          if (c) await supabase.from('bc_communities').update({ member_count: (c.member_count || 0) + 1 }).eq('id', community_id)
-        })
+        const { data: c } = await supabase.from('bc_communities').select('member_count').eq('id', community_id).single()
+        if (c) await supabase.from('bc_communities').update({ member_count: (c.member_count || 0) + 1 }).eq('id', community_id)
       }
       return res.status(200).json({ success: true, member: data })
+    }
+
+    // ══════════ GET: pending join requests (admin) ═══════════════════════
+    if (req.method === 'GET' && action === 'pending-requests') {
+      const { admin_secret } = req.query
+      if (admin_secret !== process.env.ADMIN_SECRET) return err(res, 401, 'Unauthorized')
+
+      const { data, error } = await supabase
+        .from('bc_community_join_requests')
+        .select('id, community_id, user_id, answer, created_at, bc_communities(slug, name)')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(100)
+      if (error) throw error
+      return res.status(200).json({ success: true, requests: data || [] })
+    }
+
+    // ══════════ POST: approve / reject (admin) ═══════════════════════════
+    if (req.method === 'POST' && (action === 'approve-request' || action === 'reject-request')) {
+      const { request_id, admin_secret, notes } = req.body || {}
+      if (admin_secret !== process.env.ADMIN_SECRET) return err(res, 401, 'Unauthorized')
+      if (!request_id) return err(res, 400, 'request_id obrigatório')
+
+      const newStatus = action === 'approve-request' ? 'approved' : 'rejected'
+      const { data: request, error: rErr } = await supabase
+        .from('bc_community_join_requests')
+        .update({ status: newStatus, reviewed_at: new Date().toISOString(), reviewer_notes: notes || null })
+        .eq('id', request_id)
+        .select().single()
+      if (rErr) throw rErr
+
+      // Se aprovado, vira membro
+      if (newStatus === 'approved') {
+        await supabase.from('bc_community_members').upsert(
+          { user_id: request.user_id, community_id: request.community_id },
+          { onConflict: 'community_id,user_id' }
+        )
+        const { data: c } = await supabase.from('bc_communities').select('member_count').eq('id', request.community_id).single()
+        if (c) await supabase.from('bc_communities').update({ member_count: (c.member_count || 0) + 1 }).eq('id', request.community_id)
+      }
+
+      return res.status(200).json({ success: true, request })
     }
 
     // ══════════ POST: leave ════════════════════════════════════════════════

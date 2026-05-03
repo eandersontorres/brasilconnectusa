@@ -92,24 +92,108 @@ const PROVIDERS = [
 ]
 
 const FLIGHT_ORIGINS = [
+  { code: 'ATL', city: 'Atlanta' },
   { code: 'AUS', city: 'Austin' },
-  { code: 'MIA', city: 'Miami' },
-  { code: 'JFK', city: 'Nova York' },
-  { code: 'LAX', city: 'Los Angeles' },
-  { code: 'ORD', city: 'Chicago' },
+  { code: 'BOS', city: 'Boston' },
+  { code: 'BWI', city: 'Baltimore' },
+  { code: 'CLE', city: 'Cleveland' },
+  { code: 'CLT', city: 'Charlotte' },
+  { code: 'CMH', city: 'Columbus' },
+  { code: 'DCA', city: 'Washington (Reagan)' },
+  { code: 'DEN', city: 'Denver' },
+  { code: 'DFW', city: 'Dallas (DFW)' },
+  { code: 'DTW', city: 'Detroit' },
+  { code: 'EWR', city: 'Nova York (Newark)' },
+  { code: 'FLL', city: 'Fort Lauderdale' },
+  { code: 'IAD', city: 'Washington (Dulles)' },
   { code: 'IAH', city: 'Houston' },
+  { code: 'IND', city: 'Indianapolis' },
+  { code: 'JAX', city: 'Jacksonville' },
+  { code: 'JFK', city: 'Nova York (JFK)' },
+  { code: 'LAS', city: 'Las Vegas' },
+  { code: 'LAX', city: 'Los Angeles' },
+  { code: 'LGA', city: 'Nova York (LaGuardia)' },
+  { code: 'MCI', city: 'Kansas City' },
+  { code: 'MCO', city: 'Orlando' },
+  { code: 'MIA', city: 'Miami' },
+  { code: 'MKE', city: 'Milwaukee' },
+  { code: 'MSP', city: 'Minneapolis' },
+  { code: 'MSY', city: 'Nova Orleans' },
+  { code: 'OAK', city: 'Oakland' },
+  { code: 'ORD', city: 'Chicago (O’Hare)' },
+  { code: 'PDX', city: 'Portland' },
+  { code: 'PHL', city: 'Filadélfia' },
+  { code: 'PHX', city: 'Phoenix' },
+  { code: 'PIT', city: 'Pittsburgh' },
+  { code: 'RDU', city: 'Raleigh-Durham' },
+  { code: 'SAN', city: 'San Diego' },
+  { code: 'SAT', city: 'San Antonio' },
+  { code: 'SEA', city: 'Seattle' },
+  { code: 'SFO', city: 'San Francisco' },
+  { code: 'SJC', city: 'San Jose' },
+  { code: 'SLC', city: 'Salt Lake City' },
+  { code: 'STL', city: 'St. Louis' },
+  { code: 'TPA', city: 'Tampa' },
 ]
 
 const FLIGHT_DESTINATIONS = [
-  { code: 'GRU', city: 'São Paulo (Guarulhos)' },
-  { code: 'GIG', city: 'Rio de Janeiro' },
-  { code: 'BSB', city: 'Brasília' },
-  { code: 'FOR', city: 'Fortaleza' },
-  { code: 'REC', city: 'Recife' },
-  { code: 'SSA', city: 'Salvador' },
+  { code: 'AJU', city: 'Aracaju' },
   { code: 'BEL', city: 'Belém' },
+  { code: 'BPS', city: 'Porto Seguro' },
+  { code: 'BSB', city: 'Brasília' },
+  { code: 'CGB', city: 'Cuiabá' },
+  { code: 'CGH', city: 'São Paulo (Congonhas)' },
+  { code: 'CGR', city: 'Campo Grande' },
+  { code: 'CNF', city: 'Belo Horizonte (Confins)' },
+  { code: 'CWB', city: 'Curitiba' },
+  { code: 'FLN', city: 'Florianópolis' },
+  { code: 'FOR', city: 'Fortaleza' },
+  { code: 'GIG', city: 'Rio de Janeiro (Galeão)' },
+  { code: 'GRU', city: 'São Paulo (Guarulhos)' },
+  { code: 'GYN', city: 'Goiânia' },
+  { code: 'IGU', city: 'Foz do Iguaçu' },
+  { code: 'IOS', city: 'Ilhéus' },
+  { code: 'JPA', city: 'João Pessoa' },
   { code: 'MAO', city: 'Manaus' },
+  { code: 'MCZ', city: 'Maceió' },
+  { code: 'NAT', city: 'Natal' },
+  { code: 'NVT', city: 'Navegantes' },
+  { code: 'PMW', city: 'Palmas' },
+  { code: 'POA', city: 'Porto Alegre' },
+  { code: 'PVH', city: 'Porto Velho' },
+  { code: 'RBR', city: 'Rio Branco' },
+  { code: 'REC', city: 'Recife' },
+  { code: 'SDU', city: 'Rio de Janeiro (Santos Dumont)' },
+  { code: 'SLZ', city: 'São Luís' },
+  { code: 'SSA', city: 'Salvador' },
+  { code: 'THE', city: 'Teresina' },
+  { code: 'VCP', city: 'Campinas (Viracopos)' },
+  { code: 'VIX', city: 'Vitória' },
 ]
+
+// Resolve um texto digitado (ex: "Miami", "MIA", "Miami (MIA)") para o codigo IATA
+function resolveAirport(input, list) {
+  if (!input) return ''
+  const txt = String(input).trim()
+  // Se ja parece um codigo IATA puro
+  if (/^[A-Za-z]{3}$/.test(txt)) {
+    const upper = txt.toUpperCase()
+    return list.some(a => a.code === upper) ? upper : ''
+  }
+  // Tenta extrair codigo entre parenteses: "Miami (MIA)"
+  const parens = txt.match(/\(([A-Za-z]{3})\)/)
+  if (parens) {
+    const upper = parens[1].toUpperCase()
+    if (list.some(a => a.code === upper)) return upper
+  }
+  // Match por nome de cidade (case-insensitive, comeca com)
+  const lower = txt.toLowerCase()
+  const exact = list.find(a => a.city.toLowerCase() === lower)
+  if (exact) return exact.code
+  const startsWith = list.find(a => a.city.toLowerCase().startsWith(lower))
+  if (startsWith) return startsWith.code
+  return ''
+}
 
 // ─── Logo do parceiro (Clearbit + fallback) ────────────────────────────────────
 
@@ -779,17 +863,30 @@ function AlertasScreen() {
 // ─── Tela: Voos ────────────────────────────────────────────────────────────────
 
 function VoosScreen({ affiliateLinks }) {
-  const [origin, setOrigin] = useState('AUS')
-  const [destination, setDestination] = useState('GRU')
+  // Texto livre digitado pelo usuario (ex: "Miami (MIA)" ou "Salvador")
+  const [originText, setOriginText] = useState('Austin (AUS)')
+  const [destinationText, setDestinationText] = useState('São Paulo (Guarulhos) (GRU)')
   const [departDate, setDepartDate] = useState('')
   const [returnDate, setReturnDate] = useState('')
   const [flights, setFlights] = useState(null)
   const [loading, setLoading] = useState(false)
   const [toast, setToast] = useState(null)
 
+  // Codigos IATA resolvidos a partir do texto
+  const origin = resolveAirport(originText, FLIGHT_ORIGINS)
+  const destination = resolveAirport(destinationText, FLIGHT_DESTINATIONS)
+
   async function handleSearch(e) {
     e.preventDefault()
     if (!departDate) return
+    if (!origin) {
+      setToast({ msg: 'Aeroporto de origem inválido. Escolha da lista.', type: 'error' })
+      return
+    }
+    if (!destination) {
+      setToast({ msg: 'Aeroporto de destino inválido. Escolha da lista.', type: 'error' })
+      return
+    }
     setLoading(true)
     setFlights(null)
     try {
@@ -832,40 +929,52 @@ function VoosScreen({ affiliateLinks }) {
       </div>
 
       <form onSubmit={handleSearch} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <datalist id="dl-origins">
+          {FLIGHT_ORIGINS.map(o => (
+            <option key={o.code} value={`${o.city} (${o.code})`} />
+          ))}
+        </datalist>
+        <datalist id="dl-destinations">
+          {FLIGHT_DESTINATIONS.map(d => (
+            <option key={d.code} value={`${d.city} (${d.code})`} />
+          ))}
+        </datalist>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
           <div>
             <label style={{ fontSize: 12, fontWeight: 500, color: '#6b7280', display: 'block', marginBottom: 5 }}>
               Origem
             </label>
-            <select
-              value={origin}
-              onChange={e => setOrigin(e.target.value)}
+            <input
+              type="text"
+              list="dl-origins"
+              value={originText}
+              onChange={e => setOriginText(e.target.value)}
+              placeholder="Cidade ou código (ex: MIA)"
+              autoComplete="off"
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 9,
-                border: '1.5px solid #e5e7eb', fontSize: 14, background: '#fff', outline: 'none',
+                border: `1.5px solid ${origin || !originText ? '#e5e7eb' : '#fca5a5'}`,
+                fontSize: 14, background: '#fff', outline: 'none', boxSizing: 'border-box',
               }}
-            >
-              {FLIGHT_ORIGINS.map(o => (
-                <option key={o.code} value={o.code}>{o.city} ({o.code})</option>
-              ))}
-            </select>
+            />
           </div>
           <div>
             <label style={{ fontSize: 12, fontWeight: 500, color: '#6b7280', display: 'block', marginBottom: 5 }}>
               Destino
             </label>
-            <select
-              value={destination}
-              onChange={e => setDestination(e.target.value)}
+            <input
+              type="text"
+              list="dl-destinations"
+              value={destinationText}
+              onChange={e => setDestinationText(e.target.value)}
+              placeholder="Cidade ou código (ex: GRU)"
+              autoComplete="off"
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 9,
-                border: '1.5px solid #e5e7eb', fontSize: 14, background: '#fff', outline: 'none',
+                border: `1.5px solid ${destination || !destinationText ? '#e5e7eb' : '#fca5a5'}`,
+                fontSize: 14, background: '#fff', outline: 'none', boxSizing: 'border-box',
               }}
-            >
-              {FLIGHT_DESTINATIONS.map(d => (
-                <option key={d.code} value={d.code}>{d.city} ({d.code})</option>
-              ))}
-            </select>
+            />
           </div>
         </div>
 
@@ -883,6 +992,7 @@ function VoosScreen({ affiliateLinks }) {
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 9,
                 border: '1.5px solid #e5e7eb', fontSize: 14, background: '#fff', outline: 'none',
+                boxSizing: 'border-box',
               }}
             />
           </div>
@@ -898,6 +1008,7 @@ function VoosScreen({ affiliateLinks }) {
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 9,
                 border: '1.5px solid #e5e7eb', fontSize: 14, background: '#fff', outline: 'none',
+                boxSizing: 'border-box',
               }}
             />
           </div>
@@ -910,7 +1021,7 @@ function VoosScreen({ affiliateLinks }) {
             padding: '13px 0', borderRadius: 10,
             background: loading ? '#9ca3af' : '#1e3a5f',
             color: '#fff', fontSize: 15, fontWeight: 600,
-            border: 'none',
+            border: 'none', cursor: loading ? 'wait' : 'pointer',
           }}
         >
           {loading ? 'Buscando voos…' : 'Buscar voos'}
@@ -929,42 +1040,57 @@ function VoosScreen({ affiliateLinks }) {
               Nenhum voo encontrado para essa data.
             </div>
           )}
-          {flights.results?.map((f, i) => (
-            <div key={i} style={{
-              background: '#fff', border: '1.5px solid #e5e7eb', borderRadius: 12,
-              padding: '14px 16px', marginBottom: 10,
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 16 }}>{f.airline}</div>
-                  <div style={{ fontSize: 12, color: '#9ca3af' }}>{f.stops === 0 ? 'Direto' : `${f.stops} escala`}</div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: 700, fontSize: 18, color: '#009c3b' }}>
-                    {fmtUSD(f.price)}
+          {flights.results?.map((f, i) => {
+            const hasPrice = f.price != null && f.price > 0
+            const stopsLabel = f.stops == null
+              ? 'Compare em tempo real abaixo'
+              : (f.stops === 0 ? 'Voo direto' : (f.stops === 1 ? '1 escala' : `${f.stops} escalas`))
+            return (
+              <div key={i} style={{
+                background: '#fff', border: '1.5px solid #e5e7eb', borderRadius: 12,
+                padding: '14px 16px', marginBottom: 10,
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, alignItems: 'flex-start' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 16 }}>{f.airline}</div>
+                    <div style={{ fontSize: 12, color: '#9ca3af' }}>{stopsLabel}</div>
                   </div>
-                  <div style={{ fontSize: 11, color: '#9ca3af' }}>por pessoa</div>
+                  <div style={{ textAlign: 'right' }}>
+                    {hasPrice ? (
+                      <>
+                        <div style={{ fontWeight: 700, fontSize: 18, color: '#009c3b' }}>
+                          a partir de {fmtUSD(f.price)}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#9ca3af' }}>por pessoa</div>
+                      </>
+                    ) : (
+                      <div style={{ fontSize: 12, color: '#6b7280', fontWeight: 500 }}>
+                        Veja preços ao vivo →
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {f.links?.map(link => (
+                    <button
+                      key={link.provider}
+                      onClick={() => handleFlightClick(link.provider, link.url)}
+                      style={{
+                        flex: '1 1 100px', padding: '8px 10px', borderRadius: 8,
+                        background: '#f3f4f6', color: '#374151',
+                        fontSize: 12, fontWeight: 600, border: '1px solid #e5e7eb',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Ver no {link.provider}
+                    </button>
+                  ))}
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                {f.links?.map(link => (
-                  <button
-                    key={link.provider}
-                    onClick={() => handleFlightClick(link.provider, link.url)}
-                    style={{
-                      flex: 1, padding: '8px 0', borderRadius: 8,
-                      background: '#f3f4f6', color: '#374151',
-                      fontSize: 12, fontWeight: 600, border: '1px solid #e5e7eb',
-                    }}
-                  >
-                    Ver no {link.provider}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-          <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 8 }}>
-            ⓘ Links são de afiliados. Recebemos comissão em reservas concluídas.
+            )
+          })}
+          <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 8, lineHeight: 1.5 }}>
+            Comparamos preços nos principais sites em tempo real pra você.
           </div>
         </div>
       )}

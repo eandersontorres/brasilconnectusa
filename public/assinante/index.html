@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Painel do Assinante · BrasilConnect USA</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:#001a5e; --green:#009c3b; --gold:#FFD700;
+      --paper:#FAFAF9; --white:#fff; --line:#E5E7EB;
+      --ink:#0B1928; --ink-soft:#4B5563; --ink-muted:#9CA3AF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Sora', sans-serif;
+      background: var(--paper); color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+    }
+    .topbar {
+      background: var(--white); border-bottom: 1px solid var(--line);
+      padding: 14px 24px; display: flex; align-items: center; gap: 14px;
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo {
+      font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600;
+      color: var(--navy); letter-spacing: -0.01em; text-decoration: none;
+    }
+    .logo em { color: var(--gold); font-style: normal; }
+    .container { max-width: 900px; margin: 32px auto; padding: 0 24px; }
+    h1 {
+      font-family: 'Fraunces', serif; font-size: 32px; font-weight: 600;
+      color: var(--navy); margin-bottom: 8px;
+    }
+    .lede { font-size: 15px; color: var(--ink-soft); margin-bottom: 32px; line-height: 1.6; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 24px; border-bottom: 1px solid var(--line); }
+    .tab {
+      padding: 10px 18px; background: transparent; border: none; cursor: pointer;
+      font-family: inherit; font-size: 14px; font-weight: 600; color: var(--ink-muted);
+      border-bottom: 2px solid transparent; transition: all .15s;
+    }
+    .tab.active { color: var(--green); border-bottom-color: var(--green); }
+    .panel { background: var(--white); border: 1px solid var(--line); border-radius: 12px; padding: 28px; }
+    .panel h2 { font-family: 'Fraunces', serif; font-size: 22px; color: var(--navy); margin-bottom: 6px; }
+    .panel .sub { font-size: 13px; color: var(--ink-muted); margin-bottom: 20px; }
+    .form-grid { display: grid; gap: 14px; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    label {
+      display: block; font-size: 11px; font-weight: 700; color: var(--ink-muted);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+    }
+    input, select, textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px;
+      font-family: inherit; font-size: 14px; color: var(--ink); background: var(--white);
+      outline: none; box-sizing: border-box;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--green); }
+    textarea { resize: vertical; min-height: 80px; }
+    .btn-primary {
+      background: var(--navy); color: var(--white); border: none; border-radius: 10px;
+      padding: 12px 22px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+    .btn-primary:hover { background: var(--green); }
+    .btn-link { background: transparent; border: none; color: var(--ink-muted); cursor: pointer; font-family: inherit; font-size: 13px; text-decoration: underline; }
+    .gallery {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; margin-top: 8px;
+    }
+    .gallery img {
+      width: 100%; height: 100px; object-fit: cover; border-radius: 6px; border: 1px solid var(--line);
+    }
+    .help-box {
+      background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; padding: 14px 16px;
+      font-size: 13px; color: #065F46; line-height: 1.55; margin-bottom: 18px;
+    }
+    .help-box strong { color: #064E3B; }
+    .pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; background: #FEF3C7; color: #92400E; }
+    .login-card {
+      max-width: 420px; margin: 80px auto; background: var(--white); border: 1px solid var(--line);
+      border-radius: 14px; padding: 36px 28px; text-align: center;
+    }
+    .login-card h2 { font-family: 'Fraunces', serif; font-size: 22px; color: var(--navy); margin-bottom: 8px; }
+    .login-card p { font-size: 13px; color: var(--ink-soft); margin-bottom: 18px; line-height: 1.5; }
+    .toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: #DCFCE7; border: 1px solid #86EFAC; color: #166534; padding: 10px 18px;
+      border-radius: 10px; font-size: 13px; font-weight: 600; z-index: 999;
+    }
+    .toast.error { background: #FEE2E2; border-color: #FCA5A5; color: #991B1B; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/" class="logo">Brasil<em>Connect</em></a>
+    <div style="flex: 1;"></div>
+    <a href="/?preview=brasil2026" style="color: var(--ink-soft); font-size: 13px; text-decoration: none;">Voltar pro app →</a>
+  </div>
+
+  <div class="container">
+    <h1>Painel do Assinante</h1>
+    <p class="lede">
+      Gerencie seu negócio ou perfil de profissional. Fotos, vídeos, descrição, contato — tudo num lugar só.
+    </p>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="negocio" onclick="switchTab('negocio')">🏪 Meu Negócio</button>
+      <button class="tab" data-tab="profissional" onclick="switchTab('profissional')">📅 Sou profissional (AgendaPro)</button>
+    </div>
+
+    <div id="content"></div>
+  </div>
+
+  <div id="toast" style="display: none;" class="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'bc_assinante_email'
+    const root = document.getElementById('content')
+    let currentTab = 'negocio'
+
+    function showToast(msg, isError) {
+      const t = document.getElementById('toast')
+      t.textContent = msg
+      t.className = 'toast' + (isError ? ' error' : '')
+      t.style.display = 'block'
+      setTimeout(() => { t.style.display = 'none' }, 4000)
+    }
+
+    function switchTab(tab) {
+      currentTab = tab
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab))
+      render()
+    }
+
+    function getEmail() { try { return sessionStorage.getItem(STORAGE_KEY) } catch (e) { return null } }
+    function setEmail(e) { try { sessionStorage.setItem(STORAGE_KEY, e) } catch (_) {} }
+    function clearEmail() { try { sessionStorage.removeItem(STORAGE_KEY) } catch (_) {} }
+
+    function renderLogin() {
+      root.innerHTML = `
+        <div class="login-card">
+          <h2>Acesse seu painel</h2>
+          <p>Entre com o email cadastrado no seu negócio ou perfil de profissional.</p>
+          <input id="loginEmail" type="email" placeholder="seu@email.com" style="margin-bottom: 12px;" />
+          <button class="btn-primary" onclick="doLogin()" style="width: 100%;">Entrar →</button>
+          <p style="font-size: 11px; margin-top: 14px; color: var(--ink-muted);">
+            Ainda não tem cadastro? <a href="/?preview=brasil2026" style="color: var(--green);">Crie seu negócio aqui</a>
+          </p>
+        </div>
+      `
+      setTimeout(() => document.getElementById('loginEmail').focus(), 80)
+    }
+
+    async function doLogin() {
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase()
+      if (!email || !email.includes('@')) { showToast('Email inválido', true); return }
+      setEmail(email)
+      render()
+    }
+
+    function logout() {
+      clearEmail()
+      render()
+    }
+
+    async function render() {
+      const email = getEmail()
+      if (!email) { renderLogin(); return }
+
+      root.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--ink-muted);">Carregando…</div>'
+
+      try {
+        if (currentTab === 'negocio') await renderNegocio(email)
+        else await renderProfissional(email)
+      } catch (e) {
+        root.innerHTML = '<div style="padding: 32px; color: #991B1B;">Erro: ' + e.message + '</div>'
+      }
+    }
+
+    async function renderNegocio(email) {
+      // Busca negócio do email
+      const r = await fetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
+      const data = await r.json().catch(() => ({}))
+      const list = data.businesses || []
+      const biz = list[0] || null
+
+      root.innerHTML = `
+        <div class="panel">
+          ${biz ? '' : '<div class="help-box">Nenhum negócio encontrado pra <strong>' + email + '</strong>. <a href="/?preview=brasil2026" style="color:var(--green);">Cadastre seu negócio</a> primeiro, depois volta aqui pra gerenciar.</div>'}
+
+          <h2>${biz ? biz.name : 'Cadastrar novo negócio'}</h2>
+          <p class="sub">${biz ? 'Logado como ' + email : 'Preencha os dados pra começar'} · <button class="btn-link" onclick="logout()">Sair</button></p>
+
+          <form id="bizForm" class="form-grid" onsubmit="saveBiz(event)">
+            <div class="row-2">
+              <div>
+                <label>Nome do negócio *</label>
+                <input name="name" required value="${esc(biz?.name)}" />
+              </div>
+              <div>
+                <label>Categoria *</label>
+                <select name="category" required>
+                  <option value="">Selecione...</option>
+                  <option ${biz?.category==='Restaurante' ? 'selected' : ''}>Restaurante</option>
+                  <option ${biz?.category==='Mercado' ? 'selected' : ''}>Mercado</option>
+                  <option ${biz?.category==='Salão & Beleza' ? 'selected' : ''}>Salão & Beleza</option>
+                  <option ${biz?.category==='Serviços' ? 'selected' : ''}>Serviços</option>
+                  <option ${biz?.category==='Saúde' ? 'selected' : ''}>Saúde</option>
+                  <option ${biz?.category==='Advocacia' ? 'selected' : ''}>Advocacia</option>
+                  <option ${biz?.category==='Construção' ? 'selected' : ''}>Construção</option>
+                  <option ${biz?.category==='Outro' ? 'selected' : ''}>Outro</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label>Descrição</label>
+              <textarea name="description" rows="3">${esc(biz?.description)}</textarea>
+            </div>
+
+            <div class="row-2">
+              <div>
+                <label>Cidade</label>
+                <input name="city" value="${esc(biz?.city)}" />
+              </div>
+              <div>
+                <label>Estado (USPS, ex: TX)</label>
+                <input name="state" maxlength="2" value="${esc(biz?.state)}" />
+              </div>
+            </div>
+
+            <div class="row-2">
+              <div>
+                <label>Telefone</label>
+                <input name="phone" value="${esc(biz?.phone)}" />
+              </div>
+              <div>
+                <label>WhatsApp</label>
+                <input name="whatsapp" value="${esc(biz?.whatsapp)}" />
+              </div>
+            </div>
+
+            <div>
+              <label>Website</label>
+              <input name="website" type="url" value="${esc(biz?.website)}" />
+            </div>
+
+            <div class="row-2">
+              <div>
+                <label>Instagram</label>
+                <input name="instagram" placeholder="@seuhandle" value="${esc(biz?.instagram)}" />
+              </div>
+              <div>
+                <label>TikTok</label>
+                <input name="tiktok" placeholder="@seuhandle" value="${esc(biz?.tiktok)}" />
+              </div>
+            </div>
+
+            <div class="help-box">
+              <strong>Fotos e vídeo</strong> — cole URLs públicas (Imgur, Cloudinary, Drive público).
+              Em breve: upload direto. Vídeo do YouTube ou Vimeo (URL público).
+            </div>
+
+            <div>
+              <label>Logo (URL)</label>
+              <input name="logo_url" type="url" value="${esc(biz?.logo_url)}" />
+            </div>
+            <div>
+              <label>Foto de capa (URL)</label>
+              <input name="cover_url" type="url" value="${esc(biz?.cover_url)}" />
+            </div>
+            <div>
+              <label>Vídeo (YouTube ou Vimeo)</label>
+              <input name="video_url" type="url" placeholder="https://youtube.com/watch?v=..." value="${esc(biz?.video_url)}" />
+            </div>
+            <div>
+              <label>Galeria (URLs separadas por vírgula, até 10)</label>
+              <textarea name="gallery_urls" rows="3" placeholder="https://...jpg, https://...jpg">${(biz?.gallery_urls || []).join(', ')}</textarea>
+              ${biz?.gallery_urls?.length ? '<div class="gallery">' + biz.gallery_urls.map(u => '<img src="' + esc(u) + '" />').join('') + '</div>' : ''}
+            </div>
+
+            <div style="margin-top: 8px;">
+              <button type="submit" class="btn-primary">Salvar alterações</button>
+            </div>
+          </form>
+        </div>
+      `
+    }
+
+    async function saveBiz(e) {
+      e.preventDefault()
+      const form = e.target
+      const fd = new FormData(form)
+      const body = Object.fromEntries(fd.entries())
+      body.owner_email = getEmail()
+
+      // Galeria → array
+      if (body.gallery_urls) {
+        body.gallery_urls = body.gallery_urls.split(',').map(s => s.trim()).filter(Boolean).slice(0, 10)
+      } else {
+        body.gallery_urls = []
+      }
+      body.state = (body.state || '').toUpperCase()
+
+      const btn = form.querySelector('button[type="submit"]')
+      btn.disabled = true; btn.textContent = 'Salvando…'
+
+      try {
+        const r = await fetch('/api/businesses/submit', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+        const data = await r.json()
+        if (!r.ok) throw new Error(data.error || 'Erro ao salvar')
+        showToast('Salvo!')
+        await renderNegocio(getEmail())
+      } catch (err) {
+        showToast(err.message, true)
+        btn.disabled = false; btn.textContent = 'Salvar alterações'
+      }
+    }
+
+    async function renderProfissional(email) {
+      const r = await fetch('/api/agenda/provider?email=' + encodeURIComponent(email)).catch(() => null)
+      const data = r ? await r.json().catch(() => ({})) : {}
+      const prov = data.provider || null
+
+      root.innerHTML = `
+        <div class="panel">
+          ${prov ? '' : '<div class="help-box">Nenhum perfil de profissional encontrado pra <strong>' + email + '</strong>. <a href="/agenda" style="color:var(--green);">Cadastre seu perfil aqui</a> primeiro.</div>'}
+
+          <h2>${prov ? prov.name : 'Cadastrar novo perfil'}</h2>
+          <p class="sub">${prov ? 'Logado como ' + email : 'Preencha pra aparecer no AgendaPro'} · <button class="btn-link" onclick="logout()">Sair</button></p>
+
+          <form id="provForm" class="form-grid" onsubmit="saveProv(event)">
+            <div class="row-2">
+              <div>
+                <label>Nome / Nome do salão *</label>
+                <input name="name" required value="${esc(prov?.name)}" />
+              </div>
+              <div>
+                <label>Especialidade *</label>
+                <input name="specialty" placeholder="Cabeleireira, Manicure, Esteticista..." value="${esc(prov?.specialty)}" />
+              </div>
+            </div>
+
+            <div>
+              <label>Bio / Sobre você</label>
+              <textarea name="bio" rows="3">${esc(prov?.bio)}</textarea>
+            </div>
+
+            <div class="row-2">
+              <div>
+                <label>Cidade</label>
+                <input name="city" value="${esc(prov?.city)}" />
+              </div>
+              <div>
+                <label>Estado (USPS)</label>
+                <input name="state" maxlength="2" value="${esc(prov?.state)}" />
+              </div>
+            </div>
+
+            <div class="row-2">
+              <div>
+                <label>WhatsApp *</label>
+                <input name="whatsapp" required value="${esc(prov?.whatsapp)}" />
+              </div>
+              <div>
+                <label>Instagram</label>
+                <input name="instagram" placeholder="@seuhandle" value="${esc(prov?.instagram)}" />
+              </div>
+            </div>
+
+            <div class="help-box">
+              <strong>Portfólio (fotos antes/depois, vídeo)</strong> — cole URLs públicas. Em breve: upload direto.
+            </div>
+
+            <div>
+              <label>Avatar / Foto de perfil (URL)</label>
+              <input name="avatar_url" type="url" value="${esc(prov?.avatar_url)}" />
+            </div>
+            <div>
+              <label>Foto de capa (URL)</label>
+              <input name="cover_url" type="url" value="${esc(prov?.cover_url)}" />
+            </div>
+            <div>
+              <label>Vídeo de apresentação (YouTube/Vimeo)</label>
+              <input name="video_url" type="url" value="${esc(prov?.video_url)}" />
+            </div>
+            <div>
+              <label>Galeria do portfólio (URLs separadas por vírgula)</label>
+              <textarea name="gallery_urls" rows="3">${(prov?.gallery_urls || []).join(', ')}</textarea>
+              ${prov?.gallery_urls?.length ? '<div class="gallery">' + prov.gallery_urls.map(u => '<img src="' + esc(u) + '" />').join('') + '</div>' : ''}
+            </div>
+
+            <div style="margin-top: 8px;">
+              <button type="submit" class="btn-primary">Salvar alterações</button>
+            </div>
+          </form>
+        </div>
+      `
+    }
+
+    async function saveProv(e) {
+      e.preventDefault()
+      const form = e.target
+      const fd = new FormData(form)
+      const body = Object.fromEntries(fd.entries())
+      body.email = getEmail()
+
+      if (body.gallery_urls) {
+        body.gallery_urls = body.gallery_urls.split(',').map(s => s.trim()).filter(Boolean).slice(0, 10)
+      } else {
+        body.gallery_urls = []
+      }
+      body.state = (body.state || '').toUpperCase()
+
+      const btn = form.querySelector('button[type="submit"]')
+      btn.disabled = true; btn.textContent = 'Salvando…'
+
+      try {
+        const r = await fetch('/api/agenda/provider', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+        const data = await r.json()
+        if (!r.ok) throw new Error(data.error || 'Erro ao salvar')
+        showToast('Salvo!')
+        await renderProfissional(getEmail())
+      } catch (err) {
+        showToast(err.message, true)
+        btn.disabled = false; btn.textContent = 'Salvar alterações'
+      }
+    }
+
+    function esc(s) {
+      if (s === null || s === undefined) return ''
+      return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
+    }
+
+    render()
+  </script>
+</body>
+</html>

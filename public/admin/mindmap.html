@@ -168,6 +168,7 @@
             <a href="/admin" style="text-decoration:none;font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:600;color:var(--brand-navy);letter-spacing:-0.01em;"><span>Brasil</span><em style="color:var(--brand-gold);font-style:normal;font-weight:600;">Connect</em></a>
             <div class="nav-links">
               <a href="/admin/mindmap" class="${active==='mindmap'?'active':''}">Mind Map</a>
+              <a href="/admin/manage">Gerenciar</a>
               <a href="/admin/waitlist" class="${active==='waitlist'?'active':''}">Lista de espera</a>
               <a href="/admin/analytics" class="${active==='analytics'?'active':''}">Analytics</a>
               <a href="/admin/utm-builder" class="${active==='utm'?'active':''}">UTM Builder</a>
@@ -442,6 +443,164 @@
         sql: ['supabase/bc_drip_log.sql'],
         ui: [],
       },
+      {
+        id: 'feed-social',
+        icon: '◍',
+        title: 'Feed Social (Reddit/Nextdoor-style)',
+        category: 'Comunidade',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: '7 tabelas: communities, members, posts, comments, votes, RSVPs, reports' },
+          { type: 'done',    text: '75 comunidades default (1 geral + 51 estados/DC + 11 cidades + 12 interesses)' },
+          { type: 'done',    text: '14 endpoints em /api/social: feed, posts, comments, votes, RSVP' },
+          { type: 'done',    text: 'FeedScreen.jsx com PostCard + CreatePostModal' },
+          { type: 'done',    text: 'Hook de PostCard com upvote/downvote/comment count' },
+          { type: 'done',    text: '6 tipos de post: pergunta, indicação, evento, classificado, vaga, aviso' },
+          { type: 'note',    text: 'Página de detalhe de post — em breve' },
+        ],
+        api: ['/api/social (14 actions)'],
+        sql: ['bc_social_schema_v3.sql'],
+        ui: ['src/FeedScreen.jsx'],
+      },
+      {
+        id: 'auth-onboarding',
+        icon: '⊕',
+        title: 'Auth + Onboarding (Supabase Magic Link)',
+        category: 'Conta',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Login sem senha via magic link (Supabase Auth)' },
+          { type: 'done',    text: 'AuthModal.jsx + useAuth() hook' },
+          { type: 'done',    text: 'OnboardingFlow wizard 5 steps (nome, estado, interesses, foto, diretrizes)' },
+          { type: 'done',    text: 'Auto-join nas comunidades escolhidas no Step 3' },
+          { type: 'done',    text: 'Schema bc_profiles estendido (avatar, bio, onboarding_completed, interests)' },
+          { type: 'done',    text: 'API /api/profile com 6 actions' },
+          { type: 'note',    text: 'Configurar URLs no painel Supabase (ver /admin/manage)' },
+        ],
+        api: ['/api/profile (6 actions)'],
+        sql: ['bc_profiles_onboarding.sql'],
+        ui: ['src/AuthModal.jsx', 'src/OnboardingFlow.jsx'],
+      },
+      {
+        id: 'app-shell',
+        icon: '◧',
+        title: 'AppShell Responsivo (Mobile + Desktop)',
+        category: 'Layout',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Mobile: top bar + bottom nav (5 tabs)' },
+          { type: 'done',    text: 'Desktop: top bar com busca + 3 colunas' },
+          { type: 'done',    text: 'Sidebar esquerda: navegação + suas comunidades + ferramentas' },
+          { type: 'done',    text: 'Sidebar direita: câmbio ao vivo + eventos + convide amigos' },
+          { type: 'done',    text: 'Hook useIsMobile com breakpoint 768px' },
+          { type: 'done',    text: 'Paleta minimalista (branco, navy, verde, dourado)' },
+        ],
+        api: [],
+        sql: [],
+        ui: ['src/AppShell.jsx', 'src/lib/colors.js'],
+      },
+      {
+        id: 'discover',
+        icon: '⌕',
+        title: 'Discover / Buscar (estilo Nextdoor)',
+        category: 'Descoberta',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Search bar com filtro de comunidades' },
+          { type: 'done',    text: 'Trending pills (busca rápida)' },
+          { type: 'done',    text: 'Grid 2x4 de categorias visuais (Comunidades, Eventos, Marketplace, Vagas, Negócios, Câmbio, Voos, Bolão)' },
+          { type: 'done',    text: 'Lista de comunidades populares' },
+        ],
+        api: [],
+        sql: [],
+        ui: ['src/DiscoverScreen.jsx'],
+      },
+      {
+        id: 'getstarted',
+        icon: '☑',
+        title: 'Get Started Checklist',
+        category: 'Engajamento',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Cards horizontais no topo do feed' },
+          { type: 'done',    text: 'Progress bar (X de N completos)' },
+          { type: 'done',    text: '5 steps: apresentar, primeira pergunta, convidar, foto, evento' },
+          { type: 'done',    text: 'Tabela bc_profile_checklist + API /api/profile?action=checklist-mark' },
+          { type: 'done',    text: 'Some quando todos completos' },
+        ],
+        api: [],
+        sql: [],
+        ui: ['src/GetStartedChecklist.jsx'],
+      },
+      {
+        id: 'comunidades-restritas',
+        icon: '◐',
+        title: 'Comunidades com Pré-requisitos',
+        category: 'Comunidade',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Schema com requires_approval + prerequisites_text + join_question' },
+          { type: 'done',    text: 'Tabela bc_community_join_requests (pending/approved/rejected)' },
+          { type: 'done',    text: '3 actions na API: pending-requests, approve, reject (admin)' },
+          { type: 'done',    text: '5 comunidades criadas: Mães Atípicas, LGBT+, Mães Solo, Pré-Cidadania, Criadores' },
+          { type: 'done',    text: 'Painel admin /admin/manage pra aprovar pedidos' },
+          { type: 'note',    text: 'UI no app pra usuário responder a join_question — próxima sessão' },
+        ],
+        api: ['/api/social (pending-requests, approve, reject)'],
+        sql: ['bc_extras_schema.sql'],
+        ui: ['public/admin/manage.html'],
+      },
+      {
+        id: 'fale-conosco',
+        icon: '✉',
+        title: 'Fale Conosco',
+        category: 'Suporte',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Seção na landing.html com form (nome, email, motivo, mensagem)' },
+          { type: 'done',    text: '7 motivos: sugestão, parceria, bug, listar negócio, AgendaPro, imprensa, outro' },
+          { type: 'done',    text: 'API /api/contact com validação' },
+          { type: 'done',    text: 'Tabela bc_contact_messages no Supabase' },
+          { type: 'done',    text: 'Painel admin /admin/manage tab "Fale Conosco"' },
+          { type: 'partial', text: 'Notificação por email — funciona se CONTACT_NOTIFY_EMAIL estiver setado' },
+        ],
+        api: ['/api/contact', '/api/admin/contact-messages'],
+        sql: ['bc_extras_schema.sql'],
+        ui: ['public/landing.html (Fale Conosco section)'],
+      },
+      {
+        id: 'painel-assinante',
+        icon: '◆',
+        title: 'Painel do Assinante (Negócios + AgendaPro)',
+        category: 'Monetização',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Página /assinante com 2 tabs: Meu Negócio + Sou Profissional' },
+          { type: 'done',    text: 'Login simples por email (cadastrado previamente)' },
+          { type: 'done',    text: 'Editar dados do negócio: nome, categoria, contato, redes sociais' },
+          { type: 'done',    text: 'Upload de fotos/vídeos via URL (logo, capa, galeria, vídeo YouTube/Vimeo)' },
+          { type: 'done',    text: 'Schema bc_businesses + ag_providers estendidos com gallery_urls, video_url, etc' },
+          { type: 'partial', text: 'Upload direto (sem URL) — exige Supabase Storage, próxima sessão' },
+        ],
+        api: ['/api/businesses/submit', '/api/agenda/provider'],
+        sql: ['bc_extras_schema.sql'],
+        ui: ['public/assinante/index.html'],
+      },
+      {
+        id: 'links-uteis-landing',
+        icon: '☰',
+        title: 'Guias + Custo de Vida na Landing',
+        category: 'Conteúdo',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Seção Guias com 7 cards: CNH, conta bancária, ITIN, escola, plano de saúde, LLC, guia de chegada' },
+          { type: 'done',    text: 'Seção Custo de Vida com 12 cidades' },
+          { type: 'done',    text: 'Footer atualizado com links pra todas as seções' },
+        ],
+        api: [],
+        sql: [],
+        ui: ['public/landing.html'],
+      },
     ];
 
     const STATUS_LABELS = {
@@ -620,112 +779,6 @@
             </div>
           </div>
 
-          <!-- Roadmap -->
-          <div class="panel">
-            <div class="panel-eyebrow">PRIORIZAÇÃO SUGERIDA</div>
-            <h3>Roadmap</h3>
-            <p class="panel-sub">Ordem sugerida pra fechar gaps — baseada em impacto e esforço.</p>
-            <div class="roadmap">
-              <div class="road-col now">
-                <h5>Agora (1–2 sem)</h5>
-                <ul>
-                  <li>Plugar <strong>ProfileApp.jsx</strong> nas TABS do App.jsx</li>
-                  <li>Auth de usuário via Supabase Auth (email/Google)</li>
-                  <li>Confirmar execução de <strong>bolao_schema_v2.sql</strong> no Supabase</li>
-                  <li>Preencher <strong>AFFILIATE_*_LINK</strong> em produção</li>
-                  <li>Auditoria de RLS (ver seção segurança abaixo)</li>
-                </ul>
-              </div>
-              <div class="road-col next">
-                <h5>Próximo (3–6 sem)</h5>
-                <ul>
-                  <li><strong>Bolão geral + por estado</strong> (rankings agregados)</li>
-                  <li>Sistema de pontuação automático no Bolão</li>
-                  <li>Grupo de Mães como sub-interesse + features extras</li>
-                  <li>Feed/chat dentro de Grupos de Interesse</li>
-                  <li>Upload de avatar (Supabase Storage)</li>
-                </ul>
-              </div>
-              <div class="road-col later">
-                <h5>Depois (7+ sem)</h5>
-                <ul>
-                  <li>Mapa/busca por proximidade nos Negócios</li>
-                  <li>Moderação avançada (banir, reportar)</li>
-                  <li>Premiação real do Bolão (badges, prêmios)</li>
-                  <li>Pagamento de recompensas do Indique</li>
-                  <li>App nativo (React Native) — opcional</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <!-- Segurança -->
-          <div class="panel">
-            <div class="panel-eyebrow">SEGURANÇA · CHECK</div>
-            <h3>Auditoria de Segurança</h3>
-            <p class="panel-sub">Revisão dos pontos críticos exigidos pelas instruções do projeto.</p>
-            <ul class="sec-list" style="list-style:none;padding:0;margin:0;">
-              <li>
-                <span class="sev high">ALTO</span>
-                <span class="text"><strong>Row Level Security DESABILITADO</strong> em todas tabelas (10 schemas, 34 ocorrências de DISABLE ROW LEVEL SECURITY). APIs usam SUPABASE_SERVICE_KEY, mas o cliente também tem VITE_SUPABASE_ANON_KEY exposto — qualquer um pode tentar consultar tabelas direto. Recomendado: ativar RLS + policies por tabela, mesmo que APIs usem service key.</span>
-              </li>
-              <li>
-                <span class="sev high">ALTO</span>
-                <span class="text"><strong>Sem rate-limit no /api/admin/*</strong>. ADMIN_SECRET pode ser brute-forced. Adicionar rate limit (Upstash Ratelimit ou middleware Vercel) e logs de tentativas falhadas.</span>
-              </li>
-              <li>
-                <span class="sev med">MÉDIO</span>
-                <span class="text"><strong>Webhooks Stripe</strong> — confirmar que api/stripe/webhook.js valida a assinatura com STRIPE_WEBHOOK_SECRET (caso contrário, qualquer um pode forjar pagamentos).</span>
-              </li>
-              <li>
-                <span class="sev med">MÉDIO</span>
-                <span class="text"><strong>CORS</strong> — verificar headers nas APIs. /api/admin/analytics responde a OPTIONS sem restrição de origem; melhor restringir para o domínio de produção.</span>
-              </li>
-              <li>
-                <span class="sev med">MÉDIO</span>
-                <span class="text"><strong>Sanitização de inputs</strong> — checar /api/businesses/submit, /api/agenda/book e /api/profile/update contra XSS armazenado e SQL injection (apesar de Supabase fazer escape, validar payload é boa prática).</span>
-              </li>
-              <li>
-                <span class="sev low">BAIXO</span>
-                <span class="text"><strong>.env.local</strong> está corretamente no .gitignore. ✅</span>
-              </li>
-              <li>
-                <span class="sev low">BAIXO</span>
-                <span class="text"><strong>Headers de segurança</strong> — adicionar CSP, X-Frame-Options, Strict-Transport-Security via vercel.json.</span>
-              </li>
-            </ul>
-          </div>
-
-          <!-- SQL Status -->
-          <div class="panel">
-            <div class="panel-eyebrow">SUPABASE · CHECK</div>
-            <h3>Status do SQL</h3>
-            <p class="panel-sub">Lista de todos schemas em <code>supabase/</code>. <strong>Verificar manualmente no painel do Supabase</strong> se cada um foi executado.</p>
-            <ul class="check-list" style="font-size:13px;color:var(--ink-soft);list-style:none;padding:0;margin:0;">
-              ${[
-                'supabase_schema.sql — bc_regions (cidades)',
-                'supabase_cron_tables.sql — bc_cron_logs',
-                'supabase_affiliate_tracking.sql — bc_affiliate_clicks',
-                'supabase/bolao_schema.sql — bc_copa_matches/groups/members/predictions',
-                'supabase/bolao_schema_v2.sql — DADOS OFICIAIS dos 12 grupos (executar depois do v1)',
-                'supabase/bolao_schema_v3.sql — ⚡ NOVO: state em members, premiação, deadline global, view de ranking nacional',
-                'supabase/agenda_schema.sql — ag_providers/services/appointments/payments/reviews/clients',
-                'supabase/bc_profiles_schema.sql — bc_profiles + bc_privacy_settings',
-                'supabase/bc_businesses_schema.sql — bc_businesses',
-                'supabase/bc_businesses_v2.sql — schema atualizado',
-                'supabase/bc_waitlist.sql — bc_waitlist',
-                'supabase/bc_drip_log.sql — bc_drip_log',
-                'supabase/bc_referrals.sql — bc_referrals + views (bc_top_referrers)',
-                'supabase/bc_affiliate_clicks_v2.sql — view bc_clicks_by_provider, bc_clicks_daily',
-                'supabase/bc_interests_schema.sql — bc_interests',
-                'supabase/bc_push_subscriptions.sql — bc_push_subscriptions',
-              ].map(s => `<li style="padding:6px 0;border-bottom:1px solid var(--line-soft);">${escapeHtml(s)}</li>`).join('')}
-            </ul>
-            <p style="font-size:12px;color:var(--ink-muted);margin-top:14px;">
-              💡 Para conferir: abra o <a href="https://supabase.com/dashboard" target="_blank" rel="noopener">painel Supabase</a> → Table Editor → veja se cada tabela existe. Se algum schema não foi executado, abra SQL Editor e cole o conteúdo do arquivo correspondente.
-            </p>
-          </div>
-
         </div>
       `;
 
@@ -752,4 +805,17 @@
               <h4>${escapeHtml(f.title)}</h4>
               <div class="sub-label">${escapeHtml(f.category)}</div>
             </div>
-         
+            <span class="badge ${f.status}">${lbl.label}</span>
+          </div>
+          <ul class="check-list">
+            ${f.items.map(it => `<li class="${it.type}">${escapeHtml(it.text)}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    }
+
+    if (getSecret()) renderPage();
+    else renderLogin();
+  </script>
+</body>
+</html>

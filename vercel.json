@@ -17,9 +17,11 @@
     { "source": "/viagem",                       "destination": "/viagem/index.html" },
     { "source": "/admin",                        "destination": "/admin/mindmap.html" },
     { "source": "/admin/mindmap",                "destination": "/admin/mindmap.html" },
+    { "source": "/admin/manage",                 "destination": "/admin/manage.html" },
     { "source": "/admin/waitlist",               "destination": "/admin/waitlist.html" },
     { "source": "/admin/analytics",              "destination": "/admin/analytics.html" },
     { "source": "/admin/utm-builder",            "destination": "/admin/utm-builder.html" },
+    { "source": "/assinante",                    "destination": "/assinante/index.html" },
     { "source": "/sitemap.xml",                  "destination": "/sitemap.xml" },
     { "source": "/robots.txt",                   "destination": "/robots.txt" }
   ],

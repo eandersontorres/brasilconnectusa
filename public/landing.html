@@ -109,6 +109,45 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .cmp-note{text-align:center;font-size:12px;color:var(--muted);margin-top:24px;}
 @media(max-width:720px){.cmp-grid{grid-template-columns:1fr;}}
 
+/* ── GUIAS ÚTEIS ── */
+.guias{background:var(--cream);padding:72px 28px;border-bottom:1px solid var(--border);}
+.guias-in{max-width:1100px;margin:0 auto;}
+.guias-sub{font-size:16px;font-weight:300;line-height:1.7;color:#4A6070;margin:8px 0 32px;max-width:640px;}
+.guias-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
+.g-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:20px 22px;display:block;color:inherit;text-decoration:none;transition:all .2s;}
+.g-card:hover{border-color:var(--gold);box-shadow:0 4px 16px rgba(0,0,0,.06);transform:translateY(-2px);}
+.g-card.g-featured{background:var(--navy);color:#fff;border-color:var(--navy);}
+.g-card.g-featured:hover{background:var(--navyl);}
+.g-card.g-featured .g-desc,.g-card.g-featured .g-link{color:rgba(255,255,255,.7);}
+.g-ico{font-size:28px;margin-bottom:12px;}
+.g-ttl{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:var(--navy);margin-bottom:6px;}
+.g-card.g-featured .g-ttl{color:#fff;}
+.g-desc{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:12px;}
+.g-link{font-size:12px;font-weight:600;color:var(--green);}
+
+/* ── CUSTO DE VIDA ── */
+.custo{background:var(--creamd);padding:72px 28px;border-bottom:1px solid var(--border);}
+.custo-in{max-width:1100px;margin:0 auto;}
+.custo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:24px 0 28px;}
+.c-card{background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;text-decoration:none;color:inherit;transition:all .2s;}
+.c-card:hover{border-color:var(--green);transform:translateY(-2px);}
+.c-ttl{font-family:'Fraunces',serif;font-size:15px;font-weight:600;color:var(--navy);margin-bottom:2px;}
+.c-tag{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+.custo-cta{text-align:center;margin-top:24px;}
+.btn-outline{display:inline-block;padding:10px 22px;border:1.5px solid var(--navy);color:var(--navy);background:#fff;border-radius:24px;font-size:13px;font-weight:600;text-decoration:none;transition:all .15s;font-family:'Sora',sans-serif;}
+.btn-outline:hover{background:var(--navy);color:#fff;}
+
+/* ── FALE CONOSCO ── */
+.fale{background:var(--navy);padding:72px 28px;position:relative;overflow:hidden;}
+.fale::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 80% 50%,rgba(0,156,59,.1) 0%,transparent 60%);}
+.fale-in{position:relative;z-index:1;max-width:1100px;margin:0 auto;}
+.fale-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start;}
+.fale-perk{display:flex;gap:14px;align-items:flex-start;}
+.fale-perk-ico{font-size:22px;flex-shrink:0;line-height:1.2;}
+.fale-perk strong{color:#fff;font-size:14px;font-weight:600;display:block;margin-bottom:2px;}
+.fale-perk span{color:rgba(255,255,255,.5);font-size:13px;line-height:1.5;}
+@media(max-width:760px){.fale-grid{grid-template-columns:1fr;gap:32px;}}
+
 /* ── CONTEXT ── */
 .ctx{background:var(--cream);padding:72px 28px;}
 .ctx-in{max-width:820px;margin:0 auto;}
@@ -580,6 +619,216 @@ footer{background:var(--navy);padding:48px 28px 32px;border-top:1px solid rgba(2
         </div>
       </div>
       <button class="fl-go" onclick="goFlight()">✈️ Ver voos no Skyscanner →</button>
+    </div>
+  </div>
+</section>
+
+<!-- GUIAS ÚTEIS -->
+<section class="guias" id="guias">
+  <div class="guias-in">
+    <div class="rv"><div class="sec-tag">Guias completos</div></div>
+    <h2 class="sec-h2 rv">Tudo que você precisa<br/>pra <em>viver bem nos EUA.</em></h2>
+    <p class="guias-sub rv d1">
+      Guias práticos escritos por brasileiros que já passaram por isso. Atualizados, em português,
+      com dicas reais.
+    </p>
+
+    <div class="guias-grid rv d2">
+      <a href="/guias/cnh/" class="g-card">
+        <div class="g-ico">🪪</div>
+        <div class="g-ttl">CNH americana</div>
+        <div class="g-desc">Como tirar driver's license, troca por CNH brasileira, onde fazer.</div>
+        <div class="g-link">Ler guia →</div>
+      </a>
+      <a href="/guias/conta-bancaria/" class="g-card">
+        <div class="g-ico">🏦</div>
+        <div class="g-ttl">Conta bancária sem SSN</div>
+        <div class="g-desc">Quais bancos aceitam ITIN, como abrir, taxas, melhores opções.</div>
+        <div class="g-link">Ler guia →</div>
+      </a>
+      <a href="/guias/itin/" class="g-card">
+        <div class="g-ico">📋</div>
+        <div class="g-ttl">ITIN — Tax ID</div>
+        <div class="g-desc">O que é, como solicitar, prazo, documentos necessários.</div>
+        <div class="g-link">Ler guia →</div>
+      </a>
+      <a href="/guias/escola/" class="g-card">
+        <div class="g-ico">🎒</div>
+        <div class="g-ttl">Matricular crianças na escola</div>
+        <div class="g-desc">Public school, private, charter, requisitos pra matricular.</div>
+        <div class="g-link">Ler guia →</div>
+      </a>
+      <a href="/guias/plano-de-saude/" class="g-card">
+        <div class="g-ico">⚕️</div>
+        <div class="g-ttl">Plano de saúde</div>
+        <div class="g-desc">Como funciona, opções marketplace, urgência, custo médio.</div>
+        <div class="g-link">Ler guia →</div>
+      </a>
+      <a href="/guias/abrir-llc/" class="g-card">
+        <div class="g-ico">💼</div>
+        <div class="g-ttl">Abrir LLC nos EUA</div>
+        <div class="g-desc">Passo a passo pra abrir empresa, custos, manutenção.</div>
+        <div class="g-link">Ler guia →</div>
+      </a>
+      <a href="/guia-chegada/" class="g-card g-featured">
+        <div class="g-ico">🛬</div>
+        <div class="g-ttl">Guia de chegada nos EUA</div>
+        <div class="g-desc">O essencial pros primeiros 30 dias: documentos, banco, telefone, moradia.</div>
+        <div class="g-link">Ler guia completo →</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CUSTO DE VIDA -->
+<section class="custo">
+  <div class="custo-in">
+    <div class="rv"><div class="sec-tag">Custo de vida real</div></div>
+    <h2 class="sec-h2 rv">Quanto custa morar em<br/>cada <em>cidade dos EUA.</em></h2>
+    <p class="guias-sub rv d1">
+      Aluguel, comida, transporte, escola — números reais, atualizados, em dólares e reais.
+    </p>
+
+    <div class="custo-grid rv d2">
+      <a href="/custo-de-vida/austin-tx/" class="c-card">
+        <div class="c-ttl">Austin, TX</div>
+        <div class="c-tag">Texas</div>
+      </a>
+      <a href="/custo-de-vida/round-rock-tx/" class="c-card">
+        <div class="c-ttl">Round Rock, TX</div>
+        <div class="c-tag">Texas</div>
+      </a>
+      <a href="/custo-de-vida/dallas-tx/" class="c-card">
+        <div class="c-ttl">Dallas, TX</div>
+        <div class="c-tag">Texas</div>
+      </a>
+      <a href="/custo-de-vida/houston-tx/" class="c-card">
+        <div class="c-ttl">Houston, TX</div>
+        <div class="c-tag">Texas</div>
+      </a>
+      <a href="/custo-de-vida/miami-fl/" class="c-card">
+        <div class="c-ttl">Miami, FL</div>
+        <div class="c-tag">Flórida</div>
+      </a>
+      <a href="/custo-de-vida/orlando-fl/" class="c-card">
+        <div class="c-ttl">Orlando, FL</div>
+        <div class="c-tag">Flórida</div>
+      </a>
+      <a href="/custo-de-vida/tampa-fl/" class="c-card">
+        <div class="c-ttl">Tampa, FL</div>
+        <div class="c-tag">Flórida</div>
+      </a>
+      <a href="/custo-de-vida/boston-ma/" class="c-card">
+        <div class="c-ttl">Boston, MA</div>
+        <div class="c-tag">Massachusetts</div>
+      </a>
+      <a href="/custo-de-vida/new-york-ny/" class="c-card">
+        <div class="c-ttl">New York, NY</div>
+        <div class="c-tag">New York</div>
+      </a>
+      <a href="/custo-de-vida/atlanta-ga/" class="c-card">
+        <div class="c-ttl">Atlanta, GA</div>
+        <div class="c-tag">Geórgia</div>
+      </a>
+      <a href="/custo-de-vida/los-angeles-ca/" class="c-card">
+        <div class="c-ttl">Los Angeles, CA</div>
+        <div class="c-tag">California</div>
+      </a>
+      <a href="/custo-de-vida/chicago-il/" class="c-card">
+        <div class="c-ttl">Chicago, IL</div>
+        <div class="c-tag">Illinois</div>
+      </a>
+    </div>
+
+    <div class="custo-cta rv d3">
+      <a href="/custo-de-vida/" class="btn-outline">Ver todas as cidades →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FALE CONOSCO -->
+<section class="fale" id="fale-conosco">
+  <div class="fale-in">
+    <div class="fale-grid">
+      <div>
+        <div class="rv"><div class="sec-tag" style="color:rgba(255,255,255,.4);">Fale com a gente</div></div>
+        <h2 class="a-h2 rv">Tem uma ideia,<br/>dúvida ou <em>parceria?</em></h2>
+        <p class="a-sub rv d1">
+          Somos brasileiros como você, construindo algo pra nossa comunidade. Se quiser sugerir uma feature,
+          reportar um bug, propor parceria ou só dizer oi — manda mensagem.
+        </p>
+
+        <div class="rv d2" style="margin-top:24px;">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="fale-perk">
+              <span class="fale-perk-ico">💡</span>
+              <div>
+                <strong>Sugestões e feedback</strong>
+                <span>O que está faltando? O que dá pra melhorar?</span>
+              </div>
+            </div>
+            <div class="fale-perk">
+              <span class="fale-perk-ico">🤝</span>
+              <div>
+                <strong>Parcerias e patrocínios</strong>
+                <span>Negócios que querem alcançar a comunidade brasileira nos EUA.</span>
+              </div>
+            </div>
+            <div class="fale-perk">
+              <span class="fale-perk-ico">🐛</span>
+              <div>
+                <strong>Reportar bug ou problema</strong>
+                <span>Algo travou? Conta pra gente, a gente arruma.</span>
+              </div>
+            </div>
+            <div class="fale-perk">
+              <span class="fale-perk-ico">📝</span>
+              <div>
+                <strong>Listar meu negócio</strong>
+                <span>Quer aparecer no diretório de negócios brasileiros?</span>
+              </div>
+            </div>
+            <div class="fale-perk">
+              <span class="fale-perk-ico">📰</span>
+              <div>
+                <strong>Imprensa e mídia</strong>
+                <span>Entrevistas, dados, citações — fala com a gente.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rv d2">
+        <div class="a-card">
+          <div class="a-card-ttl">Manda sua mensagem</div>
+
+          <div class="a-lbl">Seu nome</div>
+          <input class="a-inp" type="text" id="fcName" placeholder="João Silva" />
+
+          <div class="a-lbl">Seu email</div>
+          <input class="a-inp" type="email" id="fcEmail" placeholder="seu@email.com" />
+
+          <div class="a-lbl">Sobre o que é?</div>
+          <select class="a-inp" id="fcReason" style="appearance:none;cursor:pointer;">
+            <option value="">Escolha um motivo…</option>
+            <option value="sugestao">Sugestão / feedback</option>
+            <option value="parceria">Parceria ou patrocínio</option>
+            <option value="bug">Reportar bug ou problema</option>
+            <option value="negocio">Listar meu negócio</option>
+            <option value="agendapro">Sou profissional (cabeleireira, manicure, etc) — quero aparecer</option>
+            <option value="imprensa">Imprensa / mídia</option>
+            <option value="outro">Outro</option>
+          </select>
+
+          <div class="a-lbl">Mensagem</div>
+          <textarea class="a-inp" id="fcMsg" rows="5" placeholder="Conta pra gente o que você precisa..." style="font-family:inherit;resize:vertical;"></textarea>
+
+          <button class="a-btn" id="fcBtn" onclick="doContact()">📨 Enviar mensagem</button>
+          <div class="a-ok" id="fcOk">✅ Mensagem enviada! Vamos responder em até 48h.</div>
+          <div class="a-note">A gente lê tudo. Resposta em até 48h.</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
