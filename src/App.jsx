@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import BolaoScreen from './BolaoScreen'
 import NegociosScreen from './NegociosScreen'
 import AgendaApp from './AgendaApp'
 
-// ─── Constantes ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Constantes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const PROVIDERS = [
   {
@@ -14,9 +14,9 @@ const PROVIDERS = [
     fee_pct: 0.0067,
     fee_fixed: 0,       // taxa fixa em USD
     spread_pct: 0.005,
-    label_fee: '~0.67% + câmbio interbancário',
-    speed: 'Até 2 dias úteis',
-    speedIcon: '🕐',
+    label_fee: '~0.67% + cÃ¢mbio interbancÃ¡rio',
+    speed: 'AtÃ© 2 dias Ãºteis',
+    speedIcon: 'ðŸ•',
     promo: null,
     envKey: 'AFFILIATE_WISE_LINK',
     fallback: 'https://wise.com/send#payouts',
@@ -30,10 +30,10 @@ const PROVIDERS = [
     fee_pct: 0.0,
     fee_fixed: 0,
     spread_pct: 0.025,
-    label_fee: 'Taxa embutida no câmbio',
+    label_fee: 'Taxa embutida no cÃ¢mbio',
     speed: 'Em minutos',
-    speedIcon: '⚡',
-    promo: '1ª transferência grátis',
+    speedIcon: 'âš¡',
+    promo: '1Âª transferÃªncia grÃ¡tis',
     envKey: 'AFFILIATE_REMITLY_LINK',
     fallback: 'https://www.remitly.com/us/en/brazil',
     minAmount: 1,
@@ -46,9 +46,9 @@ const PROVIDERS = [
     fee_pct: 0.0,
     fee_fixed: 0,
     spread_pct: 0.03,
-    label_fee: 'Spread ~3% no câmbio',
+    label_fee: 'Spread ~3% no cÃ¢mbio',
     speed: 'Em minutos',
-    speedIcon: '⚡',
+    speedIcon: 'âš¡',
     promo: null,
     envKey: 'AFFILIATE_WU_LINK',
     fallback: 'https://www.westernunion.com/us/en/send-money/app/start',
@@ -60,11 +60,11 @@ const PROVIDERS = [
     logoDomain: 'moneygram.com',
     color: '#d62b2b',
     fee_pct: 0.0,
-    fee_fixed: 1.99,    // taxa fixa típica
+    fee_fixed: 1.99,    // taxa fixa tÃ­pica
     spread_pct: 0.02,
     label_fee: '$1.99 + spread ~2%',
     speed: 'Em minutos',
-    speedIcon: '⚡',
+    speedIcon: 'âš¡',
     promo: null,
     envKey: 'AFFILIATE_MONEYGRAM_LINK',
     fallback: 'https://www.moneygram.com/mgo/us/en/send-money/send-to/brazil/',
@@ -79,9 +79,9 @@ const PROVIDERS = [
     fee_fixed: 2.0,     // taxa fixa ~$2
     spread_pct: 0.015,
     label_fee: '$2.00 + spread ~1.5%',
-    speed: '1–2 dias úteis',
-    speedIcon: '🕐',
-    promo: '1ª transferência grátis',
+    speed: '1â€“2 dias Ãºteis',
+    speedIcon: 'ðŸ•',
+    promo: '1Âª transferÃªncia grÃ¡tis',
     envKey: 'AFFILIATE_PAYSEND_LINK',
     fallback: 'https://paysend.com/en-us/send-money/to/brazil',
     minAmount: 10,
@@ -98,17 +98,17 @@ const FLIGHT_ORIGINS = [
 ]
 
 const FLIGHT_DESTINATIONS = [
-  { code: 'GRU', city: 'São Paulo (Guarulhos)' },
+  { code: 'GRU', city: 'SÃ£o Paulo (Guarulhos)' },
   { code: 'GIG', city: 'Rio de Janeiro' },
-  { code: 'BSB', city: 'Brasília' },
+  { code: 'BSB', city: 'BrasÃ­lia' },
   { code: 'FOR', city: 'Fortaleza' },
   { code: 'REC', city: 'Recife' },
   { code: 'SSA', city: 'Salvador' },
-  { code: 'BEL', city: 'Belém' },
+  { code: 'BEL', city: 'BelÃ©m' },
   { code: 'MAO', city: 'Manaus' },
 ]
 
-// ─── Logo do parceiro (Clearbit + fallback) ────────────────────────────────────
+// â”€â”€â”€ Logo do parceiro (Clearbit + fallback) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ProviderLogo({ provider, size = 28 }) {
   const [errored, setErrored] = useState(false)
@@ -139,7 +139,7 @@ function ProviderLogo({ provider, size = 28 }) {
   )
 }
 
-// ─── Helpers ───────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function calcReceived(usd, provider, midRate) {
   if (!midRate || usd <= 0) return 0
@@ -168,7 +168,7 @@ function fmtUSD(val) {
   return Number(val).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
 }
 
-// ─── Componentes de UI ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Componentes de UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function Spinner() {
   return (
@@ -191,7 +191,7 @@ function Toast({ msg, type, onClose }) {
 
   const colors = { success: '#dcfce7', error: '#fee2e2', info: '#dbeafe' }
   const borders = { success: '#86efac', error: '#fca5a5', info: '#93c5fd' }
-  const icons = { success: '✅', error: '❌', info: 'ℹ️' }
+  const icons = { success: 'âœ…', error: 'âŒ', info: 'â„¹ï¸' }
 
   return (
     <div style={{
@@ -208,7 +208,7 @@ function Toast({ msg, type, onClose }) {
   )
 }
 
-// ─── Provider Detail Modal ─────────────────────────────────────────────────────
+// â”€â”€â”€ Provider Detail Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function ProviderDetail({ provider, amount, midRate, isUSD, onClose, onSend }) {
   const usdAmount = isUSD ? amount : calcSendAmount(amount, provider, midRate)
@@ -265,11 +265,11 @@ function ProviderDetail({ provider, amount, midRate, isUSD, onClose, onSend }) {
             Detalhamento
           </div>
           {[
-            ['Você envia', fmtUSD(usdAmount)],
-            ['Taxa do serviço', `− ${fmtUSD(feeAmount)}`],
-            ['Câmbio aplicado', `R$ ${effectiveRate.toFixed(4)}/USD`],
+            ['VocÃª envia', fmtUSD(usdAmount)],
+            ['Taxa do serviÃ§o', `âˆ’ ${fmtUSD(feeAmount)}`],
+            ['CÃ¢mbio aplicado', `R$ ${effectiveRate.toFixed(4)}/USD`],
             ['Taxa de mercado', `R$ ${midRate.toFixed(4)}/USD`],
-            ['Spread (custo câmbio)', `${(provider.spread_pct * 100).toFixed(1)}%`],
+            ['Spread (custo cÃ¢mbio)', `${(provider.spread_pct * 100).toFixed(1)}%`],
           ].map(([label, value]) => (
             <div key={label} style={{
               display: 'flex', justifyContent: 'space-between',
@@ -285,7 +285,7 @@ function ProviderDetail({ provider, amount, midRate, isUSD, onClose, onSend }) {
             marginTop: 10, paddingTop: 10,
             borderTop: '2px solid #e5e7eb',
           }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#4B4F4D' }}>Destinatário recebe</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#4B4F4D' }}>DestinatÃ¡rio recebe</span>
             <span style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#002776' }}>
               {fmtBRL(brlAmount)}
             </span>
@@ -301,14 +301,14 @@ function ProviderDetail({ provider, amount, midRate, isUSD, onClose, onSend }) {
             letterSpacing: '0.01em',
           }}
         >
-          Enviar com {provider.name} →
+          Enviar com {provider.name} â†’
         </button>
       </div>
     </div>
   )
 }
 
-// ─── Tela: Remessas ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Tela: Remessas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function RemessasScreen({ affiliateLinks }) {
   const [isUSD, setIsUSD] = useState(true)          // true = digita USD, false = digita BRL
@@ -327,7 +327,7 @@ function RemessasScreen({ affiliateLinks }) {
       const data = await res.json()
       setRateData(data)
     } catch (e) {
-      setError('Não foi possível carregar a taxa ao vivo.')
+      setError('NÃ£o foi possÃ­vel carregar a taxa ao vivo.')
     } finally {
       setLoading(false)
     }
@@ -374,16 +374,16 @@ function RemessasScreen({ affiliateLinks }) {
         />
       )}
 
-      {/* Cabeçalho taxa */}
+      {/* CabeÃ§alho taxa */}
       <div style={{
         background: 'linear-gradient(135deg, #009c3b 0%, #006428 100%)',
         borderRadius: 14, padding: '20px 18px', marginBottom: 16, color: '#fff',
       }}>
         <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6 }}>
-          Taxa de câmbio ao vivo (USD → BRL)
+          Taxa de cÃ¢mbio ao vivo (USD â†’ BRL)
         </div>
         {loading ? (
-          <div style={{ fontSize: 28, fontWeight: 700 }}>Carregando…</div>
+          <div style={{ fontSize: 28, fontWeight: 700 }}>Carregandoâ€¦</div>
         ) : error ? (
           <div style={{ fontSize: 14, color: '#fca5a5' }}>{error}</div>
         ) : (
@@ -393,7 +393,7 @@ function RemessasScreen({ affiliateLinks }) {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
               <div style={{ fontSize: 12, opacity: 0.75 }}>
-                {rateData?.source === 'exchangerate-api' ? '● Taxa real' : '○ Estimativa'} • Atualizado agora
+                {rateData?.source === 'exchangerate-api' ? 'â— Taxa real' : 'â—‹ Estimativa'} â€¢ Atualizado agora
               </div>
               <button
                 onClick={fetchRate}
@@ -403,14 +403,14 @@ function RemessasScreen({ affiliateLinks }) {
                   fontSize: 11, cursor: 'pointer',
                 }}
               >
-                ↺ Atualizar
+                â†º Atualizar
               </button>
             </div>
           </>
         )}
       </div>
 
-      {/* Toggle USD ↔ BRL + Input de valor */}
+      {/* Toggle USD â†” BRL + Input de valor */}
       <div style={{ marginBottom: 16 }}>
         {/* Toggle */}
         <div style={{
@@ -418,8 +418,8 @@ function RemessasScreen({ affiliateLinks }) {
           padding: 3, marginBottom: 10,
         }}>
           {[
-            { val: true,  label: 'Envio em USD 🇺🇸' },
-            { val: false, label: 'Chegada em BRL 🇧🇷' },
+            { val: true,  label: 'Envio em USD ðŸ‡ºðŸ‡¸' },
+            { val: false, label: 'Chegada em BRL ðŸ‡§ðŸ‡·' },
           ].map(opt => (
             <button
               key={String(opt.val)}
@@ -485,7 +485,7 @@ function RemessasScreen({ affiliateLinks }) {
       <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 10, fontWeight: 500 }}>
         {isUSD
           ? `Comparando quanto chega no Brasil para ${fmtUSD(amount)} enviados`
-          : `Comparando quanto você precisa enviar para chegarem ${fmtBRL(amount)}`
+          : `Comparando quanto vocÃª precisa enviar para chegarem ${fmtBRL(amount)}`
         }
       </div>
 
@@ -521,7 +521,7 @@ function RemessasScreen({ affiliateLinks }) {
                     fontSize: 9, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
                     textTransform: 'uppercase', letterSpacing: '0.1em',
                   }}>
-                    Melhor opção
+                    Melhor opÃ§Ã£o
                   </div>
                 )}
 
@@ -552,16 +552,16 @@ function RemessasScreen({ affiliateLinks }) {
                     {isUSD ? (
                       <>
                         <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#002776' }}>
-                          {isInvalid ? '—' : fmtBRL(received)}
+                          {isInvalid ? 'â€”' : fmtBRL(received)}
                         </div>
                         <div style={{ fontSize: 10, color: '#8C8E89', textTransform: 'uppercase', letterSpacing: '0.06em' }}>recebido no Brasil</div>
                       </>
                     ) : (
                       <>
                         <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#002776' }}>
-                          {isInvalid ? '—' : fmtUSD(sendUsd)}
+                          {isInvalid ? 'â€”' : fmtUSD(sendUsd)}
                         </div>
-                        <div style={{ fontSize: 10, color: '#8C8E89', textTransform: 'uppercase', letterSpacing: '0.06em' }}>você envia</div>
+                        <div style={{ fontSize: 10, color: '#8C8E89', textTransform: 'uppercase', letterSpacing: '0.06em' }}>vocÃª envia</div>
                       </>
                     )}
                   </div>
@@ -592,7 +592,7 @@ function RemessasScreen({ affiliateLinks }) {
                       letterSpacing: '0.01em',
                     }}
                   >
-                    Enviar com {p.name} →
+                    Enviar com {p.name} â†’
                   </button>
                 </div>
               </div>
@@ -606,14 +606,14 @@ function RemessasScreen({ affiliateLinks }) {
         marginTop: 16, fontSize: 11, color: '#9ca3af',
         lineHeight: 1.5, textAlign: 'center', padding: '0 8px',
       }}>
-        ⓘ Links são de afiliados. Recebemos comissão quando você completa uma transferência —
-        sem custo adicional para você. Taxas são estimativas e podem variar.
+        â“˜ Links sÃ£o de afiliados. Recebemos comissÃ£o quando vocÃª completa uma transferÃªncia â€”
+        sem custo adicional para vocÃª. Taxas sÃ£o estimativas e podem variar.
       </div>
     </div>
   )
 }
 
-// ─── Tela: Alertas ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Tela: Alertas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function AlertasScreen() {
   const [email, setEmail] = useState('')
@@ -659,14 +659,14 @@ function AlertasScreen() {
         background: 'linear-gradient(135deg, #002776 0%, #1e40af 100%)',
         borderRadius: 14, padding: '20px 18px', marginBottom: 20, color: '#fff',
       }}>
-        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>🔔 Alertas de Câmbio</div>
+        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>ðŸ”” Alertas de CÃ¢mbio</div>
         <div style={{ fontSize: 13, opacity: 0.85, lineHeight: 1.5 }}>
-          Te avisamos por email quando o dólar chegar na taxa que você quer.
+          Te avisamos por email quando o dÃ³lar chegar na taxa que vocÃª quer.
           Gratuito e sem cadastro.
         </div>
       </div>
 
-      {/* Formulário */}
+      {/* FormulÃ¡rio */}
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div>
           <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
@@ -688,12 +688,12 @@ function AlertasScreen() {
 
         <div>
           <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-            Avisar quando o câmbio estiver
+            Avisar quando o cÃ¢mbio estiver
           </label>
           <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
             {[
-              { value: 'above', label: '↑ Acima de' },
-              { value: 'below', label: '↓ Abaixo de' },
+              { value: 'above', label: 'â†‘ Acima de' },
+              { value: 'below', label: 'â†“ Abaixo de' },
             ].map(opt => (
               <button
                 key={opt.value}
@@ -742,7 +742,7 @@ function AlertasScreen() {
             border: 'none',
           }}
         >
-          {loading ? 'Criando alerta…' : 'Criar alerta gratuito'}
+          {loading ? 'Criando alertaâ€¦' : 'Criar alerta gratuito'}
         </button>
       </form>
 
@@ -756,8 +756,8 @@ function AlertasScreen() {
         </div>
         {[
           ['1', 'Informe sua taxa alvo e e-mail'],
-          ['2', 'Verificamos o câmbio a cada 30 minutos'],
-          ['3', 'Quando atingir, você recebe um email na hora'],
+          ['2', 'Verificamos o cÃ¢mbio a cada 30 minutos'],
+          ['3', 'Quando atingir, vocÃª recebe um email na hora'],
         ].map(([n, text]) => (
           <div key={n} style={{ display: 'flex', gap: 10, marginBottom: 8, alignItems: 'flex-start' }}>
             <div style={{
@@ -773,7 +773,7 @@ function AlertasScreen() {
   )
 }
 
-// ─── Tela: Voos ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Tela: Voos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function VoosScreen({ affiliateLinks }) {
   const [origin, setOrigin] = useState('AUS')
@@ -824,7 +824,7 @@ function VoosScreen({ affiliateLinks }) {
         background: 'linear-gradient(135deg, #1e3a5f 0%, #0f2340 100%)',
         borderRadius: 14, padding: '20px 18px', marginBottom: 20, color: '#fff',
       }}>
-        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>✈️ Voos para o Brasil</div>
+        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>âœˆï¸ Voos para o Brasil</div>
         <div style={{ fontSize: 13, opacity: 0.85 }}>Encontre as melhores tarifas de volta pro Brasil</div>
       </div>
 
@@ -910,7 +910,7 @@ function VoosScreen({ affiliateLinks }) {
             border: 'none',
           }}
         >
-          {loading ? 'Buscando voos…' : 'Buscar voos'}
+          {loading ? 'Buscando voosâ€¦' : 'Buscar voos'}
         </button>
       </form>
 
@@ -919,7 +919,7 @@ function VoosScreen({ affiliateLinks }) {
       {flights && (
         <div style={{ marginTop: 20 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 12 }}>
-            Resultados para {origin} → {destination}
+            Resultados para {origin} â†’ {destination}
           </div>
           {flights.results?.length === 0 && (
             <div style={{ textAlign: 'center', color: '#9ca3af', padding: '24px 0' }}>
@@ -961,7 +961,7 @@ function VoosScreen({ affiliateLinks }) {
             </div>
           ))}
           <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 8 }}>
-            ⓘ Links são de afiliados. Recebemos comissão em reservas concluídas.
+            â“˜ Links sÃ£o de afiliados. Recebemos comissÃ£o em reservas concluÃ­das.
           </div>
         </div>
       )}
@@ -969,14 +969,14 @@ function VoosScreen({ affiliateLinks }) {
   )
 }
 
-// ─── App Principal ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ App Principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const TABS = [
-  { id: 'remessas',  icon: '💸', label: 'Remessas' },
-  { id: 'voos',      icon: '✈️',  label: 'Voos' },
-  { id: 'agenda',    icon: '📅', label: 'Agenda' },
-  { id: 'negocios',  icon: '🏪', label: 'Negócios' },
-  { id: 'bolao',     icon: '⚽',  label: 'Bolão' },
+  { id: 'remessas',  icon: 'ðŸ’¸', label: 'Remessas' },
+  { id: 'voos',      icon: 'âœˆï¸',  label: 'Voos' },
+  { id: 'agenda',    icon: 'ðŸ“…', label: 'Agenda' },
+  { id: 'negocios',  icon: 'ðŸª', label: 'NegÃ³cios' },
+  { id: 'bolao',     icon: 'âš½',  label: 'BolÃ£o' },
 ]
 
 export default function App() {
@@ -1033,18 +1033,6 @@ export default function App() {
               cursor: 'pointer',
               fontFamily: 'inherit',
               color: tab === t.id ? '#002776' : '#6B6E68',
-              borderTop: `2px solid ${tab === t.id ? '#009c3b' : 'transparent'}`,
-              transition: 'color .15s',
-            }}
-          >
-            <span style={{ fontSize: 20 }}>{t.icon}</span>
-            <span style={{ fontSize: 11, fontWeight: tab === t.id ? 600 : 400 }}>{t.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
               borderTop: `2px solid ${tab === t.id ? '#009c3b' : 'transparent'}`,
               transition: 'color .15s',
             }}
