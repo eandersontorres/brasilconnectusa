@@ -254,6 +254,151 @@
       h1 { font-size: 26px; }
       .container { padding: 24px 16px 60px; }
     }
+
+    /* Enterprise banner */
+    .enterprise-banner {
+      background: linear-gradient(135deg, #002776 0%, #0f2340 100%);
+      border-radius: 14px;
+      padding: 28px 26px;
+      margin-top: 28px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .enterprise-banner:before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(255,223,0,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .enterprise-content { position: relative; z-index: 1; }
+    .enterprise-tag {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--navy);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .enterprise-title { font-size: 24px; font-weight: 700; margin: 0 0 6px; }
+    .enterprise-subtitle { font-size: 14px; opacity: 0.85; margin: 0 0 18px; max-width: 600px; line-height: 1.5; }
+    .enterprise-feats {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 22px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 8px 16px;
+    }
+    .enterprise-feats li { font-size: 13px; line-height: 1.5; opacity: 0.95; }
+    .enterprise-price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+    }
+    .enterprise-price { font-size: 22px; font-weight: 700; }
+    .enterprise-price-sub { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+    .enterprise-cta {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 12px 22px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+    .enterprise-cta:hover { transform: translateY(-1px); }
+
+    /* Modal */
+    .ent-modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      z-index: 100;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px;
+      overflow-y: auto;
+    }
+    .ent-modal-bg.open { display: flex; }
+    .ent-modal {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px 26px;
+      width: 100%;
+      max-width: 540px;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .ent-close {
+      position: absolute;
+      top: 14px; right: 14px;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #6b7280;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+    }
+    .ent-close:hover { background: #f3f4f6; }
+    .ent-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .ent-modal label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 4px;
+    }
+    .ent-modal input, .ent-modal select, .ent-modal textarea {
+      width: 100%;
+      padding: 9px 11px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    .ent-modal input:focus, .ent-modal select:focus, .ent-modal textarea:focus {
+      border-color: var(--navy);
+    }
+    .ent-modal textarea { resize: vertical; min-height: 70px; }
+    .ent-submit {
+      width: 100%;
+      padding: 12px 0;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .ent-submit:disabled { background: #9ca3af; cursor: not-allowed; }
+    @media (max-width: 600px) {
+      .ent-row { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -282,7 +427,7 @@
       <div class="plan">
         <div class="plan-name">Starter</div>
         <div class="plan-price">$19<small>/mês</small></div>
-        <div class="plan-desc">Ideal pra quem tá começando — manicure, esteticista, professora particular</div>
+        <div class="plan-desc">Ideal pra quem tá começando — qualquer profissional que agenda hora marcada</div>
         <ul>
           <li>1 profissional</li>
           <li>Agendamentos ilimitados</li>
@@ -300,7 +445,7 @@
         <div class="badge">Mais popular</div>
         <div class="plan-name">Pro</div>
         <div class="plan-price">$39<small>/mês</small></div>
-        <div class="plan-desc">Pro que já tem clientela e quer reduzir falta — SMS lembra todo mundo</div>
+        <div class="plan-desc">Pra quem já tem clientela e quer reduzir falta — SMS lembra todo mundo</div>
         <ul>
           <li>1 profissional</li>
           <li>Agendamentos ilimitados</li>
@@ -315,9 +460,9 @@
       </div>
 
       <div class="plan">
-        <div class="plan-name">Salão</div>
+        <div class="plan-name">Premium</div>
         <div class="plan-price">$79<small>/mês</small></div>
-        <div class="plan-desc">Salão ou clínica com vários profissionais — controle agenda e relatórios</div>
+        <div class="plan-desc">Equipes ou consultórios com vários profissionais — agenda compartilhada e relatórios</div>
         <ul>
           <li><b>Até 10 profissionais</b></li>
           <li>Agendamentos ilimitados</li>
@@ -327,13 +472,116 @@
           <li>Relatórios financeiros mensais</li>
           <li>Sem branding "Powered by BrasilConnect"</li>
         </ul>
-        <button onclick="subscribe('salao')" id="btn-salao">Começar trial 14 dias</button>
+        <button onclick="subscribe('premium')" id="btn-premium">Começar trial 14 dias</button>
         <div class="trial-note">Sem cobrança nos primeiros 14 dias</div>
+      </div>
+    </div>
+
+    <div class="enterprise-banner">
+      <div class="enterprise-content">
+        <div class="enterprise-tag">ENTERPRISE</div>
+        <h2 class="enterprise-title">Precisa de algo sob medida?</h2>
+        <p class="enterprise-subtitle">
+          Pra empresas, redes e profissionais que atendem em vários estados ou querem mais visibilidade.
+        </p>
+        <ul class="enterprise-feats">
+          <li>🇺🇸 Atendimento em todos os 50 estados</li>
+          <li>📢 Destaque no feed nacional</li>
+          <li>⭐ Top da busca + selo Verificado</li>
+          <li>👥 Profissionais ilimitados</li>
+          <li>🤝 Account manager dedicado</li>
+          <li>🔌 API + integrações custom</li>
+          <li>📰 Spot na newsletter mensal</li>
+          <li>🎨 White-label opcional</li>
+        </ul>
+        <div class="enterprise-price-row">
+          <div>
+            <div class="enterprise-price">Sob medida</div>
+            <div class="enterprise-price-sub">A gente desenha junto com você</div>
+          </div>
+          <button onclick="openEnterpriseModal()" class="enterprise-cta">Falar com a equipe →</button>
+        </div>
       </div>
     </div>
 
     <div class="footer-note">
       <b>Como funciona o trial:</b> Você coloca o cartão agora (precisa pra ativar). Nos primeiros 14 dias é tudo de graça. No 15º dia cobramos automático no cartão. Pode cancelar quando quiser nesse período sem nenhuma cobrança — fica sabendo por email 3 dias antes do trial acabar.
+    </div>
+  </div>
+
+  <!-- Modal Enterprise -->
+  <div id="ent-modal" class="ent-modal-bg" onclick="if(event.target.id==='ent-modal')closeEnterpriseModal()">
+    <div class="ent-modal">
+      <button class="ent-close" onclick="closeEnterpriseModal()" aria-label="Fechar">×</button>
+      <h2 style="margin:0 0 6px;">Vamos conversar</h2>
+      <p style="margin:0 0 18px;color:#6b7280;font-size:14px;">A gente responde em até 1 dia útil — geralmente no mesmo dia.</p>
+      <form id="ent-form" onsubmit="submitEnterprise(event)">
+        <div class="ent-row">
+          <div>
+            <label>Seu nome *</label>
+            <input name="name" required />
+          </div>
+          <div>
+            <label>Email *</label>
+            <input name="email" type="email" required />
+          </div>
+        </div>
+        <div class="ent-row">
+          <div>
+            <label>WhatsApp (opcional)</label>
+            <input name="whatsapp" placeholder="+1 ou +55..." />
+          </div>
+          <div>
+            <label>Empresa / Negócio</label>
+            <input name="company" />
+          </div>
+        </div>
+        <div class="ent-row">
+          <div>
+            <label>Setor</label>
+            <select name="sector">
+              <option value="">Selecione...</option>
+              <option>Terapia / Psicologia</option>
+              <option>Jurídico / Imigração</option>
+              <option>Contábil / Impostos</option>
+              <option>Saúde / Clínica</option>
+              <option>Educação / Aulas</option>
+              <option>Beleza / Estética</option>
+              <option>Coaching / Consultoria</option>
+              <option>Outro</option>
+            </select>
+          </div>
+          <div>
+            <label>Tamanho da equipe</label>
+            <select name="team_size">
+              <option value="">Selecione...</option>
+              <option>Só eu</option>
+              <option>2-5 profissionais</option>
+              <option>6-20 profissionais</option>
+              <option>21-50 profissionais</option>
+              <option>50+ profissionais</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label>Interesse principal</label>
+          <select name="interest">
+            <option value="">Selecione...</option>
+            <option value="alcance_nacional">Atender clientes em todos os estados</option>
+            <option value="multiplos_estados">Aparecer em destaque pra brasileiros nacionais</option>
+            <option value="integracao">Integração com meu sistema atual (API)</option>
+            <option value="white_label">White-label / branding próprio</option>
+            <option value="profissionais_ilimitados">Mais de 10 profissionais</option>
+            <option value="outro">Outro</option>
+          </select>
+        </div>
+        <div>
+          <label>Conta um pouco do seu cenário (opcional)</label>
+          <textarea name="message" rows="3" placeholder="O que você quer alcançar? Quantos clientes/mês? Algum bloqueio que precisa resolver?"></textarea>
+        </div>
+        <button type="submit" id="ent-submit" class="ent-submit">Enviar</button>
+        <div id="ent-msg" style="margin-top:10px;font-size:13px;"></div>
+      </form>
     </div>
   </div>
 
@@ -355,11 +603,11 @@ async function detectMode() {
       banner.className = 'live-banner';
       banner.textContent = '✅ Modo produção — cobranças reais habilitadas';
     }
-    if (d.configured && (!d.has_starter || !d.has_pro || !d.has_salon)) {
+    if (d.configured && (!d.has_starter || !d.has_pro || !d.has_premium)) {
       const missing = [];
       if (!d.has_starter) missing.push('STRIPE_PRICE_STARTER');
       if (!d.has_pro)     missing.push('STRIPE_PRICE_PRO');
-      if (!d.has_salon)   missing.push('STRIPE_PRICE_SALON');
+      if (!d.has_premium) missing.push('STRIPE_PRICE_PREMIUM');
       showMsg('Faltam env vars no Vercel: ' + missing.join(', '), 'err');
     }
   } catch(e) {
@@ -434,10 +682,48 @@ async function subscribe(plan) {
   }
 }
 
-// Init
+function openEnterpriseModal() {
+  document.getElementById('ent-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeEnterpriseModal() {
+  document.getElementById('ent-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function submitEnterprise(e) {
+  e.preventDefault();
+  const form = document.getElementById('ent-form');
+  const fd = new FormData(form);
+  const data = Object.fromEntries(fd.entries());
+  const btn = document.getElementById('ent-submit');
+  const msg = document.getElementById('ent-msg');
+  msg.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Enviando...';
+  try {
+    const r = await fetch('/api/enterprise-lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Erro ao enviar');
+    msg.style.color = '#16a34a';
+    msg.textContent = 'Recebido! Vamos te responder em até 1 dia útil.';
+    form.reset();
+    btn.textContent = 'Enviado ✓';
+    setTimeout(() => { closeEnterpriseModal(); btn.disabled = false; btn.textContent = 'Enviar'; }, 2500);
+  } catch (err) {
+    msg.style.color = '#dc2626';
+    msg.textContent = err.message;
+    btn.disabled = false;
+    btn.textContent = 'Enviar';
+  }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
   detectMode();
-  // Restaurar login do localStorage
   try {
     const cached = localStorage.getItem('bc_planos_provider');
     if (cached) {
@@ -445,7 +731,6 @@ window.addEventListener('DOMContentLoaded', () => {
       showLoggedIn();
     }
   } catch(_) {}
-  // Mostrar mensagem se voltou do checkout
   const params = new URLSearchParams(window.location.search);
   if (params.get('subscribed') === '1') showMsg('🎉 Assinatura ativada! Seu trial de 14 dias começou.', 'ok');
 });

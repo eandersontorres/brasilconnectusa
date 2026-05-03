@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     mode: key.startsWith('sk_test_') ? 'test' : (key.startsWith('sk_live_') ? 'live' : 'none'),
     has_starter: !!process.env.STRIPE_PRICE_STARTER,
     has_pro:     !!process.env.STRIPE_PRICE_PRO,
-    has_salon:   !!process.env.STRIPE_PRICE_SALON,
+    has_premium:   !!process.env.STRIPE_PRICE_PREMIUM,
     has_webhook: !!process.env.STRIPE_WEBHOOK_SECRET,
   })
 }

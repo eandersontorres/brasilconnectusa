@@ -116,6 +116,7 @@
           <div class="tabs-row">
             <button class="tab-btn ${currentTab==='requests'?'active':''}" onclick="switchTab('requests')">Pedidos pendentes</button>
             <button class="tab-btn ${currentTab==='contact'?'active':''}" onclick="switchTab('contact')">Fale Conosco</button>
+            <button class="tab-btn ${currentTab==='enterprise'?'active':''}" onclick="switchTab('enterprise')">Leads Enterprise</button>
             <button class="tab-btn ${currentTab==='reports'?'active':''}" onclick="switchTab('reports')">Reports</button>
             <button class="tab-btn ${currentTab==='businesses'?'active':''}" onclick="switchTab('businesses')">Negócios pendentes</button>
           </div>
@@ -131,6 +132,7 @@
       try {
         if (tab === 'requests')   await loadRequests(c)
         else if (tab === 'contact')    await loadContact(c)
+        else if (tab === 'enterprise') await loadEnterprise(c)
         else if (tab === 'reports')    await loadReports(c)
         else if (tab === 'businesses') await loadBusinesses(c)
       } catch (e) {
@@ -221,14 +223,45 @@
       c.innerHTML = '<div class="panel"><div class="empty">Reports — em breve.<br>Por enquanto, veja na tabela <strong>bc_reports</strong> no Supabase.</div></div>'
     }
 
+    async function loadEnterprise(c) {
+      const r = await fetch('/api/admin/enterprise-leads', { headers: { 'x-admin-secret': getSecret() } })
+      if (!r.ok) {
+        c.innerHTML = '<div class="panel"><div class="empty">Endpoint /api/admin/enterprise-leads ainda nao criado.<br>Por enquanto, veja na tabela <strong>bc_enterprise_leads</strong> no Supabase.</div></div>'
+        return
+      }
+      const data = await r.json()
+      const list = data.leads || []
+      if (list.length === 0) { c.innerHTML = '<div class="panel"><div class="empty">Nenhum lead Enterprise ainda.</div></div>'; return }
+
+      c.innerHTML = '<div class="panel"><div class="panel-eyebrow">LEADS ENTERPRISE</div><h3>' + list.length + ' leads</h3>' +
+        list.map(l => `
+          <div class="item">
+            <div class="head">
+              <div>
+                <div class="name">${escapeHtml(l.name)} ${l.company ? '<span style="color:var(--ink-muted);font-weight:400">· ' + escapeHtml(l.company) + '</span>' : ''}</div>
+                <div class="meta">${escapeHtml(l.email)}${l.whatsapp ? ' · ' + escapeHtml(l.whatsapp) : ''} · ${new Date(l.created_at).toLocaleString('pt-BR')}</div>
+              </div>
+              <span class="badge badge-${l.status === 'new' ? 'pending' : 'done'}">${escapeHtml(l.status)}</span>
+            </div>
+            <div class="answer">
+              ${l.sector ? '<div><b>Setor:</b> ' + escapeHtml(l.sector) + '</div>' : ''}
+              ${l.team_size ? '<div><b>Equipe:</b> ' + escapeHtml(l.team_size) + '</div>' : ''}
+              ${l.interest ? '<div><b>Interesse:</b> ' + escapeHtml(l.interest) + '</div>' : ''}
+              ${l.message ? '<div style="margin-top:8px;"><b>Mensagem:</b><br>' + escapeHtml(l.message).replace(/\n/g, '<br>') + '</div>' : ''}
+              <div style="margin-top:10px;"><a href="mailto:${escapeHtml(l.email)}?subject=Re: BrasilConnect Enterprise" style="color:var(--green);">Responder por email →</a></div>
+            </div>
+          </div>
+        `).join('') + '</div>'
+    }
+
     async function loadBusinesses(c) {
       try {
         const r = await fetch('/api/businesses/list?status=pending')
         const data = await r.json().catch(() => ({}))
         const list = data.businesses || []
-        if (list.length === 0) { c.innerHTML = '<div class="panel"><div class="empty">Nenhum negócio pendente de aprovação.</div></div>'; return }
+        if (list.length === 0) { c.innerHTML = '<div class="panel"><div class="empty">Nenhum negocio pendente de aprovacao.</div></div>'; return }
 
-        c.innerHTML = '<div class="panel"><div class="panel-eyebrow">NEGÓCIOS PENDENTES</div><h3>' + list.length + ' submissões</h3>' +
+        c.innerHTML = '<div class="panel"><div class="panel-eyebrow">NEGOCIOS PENDENTES</div><h3>' + list.length + ' submissoes</h3>' +
           list.map(b => `
             <div class="item">
               <div class="head">

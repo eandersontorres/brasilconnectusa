@@ -65,7 +65,7 @@ Trabalhei nos módulos do histórico que você colou. Tudo construído com palet
 
 **Env vars adicionais no Vercel (alguns já existem):**
 - `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
-- `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_PRO`, `STRIPE_PRICE_SALON`
+- `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_PRO`, `STRIPE_PRICE_PREMIUM`
 - `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_EMAIL` (gerar com `npx web-push generate-vapid-keys`)
 - `VITE_VAPID_PUBLIC_KEY` (mesmo valor da public)
 - `ZAPI_INSTANCE`, `ZAPI_TOKEN`, `ZAPI_CLIENT_TOKEN`

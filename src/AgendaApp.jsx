@@ -67,7 +67,7 @@ export default function AgendaApp() {
         <div style={S.planBadge}>
           {data.provider.plan === 'starter' && 'STARTER'}
           {data.provider.plan === 'pro' && 'PRO'}
-          {data.provider.plan === 'salao' && 'SALÃO'}
+          {data.provider.plan === 'premium' && 'SALÃO'}
           {data.provider.plan_status === 'trialing' && ' · TRIAL'}
         </div>
       </div>
@@ -255,7 +255,7 @@ function PlansView({ provider }) {
   const PLANS = [
     { id: 'starter', name: 'Starter', price: 19,  features: ['1 profissional', 'Página pública', 'Até 50 clientes'] },
     { id: 'pro',     name: 'Pro',     price: 39,  features: ['Tudo do Starter', 'Lembretes WhatsApp', 'Cobrar depósito Stripe', 'Analytics'], featured: true },
-    { id: 'salao',   name: 'Salão',   price: 79,  features: ['Tudo do Pro', 'Até 5 profissionais', 'Agenda compartilhada'] },
+    { id: 'premium', name: 'Premium', price: 79,  features: ['Tudo do Pro', 'Até 10 profissionais', 'Relatórios financeiros'] },
   ]
   return (
     <>

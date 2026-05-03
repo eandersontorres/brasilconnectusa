@@ -37,9 +37,9 @@ Repete o processo:
 - **Price:** `39.00 USD` recorrente mensal
 - Copia o **Price ID**
 
-### Produto 3: Salão
+### Produto 3: Premium
 
-- **Name:** `AgendaPro Salão`
+- **Name:** `AgendaPro Premium`
 - **Description:** `Até 10 profissionais, SMS, relatórios, sem branding`
 - **Price:** `79.00 USD` recorrente mensal
 - Copia o **Price ID**
@@ -59,7 +59,7 @@ e adiciona (uma de cada vez, **Environment: Production + Preview + Development**
 | `STRIPE_SECRET_KEY` | `sk_test_...` (do passo 4) |
 | `STRIPE_PRICE_STARTER` | `price_...` (Starter, passo 3) |
 | `STRIPE_PRICE_PRO` | `price_...` (Pro, passo 3) |
-| `STRIPE_PRICE_SALON` | `price_...` (Salão, passo 3) |
+| `STRIPE_PRICE_PREMIUM` | `price_...` (Premium, passo 3) |
 
 > **Importante:** depois de adicionar, faz um **Redeploy** (Deployments → último → ⋯ → Redeploy)
 > pra Vercel pegar as novas envs.
@@ -136,7 +136,7 @@ O código não muda nada — só as variáveis de ambiente.
 - Algum dos 3 prices não foi setado
 
 **Erro "No such price":**
-- O `STRIPE_PRICE_STARTER/PRO/SALON` no Vercel é de LIVE mode mas a chave é de TEST (ou vice-versa)
+- O `STRIPE_PRICE_STARTER/PRO/PREMIUM` no Vercel é de LIVE mode mas a chave é de TEST (ou vice-versa)
 - Os Price IDs são diferentes entre TEST e LIVE — precisa criar novos
 
 **Webhook não atualiza `plan_status`:**

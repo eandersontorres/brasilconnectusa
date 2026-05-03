@@ -69,7 +69,7 @@ export default async function handler(req, res) {
         const planId = sub.items?.data?.[0]?.price?.id
         let plan = 'starter'
         if (planId === process.env.STRIPE_PRICE_PRO) plan = 'pro'
-        else if (planId === process.env.STRIPE_PRICE_SALON) plan = 'salao'
+        else if (planId === process.env.STRIPE_PRICE_PREMIUM) plan = 'premium'
 
         await supabase.from('ag_providers').update({
           plan,

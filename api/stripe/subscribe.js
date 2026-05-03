@@ -1,6 +1,6 @@
 /**
  * POST /api/stripe/subscribe
- * Body: { provider_id, plan: 'starter'|'pro'|'salao' }
+ * Body: { provider_id, plan: 'starter'|'pro'|'premium' }
  * Cria Checkout Session de assinatura recorrente com trial de 14 dias.
  */
 import { createClient } from '@supabase/supabase-js'
@@ -8,7 +8,7 @@ import { createClient } from '@supabase/supabase-js'
 const PLAN_TO_PRICE = {
   starter: 'STRIPE_PRICE_STARTER',
   pro:     'STRIPE_PRICE_PRO',
-  salao:   'STRIPE_PRICE_SALON',
+  premium:   'STRIPE_PRICE_PREMIUM',
 }
 
 export default async function handler(req, res) {
@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
   const { provider_id, plan } = req.body || {}
   if (!provider_id || !plan || !PLAN_TO_PRICE[plan]) {
-    return res.status(400).json({ error: 'provider_id e plan (starter/pro/salao) obrigatórios' })
+    return res.status(400).json({ error: 'provider_id e plan (starter/pro/premium) obrigatórios' })
   }
 
   const priceId = process.env[PLAN_TO_PRICE[plan]]
