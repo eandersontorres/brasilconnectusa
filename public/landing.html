@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --navy:#002776;--navyl:#1e3a5f;--green:#009c3b;--greenl:#00b34d;
+  --navy:#001a5e;--navyl:#0a2548;--green:#009c3b;--greenl:#00b34d;
   --gold:#FFD700;--goldl:#ffdf00;--cream:#FAF7F0;--creamd:#F1ECDF;
   --muted:#6B6E68;--border:#E5E1D6;--text:#1A1F1C;
 }
@@ -19,7 +19,7 @@ body{font-family:'Sora',sans-serif;background:var(--cream);color:var(--text);-we
 a{text-decoration:none;color:inherit;}
 
 /* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(0,39,118,.93);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.05);}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(0,26,94,.93);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.05);}
 .logo{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:#fff;}
 .logo em{color:var(--goldl);font-style:normal;}
 .nav-r{display:flex;align-items:center;gap:22px;}
@@ -261,69 +261,88 @@ footer{background:var(--navy);padding:48px 28px 32px;border-top:1px solid rgba(2
 <section class="hero">
   <div class="hero-in">
 
-    <!-- left: contexto -->
+    <!-- left: mensagem principal -->
     <div style="padding-top:12px">
-      <div class="eyebrow">Para brasileiros nos EUA</div>
+      <div class="eyebrow">Para brasileiros nos Estados Unidos</div>
       <h1 class="hero-q">
-        Quanto vai<br/>chegar no Brasil<br/><em>hoje?</em>
+        A casa dos<br/>brasileiros nos<br/><em>Estados Unidos.</em>
       </h1>
       <p class="hero-sub">
-        A diferença entre a <strong>Wise e a Western Union</strong> pode ser
-        mais de <strong>R$100</strong> em cada envio de $500.
-        Aqui você compara antes de enviar — em segundos.
+        Estamos aqui pra <strong>dar suporte</strong> à comunidade brasileira nos EUA.
+        Câmbio, voos, agenda de serviços, indicações de negócios e a comunidade
+        — tudo num lugar só, em português.
       </p>
 
-      <div class="live-box">
-        <div class="lr">
-          <span class="ll">Taxa mid-market agora</span>
-          <span class="lv" id="midRate">R$ 5.38</span>
+      <!-- Lista de espera -->
+      <div class="live-box" style="background:rgba(255,255,255,.06);">
+        <div style="font-size:13px;color:rgba(255,255,255,.85);font-weight:500;margin-bottom:10px;">
+          Estamos finalizando o lançamento. Entre na lista pra ser avisado(a).
         </div>
-        <div class="lr" style="margin-bottom:10px">
-          <span class="ll">Última semana</span>
-          <span class="delta up" id="rateDelta">▲ +0.04</span>
+        <form id="wlHeroForm" style="display:flex;gap:8px;flex-wrap:wrap;">
+          <input id="wlHeroEmail" type="email" required placeholder="seu@email.com"
+            style="flex:1;min-width:180px;padding:11px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-family:'Sora',sans-serif;font-size:14px;outline:none;" />
+          <button type="submit"
+            style="background:var(--green);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">
+            Entrar na lista
+          </button>
+        </form>
+        <div id="wlHeroOk" style="display:none;margin-top:10px;font-size:13px;color:#5FE89A;font-weight:600;">
+          Anotado! Vamos avisar quando lançar.
         </div>
-        <div class="bar"><div class="bar-fill" id="rateBar" style="width:62%"></div></div>
-        <div class="bar-lbls"><span>Mín 30d: R$4.90</span><span>Máx 30d: R$5.80</span></div>
+        <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:10px;">
+          Sem spam. Só o aviso de lançamento e novidades importantes.
+        </div>
       </div>
 
       <div class="scroll-hint">
-        <span class="bounce">↓</span> Veja quanto cada provedor envia
+        <span class="bounce">↓</span> Veja o que está vindo
       </div>
     </div>
 
-    <!-- right: ferramenta -->
+    <!-- right: destaque do Bolão -->
     <div>
       <div class="tc">
         <div class="tc-hdr">
-          <span class="tc-ttl">💸 Comparador ao vivo</span>
-          <span class="tc-badge">● ao vivo</span>
+          <span class="tc-ttl">Estreia: Bolão Copa 2026</span>
+          <span class="tc-badge">Grátis</span>
         </div>
 
-        <div class="amt-sec">
-          <div class="amt-lbl">Você quer enviar</div>
-          <div class="amt-wrap">
-            <div class="amt-pfx">USD $</div>
-            <input id="amtIn" type="number" value="500" min="1" autocomplete="off"/>
+        <div style="padding:24px 22px 20px;text-align:center;">
+          <div style="font-family:'Fraunces',serif;font-size:42px;font-weight:600;color:var(--navy);line-height:1;letter-spacing:-1px;">⚽</div>
+          <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:600;color:var(--navy);margin-top:10px;line-height:1.2;letter-spacing:-.3px;">
+            A Copa é <em style="color:var(--green);">aqui nos EUA</em><br/>
+            Bora montar nosso bolão?
           </div>
-          <div class="quick-r">
-            <button class="qb" onclick="setAmt(200)">$200</button>
-            <button class="qb on" onclick="setAmt(500)">$500</button>
-            <button class="qb" onclick="setAmt(1000)">$1.000</button>
-            <button class="qb" onclick="setAmt(2000)">$2.000</button>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-top:12px;">
+            Crie um grupo com seus amigos, dispute o ranking <strong style="color:var(--text);">do seu estado</strong>
+            e o ranking <strong style="color:var(--text);">nacional (USA)</strong>. Premiação a critério do organizador.
           </div>
         </div>
 
-        <div class="res-list" id="resList"></div>
+        <div style="padding:0 22px 16px;display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--cream);border-radius:10px;border:1px solid var(--border);">
+            <span style="font-size:12px;color:var(--muted);font-weight:600;">Ranking por grupo</span>
+            <span style="font-size:13px;font-weight:700;color:var(--green);">incluso</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--cream);border-radius:10px;border:1px solid var(--border);">
+            <span style="font-size:12px;color:var(--muted);font-weight:600;">Ranking por estado</span>
+            <span style="font-size:13px;font-weight:700;color:var(--green);">incluso</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--cream);border-radius:10px;border:1px solid var(--border);">
+            <span style="font-size:12px;color:var(--muted);font-weight:600;">Ranking nacional</span>
+            <span style="font-size:13px;font-weight:700;color:var(--green);">incluso</span>
+          </div>
+        </div>
 
         <div class="sv-bar">
           <div class="sv-txt">
-            <strong id="svAmt">R$ 111</strong>
-            economizados com o melhor provedor
+            <strong>Garanta sua vaga</strong>
+            avisamos assim que liberar
           </div>
-          <button class="sv-btn" id="svBtn">Enviar agora →</button>
+          <button class="sv-btn" onclick="document.getElementById('wlHeroEmail').focus()">Quero entrar →</button>
         </div>
       </div>
-      <div class="aff-note">ⓘ Links de parceiros — sem custo adicional para você</div>
+      <div class="aff-note">Sem mensalidade · sem taxa · 100% gratuito pra brasileiros nos EUA</div>
     </div>
 
   </div>
@@ -635,22 +654,30 @@ function renderRes(amt) {
     window.open('/api/track?provider=' + ranked[0].id + '&amount=' + amt + '&ref=landing', '_blank', 'noopener')
 }
 
-// ── UPDATE RATE ───────────────────────────────────────────────────────────────
+// ── UPDATE RATE (defensivo) ───────────────────────────────────────────────────
 function updateRate(r) {
   rate = r
-  document.getElementById('navRate').textContent = r.toFixed(4)
-  document.getElementById('midRate').textContent  = 'R$ ' + r.toFixed(4)
-  const pct = Math.min(100, Math.max(0, ((r - 4.90) / 0.90) * 100))
-  document.getElementById('rateBar').style.width = pct + '%'
-  renderRes(curAmt)
+  const navRate = document.getElementById('navRate')
+  if (navRate) navRate.textContent = r.toFixed(4)
+  const midRate = document.getElementById('midRate')
+  if (midRate) midRate.textContent = 'R$ ' + r.toFixed(4)
+  const rateBar = document.getElementById('rateBar')
+  if (rateBar) {
+    const pct = Math.min(100, Math.max(0, ((r - 4.90) / 0.90) * 100))
+    rateBar.style.width = pct + '%'
+  }
+  if (document.getElementById('resList')) renderRes(curAmt)
 }
 
-// ── AMOUNT CONTROLS ───────────────────────────────────────────────────────────
-document.getElementById('amtIn').addEventListener('input', function () {
-  curAmt = parseFloat(this.value) || 0
-  document.querySelectorAll('.qb').forEach(b => b.classList.remove('on'))
-  renderRes(curAmt)
-})
+// ── AMOUNT CONTROLS (defensivo) ───────────────────────────────────────────────
+const amtInEl = document.getElementById('amtIn')
+if (amtInEl) {
+  amtInEl.addEventListener('input', function () {
+    curAmt = parseFloat(this.value) || 0
+    document.querySelectorAll('.qb').forEach(b => b.classList.remove('on'))
+    renderRes(curAmt)
+  })
+}
 
 function setAmt(n) {
   curAmt = n
@@ -705,55 +732,4 @@ function goFlight() {
 // ── ALERT FORM ────────────────────────────────────────────────────────────────
 function doAlert() {
   const email  = document.getElementById('aEmail').value.trim()
-  const target = document.getElementById('aTarget').value.trim()
-  const dir    = document.getElementById('aDir').value
-
-  if (!email || !email.includes('@')) { document.getElementById('aEmail').style.borderColor = '#C04040'; return }
-  if (!target || parseFloat(target) <= 0) { document.getElementById('aTarget').style.borderColor = '#C04040'; return }
-
-  const btn = document.getElementById('aBtnEl')
-  btn.disabled = true; btn.textContent = '⏳ Criando...'
-
-  fetch('/api/alerts', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, target_rate: parseFloat(target), direction: dir })
-  }).catch(() => {}).finally(() => {
-    btn.style.display = 'none'
-    document.getElementById('aOk').style.display = 'block'
-  })
-}
-
-// ── WAITLIST ──────────────────────────────────────────────────────────────────
-function doWL() {
-  const email = document.getElementById('wlEmail').value.trim()
-  if (!email || !email.includes('@')) return
-  fetch('/api/alerts', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, target_rate: 0, direction: 'waitlist' })
-  }).catch(() => {})
-  document.getElementById('wlEmail').style.display = 'none'
-  document.querySelector('.wl-btn').style.display = 'none'
-  document.getElementById('wlOk').style.display = 'block'
-}
-
-// ── SCROLL REVEAL ─────────────────────────────────────────────────────────────
-const obs = new IntersectionObserver(es => {
-  es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target) } })
-}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' })
-document.querySelectorAll('.rv').forEach(el => obs.observe(el))
-
-// ── INIT ──────────────────────────────────────────────────────────────────────
-renderRes(curAmt)
-filterR(document.querySelector('.otab.on'), 'AUS')
-
-fetch('/api/rates')
-  .then(r => r.ok ? r.json() : null)
-  .then(d => { if (d?.success) updateRate(d.mid_rate) })
-  .catch(() => {})
-
-setInterval(() => {
-  fetch('/api/rates').then(r => r.ok ? r.json() : null).then(d => { if (d?.success) updateRate(d.mid_rate) }).catch(() => {})
-}, 300000)
-</script>
-</body>
-</html>
+  const target = document.getElementById('aTarget').value.

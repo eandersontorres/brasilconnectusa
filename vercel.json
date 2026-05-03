@@ -1,5 +1,10 @@
 {
   "rewrites": [
+    {
+      "source": "/",
+      "destination": "/landing.html",
+      "missing": [{ "type": "query", "key": "preview" }]
+    },
     { "source": "/go/:partner",                  "destination": "/api/go?partner=:partner" },
     { "source": "/r/:code",                      "destination": "/api/referral/track?code=:code" },
     { "source": "/indique",                      "destination": "/indique/index.html" },
