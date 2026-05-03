@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react'
 import BolaoScreen from './BolaoScreen'
 import NegociosScreen from './NegociosScreen'
 import AgendaApp from './AgendaApp'
+import AppShell from './AppShell'
+import FeedScreen from './FeedScreen'
+import DiscoverScreen from './DiscoverScreen'
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 
@@ -969,18 +972,10 @@ function VoosScreen({ affiliateLinks }) {
   )
 }
 
-// ─── App Principal ──────────────────────────────────────────────────────────────
-
-const TABS = [
-  { id: 'remessas',  icon: '💸', label: 'Remessas' },
-  { id: 'voos',      icon: '✈️',  label: 'Voos' },
-  { id: 'agenda',    icon: '📅', label: 'Agenda' },
-  { id: 'negocios',  icon: '🏪', label: 'Negócios' },
-  { id: 'bolao',     icon: '⚽',  label: 'Bolão' },
-]
+// ─── App Principal (usa AppShell responsivo) ──────────────────────────────
 
 export default function App() {
-  const [tab, setTab] = useState('remessas')
+  const [tab, setTab] = useState('feed')
   const [affiliateLinks, setAffiliateLinks] = useState({})
 
   useEffect(() => {
@@ -991,50 +986,14 @@ export default function App() {
   }, [])
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: '#FAF7F0' }}>
-      {/* Top bar */}
-      <div style={{
-        background: '#FFFFFF', borderBottom: '1px solid #E5E1D6',
-        padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 8,
-        position: 'sticky', top: 0, zIndex: 100,
-      }}>
-        <img src="/img/logo.svg" alt="BrasilConnect USA" style={{ height: 44 }} />
-      </div>
-
-      {/* Content */}
-      <div style={{ flex: 1, padding: tab === 'agenda' ? 0 : '16px' }}>
-        {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
-        {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
-        {tab === 'agenda'   && <AgendaApp />}
-        {tab === 'negocios' && <NegociosScreen />}
-        {tab === 'bolao'    && <BolaoScreen />}
-      </div>
-
-      {/* Bottom nav */}
-      <div style={{
-        background: '#FFFFFF', borderTop: '1px solid #E5E1D6',
-        display: 'flex', position: 'sticky', bottom: 0,
-        paddingBottom: 'env(safe-area-inset-bottom)',
-      }}>
-        {TABS.map(t => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            style={{
-              flex: 1, padding: '10px 0 8px', border: 'none',
-              background: 'transparent', display: 'flex',
-              flexDirection: 'column', alignItems: 'center', gap: 3,
-              cursor: 'pointer',
-              color: tab === t.id ? '#1A1F1C' : '#8C8E89',
-              borderTop: `2px solid ${tab === t.id ? '#0F5132' : 'transparent'}`,
-              transition: 'color .15s',
-            }}
-          >
-            <span style={{ fontSize: 20 }}>{t.icon}</span>
-            <span style={{ fontSize: 11, fontWeight: tab === t.id ? 600 : 400 }}>{t.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
+    <AppShell tab={tab} setTab={setTab}>
+      {tab === 'feed'     && <FeedScreen onNavigate={setTab} />}
+      {tab === 'discover' && <DiscoverScreen onNavigate={setTab} />}
+      {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
+      {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
+      {tab === 'agenda'   && <AgendaApp />}
+      {tab === 'negocios' && <NegociosScreen />}
+      {tab === 'bolao'    && <BolaoScreen />}
+    </AppShell>
   )
 }
