@@ -735,4 +735,521 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
       <button onClick={onBack} style={{ background: 'none', border: 'none', fontSize: 13, color: '#6b7280', marginBottom: 16, cursor: 'pointer' }}>
         ← Voltar
       </button>
-      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>En
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>En      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Entrar no bolão 🔗</div>
+      <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
+        Digite o código e seus dados completos.
+      </div>
+      <form onSubmit={handleJoin} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <div>
+          <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
+            Código de convite <span style={{ color: '#ef4444' }}>*</span>
+          </label>
+          <input
+            type="text" value={code}
+            onChange={e => setCode(e.target.value.toUpperCase())}
+            placeholder="XXXXXX" maxLength={6} required
+            style={{
+              width: '100%', padding: '14px', borderRadius: 10,
+              border: '1.5px solid #e5e7eb', fontSize: 24, fontWeight: 800,
+              letterSpacing: 6, textAlign: 'center', outline: 'none',
+              background: '#fff', boxSizing: 'border-box',
+            }}
+          />
+        </div>
+        <Input label="Seu nome completo" type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="João Silva" required />
+        <Input label="Apelido no ranking" type="text" value={nickname} onChange={e => setNickname(e.target.value)} placeholder="Ex: João" required hint="Como vai aparecer pros outros" />
+        <Input label="Seu e-mail" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" required />
+        <StateSelect value={state} onChange={setState} required />
+        <Input label="WhatsApp (opcional)" type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+1 (555) 555-5555" />
+        <Btn type="submit" disabled={loading || !valid}>
+          {loading ? 'Entrando…' : 'Entrar no grupo →'}
+        </Btn>
+      </form>
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//   View: Premiação (modal/edit)
+// ════════════════════════════════════════════════════════════════════════════
+function PrizeEditor({ group, onClose, onSaved, setToast, adminEmail }) {
+  const [title, setTitle]   = useState(group.prize_title || '')
+  const [desc, setDesc]     = useState(group.prize_description || '')
+  const [first, setFirst]   = useState(group.prize_first || '')
+  const [second, setSecond] = useState(group.prize_second || '')
+  const [third, setThird]   = useState(group.prize_third || '')
+  const [saving, setSaving] = useState(false)
+
+  async function handleSave() {
+    setSaving(true)
+    try {
+      const res = await fetch('/api/bolao?action=update-prize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          group_id: group.id, admin_email: adminEmail,
+          prize_title: title, prize_description: desc,
+          prize_first: first, prize_second: second, prize_third: third,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setToast({ msg: 'Premiação salva!', type: 'success' })
+      onSaved(data.prize)
+      onClose()
+    } catch (e) {
+      setToast({ msg: e.message, type: 'error' })
+    } finally { setSaving(false) }
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }} onClick={onClose}>
+      <div style={{ background: '#fff', borderRadius: '20px 20px 0 0', padding: '24px 20px 32px', width: '100%', maxWidth: 480, margin: '0 auto', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+        <div style={{ width: 36, height: 4, background: '#e5e7eb', borderRadius: 4, margin: '0 auto 16px' }} />
+        <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>🏆 Editar Premiação</div>
+        <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>Visível para todos os membros do grupo</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <Input label="Título da premiação" value={title} onChange={e => setTitle(e.target.value)} placeholder="Ex: Pizza pro vencedor!" />
+          <div>
+            <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Descrição / regras</label>
+            <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={3}
+              placeholder="Ex: Quem fizer mais pontos ganha uma pizza família e uma cerveja."
+              style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 14, outline: 'none', background: '#fff', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical' }}
+            />
+          </div>
+          <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Posições (opcional)</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <Input label="🥇 1º lugar" value={first} onChange={e => setFirst(e.target.value)} placeholder="Ex: Pizza família + cerveja" />
+              <Input label="🥈 2º lugar" value={second} onChange={e => setSecond(e.target.value)} placeholder="Ex: Hamburguer" />
+              <Input label="🥉 3º lugar" value={third} onChange={e => setThird(e.target.value)} placeholder="Ex: Refrigerante" />
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <Btn outline color="#6b7280" onClick={onClose} type="button" style={{ flex: 1 }}>Cancelar</Btn>
+            <Btn onClick={handleSave} disabled={saving} type="button" style={{ flex: 2 }}>{saving ? 'Salvando…' : 'Salvar premiação'}</Btn>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//   View: GroupDashboard
+// ════════════════════════════════════════════════════════════════════════════
+function GroupDashboard({ group, member, onPredict, onStandings, onLeave, setToast, refreshGroup, deadline }) {
+  const [members, setMembers] = useState([])
+  const [editPrize, setEditPrize] = useState(false)
+  const [adminEmailLocal] = useState(() => localStorage.getItem('bolao_admin_email') || '')
+  const isAdmin = !!adminEmailLocal
+
+  useEffect(() => {
+    if (!group) return
+    fetch('/api/bolao?action=group&code=' + group.join_code)
+      .then(r => r.json())
+      .then(d => { if (d.members) setMembers(d.members) })
+      .catch(() => {})
+  }, [group])
+
+  const shareText = '🏆 Participe do nosso bolão da Copa 2026!\nGrupo: ' + group.name + '\nCódigo: *' + group.join_code + '*\n\nEntra aqui: https://brasilconnectusa.com'
+
+  const handleShare = async () => {
+    const r = await shareNative({ title: 'Bolão Copa 2026', text: shareText })
+    if (r === 'copied') setToast({ msg: 'Link copiado!', type: 'success' })
+  }
+
+  const deadlineDate = deadline ? new Date(deadline) : null
+  const expired = deadlineDate && new Date() > deadlineDate
+  const hasPrize = group.prize_title || group.prize_description || group.prize_first
+
+  return (
+    <div style={{ padding: '0 0 16px' }}>
+      {editPrize && <PrizeEditor group={group} onClose={() => setEditPrize(false)} onSaved={() => refreshGroup()} setToast={setToast} adminEmail={adminEmailLocal} />}
+
+      <div style={{ background: 'linear-gradient(135deg, ' + GREEN + ' 0%, #006428 100%)', borderRadius: 14, padding: '18px 16px', marginBottom: 14, color: '#fff' }}>
+        <div style={{ fontSize: 11, opacity: 0.85, marginBottom: 4, letterSpacing: 1, textTransform: 'uppercase' }}>⚽ Seu bolão</div>
+        <div style={{ fontSize: 22, fontWeight: 800 }}>{group.name}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+          <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 8, padding: '6px 14px', fontSize: 18, fontWeight: 800, letterSpacing: 4 }}>{group.join_code}</div>
+          <button onClick={handleShare} style={{ background: 'rgba(255,255,255,0.18)', border: 'none', borderRadius: 8, padding: '8px 14px', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>📤 Convidar</button>
+        </div>
+        <div style={{ fontSize: 12, opacity: 0.85, marginTop: 8 }}>
+          {member.nickname} {isAdmin && '· 👑 Admin'} · {members.length} participante{members.length !== 1 ? 's' : ''}
+        </div>
+      </div>
+
+      {deadlineDate && (
+        <div style={{ background: expired ? '#FEE2E2' : '#FEF3C7', border: '1px solid ' + (expired ? '#FCA5A5' : '#FCD34D'), borderRadius: 10, padding: '10px 14px', fontSize: 12, color: expired ? '#991B1B' : '#92400E', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          {expired ? '🔒' : '⏰'}
+          <div style={{ flex: 1 }}>
+            <strong>{expired ? 'Palpites encerrados' : 'Você ainda pode editar palpites'}</strong>
+            <div style={{ fontSize: 11, opacity: 0.85, marginTop: 2 }}>
+              {expired ? 'O prazo terminou em ' : 'Prazo até '}
+              {deadlineDate.toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div style={{ background: hasPrize ? '#FFFBEB' : '#F9FAFB', border: '1.5px solid ' + (hasPrize ? GOLD : '#e5e7eb'), borderRadius: 12, padding: '14px 16px', marginBottom: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+          <div style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }}>🏆</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#92400E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Premiação</div>
+            {hasPrize ? (
+              <>
+                {group.prize_title && <div style={{ fontSize: 16, fontWeight: 800, color: '#78350F', marginBottom: 4 }}>{group.prize_title}</div>}
+                {group.prize_description && <div style={{ fontSize: 13, color: '#78350F', lineHeight: 1.5, marginBottom: 6 }}>{group.prize_description}</div>}
+                {(group.prize_first || group.prize_second || group.prize_third) && (
+                  <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    {group.prize_first  && <div style={{ fontSize: 12, color: '#78350F' }}>🥇 {group.prize_first}</div>}
+                    {group.prize_second && <div style={{ fontSize: 12, color: '#78350F' }}>🥈 {group.prize_second}</div>}
+                    {group.prize_third  && <div style={{ fontSize: 12, color: '#78350F' }}>🥉 {group.prize_third}</div>}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{ fontSize: 13, color: '#6b7280', fontStyle: 'italic' }}>
+                {isAdmin ? 'Defina a premiação do seu grupo abaixo 👇' : 'Aguardando o admin definir a premiação…'}
+              </div>
+            )}
+          </div>
+        </div>
+        {isAdmin && (
+          <button onClick={() => setEditPrize(true)} style={{ marginTop: 10, width: '100%', background: 'transparent', border: '1px solid ' + GOLD, color: '#8C6D3D', borderRadius: 8, padding: '8px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+            ✏️ {hasPrize ? 'Editar premiação' : 'Definir premiação'}
+          </button>
+        )}
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
+        <button onClick={onPredict} style={{ background: '#fff', border: '2px solid ' + BLUE, borderRadius: 12, padding: '16px', textAlign: 'left', cursor: 'pointer' }}>
+          <div style={{ fontSize: 20, marginBottom: 4 }}>📝</div>
+          <div style={{ fontSize: 15, fontWeight: 800, color: BLUE }}>Fazer meus palpites</div>
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>{expired ? '🔒 Palpites travados' : 'Preveja os placares de todas as partidas'}</div>
+        </button>
+        <button onClick={onStandings} style={{ background: '#fff', border: '2px solid ' + GREEN, borderRadius: 12, padding: '16px', textAlign: 'left', cursor: 'pointer' }}>
+          <div style={{ fontSize: 20, marginBottom: 4 }}>🏆</div>
+          <div style={{ fontSize: 15, fontWeight: 800, color: GREEN }}>Ver ranking</div>
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Grupo · Estado · Nacional (USA)</div>
+        </button>
+      </div>
+
+      {members.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 8 }}>Participantes ({members.length})</div>
+          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, overflow: 'hidden' }}>
+            {members.map((m, i) => (
+              <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: i < members.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
+                <div style={{ width: 30, height: 30, borderRadius: '50%', background: m.id === member.id ? GREEN : '#e5e7eb', color: m.id === member.id ? '#fff' : '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{m.nickname.charAt(0).toUpperCase()}</div>
+                <span style={{ flex: 1, fontSize: 14, fontWeight: m.id === member.id ? 700 : 400 }}>{m.nickname}{m.id === member.id && <span style={{ color: GREEN, fontSize: 11 }}> (você)</span>}</span>
+                {m.state && <span style={{ fontSize: 10, fontWeight: 700, color: '#6b7280', background: '#f3f4f6', padding: '2px 6px', borderRadius: 4 }}>{m.state}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <button onClick={onLeave} style={{ background: 'none', border: 'none', fontSize: 12, color: '#9ca3af', cursor: 'pointer', display: 'block', width: '100%', textAlign: 'center', padding: 8 }}>
+        Sair do grupo / trocar de bolão
+      </button>
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//   View: Palpites
+// ════════════════════════════════════════════════════════════════════════════
+function PredictionsView({ member, onBack, setToast, deadline }) {
+  const [matches, setMatches]         = useState([])
+  const [myPreds, setMyPreds]         = useState({})
+  const [saving, setSaving]           = useState({})
+  const [loading, setLoading]         = useState(true)
+  const [activeGroup, setActiveGroup] = useState(null)
+
+  const loadData = useCallback(async () => {
+    setLoading(true)
+    try {
+      const [mRes, pRes] = await Promise.all([
+        fetch('/api/bolao?action=matches'),
+        fetch('/api/bolao?action=my-predictions&member_id=' + member.id),
+      ])
+      const mData = await mRes.json()
+      const pData = await pRes.json()
+      const matchList = mData.matches || []
+      setMatches(matchList)
+      if (matchList.length > 0) {
+        const grouped = groupByPhaseAndGroup(matchList)
+        const keys = sortedGroupKeys(grouped)
+        setActiveGroup(keys[0])
+      }
+      const predMap = {}
+      for (const p of (pData.predictions || [])) predMap[p.match_id] = { h: p.home_score, a: p.away_score }
+      setMyPreds(predMap)
+    } catch (e) {
+      setToast({ msg: 'Erro ao carregar partidas', type: 'error' })
+    } finally { setLoading(false) }
+  }, [member.id, setToast])
+
+  useEffect(() => { loadData() }, [loadData])
+
+  const expired = deadline && new Date() > new Date(deadline)
+
+  async function savePrediction(matchId, h, a) {
+    if (h === '' || a === '' || isNaN(h) || isNaN(a)) return
+    setSaving(s => ({ ...s, [matchId]: true }))
+    try {
+      const res = await fetch('/api/bolao?action=predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ member_id: member.id, match_id: matchId, home_score: Number(h), away_score: Number(a) }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setMyPreds(p => ({ ...p, [matchId]: { h: Number(h), a: Number(a) } }))
+    } catch (err) {
+      setToast({ msg: err.message, type: 'error' })
+    } finally { setSaving(s => ({ ...s, [matchId]: false })) }
+  }
+
+  const grouped = groupByPhaseAndGroup(matches)
+  const groupKeys = sortedGroupKeys(grouped)
+
+  return (
+    <div style={{ padding: '0 0 16px' }}>
+      <button onClick={onBack} style={{ background: 'none', border: 'none', fontSize: 13, color: '#6b7280', marginBottom: 12, cursor: 'pointer' }}>← Voltar ao grupo</button>
+      <div style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>📝 Meus Palpites</div>
+      <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 12 }}>Salvo automaticamente · palpites em verde estão registrados</div>
+
+      {expired && (
+        <div style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#991B1B', marginBottom: 14, fontWeight: 600 }}>
+          🔒 Prazo encerrado — não é possível editar mais palpites.
+        </div>
+      )}
+
+      {loading ? <Spinner /> : (
+        <div>
+          <ScrollTabs keys={groupKeys} active={activeGroup} onSelect={setActiveGroup} />
+          {activeGroup && (grouped[activeGroup] || []).map(match => {
+            const pred = myPreds[match.id] || {}
+            const hasPred = pred.h !== undefined
+            const isFinished = match.status === 'finished'
+            const matchStarted = match.match_date && new Date() > new Date(match.match_date)
+            const locked = expired || isFinished || matchStarted
+            return (
+              <div key={match.id} style={{ background: '#fff', borderRadius: 12, border: '1.5px solid ' + (hasPred ? '#86efac' : '#e5e7eb'), padding: '12px 14px', marginBottom: 10, opacity: isFinished ? 0.7 : 1 }}>
+                <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 10 }}>
+                  {formatDate(match.match_date)}
+                  {match.venue && ' · ' + match.venue.split(',')[0]}
+                  {isFinished && <span style={{ color: '#ef4444', marginLeft: 6 }}>● Encerrado</span>}
+                  {match.status === 'live' && <span style={{ color: '#f59e0b', marginLeft: 6 }}>● Ao vivo</span>}
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <FlagImg team={match.home_team} size={32} />
+                    <div style={{ fontWeight: 600, fontSize: 11, color: '#111827', textAlign: 'center', lineHeight: 1.2 }}>{match.home_team}</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexShrink: 0 }}>
+                    <input type="number" min={0} max={30}
+                      value={pred.h !== undefined ? pred.h : ''} disabled={locked}
+                      onChange={e => setMyPreds(p => ({ ...p, [match.id]: { ...(p[match.id] || {}), h: e.target.value } }))}
+                      onBlur={e => { const a = myPreds[match.id] && myPreds[match.id].a; if (e.target.value !== '' && a !== undefined && !locked) savePrediction(match.id, e.target.value, a) }}
+                      style={{ width: 44, height: 44, textAlign: 'center', fontSize: 20, fontWeight: 700, borderRadius: 8, border: '1.5px solid ' + (hasPred ? '#86efac' : '#d1d5db'), background: hasPred ? '#f0fdf4' : '#f9fafb', outline: 'none' }}
+                    />
+                    <span style={{ fontSize: 18, color: '#9ca3af', fontWeight: 700 }}>–</span>
+                    <input type="number" min={0} max={30}
+                      value={pred.a !== undefined ? pred.a : ''} disabled={locked}
+                      onChange={e => setMyPreds(p => ({ ...p, [match.id]: { ...(p[match.id] || {}), a: e.target.value } }))}
+                      onBlur={e => { const h = myPreds[match.id] && myPreds[match.id].h; if (e.target.value !== '' && h !== undefined && !locked) savePrediction(match.id, h, e.target.value) }}
+                      style={{ width: 44, height: 44, textAlign: 'center', fontSize: 20, fontWeight: 700, borderRadius: 8, border: '1.5px solid ' + (hasPred ? '#86efac' : '#d1d5db'), background: hasPred ? '#f0fdf4' : '#f9fafb', outline: 'none' }}
+                    />
+                  </div>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <FlagImg team={match.away_team} size={32} />
+                    <div style={{ fontWeight: 600, fontSize: 11, color: '#111827', textAlign: 'center', lineHeight: 1.2 }}>{match.away_team}</div>
+                  </div>
+                </div>
+                {saving[match.id] && <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 6 }}>Salvando…</div>}
+                {isFinished && match.home_score !== null && (
+                  <div style={{ fontSize: 12, color: '#6b7280', textAlign: 'center', marginTop: 8, paddingTop: 8, borderTop: '1px solid #f3f4f6' }}>
+                    Resultado: {match.home_score} – {match.away_score}
+                    {pred.h !== undefined && (
+                      <span style={{ marginLeft: 8, fontWeight: 700, color: GREEN }}>
+                        {pred.h === match.home_score && pred.a === match.away_score ? '🎯 +3 pts' : Math.sign(pred.h - pred.a) === Math.sign(match.home_score - match.away_score) ? '✅ +1 pt' : '❌ 0 pts'}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+          {matches.length === 0 && <div style={{ textAlign: 'center', color: '#9ca3af', padding: '32px 0' }}>Nenhuma partida cadastrada ainda.</div>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//   View: Standings com 3 abas (Grupo / Estado / Nacional)
+// ════════════════════════════════════════════════════════════════════════════
+function StandingsView({ group, member, onBack, setToast }) {
+  const [tab, setTab]                 = useState('group')
+  const [groupStand, setGroupStand]   = useState(null)
+  const [stateStand, setStateStand]   = useState(null)
+  const [globalStand, setGlobalStand] = useState(null)
+
+  useEffect(() => {
+    if (tab === 'group' && !groupStand && group) {
+      fetch('/api/bolao?action=standings&group_id=' + group.id).then(r => r.json()).then(d => setGroupStand(d.standings || [])).catch(() => setGroupStand([]))
+    }
+    if (tab === 'state' && !stateStand && member.state) {
+      fetch('/api/bolao?action=standings-state&state=' + member.state).then(r => r.json()).then(d => setStateStand(d.standings || [])).catch(() => setStateStand([]))
+    }
+    if (tab === 'global' && !globalStand) {
+      fetch('/api/bolao?action=standings-global').then(r => r.json()).then(d => setGlobalStand(d.standings || [])).catch(() => setGlobalStand([]))
+    }
+  }, [tab, group, member, groupStand, stateStand, globalStand])
+
+  const handleShare = async () => {
+    const r = await shareNative({ title: 'Ranking do Bolão Copa 2026', text: '🏆 Confere meu ranking no Bolão Copa 2026! https://brasilconnectusa.com' })
+    if (r === 'copied') setToast({ msg: 'Link copiado!', type: 'success' })
+  }
+
+  const standings = tab === 'group' ? groupStand : tab === 'state' ? stateStand : globalStand
+  const loading = standings === null
+
+  const tabConfig = [
+    { id: 'group',  label: '👥 Meu Grupo',                       sub: group?.name },
+    { id: 'state',  label: '🇺🇸 ' + (member.state || 'Estado'),   sub: stateName(member.state) },
+    { id: 'global', label: '🌎 Nacional',                         sub: 'Todos os brasileiros nos USA' },
+  ]
+
+  return (
+    <div style={{ padding: '0 0 16px' }}>
+      <button onClick={onBack} style={{ background: 'none', border: 'none', fontSize: 13, color: '#6b7280', marginBottom: 12, cursor: 'pointer' }}>← Voltar ao grupo</button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 12 }}>
+        <div style={{ fontSize: 20, fontWeight: 800 }}>🏆 Rankings</div>
+        <button onClick={handleShare} style={{ background: 'transparent', border: '1px solid ' + GREEN, color: GREEN, borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>📤 Compartilhar</button>
+      </div>
+
+      <div style={{ display: 'flex', gap: 4, background: '#f3f4f6', borderRadius: 10, padding: 3, marginBottom: 14 }}>
+        {tabConfig.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: 1, padding: '8px 4px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: tab === t.id ? '#fff' : 'transparent', color: tab === t.id ? '#111827' : '#6b7280', border: 'none', cursor: 'pointer', boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,0.1)' : 'none' }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 12, textAlign: 'center' }}>
+        {tabConfig.find(t => t.id === tab)?.sub} · pontos baseados em jogos encerrados
+      </div>
+
+      {loading ? <Spinner /> : standings.length === 0 ? (
+        <div style={{ textAlign: 'center', color: '#9ca3af', padding: '32px 16px' }}>
+          {tab === 'group' && 'Nenhum jogo encerrado ainda neste grupo.'}
+          {tab === 'state' && 'Nenhum participante do seu estado ainda. Compartilhe e chame mais brasileiros!'}
+          {tab === 'global' && 'Nenhum jogo encerrado ainda nacionalmente.'}
+        </div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {standings.map((s, i) => {
+            const medals = ['🥇', '🥈', '🥉']
+            const isMe = s.member_id === member.id
+            return (
+              <div key={s.member_id} style={{ background: isMe ? '#f0fdf4' : '#fff', border: '1.5px solid ' + (isMe ? '#86efac' : '#e5e7eb'), borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ fontSize: 20, width: 30, textAlign: 'center', flexShrink: 0, fontWeight: 700, color: i < 3 ? undefined : '#9ca3af' }}>{medals[i] || (i + 1) + 'º'}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.nickname}</span>
+                    {isMe && <span style={{ color: GREEN, fontSize: 10, fontWeight: 700 }}>(você)</span>}
+                    {tab !== 'group' && s.state && <span style={{ fontSize: 9, fontWeight: 700, color: '#6b7280', background: '#f3f4f6', padding: '1px 5px', borderRadius: 3 }}>{s.state}</span>}
+                  </div>
+                  <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 2 }}>
+                    🎯 {s.exact} exatos · ✅ {s.correct} acertos · {s.played} palpites
+                    {tab === 'global' && s.group_name && ' · ' + s.group_name}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: i === 0 ? '#f59e0b' : isMe ? GREEN : '#374151' }}>{s.total_pts}</div>
+                  <div style={{ fontSize: 10, color: '#9ca3af' }}>pts</div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//   APP PRINCIPAL
+// ════════════════════════════════════════════════════════════════════════════
+export default function BolaoScreen() {
+  const [view,    setView]    = useState('home')
+  const [group,   setGroup]   = useState(null)
+  const [member,  setMember]  = useState(null)
+  const [toast,   setToast]   = useState(null)
+  const [config,  setConfig]  = useState(null)
+
+  useEffect(() => {
+    fetch('/api/bolao?action=config').then(r => r.json()).then(d => setConfig(d.config || {})).catch(() => setConfig({}))
+  }, [])
+
+  useEffect(() => {
+    const mid  = localStorage.getItem('bolao_member_id')
+    const code = localStorage.getItem('bolao_join_code')
+    if (!mid || !code) return
+    fetch('/api/bolao?action=group&code=' + code).then(r => r.json()).then(d => {
+      if (d.group) {
+        setGroup(d.group)
+        const me = (d.members || []).find(m => m.id === mid)
+        if (me) {
+          const fullMe = { ...me, state: localStorage.getItem('bolao_member_state') || me.state }
+          setMember(fullMe)
+          setView('group')
+        }
+      }
+    }).catch(() => {})
+  }, [])
+
+  function refreshGroup() {
+    if (!group) return
+    fetch('/api/bolao?action=group&code=' + group.join_code).then(r => r.json()).then(d => { if (d.group) setGroup(d.group) }).catch(() => {})
+  }
+
+  function handleCreated(g, m) {
+    localStorage.setItem('bolao_join_code', g.join_code)
+    localStorage.setItem('bolao_member_id', m.id)
+    localStorage.setItem('bolao_admin_email', m.email || '')
+    localStorage.setItem('bolao_member_state', m.state || '')
+    setGroup(g); setMember(m); setView('group')
+  }
+
+  function handleJoined(g, m) {
+    localStorage.setItem('bolao_join_code', g.join_code)
+    localStorage.setItem('bolao_member_id', m.id)
+    localStorage.setItem('bolao_member_state', m.state || '')
+    localStorage.removeItem('bolao_admin_email')
+    setGroup(g); setMember(m); setView('group')
+  }
+
+  function handleLeave() {
+    ['bolao_member_id','bolao_group_id','bolao_join_code','bolao_admin_email','bolao_member_state'].forEach(k => localStorage.removeItem(k))
+    setGroup(null); setMember(null); setView('home')
+  }
+
+  return (
+    <div style={{ padding: '0 0 16px' }}>
+      {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
+      {view === 'home'      && <HomeView onCreateClick={() => setView('create')} onJoinClick={() => setView('join')} config={config} setToast={setToast} />}
+      {view === 'create'    && <CreateGroupView onBack={() => setView('home')} onCreated={handleCreated} setToast={setToast} />}
+      {view === 'join'      && <JoinGroupView onBack={() => setView('home')} onJoined={handleJoined} setToast={setToast} />}
+      {view === 'group'     && <GroupDashboard group={group} member={member} onPredict={() => setView('predict')} onStandings={() => setView('standings')} onLeave={handleLeave} setToast={setToast} refreshGroup={refreshGroup} deadline={config?.predictions_deadline} />}
+      {view === 'predict'   && <PredictionsView member={member} onBack={() => setView('group')} setToast={setToast} deadline={config?.predictions_deadline} />}
+      {view === 'standings' && <StandingsView group={group} member={member} onBack={() => setView('group')} setToast={setToast} />}
+    </div>
+  )
+}

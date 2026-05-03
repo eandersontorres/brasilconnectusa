@@ -1033,4 +1033,27 @@ export default function App() {
               cursor: 'pointer',
               fontFamily: 'inherit',
               color: tab === t.id ? '#002776' : '#6B6E68',
- 
+              borderTop: `2px solid ${tab === t.id ? '#009c3b' : 'transparent'}`,
+              transition: 'color .15s',
+            }}
+          >
+            <span style={{ fontSize: 20 }}>{t.icon}</span>
+            <span style={{ fontSize: 11, fontWeight: tab === t.id ? 600 : 400 }}>{t.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+              borderTop: `2px solid ${tab === t.id ? '#009c3b' : 'transparent'}`,
+              transition: 'color .15s',
+            }}
+          >
+            <span style={{ fontSize: 20 }}>{t.icon}</span>
+            <span style={{ fontSize: 11, fontWeight: tab === t.id ? 600 : 400 }}>{t.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
