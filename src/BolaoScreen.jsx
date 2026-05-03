@@ -735,7 +735,7 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
       <button onClick={onBack} style={{ background: 'none', border: 'none', fontSize: 13, color: '#6b7280', marginBottom: 16, cursor: 'pointer' }}>
         ← Voltar
       </button>
-      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>En      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Entrar no bolão 🔗</div>
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Entrar no bolão 🔗</div>
       <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
         Digite o código e seus dados completos.
       </div>
