@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { C, FONT, useIsMobile } from './lib/colors'
 import { useAuth } from './AuthModal'
+import OnboardingFlow from './OnboardingFlow'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   AppShell — layout responsivo (mobile bottom nav | desktop 3 colunas)
@@ -8,8 +9,8 @@ import { useAuth } from './AuthModal'
 
 const TABS = [
   { id: 'feed',      icon: '⌂',  label: 'Feed' },
+  { id: 'discover',  icon: '⌕',  label: 'Buscar' },
   { id: 'remessas',  icon: '$',  label: 'Câmbio' },
-  { id: 'voos',      icon: '✈',  label: 'Voos' },
   { id: 'negocios',  icon: '◫',  label: 'Negócios' },
   { id: 'bolao',     icon: '⚽', label: 'Bolão' },
 ]
@@ -278,6 +279,7 @@ export default function AppShell({ tab, setTab, children }) {
   const { user, signOut } = useAuth()
   const [search, setSearch] = useState('')
   const [showAuth, setShowAuth] = useState(false)
+  const [showOnboarding, setShowOnboarding] = useState(false)
   const [rate, setRate] = useState(null)
   const [myCommunities, setMyCommunities] = useState([])
 
@@ -286,12 +288,32 @@ export default function AppShell({ tab, setTab, children }) {
   }, [])
 
   useEffect(() => {
-    if (!user) { setMyCommunities([]); return }
+    if (!user) { setMyCommunities([]); setShowOnboarding(false); return }
+
+    // Check if user needs onboarding
+    fetch('/api/profile?user_id=' + user.id)
+      .then(r => r.json())
+      .then(d => {
+        if (d.needs_onboarding) setShowOnboarding(true)
+      })
+      .catch(() => {})
+
     fetch('/api/social?action=my-communities&user_id=' + user.id)
       .then(r => r.json())
       .then(d => setMyCommunities(d.communities || []))
       .catch(() => {})
   }, [user])
+
+  function handleOnboardingComplete() {
+    setShowOnboarding(false)
+    // Recarrega comunidades (auto-joined no Step 3)
+    if (user) {
+      fetch('/api/social?action=my-communities&user_id=' + user.id)
+        .then(r => r.json())
+        .then(d => setMyCommunities(d.communities || []))
+        .catch(() => {})
+    }
+  }
 
   const baseStyle = {
     minHeight: '100dvh',
@@ -310,6 +332,7 @@ export default function AppShell({ tab, setTab, children }) {
         </div>
         <MobileBottomNav tab={tab} setTab={setTab} />
         {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
+        {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
       </div>
     )
   }
@@ -337,6 +360,7 @@ export default function AppShell({ tab, setTab, children }) {
       </div>
 
       {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
+      {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
     </div>
   )
 }
@@ -351,4 +375,22 @@ function AuthModalLazy({ onClose }) {
   }, [])
   if (!Mod) return null
   return <Mod onClose={onClose} onAuthenticated={onClose} />
+}
+er && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//   AuthModalLazy
+// ════════════════════════════════════════════════════════════════════════════
+function AuthModalLazy({ onClose }) {
+  const [Mod, setMod] = useState(null)
+  useEffect(() => {
+    import('./AuthModal').then(m => setMod(() => m.default))
+  }, [])
+  if (!Mod) return null
+  return <Mod onClose={onClose} onAuthenticated={onClose} />
+}
+e={onClose} onAuthenticated={onClose} />
 }

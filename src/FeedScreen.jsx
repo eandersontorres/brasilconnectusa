@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from './lib/supabase'
 import AuthModal, { useAuth } from './AuthModal'
+import GetStartedChecklist from './GetStartedChecklist'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   Paleta Brasil
@@ -342,6 +343,12 @@ export default function FeedScreen({ onNavigate }) {
         </div>
       )}
 
+      {/* Get Started Checklist (so pra usuarios novos logados) */}
+      {user && <GetStartedChecklist user={user} onAction={(act, key) => {
+        if (act === 'create-post') setShowCreate(true)
+        else if (act === 'navigate' && key) onNavigate && onNavigate(key)
+      }} />}
+
       {/* Botão criar post */}
       <div style={{
         background: '#fff', border: '1px solid #E5E1D6', borderRadius: 12,
@@ -663,6 +670,17 @@ function CreatePostModal({ user, myCommunities, onClose, onCreated }) {
 
           <button type="submit" disabled={submitting || !title || !communityId} style={{
             padding: '12px 0', borderRadius: 10,
+            background: submitting ? '#9ca3af' : GREEN, color: '#fff',
+            fontSize: 14, fontWeight: 700, border: 'none', cursor: submitting ? 'default' : 'pointer',
+            fontFamily: 'inherit',
+          }}>
+            {submitting ? 'Publicando…' : 'Publicar →'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
             background: submitting ? '#9ca3af' : GREEN, color: '#fff',
             fontSize: 14, fontWeight: 700, border: 'none', cursor: submitting ? 'default' : 'pointer',
             fontFamily: 'inherit',
