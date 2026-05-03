@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
-const PALETTE = { paper:'#FAF7F0', paperEl:'#FFFFFF', green:'#0F5132', gold:'#B89968', goldDk:'#8C6D3D', ink:'#1A1F1C', inkSoft:'#4B4F4D', inkMuted:'#6B6E68', line:'#E5E1D6' }
-const FONT_SERIF = "'Cormorant Garamond', Georgia, serif"
+const PALETTE = { paper:'#F7F3ED', paperEl:'#FFFFFF', green:'#2A7A4F', gold:'#B89968', goldDk:'#8C6D3D', ink:'#1A2B3C', inkSoft:'#4B4F4D', inkMuted:'#6B6E68', line:'#E2E8F0' }
+const FONT_SERIF = "'Fraunces', Georgia, serif"
 
 const PRIVACY_LEVELS = [
   { id:'public',    label:'Público',    desc:'Qualquer pessoa na internet vê' },
@@ -19,7 +19,7 @@ const PRIVACY_FIELDS = [
   { key:'instagram', label:'Instagram',      default:'group' },
 ]
 
-const COLORS = ['#0F5132','#1B2845','#B89968','#8C6D3D','#7C3F3F','#3F5F7C','#4A6741','#5C3F7C','#A87654','#3D6B5C']
+const COLORS = ['#2A7A4F','#1B2845','#B89968','#8C6D3D','#7C3F3F','#3F5F7C','#4A6741','#5C3F7C','#A87654','#3D6B5C']
 
 export default function ProfileApp() {
   const [tab, setTab] = useState('perfil')
@@ -27,7 +27,7 @@ export default function ProfileApp() {
     full_name:'Anderson Torres', display_name:'Anderson T.',
     bio:'Brasileiro em Round Rock TX há 4 anos. Tech & viagem.',
     city:'Round Rock', state:'TX', whatsapp:'', instagram:'',
-    avatar_color:'#0F5132', email:'eanderson.torres@gmail.com',
+    avatar_color:'#2A7A4F', email:'eanderson.torres@gmail.com',
   })
   const [privacy, setPrivacy] = useState(Object.fromEntries(PRIVACY_FIELDS.map(f => [f.key, f.default])))
   const [saving, setSaving] = useState(false)
@@ -49,7 +49,7 @@ export default function ProfileApp() {
   }
 
   return (
-    <div style={{ fontFamily:"'Inter', sans-serif", color: PALETTE.ink, background: PALETTE.paper, minHeight:'100%' }}>
+    <div style={{ fontFamily:"'Sora', sans-serif", color: PALETTE.ink, background: PALETTE.paper, minHeight:'100%' }}>
       <div style={{ padding:'20px 16px 8px' }}>
         <div style={{ textTransform:'uppercase', letterSpacing:'0.16em', fontSize:10, fontWeight:600, color: PALETTE.goldDk, marginBottom:4 }}>MEU PERFIL</div>
         <div style={{ fontFamily: FONT_SERIF, fontSize:26, fontWeight:700 }}>Como você aparece na plataforma</div>

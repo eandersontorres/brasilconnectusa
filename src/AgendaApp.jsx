@@ -11,13 +11,13 @@ import { useState, useEffect, useMemo } from 'react'
  */
 
 const PALETTE = {
-  paper: '#FAF7F0', paperEl: '#FFFFFF', paperSft: '#F1ECDF',
-  green: '#0F5132', greenDk: '#073824', greenSft: '#E8EFEB',
+  paper: '#F7F3ED', paperEl: '#FFFFFF', paperSft: '#F1ECDF',
+  green: '#2A7A4F', greenDk: '#1F5E3D', greenSft: '#E8EFEB',
   navy: '#1B2845', gold: '#B89968', goldDk: '#8C6D3D', goldSft: '#F5EFE0',
-  ink: '#1A1F1C', inkSoft: '#4B4F4D', inkMuted: '#6B6E68', line: '#E5E1D6',
+  ink: '#1A2B3C', inkSoft: '#4B4F4D', inkMuted: '#6B6E68', line: '#E2E8F0',
 }
 
-const FONT_SERIF = "'Cormorant Garamond', Georgia, serif"
+const FONT_SERIF = "'Fraunces', Georgia, serif"
 
 const fmtUSD = (cents) => '$' + ((cents || 0) / 100).toFixed(2)
 const fmtTime = (iso) => new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
@@ -290,7 +290,7 @@ function isSameDay(a, b) {
 
 // ─── Estilos ──────────────────────────────────────────────────────────
 const S = {
-  wrap: { fontFamily: "'Inter', -apple-system, sans-serif", color: PALETTE.ink, background: PALETTE.paper, minHeight: '100%' },
+  wrap: { fontFamily: "'Sora', 'Inter', -apple-system, sans-serif", color: PALETTE.ink, background: PALETTE.paper, minHeight: '100%' },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '20px 16px 8px', gap: 12 },
   eyebrow: { textTransform: 'uppercase', letterSpacing: '0.16em', fontSize: 10, fontWeight: 600, color: PALETTE.goldDk, marginBottom: 4 },
   greeting: { fontFamily: FONT_SERIF, fontSize: 26, fontWeight: 700, color: PALETTE.ink, lineHeight: 1.1 },

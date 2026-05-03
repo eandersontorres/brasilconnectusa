@@ -8,7 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/premium.css">
   <style>
     body { background: var(--paper); }
@@ -75,7 +75,7 @@
     .mindmap-wrap svg { display: block; min-width: 980px; }
     .mm-node-rect { rx: 12; ry: 12; stroke-width: 1.5; }
     .mm-link { fill: none; stroke-width: 1.5; }
-    .mm-text { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; fill: var(--ink); }
+    .mm-text { font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 600; fill: var(--ink); }
     .mm-text.sub { font-size: 10px; font-weight: 500; fill: var(--ink-muted); }
     .mm-root { fill: var(--brand-green); stroke: var(--brand-green-dark); }
     .mm-root-text { fill: #FAF7F0; font-size: 14px; font-weight: 700; }
@@ -165,7 +165,7 @@
       return `
         <div class="admin-topbar">
           <div class="brand">
-            <img src="/img/logo.svg" alt="BrasilConnect USA" />
+            <a href="/admin" style="text-decoration:none;font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:600;color:var(--brand-navy);letter-spacing:-0.01em;"><span>Brasil</span><em style="color:var(--brand-gold);font-style:normal;font-weight:600;">Connect</em></a>
             <div class="nav-links">
               <a href="/admin/mindmap" class="${active==='mindmap'?'active':''}">Mind Map</a>
               <a href="/admin/waitlist" class="${active==='waitlist'?'active':''}">Lista de espera</a>
@@ -752,23 +752,4 @@
               <h4>${escapeHtml(f.title)}</h4>
               <div class="sub-label">${escapeHtml(f.category)}</div>
             </div>
-            <span class="badge ${f.status}">${lbl.label}</span>
-          </div>
-          <ul class="check-list">
-            ${f.items.map(it => `<li class="${it.type}">${escapeHtml(it.text)}</li>`).join('')}
-          </ul>
-          <div class="footer-meta">
-            ${f.api && f.api.length ? `<span title="API endpoints">🔌 ${f.api.length} API${f.api.length > 1 ? 's' : ''}</span>` : ''}
-            ${f.sql && f.sql.length ? `<span title="SQL schemas">🗄️ ${f.sql.length} schema${f.sql.length > 1 ? 's' : ''}</span>` : ''}
-            ${f.ui && f.ui.length ? `<span title="UI files">🎨 ${f.ui.length} UI</span>` : ''}
-          </div>
-        </div>
-      `;
-    }
-
-    // Boot
-    if (getSecret()) renderPage();
-    else renderLogin();
-  </script>
-</body>
-</html>
+         

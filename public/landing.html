@@ -1,407 +1,759 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BrasilConnect — Remessas, Câmbio e Voos para brasileiros nos EUA</title>
-  <meta name="description" content="Compare taxas de remessa em tempo real. Alertas de câmbio gratuitos. Voos baratos para o Brasil. Para brasileiros nos EUA." />
-  <meta property="og:title" content="BrasilConnect" />
-  <meta property="og:description" content="Wise vs Remitly vs Western Union — veja quanto chega no Brasil em segundos." />
-  <meta property="og:type" content="website" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="description" content="Quanto vai chegar no Brasil hoje? Compare remessas, busque voos e encontre brasileiros perto de você."/>
+<title>BrasilConnect USA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --navy:#0B1928;--navyl:#162840;--green:#2A7A4F;--greenl:#35A066;
+  --gold:#C9953A;--goldl:#E5B85A;--cream:#F7F3ED;--creamd:#EDE6DA;
+  --muted:#8496AA;--border:#E2E8F0;--text:#1A2B3C;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Sora',sans-serif;background:var(--cream);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+a{text-decoration:none;color:inherit;}
 
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --green: #009c3b;
-      --yellow: #ffdf00;
-      --blue: #002776;
-      --dark: #0f172a;
-      --text: #1e293b;
-      --muted: #64748b;
-      --border: #e2e8f0;
-      --surface: #ffffff;
-      --bg: #f8fafc;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      color: var(--text);
-      background: var(--bg);
-      -webkit-font-smoothing: antialiased;
-    }
-    a { text-decoration: none; color: inherit; }
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:rgba(11,25,40,.93);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.05);}
+.logo{font-family:'Fraunces',serif;font-size:18px;font-weight:600;color:#fff;}
+.logo em{color:var(--goldl);font-style:normal;}
+.nav-r{display:flex;align-items:center;gap:22px;}
+.nl{font-size:13px;color:rgba(255,255,255,.42);transition:color .15s;}
+.nl:hover{color:rgba(255,255,255,.85);}
+.ticker{display:flex;align-items:center;gap:7px;background:rgba(42,122,79,.15);border:1px solid rgba(42,122,79,.25);padding:5px 12px;border-radius:20px;}
+.tdot{width:6px;height:6px;border-radius:50%;background:#5FE89A;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.tval{font-size:12px;font-weight:600;color:#5FE89A;}
+.tlbl{font-size:11px;color:rgba(255,255,255,.28);}
 
-    /* ── Nav ── */
-    nav {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(255,255,255,0.95);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .logo { display: flex; align-items: center; gap: 8px; }
-    .logo-text { font-size: 18px; font-weight: 800; }
-    .logo-br { color: var(--green); }
-    .logo-us { color: var(--blue); }
-    .cta-nav {
-      background: var(--green); color: #fff;
-      padding: 8px 18px; border-radius: 8px;
-      font-size: 13px; font-weight: 600;
-      transition: opacity .15s;
-    }
-    .cta-nav:hover { opacity: .85; }
+/* ── HERO ── */
+.hero{background:var(--navy);padding:90px 28px 64px;display:flex;align-items:center;min-height:100vh;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 50% at 72% 30%,rgba(42,122,79,.13) 0%,transparent 60%),radial-gradient(ellipse 40% 40% at 18% 78%,rgba(201,149,58,.07) 0%,transparent 50%);}
+.hero-in{position:relative;z-index:1;max-width:1100px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;}
 
-    /* ── Hero ── */
-    .hero {
-      background: linear-gradient(135deg, #002776 0%, #009c3b 100%);
-      padding: 80px 24px 70px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '🇧🇷';
-      position: absolute; font-size: 300px; opacity: 0.04;
-      top: 50%; left: 50%; transform: translate(-50%, -50%);
-      pointer-events: none;
-    }
-    .hero-badge {
-      display: inline-block;
-      background: rgba(255,255,255,0.15);
-      color: #fff; border: 1px solid rgba(255,255,255,0.3);
-      font-size: 12px; font-weight: 600; letter-spacing: .5px;
-      padding: 5px 14px; border-radius: 20px; margin-bottom: 20px;
-    }
-    .hero h1 {
-      font-size: clamp(28px, 6vw, 52px);
-      font-weight: 800;
-      color: #fff;
-      line-height: 1.15;
-      margin-bottom: 18px;
-      letter-spacing: -1px;
-    }
-    .hero h1 span { color: var(--yellow); }
-    .hero p {
-      font-size: clamp(15px, 2.5vw, 19px);
-      color: rgba(255,255,255,0.85);
-      max-width: 560px; margin: 0 auto 32px;
-      line-height: 1.6;
-    }
-    .hero-btns {
-      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
-    }
-    .btn-primary {
-      background: var(--yellow); color: var(--dark);
-      padding: 14px 28px; border-radius: 10px;
-      font-size: 15px; font-weight: 700;
-      transition: transform .15s, opacity .15s;
-      display: inline-flex; align-items: center; gap: 6px;
-    }
-    .btn-primary:hover { transform: translateY(-2px); opacity: .92; }
-    .btn-secondary {
-      background: rgba(255,255,255,0.15); color: #fff;
-      border: 1.5px solid rgba(255,255,255,0.4);
-      padding: 14px 28px; border-radius: 10px;
-      font-size: 15px; font-weight: 600;
-      transition: background .15s;
-    }
-    .btn-secondary:hover { background: rgba(255,255,255,0.25); }
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:20px;}
+.hero-q{font-family:'Fraunces',serif;font-size:clamp(36px,3.8vw,56px);font-weight:300;line-height:1.12;color:#fff;letter-spacing:-.5px;margin-bottom:10px;}
+.hero-q strong{font-weight:600;}
+.hero-q em{color:var(--goldl);font-style:italic;}
+.hero-sub{font-size:16px;font-weight:300;line-height:1.75;color:rgba(255,255,255,.42);margin-bottom:32px;max-width:400px;}
+.hero-sub strong{color:rgba(255,255,255,.7);font-weight:500;}
 
-    /* ── Rate ticker ── */
-    .rate-ticker {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
-      text-align: center;
-      font-size: 14px; color: var(--muted);
-    }
-    .rate-ticker strong { color: var(--green); font-size: 16px; }
+.live-box{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:18px 20px;margin-bottom:28px;}
+.lr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
+.ll{font-size:12px;color:rgba(255,255,255,.3);}
+.lv{font-family:'Fraunces',serif;font-size:28px;font-weight:600;color:#fff;}
+.delta{font-size:12px;font-weight:600;padding:2px 8px;border-radius:6px;}
+.up{background:rgba(42,122,79,.2);color:#5FE89A;}
+.dn{background:rgba(192,57,43,.2);color:#E07065;}
+.bar{height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;margin-bottom:6px;}
+.bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--gold));transition:width 1s ease;}
+.bar-lbls{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,.18);}
+.scroll-hint{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.22);}
+.bounce{animation:bounce 2s ease infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
 
-    /* ── Sections ── */
-    .section { padding: 72px 24px; }
-    .section-inner { max-width: 1080px; margin: 0 auto; }
-    .section-tag {
-      font-size: 12px; font-weight: 700; letter-spacing: 1px;
-      color: var(--green); text-transform: uppercase; margin-bottom: 10px;
-    }
-    .section h2 {
-      font-size: clamp(24px, 4vw, 38px);
-      font-weight: 800; letter-spacing: -0.5px;
-      margin-bottom: 14px;
-    }
-    .section-lead {
-      font-size: 16px; color: var(--muted); line-height: 1.7;
-      max-width: 560px; margin-bottom: 48px;
-    }
-    .section-alt { background: var(--surface); }
+/* ── TOOL CARD ── */
+.tc{background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.32);}
+.tc-hdr{background:var(--navyl);padding:16px 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.05);}
+.tc-ttl{font-size:13px;font-weight:600;color:#fff;}
+.tc-badge{font-size:10px;font-weight:700;letter-spacing:.5px;background:rgba(42,122,79,.2);border:1px solid rgba(42,122,79,.3);color:#5FE89A;padding:3px 8px;border-radius:8px;}
 
-    /* ── Features grid ── */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    .feature-card {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      transition: box-shadow .2s, transform .2s;
-    }
-    .feature-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); transform: translateY(-3px); }
-    .feature-icon { font-size: 32px; margin-bottom: 14px; }
-    .feature-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-    .feature-card p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.amt-sec{padding:20px 22px 14px;}
+.amt-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+.amt-wrap{display:flex;align-items:center;border:2px solid var(--border);border-radius:14px;background:var(--cream);overflow:hidden;transition:border-color .15s;}
+.amt-wrap:focus-within{border-color:var(--navy);background:#fff;}
+.amt-pfx{padding:0 14px;font-size:18px;font-weight:700;color:var(--muted);border-right:1px solid var(--border);}
+#amtIn{flex:1;border:none;background:transparent;padding:14px;font-size:22px;font-weight:700;font-family:'Sora',sans-serif;color:var(--text);outline:none;width:100%;}
+.quick-r{display:flex;gap:6px;margin-top:10px;}
+.qb{background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;font-family:'Sora',sans-serif;transition:all .15s;}
+.qb:hover,.qb.on{background:var(--navy);border-color:var(--navy);color:#fff;}
 
-    /* ── Comparador ── */
-    .compare-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-    }
-    .compare-card {
-      background: var(--surface);
-      border: 2px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      position: relative;
-    }
-    .compare-card.best { border-color: var(--green); }
-    .best-badge {
-      position: absolute; top: -11px; left: 16px;
-      background: var(--green); color: #fff;
-      font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
-    }
-    .provider-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-    .provider-rate { font-size: 28px; font-weight: 800; color: var(--green); }
-    .provider-fee { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.res-list{padding:0 22px 8px;}
+.res-row{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);gap:12px;cursor:pointer;transition:background .1s;}
+.res-row:last-child{border-bottom:none;}
+.res-row:hover{background:rgba(0,0,0,.02);border-radius:8px;padding-left:6px;padding-right:6px;margin:0 -6px;}
+.rnk{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.r1{background:var(--green);color:#fff;}.r2,.r3,.r4,.r5{background:rgba(0,0,0,.06);color:var(--muted);}
+.plogo{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+.pinfo{flex:1;min-width:0;}
+.pname{font-size:13px;font-weight:600;color:var(--text);}
+.pmeta{font-size:11px;color:var(--muted);margin-top:1px;}
+.pbrl{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--text);text-align:right;flex-shrink:0;}
+.pbrl small{font-family:'Sora',sans-serif;font-size:10px;color:var(--muted);display:block;}
+.res-row.best .pbrl{color:var(--green);}
 
-    /* ── How it works ── */
-    .steps { display: flex; flex-direction: column; gap: 0; max-width: 600px; }
-    .step { display: flex; gap: 20px; align-items: flex-start; }
-    .step-line {
-      display: flex; flex-direction: column; align-items: center;
-    }
-    .step-num {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: var(--green); color: #fff;
-      font-size: 14px; font-weight: 700;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .step-connector { width: 2px; flex: 1; background: #e2e8f0; margin: 4px 0; min-height: 32px; }
-    .step-content { padding-top: 6px; padding-bottom: 32px; }
-    .step-content h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-    .step-content p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.sv-bar{margin:4px 22px 16px;background:linear-gradient(135deg,rgba(42,122,79,.07),rgba(42,122,79,.03));border:1px solid rgba(42,122,79,.15);border-radius:12px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.sv-txt{font-size:12px;color:var(--green);line-height:1.5;}
+.sv-txt strong{font-size:15px;font-family:'Fraunces',serif;display:block;}
+.sv-btn{background:var(--green);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;transition:background .15s;}
+.sv-btn:hover{background:var(--greenl);}
+.aff-note{margin-top:10px;text-align:center;font-size:11px;color:rgba(255,255,255,.18);}
 
-    /* ── CTA final ── */
-    .cta-section {
-      background: linear-gradient(135deg, var(--dark) 0%, #1e3a5f 100%);
-      padding: 80px 24px; text-align: center;
-    }
-    .cta-section h2 { color: #fff; font-size: clamp(24px, 4vw, 38px); font-weight: 800; margin-bottom: 16px; }
-    .cta-section p { color: rgba(255,255,255,0.75); font-size: 16px; max-width: 480px; margin: 0 auto 32px; }
+/* ── CONTEXT ── */
+.ctx{background:var(--cream);padding:72px 28px;}
+.ctx-in{max-width:820px;margin:0 auto;}
+.ctx-h2{font-family:'Fraunces',serif;font-size:clamp(24px,3vw,38px);font-weight:300;line-height:1.4;color:var(--navy);letter-spacing:-.3px;margin-bottom:14px;}
+.ctx-h2 em{font-style:italic;color:var(--green);}
+.ctx-body{font-size:17px;font-weight:300;line-height:1.8;color:#4A6070;max-width:640px;}
+.ctx-body strong{color:var(--navy);font-weight:500;}
 
-    /* ── Footer ── */
-    footer {
-      background: var(--dark); color: rgba(255,255,255,0.5);
-      padding: 24px;
-      text-align: center; font-size: 12px; line-height: 1.7;
-    }
-    footer a { color: rgba(255,255,255,0.4); text-decoration: underline; }
+.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px;}
+.pain{background:#fff;border-radius:18px;border:1.5px solid var(--border);padding:24px;position:relative;overflow:hidden;}
+.pain::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.pain:hover::after{transform:scaleX(1);}
+.p-ico{font-size:28px;margin-bottom:14px;display:block;}
+.p-sit{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px;}
+.p-ttl{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--navy);margin-bottom:10px;line-height:1.3;}
+.p-desc{font-size:13px;color:var(--muted);line-height:1.65;}
+.p-fix{margin-top:14px;font-size:13px;font-weight:600;color:var(--green);}
 
-    @media (max-width: 600px) {
-      nav { padding: 10px 16px; }
-      .hero { padding: 56px 16px 50px; }
-      .section { padding: 48px 16px; }
-    }
-  </style>
+/* ── ALERTS ── */
+.alrt{background:var(--navy);padding:72px 28px;position:relative;overflow:hidden;}
+.alrt::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 80% 50%,rgba(42,122,79,.1) 0%,transparent 60%);}
+.alrt-in{position:relative;z-index:1;max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;}
+.a-ey{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.25);margin-bottom:14px;}
+.a-h2{font-family:'Fraunces',serif;font-size:clamp(28px,3vw,42px);font-weight:300;color:#fff;line-height:1.2;margin-bottom:14px;}
+.a-h2 em{color:var(--goldl);font-style:italic;}
+.a-sub{font-size:15px;font-weight:300;color:rgba(255,255,255,.42);line-height:1.8;}
+.a-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:24px;}
+.a-card-ttl{font-size:14px;font-weight:600;color:#fff;margin-bottom:18px;}
+.a-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.a-inp{width:100%;padding:11px 14px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);border-radius:11px;color:#fff;font-size:14px;font-family:'Sora',sans-serif;outline:none;transition:border-color .15s;margin-bottom:10px;}
+.a-inp:focus{border-color:rgba(42,122,79,.5);}
+.a-inp::placeholder{color:rgba(255,255,255,.2);}
+.a-row{display:flex;gap:10px;margin-bottom:12px;}
+.a-pfx{display:flex;align-items:center;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);border-radius:11px;overflow:hidden;transition:border-color .15s;}
+.a-pfx:focus-within{border-color:rgba(42,122,79,.5);}
+.a-pfx-tag{padding:0 11px;font-size:12px;font-weight:700;color:rgba(255,255,255,.28);border-right:1px solid rgba(255,255,255,.08);}
+.a-pfx-in{flex:1;padding:11px 12px;background:transparent;border:none;color:#fff;font-size:15px;font-weight:600;font-family:'Sora',sans-serif;outline:none;}
+.a-pfx-in::placeholder{color:rgba(255,255,255,.2);}
+.a-btn{width:100%;background:var(--green);color:#fff;border:none;border-radius:12px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:background .15s;}
+.a-btn:hover{background:var(--greenl);}
+.a-note{font-size:11px;color:rgba(255,255,255,.18);text-align:center;margin-top:10px;}
+.a-ok{display:none;margin-top:12px;background:rgba(42,122,79,.15);border:1px solid rgba(42,122,79,.25);border-radius:10px;padding:12px;text-align:center;font-size:13px;color:#5FE89A;font-weight:600;}
+
+/* ── FLIGHTS ── */
+.fl{background:var(--creamd);padding:72px 28px;}
+.fl-in{max-width:900px;margin:0 auto;}
+.sec-tag{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.sec-h2{font-family:'Fraunces',serif;font-size:clamp(26px,3vw,40px);font-weight:300;color:var(--navy);line-height:1.25;letter-spacing:-.3px;margin-bottom:32px;}
+.sec-h2 em{font-style:italic;color:var(--green);}
+
+.otabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.otab{padding:7px 16px;border-radius:20px;font-size:13px;font-weight:500;background:#fff;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;color:var(--navy);}
+.otab.on{background:var(--navy);border-color:var(--navy);color:#fff;}
+
+.r-list{display:flex;flex-direction:column;gap:10px;}
+.r-row{background:#fff;border-radius:16px;border:1.5px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .2s;}
+.r-row:hover{border-color:var(--navy);box-shadow:0 4px 16px rgba(0,0,0,.07);}
+.r-flag{font-size:22px;flex-shrink:0;}
+.r-info{flex:1;}
+.r-cities{display:flex;align-items:center;gap:8px;}
+.r-city{font-size:15px;font-weight:600;color:var(--navy);}
+.r-sep{font-size:12px;color:var(--muted);}
+.r-detail{font-size:12px;color:var(--muted);margin-top:2px;}
+.r-pw{text-align:right;flex-shrink:0;}
+.r-from{font-size:10px;color:var(--muted);}
+.r-price{font-family:'Fraunces',serif;font-size:24px;font-weight:600;color:var(--green);}
+.r-via{font-size:10px;color:var(--muted);margin-top:2px;}
+
+.fl-form{background:#fff;border-radius:18px;border:1.5px solid var(--border);padding:20px;margin-top:20px;}
+.fl-form-ttl{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:14px;}
+.fg3{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:end;margin-bottom:10px;}
+.fg2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.flbl{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;}
+.fi{padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:13px;color:var(--navy);background:var(--cream);outline:none;appearance:none;transition:border-color .15s;width:100%;}
+.fi:focus{border-color:var(--navy);background:#fff;}
+.swap-btn{width:34px;height:34px;border-radius:50%;background:var(--navy);border:none;color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .3s;margin-bottom:1px;}
+.swap-btn:hover{transform:rotate(180deg);}
+.fl-go{width:100%;background:var(--navy);color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:background .15s;}
+.fl-go:hover{background:var(--navyl);}
+
+/* ── MAIS ── */
+.mais{background:var(--cream);padding:72px 28px;}
+.mais-in{max-width:900px;margin:0 auto;}
+.mais-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:36px;}
+.m-item{padding:24px;border-radius:18px;border:1.5px solid var(--border);background:#fff;transition:all .2s;}
+.m-item:hover{box-shadow:0 8px 24px rgba(0,0,0,.06);transform:translateY(-2px);}
+.m-ico{font-size:26px;margin-bottom:14px;display:block;}
+.m-ttl{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--navy);margin-bottom:8px;}
+.m-desc{font-size:13px;color:var(--muted);line-height:1.65;}
+.m-soon{font-size:11px;font-weight:600;color:var(--muted);margin-top:12px;}
+.m-live{font-size:11px;font-weight:600;color:var(--green);margin-top:12px;}
+
+.wl-bar{margin-top:40px;padding:28px;background:#fff;border-radius:18px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.wl-ttl{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--navy);margin-bottom:5px;}
+.wl-sub{font-size:14px;color:var(--muted);}
+.wl-form{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.wl-in{padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'Sora',sans-serif;font-size:14px;color:var(--navy);outline:none;width:220px;transition:border-color .15s;}
+.wl-in:focus{border-color:var(--navy);}
+.wl-btn{background:var(--navy);color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;transition:background .15s;}
+.wl-btn:hover{background:var(--navyl);}
+.wl-ok{display:none;font-size:13px;font-weight:600;color:var(--green);}
+
+/* ── FOOTER ── */
+footer{background:var(--navy);padding:48px 28px 32px;border-top:1px solid rgba(255,255,255,.04);}
+.ft-in{max-width:900px;margin:0 auto;}
+.ft-top{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:32px;border-bottom:1px solid rgba(255,255,255,.05);gap:32px;flex-wrap:wrap;}
+.ft-logo{font-family:'Fraunces',serif;font-size:20px;color:#fff;margin-bottom:8px;}
+.ft-logo em{color:var(--goldl);font-style:normal;}
+.ft-tag{font-size:13px;color:rgba(255,255,255,.28);line-height:1.6;max-width:240px;}
+.ft-cols{display:flex;gap:48px;flex-wrap:wrap;}
+.ft-col h4{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.22);margin-bottom:14px;}
+.ft-col ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.ft-col a{font-size:13px;color:rgba(255,255,255,.38);transition:color .15s;}
+.ft-col a:hover{color:rgba(255,255,255,.75);}
+.ft-bot{padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.ft-copy{font-size:12px;color:rgba(255,255,255,.2);}
+.ft-disc{font-size:11px;color:rgba(255,255,255,.14);max-width:500px;line-height:1.6;}
+
+/* ── REVEAL ── */
+.rv{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease;}
+.rv.in{opacity:1;transform:translateY(0);}
+.d1{transition-delay:.08s;}.d2{transition-delay:.16s;}.d3{transition-delay:.24s;}.d4{transition-delay:.32s;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .hero-in{grid-template-columns:1fr;gap:36px;}
+  .hero{padding:78px 20px 52px;min-height:auto;}
+  .alrt-in{grid-template-columns:1fr;gap:36px;}
+  .pain-grid{grid-template-columns:1fr;}
+  .mais-grid{grid-template-columns:1fr 1fr;}
+  .ft-top{flex-direction:column;}
+}
+@media(max-width:600px){
+  nav{padding:0 16px;}
+  .nl{display:none;}
+  .mais-grid{grid-template-columns:1fr;}
+  .ctx,.alrt,.fl,.mais{padding:52px 20px;}
+  .fg3{grid-template-columns:1fr;}
+  .swap-btn{display:none;}
+  .ft-cols{gap:28px;}
+  .wl-in{width:100%;}
+  .wl-btn{width:100%;}
+}
+</style>
 </head>
 <body>
 
-<!-- Nav -->
+<!-- NAV -->
 <nav>
-  <div class="logo">
-    <span style="font-size:20px">🇧🇷</span>
-    <div class="logo-text">
-      <span class="logo-br">Brasil</span><span class="logo-us">Connect</span>
+  <div class="logo">Brasil<em>Connect</em></div>
+  <div class="nav-r">
+    <a href="#alertas" class="nl">Alertas</a>
+    <a href="#voos" class="nl">Voos</a>
+    <a href="#mais" class="nl">Mais</a>
+    <div class="ticker">
+      <div class="tdot"></div>
+      <span class="tval" id="navRate">5.38</span>
+      <span class="tlbl">USD/BRL</span>
     </div>
   </div>
-  <a href="/" class="cta-nav">Abrir app →</a>
 </nav>
 
-<!-- Hero -->
-<div class="hero">
-  <div class="hero-badge">🇧🇷 Para brasileiros nos EUA</div>
-  <h1>Mande mais dinheiro<br>pro <span>Brasil</span></h1>
-  <p>Compare Wise, Remitly e Western Union em segundos. Alertas quando o dólar subir. Voos baratos de volta pra casa.</p>
-  <div class="hero-btns">
-    <a href="/" class="btn-primary">💸 Comparar taxas agora</a>
-    <a href="/#alertas" class="btn-secondary">🔔 Criar alerta grátis</a>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-in">
+
+    <!-- left: contexto -->
+    <div style="padding-top:12px">
+      <div class="eyebrow">Para brasileiros nos EUA</div>
+      <h1 class="hero-q">
+        Quanto vai<br/>chegar no Brasil<br/><em>hoje?</em>
+      </h1>
+      <p class="hero-sub">
+        A diferença entre a <strong>Wise e a Western Union</strong> pode ser
+        mais de <strong>R$100</strong> em cada envio de $500.
+        Aqui você compara antes de enviar — em segundos.
+      </p>
+
+      <div class="live-box">
+        <div class="lr">
+          <span class="ll">Taxa mid-market agora</span>
+          <span class="lv" id="midRate">R$ 5.38</span>
+        </div>
+        <div class="lr" style="margin-bottom:10px">
+          <span class="ll">Última semana</span>
+          <span class="delta up" id="rateDelta">▲ +0.04</span>
+        </div>
+        <div class="bar"><div class="bar-fill" id="rateBar" style="width:62%"></div></div>
+        <div class="bar-lbls"><span>Mín 30d: R$4.90</span><span>Máx 30d: R$5.80</span></div>
+      </div>
+
+      <div class="scroll-hint">
+        <span class="bounce">↓</span> Veja quanto cada provedor envia
+      </div>
+    </div>
+
+    <!-- right: ferramenta -->
+    <div>
+      <div class="tc">
+        <div class="tc-hdr">
+          <span class="tc-ttl">💸 Comparador ao vivo</span>
+          <span class="tc-badge">● ao vivo</span>
+        </div>
+
+        <div class="amt-sec">
+          <div class="amt-lbl">Você quer enviar</div>
+          <div class="amt-wrap">
+            <div class="amt-pfx">USD $</div>
+            <input id="amtIn" type="number" value="500" min="1" autocomplete="off"/>
+          </div>
+          <div class="quick-r">
+            <button class="qb" onclick="setAmt(200)">$200</button>
+            <button class="qb on" onclick="setAmt(500)">$500</button>
+            <button class="qb" onclick="setAmt(1000)">$1.000</button>
+            <button class="qb" onclick="setAmt(2000)">$2.000</button>
+          </div>
+        </div>
+
+        <div class="res-list" id="resList"></div>
+
+        <div class="sv-bar">
+          <div class="sv-txt">
+            <strong id="svAmt">R$ 111</strong>
+            economizados com o melhor provedor
+          </div>
+          <button class="sv-btn" id="svBtn">Enviar agora →</button>
+        </div>
+      </div>
+      <div class="aff-note">ⓘ Links de parceiros — sem custo adicional para você</div>
+    </div>
+
   </div>
-</div>
+</section>
 
-<!-- Taxa ao vivo -->
-<div class="rate-ticker" id="ticker">
-  Carregando taxa…
-</div>
-
-<!-- Features -->
-<section class="section section-alt">
-  <div class="section-inner">
-    <div class="section-tag">Por que usar o BrasilConnect</div>
-    <h2>Tudo que você precisa em um lugar</h2>
-    <p class="section-lead">
-      Feito por brasileiros, para brasileiros nos EUA. Gratuito, sem cadastro, sem enrolação.
+<!-- CONTEXTO -->
+<section class="ctx">
+  <div class="ctx-in">
+    <h2 class="ctx-h2 rv">
+      Brasileiro nos EUA manda dinheiro pro Brasil.<br/>
+      <em>Mas a maioria paga mais do que precisa.</em>
+    </h2>
+    <p class="ctx-body rv d1">
+      A maioria usa sempre o mesmo serviço sem comparar. E a taxa muda
+      <strong>toda semana</strong>. O que era melhor em janeiro pode não ser hoje.
+      O BrasilConnect atualiza em tempo real para você tomar a melhor decisão
+      na hora certa.
     </p>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">💸</div>
-        <h3>Comparador de remessas</h3>
-        <p>Taxa ao vivo do dólar. Veja exatamente quanto chega no Brasil com Wise, Remitly e Western Union.</p>
+
+    <div class="pain-grid">
+      <div class="pain rv">
+        <span class="p-ico">😩</span>
+        <div class="p-sit">Situação 1</div>
+        <div class="p-ttl">"Uso a Western Union porque sempre usei"</div>
+        <div class="p-desc">Lealdade ao errado. Dependendo do dia, a Western Union entrega R$100 a menos que a Wise no mesmo envio de $500.</div>
+        <div class="p-fix">→ Compare antes de enviar</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔔</div>
-        <h3>Alertas de câmbio</h3>
-        <p>Defina uma taxa alvo e receba um email na hora que o dólar bater. De graça, sem cadastro.</p>
+      <div class="pain rv d1">
+        <span class="p-ico">🤔</span>
+        <div class="p-sit">Situação 2</div>
+        <div class="p-ttl">"Enviei hoje, o câmbio subiu amanhã"</div>
+        <div class="p-desc">Isso acontece. Com alertas de câmbio você recebe um email quando o dólar bater na sua meta — e envia na hora certa.</div>
+        <div class="p-fix">→ Crie um alerta grátis</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-icon">✈️</div>
-        <h3>Voos para o Brasil</h3>
-        <p>Compare preços de passagens de Austin, Miami, NY e mais cidades direto para o Brasil.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">⚽</div>
-        <h3>Bolão Copa 2026</h3>
-        <p>A Copa é aqui nos EUA! Monte seu grupo, dispute com amigos e família, ranking por estado.</p>
+      <div class="pain rv d2">
+        <span class="p-ico">✈️</span>
+        <div class="p-sit">Situação 3</div>
+        <div class="p-ttl">"Paguei caro na passagem de volta"</div>
+        <div class="p-desc">Os preços variam muito por dia e plataforma. Aqui você compara Skyscanner, KAYAK e Expedia numa busca só.</div>
+        <div class="p-fix">→ Buscar voo abaixo</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Comparador visual -->
-<section class="section">
-  <div class="section-inner">
-    <div class="section-tag">Comparador ao vivo</div>
-    <h2>Quem paga mais pra você?</h2>
-    <p class="section-lead">Enviando $500 — veja quanto chega no Brasil com cada serviço.</p>
-
-    <div class="compare-grid" id="compare-grid">
-      <div class="compare-card best">
-        <span class="best-badge">MELHOR OPÇÃO</span>
-        <div class="provider-name">🟢 Wise</div>
-        <div class="provider-rate" id="wise-rate">R$ —</div>
-        <div class="provider-fee">Taxa ~0.67%</div>
-      </div>
-      <div class="compare-card">
-        <div class="provider-name">🔵 Remitly</div>
-        <div class="provider-rate" id="remitly-rate">R$ —</div>
-        <div class="provider-fee">Taxa embutida no câmbio</div>
-      </div>
-      <div class="compare-card">
-        <div class="provider-name">🟡 Western Union</div>
-        <div class="provider-rate" id="wu-rate">R$ —</div>
-        <div class="provider-fee">Spread ~3%</div>
-      </div>
+<!-- ALERTAS -->
+<section class="alrt" id="alertas">
+  <div class="alrt-in">
+    <div>
+      <div class="a-ey rv">🔔 Alertas de câmbio</div>
+      <h2 class="a-h2 rv">
+        Avisa quando<br/>chegar no valor<br/><em>que você quer.</em>
+      </h2>
+      <p class="a-sub rv d1">
+        Simples: você diz qual taxa quer pegar. A gente monitora a cada
+        30 minutos e manda um email quando bater. Sem precisar ficar olhando.
+        Gratuito, sem cadastro obrigatório.
+      </p>
     </div>
 
-    <p style="margin-top:20px;font-size:12px;color:var(--muted);text-align:center">
-      ⓘ Valores estimados com taxa ao vivo. Taxas reais podem variar.
-      <a href="/" style="color:var(--green)">Calcule no app →</a>
-    </p>
-  </div>
-</section>
-
-<!-- Como funciona -->
-<section class="section section-alt">
-  <div class="section-inner">
-    <div class="section-tag">Simples assim</div>
-    <h2>Em 3 passos</h2>
-    <p class="section-lead">Sem cadastro, sem senha, sem complicação.</p>
-    <div class="steps">
-      <div class="step">
-        <div class="step-line">
-          <div class="step-num">1</div>
-          <div class="step-connector"></div>
+    <div class="rv d2">
+      <div class="a-card">
+        <div class="a-card-ttl">Criar alerta gratuito</div>
+        <div class="a-lbl">Seu email</div>
+        <input class="a-inp" type="email" id="aEmail" placeholder="seu@email.com"/>
+        <div class="a-row">
+          <div style="flex:1">
+            <div class="a-lbl">Me avise quando o dólar</div>
+            <select class="a-inp" id="aDir" style="appearance:none;cursor:pointer;margin-bottom:0">
+              <option value="above">passar de</option>
+              <option value="below">cair para</option>
+            </select>
+          </div>
+          <div style="flex:1">
+            <div class="a-lbl">Taxa alvo (R$)</div>
+            <div class="a-pfx">
+              <span class="a-pfx-tag">R$</span>
+              <input class="a-pfx-in" type="number" id="aTarget" step="0.01" placeholder="5.50"/>
+            </div>
+          </div>
         </div>
-        <div class="step-content">
-          <h4>Digite o valor que quer enviar</h4>
-          <p>Qualquer valor em dólares. O comparador atualiza na hora.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-line">
-          <div class="step-num">2</div>
-          <div class="step-connector"></div>
-        </div>
-        <div class="step-content">
-          <h4>Compare quanto chega no Brasil</h4>
-          <p>Wise, Remitly e Western Union lado a lado, com taxa real do dólar.</p>
-        </div>
-      </div>
-      <div class="step">
-        <div class="step-line">
-          <div class="step-num">3</div>
-        </div>
-        <div class="step-content">
-          <h4>Clique e envie</h4>
-          <p>Vá direto para o app da melhor opção e complete a transferência.</p>
-        </div>
+        <button class="a-btn" id="aBtnEl" onclick="doAlert()">🔔 Criar alerta gratuito</button>
+        <div class="a-ok" id="aOk">✅ Alerta criado! Te avisamos quando bater.</div>
+        <div class="a-note">Sem spam. Só o email do alerta. Cancele quando quiser.</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- CTA final -->
-<div class="cta-section">
-  <h2>Pronto pra mandar mais pro Brasil? 🇧🇷</h2>
-  <p>Compare agora e veja qual serviço paga mais hoje. Gratuito e sem cadastro.</p>
-  <a href="/" class="btn-primary" style="font-size:16px; padding:16px 36px;">
-    Comparar taxas agora →
-  </a>
-</div>
+<!-- VOOS -->
+<section class="fl" id="voos">
+  <div class="fl-in">
+    <div class="rv"><div class="sec-tag">✈️ Voos para o Brasil</div></div>
+    <h2 class="sec-h2 rv">Voos EUA → Brasil.<br/><em>Melhor preço, agora.</em></h2>
 
-<!-- Footer -->
+    <div class="otabs rv d1" id="originTabs">
+      <div class="otab on" onclick="filterR(this,'AUS')">Austin</div>
+      <div class="otab" onclick="filterR(this,'MIA')">Miami</div>
+      <div class="otab" onclick="filterR(this,'MCO')">Orlando</div>
+      <div class="otab" onclick="filterR(this,'JFK')">New York</div>
+      <div class="otab" onclick="filterR(this,'IAH')">Houston</div>
+      <div class="otab" onclick="filterR(this,'ATL')">Atlanta</div>
+    </div>
+
+    <div class="r-list rv d2" id="routeList"></div>
+
+    <div class="fl-form rv d3">
+      <div class="fl-form-ttl">🔍 Buscar voo específico</div>
+      <div class="fg3">
+        <div class="fg">
+          <div class="flbl">De (EUA)</div>
+          <select class="fi" id="fOrig">
+            <option value="AUS">Austin (AUS)</option>
+            <option value="MIA">Miami (MIA)</option>
+            <option value="MCO">Orlando (MCO)</option>
+            <option value="JFK">New York (JFK)</option>
+            <option value="IAH">Houston (IAH)</option>
+            <option value="ATL">Atlanta (ATL)</option>
+            <option value="BOS">Boston (BOS)</option>
+            <option value="LAX">Los Angeles (LAX)</option>
+            <option value="DFW">Dallas (DFW)</option>
+          </select>
+        </div>
+        <button class="swap-btn" onclick="doSwap()">⇄</button>
+        <div class="fg">
+          <div class="flbl">Para (Brasil)</div>
+          <select class="fi" id="fDest">
+            <option value="GRU">São Paulo (GRU)</option>
+            <option value="GIG">Rio de Janeiro (GIG)</option>
+            <option value="SSA">Salvador (SSA)</option>
+            <option value="FOR">Fortaleza (FOR)</option>
+            <option value="BSB">Brasília (BSB)</option>
+            <option value="REC">Recife (REC)</option>
+            <option value="CWB">Curitiba (CWB)</option>
+            <option value="POA">Porto Alegre (POA)</option>
+            <option value="BEL">Belém (BEL)</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg2">
+        <div class="fg"><div class="flbl">Ida</div><input class="fi" type="date" id="fDep"/></div>
+        <div class="fg"><div class="flbl">Volta</div><input class="fi" type="date" id="fRet"/></div>
+        <div class="fg">
+          <div class="flbl">Adultos</div>
+          <select class="fi" id="fAdl">
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+          </select>
+        </div>
+      </div>
+      <button class="fl-go" onclick="goFlight()">✈️ Ver voos no Skyscanner →</button>
+    </div>
+  </div>
+</section>
+
+<!-- MAIS -->
+<section class="mais" id="mais">
+  <div class="mais-in">
+    <div class="rv"><div class="sec-tag">Em breve no BrasilConnect</div></div>
+    <h2 class="sec-h2 rv">Mais do que remessas<br/>e <em>voos.</em></h2>
+
+    <div class="mais-grid">
+      <div class="m-item rv">
+        <span class="m-ico">🏪</span>
+        <div class="m-ttl">Negócios brasileiros</div>
+        <div class="m-desc">Restaurantes, mercados, advogados, contadores e serviços brasileiros perto de você nos EUA.</div>
+        <div class="m-soon">Em breve</div>
+      </div>
+      <div class="m-item rv d1">
+        <span class="m-ico">📋</span>
+        <div class="m-ttl">Feed da comunidade</div>
+        <div class="m-desc">Empregos, eventos, vagas de quarto, igrejas — o que rola na sua cidade.</div>
+        <div class="m-soon">Em breve</div>
+      </div>
+      <div class="m-item rv d2">
+        <span class="m-ico">🛍️</span>
+        <div class="m-ttl">Venda &amp; Troca</div>
+        <div class="m-desc">Venda o que não usa, encontre o que precisa. Gratuito, sem taxa, só a comunidade.</div>
+        <div class="m-soon">Em breve</div>
+      </div>
+      <div class="m-item rv d3">
+        <span class="m-ico">⚖️</span>
+        <div class="m-ttl">Imigração &amp; direito</div>
+        <div class="m-desc">Guias sobre Green Card, ITIN, vistos e trabalho — escritos por quem já passou.</div>
+        <div class="m-soon">Em breve</div>
+      </div>
+      <div class="m-item rv d4">
+        <span class="m-ico">💰</span>
+        <div class="m-ttl">Comparador de remessas</div>
+        <div class="m-desc">Wise, Remitly, Western Union, Nomad e Xoom — ao vivo, sempre atualizado.</div>
+        <div class="m-live">✓ Disponível agora</div>
+      </div>
+      <div class="m-item rv d4">
+        <span class="m-ico">✈️</span>
+        <div class="m-ttl">Busca de voos</div>
+        <div class="m-desc">Skyscanner, KAYAK e Expedia para achar o melhor voo EUA → Brasil.</div>
+        <div class="m-live">✓ Disponível agora</div>
+      </div>
+    </div>
+
+    <div class="wl-bar rv">
+      <div>
+        <div class="wl-ttl">Quer saber quando lançar?</div>
+        <div class="wl-sub">Deixa o email. A gente avisa — sem spam.</div>
+      </div>
+      <div class="wl-form">
+        <input class="wl-in" type="email" id="wlEmail" placeholder="seu@email.com"/>
+        <button class="wl-btn" onclick="doWL()">Me avisa →</button>
+      </div>
+      <div class="wl-ok" id="wlOk">✅ Anotado!</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
 <footer>
-  <p>🇧🇷 BrasilConnect — feito com ❤️ para brasileiros nos EUA</p>
-  <p style="margin-top:8px">
-    ⓘ Links de remessa e voo são links de afiliados. Podemos receber comissão quando você
-    completa uma transferência ou reserva — sem custo adicional para você.<br>
-    <a href="/privacy">Política de Privacidade</a>
-  </p>
+  <div class="ft-in">
+    <div class="ft-top">
+      <div>
+        <div class="ft-logo">Brasil<em>Connect</em></div>
+        <div class="ft-tag">Ferramentas práticas para brasileiros nos Estados Unidos. Remessas, voos e comunidade.</div>
+      </div>
+      <div class="ft-cols">
+        <div class="ft-col">
+          <h4>Ferramentas</h4>
+          <ul>
+            <li><a href="#">Comparar remessas</a></li>
+            <li><a href="#voos">Buscar voos</a></li>
+            <li><a href="#alertas">Alertas de câmbio</a></li>
+          </ul>
+        </div>
+        <div class="ft-col">
+          <h4>Em breve</h4>
+          <ul>
+            <li><a href="#">Negócios</a></li>
+            <li><a href="#">Comunidade</a></li>
+            <li><a href="#">Venda &amp; Troca</a></li>
+          </ul>
+        </div>
+        <div class="ft-col">
+          <h4>Info</h4>
+          <ul>
+            <li><a href="#">Sobre</a></li>
+            <li><a href="#">Parceiros</a></li>
+            <li><a href="#">Privacidade</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="ft-bot">
+      <div class="ft-copy">© 2025 BrasilConnect USA · Round Rock, TX</div>
+      <div class="ft-disc">ⓘ Links de remessa e voo são links de afiliados. Podemos receber comissão quando você completa uma transferência ou reserva — sem custo adicional para você. Taxas são estimativas em tempo real.</div>
+    </div>
+  </div>
 </footer>
 
 <script>
-  // Buscar taxa ao vivo para a landing
-  fetch('/api/rates')
-    .then(r => r.json())
-    .then(data => {
-      if (!data.mid_rate) return
+// ── PROVIDERS ────────────────────────────────────────────────────────────────
+const P = [
+  { id:'wise',  n:'Wise',         c:'#9FE870', tc:'#1A2E0A', s:0.005, f:6.89  },
+  { id:'remitly',n:'Remitly',     c:'#FF6B35', tc:'#fff',    s:0.012, f:3.99  },
+  { id:'nomad', n:'Nomad',        c:'#6C5CE7', tc:'#fff',    s:0.018, f:5.00  },
+  { id:'xoom',  n:'Xoom',         c:'#003087', tc:'#fff',    s:0.020, f:4.99  },
+  { id:'wu',    n:'Western Union',c:'#FFCB05', tc:'#333',    s:0.030, f:0     },
+]
 
-      const rate = data.mid_rate
-      const src  = data.source === 'exchangerate-api' ? '● Taxa real' : '○ Estimativa'
+// ── ROUTES ───────────────────────────────────────────────────────────────────
+const ROUTES = [
+  { from:'AUS', fc:'Austin',   to:'GRU', tc:'São Paulo',      est:560, via:'LATAM, American' },
+  { from:'AUS', fc:'Austin',   to:'GIG', tc:'Rio de Janeiro', est:590, via:'American, Delta' },
+  { from:'MIA', fc:'Miami',    to:'GRU', tc:'São Paulo',      est:480, via:'LATAM, Azul' },
+  { from:'MIA', fc:'Miami',    to:'SSA', tc:'Salvador',       est:440, via:'American, GOL' },
+  { from:'MIA', fc:'Miami',    to:'GIG', tc:'Rio de Janeiro', est:460, via:'LATAM, American' },
+  { from:'MCO', fc:'Orlando',  to:'GRU', tc:'São Paulo',      est:510, via:'LATAM, United' },
+  { from:'MCO', fc:'Orlando',  to:'FOR', tc:'Fortaleza',      est:490, via:'American, TAP' },
+  { from:'JFK', fc:'New York', to:'GIG', tc:'Rio de Janeiro', est:520, via:'LATAM, Azul' },
+  { from:'JFK', fc:'New York', to:'GRU', tc:'São Paulo',      est:545, via:'LATAM, American' },
+  { from:'IAH', fc:'Houston',  to:'GRU', tc:'São Paulo',      est:490, via:'United, LATAM' },
+  { from:'ATL', fc:'Atlanta',  to:'GRU', tc:'São Paulo',      est:530, via:'Delta, LATAM' },
+  { from:'ATL', fc:'Atlanta',  to:'GIG', tc:'Rio de Janeiro', est:550, via:'Delta, American' },
+]
 
-      document.getElementById('ticker').innerHTML =
-        `USD/BRL hoje: <strong>R$ ${rate.toFixed(4)}</strong> &nbsp;·&nbsp; ${src} &nbsp;·&nbsp; ` +
-        `<a href="/" style="color:var(--green);text-decoration:underline">Ver comparador completo →</a>`
+let rate = 5.38, curAmt = 500
 
-      // Calcular e mostrar valores no comparador (simulando $500)
-      const amt = 500
-      const providers = [
-        { id: 'wise',    fee: 0.0067, spread: 0.005  },
-        { id: 'remitly', fee: 0,      spread: 0.025  },
-        { id: 'wu',      fee: 0,      spread: 0.03   },
-      ]
-      providers.forEach(p => {
-        const received = amt * (1 - p.fee) * rate * (1 - p.spread)
-        const el = document.getElementById(`${p.id}-rate`)
-        if (el) el.textContent = received.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-      })
-    })
-    .catch(() => {
-      document.getElementById('ticker').textContent =
-        'Taxa temporariamente indisponível. Abra o app para ver ao vivo.'
-    })
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+const fmt  = n => Math.round(n).toLocaleString('pt-BR')
+const brl  = (amt, fee, r) => Math.max(0, (amt - fee) * r)
+
+// ── RENDER RESULTS ────────────────────────────────────────────────────────────
+function renderRes(amt) {
+  const ranked = P
+    .map(p => ({ ...p, er: rate * (1 - p.s), val: brl(amt, p.f, rate * (1 - p.s)) }))
+    .sort((a, b) => b.val - a.val)
+
+  document.getElementById('resList').innerHTML = ranked.map((p, i) => `
+    <div class="res-row ${i === 0 ? 'best' : ''}"
+         onclick="window.open('/api/track?provider=${p.id}&amount=${amt}&ref=landing','_blank','noopener')">
+      <div class="rnk r${i+1}">${i+1}</div>
+      <div class="plogo" style="background:${p.c};color:${p.tc}">${p.n.slice(0,2).toUpperCase()}</div>
+      <div class="pinfo">
+        <div class="pname">${p.n}${i === 0 ? ' <span style="font-size:10px;background:#EDFAF3;color:#2A7A4F;padding:1px 6px;border-radius:6px;font-weight:700;margin-left:4px;">melhor hoje</span>' : ''}</div>
+        <div class="pmeta">R$${p.er.toFixed(4)} · taxa $${p.f}</div>
+      </div>
+      <div class="pbrl">R$${fmt(p.val)}<small>BRL</small></div>
+    </div>`).join('')
+
+  const diff = ranked[0].val - ranked[ranked.length - 1].val
+  document.getElementById('svAmt').textContent = 'R$ ' + fmt(diff)
+  document.getElementById('svBtn').onclick = () =>
+    window.open('/api/track?provider=' + ranked[0].id + '&amount=' + amt + '&ref=landing', '_blank', 'noopener')
+}
+
+// ── UPDATE RATE ───────────────────────────────────────────────────────────────
+function updateRate(r) {
+  rate = r
+  document.getElementById('navRate').textContent = r.toFixed(4)
+  document.getElementById('midRate').textContent  = 'R$ ' + r.toFixed(4)
+  const pct = Math.min(100, Math.max(0, ((r - 4.90) / 0.90) * 100))
+  document.getElementById('rateBar').style.width = pct + '%'
+  renderRes(curAmt)
+}
+
+// ── AMOUNT CONTROLS ───────────────────────────────────────────────────────────
+document.getElementById('amtIn').addEventListener('input', function () {
+  curAmt = parseFloat(this.value) || 0
+  document.querySelectorAll('.qb').forEach(b => b.classList.remove('on'))
+  renderRes(curAmt)
+})
+
+function setAmt(n) {
+  curAmt = n
+  document.getElementById('amtIn').value = n
+  document.querySelectorAll('.qb').forEach(b =>
+    b.classList.toggle('on', parseInt(b.textContent.replace(/\D/g,'')) === n))
+  renderRes(n)
+}
+
+// ── ROUTES ────────────────────────────────────────────────────────────────────
+function filterR(el, orig) {
+  document.querySelectorAll('.otab').forEach(t => t.classList.remove('on'))
+  el.classList.add('on')
+  document.getElementById('routeList').innerHTML = ROUTES
+    .filter(r => r.from === orig)
+    .map(r => `
+      <div class="r-row" onclick="window.open('https://www.skyscanner.com/transport/flights/${r.from}/${r.to}/','_blank','noopener')">
+        <div class="r-flag">🇧🇷</div>
+        <div class="r-info">
+          <div class="r-cities">
+            <span class="r-city">${r.fc}</span>
+            <span class="r-sep">✈</span>
+            <span class="r-city">${r.tc}</span>
+          </div>
+          <div class="r-detail">${r.from} → ${r.to} · ida e volta · ${r.via}</div>
+        </div>
+        <div class="r-pw">
+          <div class="r-from">a partir de</div>
+          <div class="r-price">$${r.est}</div>
+          <div class="r-via">Skyscanner, KAYAK</div>
+        </div>
+      </div>`).join('')
+}
+
+// ── FLIGHT SEARCH ─────────────────────────────────────────────────────────────
+const nd = new Date(); nd.setMonth(nd.getMonth() + 1); nd.setDate(1)
+const rd2 = new Date(nd); rd2.setDate(rd2.getDate() + 14)
+document.getElementById('fDep').value = nd.toISOString().slice(0, 10)
+document.getElementById('fRet').value = rd2.toISOString().slice(0, 10)
+
+function doSwap() {
+  const o = document.getElementById('fOrig'), d = document.getElementById('fDest')
+  const t = o.value; o.value = d.value; d.value = t
+}
+
+function goFlight() {
+  const o = document.getElementById('fOrig').value
+  const d = document.getElementById('fDest').value
+  window.open('/api/track?provider=flight_skyscanner&ref=landing_flights&origin=' + o + '&destination=' + d, '_blank', 'noopener')
+}
+
+// ── ALERT FORM ────────────────────────────────────────────────────────────────
+function doAlert() {
+  const email  = document.getElementById('aEmail').value.trim()
+  const target = document.getElementById('aTarget').value.trim()
+  const dir    = document.getElementById('aDir').value
+
+  if (!email || !email.includes('@')) { document.getElementById('aEmail').style.borderColor = '#C04040'; return }
+  if (!target || parseFloat(target) <= 0) { document.getElementById('aTarget').style.borderColor = '#C04040'; return }
+
+  const btn = document.getElementById('aBtnEl')
+  btn.disabled = true; btn.textContent = '⏳ Criando...'
+
+  fetch('/api/alerts', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, target_rate: parseFloat(target), direction: dir })
+  }).catch(() => {}).finally(() => {
+    btn.style.display = 'none'
+    document.getElementById('aOk').style.display = 'block'
+  })
+}
+
+// ── WAITLIST ──────────────────────────────────────────────────────────────────
+function doWL() {
+  const email = document.getElementById('wlEmail').value.trim()
+  if (!email || !email.includes('@')) return
+  fetch('/api/alerts', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, target_rate: 0, direction: 'waitlist' })
+  }).catch(() => {})
+  document.getElementById('wlEmail').style.display = 'none'
+  document.querySelector('.wl-btn').style.display = 'none'
+  document.getElementById('wlOk').style.display = 'block'
+}
+
+// ── SCROLL REVEAL ─────────────────────────────────────────────────────────────
+const obs = new IntersectionObserver(es => {
+  es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target) } })
+}, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' })
+document.querySelectorAll('.rv').forEach(el => obs.observe(el))
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderRes(curAmt)
+filterR(document.querySelector('.otab.on'), 'AUS')
+
+fetch('/api/rates')
+  .then(r => r.ok ? r.json() : null)
+  .then(d => { if (d?.success) updateRate(d.mid_rate) })
+  .catch(() => {})
+
+setInterval(() => {
+  fetch('/api/rates').then(r => r.ok ? r.json() : null).then(d => { if (d?.success) updateRate(d.mid_rate) }).catch(() => {})
+}, 300000)
 </script>
 </body>
 </html>

@@ -119,7 +119,7 @@ function ProviderLogo({ provider, size = 28 }) {
         width: size, height: size, display: 'inline-flex',
         alignItems: 'center', justifyContent: 'center',
         background: '#F1ECDF', color: '#8C6D3D',
-        fontFamily: "'Cormorant Garamond', Georgia, serif", fontWeight: 700,
+        fontFamily: "'Fraunces', Georgia, serif", fontWeight: 700,
         fontSize: size * 0.45, borderRadius: size * 0.18,
         border: '1px solid #E5E1D6', flexShrink: 0,
       }}>{initials}</span>
@@ -132,7 +132,7 @@ function ProviderLogo({ provider, size = 28 }) {
       onError={() => setErrored(true)}
       style={{
         width: size, height: size, objectFit: 'contain',
-        background: '#FAF7F0', borderRadius: size * 0.18,
+        background: '#F7F3ED', borderRadius: size * 0.18,
         border: '1px solid #E5E1D6', padding: 4, flexShrink: 0,
       }}
     />
@@ -175,7 +175,7 @@ function Spinner() {
     <div style={{ display: 'flex', justifyContent: 'center', padding: '40px 0' }}>
       <div style={{
         width: 32, height: 32, border: '3px solid #e5e7eb',
-        borderTopColor: '#009c3b', borderRadius: '50%',
+        borderTopColor: '#2A7A4F', borderRadius: '50%',
         animation: 'spin 0.7s linear infinite',
       }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
@@ -239,7 +239,7 @@ function ProviderDetail({ provider, amount, midRate, isUSD, onClose, onSend }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
           <ProviderLogo provider={provider} size={40} />
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#1A1F1C' }}>{provider.name}</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: '#0B1928' }}>{provider.name}</div>
             <div style={{ fontSize: 12, color: '#6B6E68' }}>{provider.speed}</div>
           </div>
           {provider.promo && (
@@ -286,7 +286,7 @@ function ProviderDetail({ provider, amount, midRate, isUSD, onClose, onSend }) {
             borderTop: '2px solid #e5e7eb',
           }}>
             <span style={{ fontSize: 14, fontWeight: 600, color: '#4B4F4D' }}>Destinatário recebe</span>
-            <span style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#1A1F1C' }}>
+            <span style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#0B1928' }}>
               {fmtBRL(brlAmount)}
             </span>
           </div>
@@ -296,7 +296,7 @@ function ProviderDetail({ provider, amount, midRate, isUSD, onClose, onSend }) {
           onClick={() => { onSend(provider); onClose() }}
           style={{
             width: '100%', padding: '14px 0', borderRadius: 10,
-            background: '#1A1F1C', color: '#FAF7F0',
+            background: '#0B1928', color: '#F7F3ED',
             fontSize: 14, fontWeight: 600, border: 'none', cursor: 'pointer',
             letterSpacing: '0.01em',
           }}
@@ -376,7 +376,7 @@ function RemessasScreen({ affiliateLinks }) {
 
       {/* Cabeçalho taxa */}
       <div style={{
-        background: 'linear-gradient(135deg, #009c3b 0%, #006428 100%)',
+        background: 'linear-gradient(135deg, #2A7A4F 0%, #1F5E3D 100%)',
         borderRadius: 14, padding: '20px 18px', marginBottom: 16, color: '#fff',
       }}>
         <div style={{ fontSize: 12, opacity: 0.85, marginBottom: 6 }}>
@@ -470,7 +470,7 @@ function RemessasScreen({ affiliateLinks }) {
               onClick={() => setAmount(v)}
               style={{
                 flex: 1, fontSize: 12, padding: '6px 0', borderRadius: 7,
-                background: amount === v ? '#009c3b' : '#f3f4f6',
+                background: amount === v ? '#2A7A4F' : '#f3f4f6',
                 color: amount === v ? '#fff' : '#374151',
                 fontWeight: 500, border: 'none',
               }}
@@ -517,7 +517,7 @@ function RemessasScreen({ affiliateLinks }) {
                 {isBest && !isInvalid && (
                   <div style={{
                     position: 'absolute', top: -10, left: 14,
-                    background: '#1A1F1C', color: '#FAF7F0',
+                    background: '#0B1928', color: '#F7F3ED',
                     fontSize: 9, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
                     textTransform: 'uppercase', letterSpacing: '0.1em',
                   }}>
@@ -542,7 +542,7 @@ function RemessasScreen({ affiliateLinks }) {
                   <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                     <ProviderLogo provider={p} size={36} />
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: '#1A1F1C', marginBottom: 2 }}>{p.name}</div>
+                      <div style={{ fontSize: 15, fontWeight: 600, color: '#0B1928', marginBottom: 2 }}>{p.name}</div>
                       <div style={{ fontSize: 11, color: '#6B6E68', marginBottom: 4 }}>{p.label_fee}</div>
                       <div style={{ fontSize: 11, color: '#8C8E89' }}>{p.speed}</div>
                     </div>
@@ -551,14 +551,14 @@ function RemessasScreen({ affiliateLinks }) {
                   <div style={{ textAlign: 'right' }}>
                     {isUSD ? (
                       <>
-                        <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#1A1F1C' }}>
+                        <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#0B1928' }}>
                           {isInvalid ? '—' : fmtBRL(received)}
                         </div>
                         <div style={{ fontSize: 10, color: '#8C8E89', textTransform: 'uppercase', letterSpacing: '0.06em' }}>recebido no Brasil</div>
                       </>
                     ) : (
                       <>
-                        <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#1A1F1C' }}>
+                        <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#0B1928' }}>
                           {isInvalid ? '—' : fmtUSD(sendUsd)}
                         </div>
                         <div style={{ fontSize: 10, color: '#8C8E89', textTransform: 'uppercase', letterSpacing: '0.06em' }}>você envia</div>
@@ -573,7 +573,7 @@ function RemessasScreen({ affiliateLinks }) {
                     onClick={() => setExpandedId(p.id)}
                     style={{
                       padding: '9px 16px', borderRadius: 8,
-                      background: 'transparent', color: '#1A1F1C',
+                      background: 'transparent', color: '#0B1928',
                       fontSize: 12, fontWeight: 500, border: '1px solid #E5E1D6',
                       cursor: 'pointer',
                     }}
@@ -586,8 +586,8 @@ function RemessasScreen({ affiliateLinks }) {
                     disabled={isInvalid}
                     style={{
                       flex: 1, padding: '9px 0', borderRadius: 8,
-                      background: isInvalid ? '#E5E1D6' : '#1A1F1C',
-                      color: isInvalid ? '#8C8E89' : '#FAF7F0',
+                      background: isInvalid ? '#E2E8F0' : '#0B1928',
+                      color: isInvalid ? '#8C8E89' : '#F7F3ED',
                       fontSize: 13, fontWeight: 600, border: 'none', cursor: isInvalid ? 'default' : 'pointer',
                       letterSpacing: '0.01em',
                     }}
@@ -656,7 +656,7 @@ function AlertasScreen() {
 
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #002776 0%, #1e40af 100%)',
+        background: 'linear-gradient(135deg, #0B1928 0%, #1e40af 100%)',
         borderRadius: 14, padding: '20px 18px', marginBottom: 20, color: '#fff',
       }}>
         <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>🔔 Alertas de Câmbio</div>
@@ -701,9 +701,9 @@ function AlertasScreen() {
                 onClick={() => setDirection(opt.value)}
                 style={{
                   flex: 1, padding: '10px 0', borderRadius: 9,
-                  border: `1.5px solid ${direction === opt.value ? '#002776' : '#e5e7eb'}`,
+                  border: `1.5px solid ${direction === opt.value ? '#0B1928' : '#e5e7eb'}`,
                   background: direction === opt.value ? '#eff6ff' : '#fff',
-                  color: direction === opt.value ? '#002776' : '#6b7280',
+                  color: direction === opt.value ? '#0B1928' : '#6b7280',
                   fontWeight: direction === opt.value ? 600 : 400,
                   fontSize: 13,
                 }}
@@ -736,7 +736,7 @@ function AlertasScreen() {
           disabled={loading || !email || !targetRate}
           style={{
             padding: '13px 0', borderRadius: 10,
-            background: loading ? '#9ca3af' : '#009c3b',
+            background: loading ? '#9ca3af' : '#2A7A4F',
             color: '#fff', fontSize: 15, fontWeight: 600,
             opacity: !email || !targetRate ? 0.5 : 1,
             border: 'none',
@@ -761,7 +761,7 @@ function AlertasScreen() {
         ].map(([n, text]) => (
           <div key={n} style={{ display: 'flex', gap: 10, marginBottom: 8, alignItems: 'flex-start' }}>
             <div style={{
-              width: 22, height: 22, borderRadius: '50%', background: '#002776',
+              width: 22, height: 22, borderRadius: '50%', background: '#0B1928',
               color: '#fff', fontSize: 11, fontWeight: 700,
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
             }}>{n}</div>
@@ -937,7 +937,7 @@ function VoosScreen({ affiliateLinks }) {
                   <div style={{ fontSize: 12, color: '#9ca3af' }}>{f.stops === 0 ? 'Direto' : `${f.stops} escala`}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontWeight: 700, fontSize: 18, color: '#009c3b' }}>
+                  <div style={{ fontWeight: 700, fontSize: 18, color: '#2A7A4F' }}>
                     {fmtUSD(f.price)}
                   </div>
                   <div style={{ fontSize: 11, color: '#9ca3af' }}>por pessoa</div>
@@ -991,14 +991,20 @@ export default function App() {
   }, [])
 
   return (
-    <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: '#FAF7F0' }}>
+    <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: '#F7F3ED', fontFamily: "'Sora', -apple-system, BlinkMacSystemFont, sans-serif" }}>
       {/* Top bar */}
       <div style={{
-        background: '#FFFFFF', borderBottom: '1px solid #E5E1D6',
-        padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 8,
+        background: '#FFFFFF', borderBottom: '1px solid #E2E8F0',
+        padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 8,
         position: 'sticky', top: 0, zIndex: 100,
       }}>
-        <img src="/img/logo.svg" alt="BrasilConnect USA" style={{ height: 44 }} />
+        <a href="/?preview=brasil2026" style={{
+          textDecoration: 'none',
+          fontFamily: "'Fraunces', Georgia, serif",
+          fontSize: 22, fontWeight: 600, color: '#0B1928', letterSpacing: '-0.01em',
+        }}>
+          Brasil<em style={{ color: '#C9953A', fontStyle: 'normal', fontWeight: 600 }}>Connect</em>
+        </a>
       </div>
 
       {/* Content */}
@@ -1012,7 +1018,7 @@ export default function App() {
 
       {/* Bottom nav */}
       <div style={{
-        background: '#FFFFFF', borderTop: '1px solid #E5E1D6',
+        background: '#FFFFFF', borderTop: '1px solid #E2E8F0',
         display: 'flex', position: 'sticky', bottom: 0,
         paddingBottom: 'env(safe-area-inset-bottom)',
       }}>
@@ -1025,16 +1031,6 @@ export default function App() {
               background: 'transparent', display: 'flex',
               flexDirection: 'column', alignItems: 'center', gap: 3,
               cursor: 'pointer',
-              color: tab === t.id ? '#1A1F1C' : '#8C8E89',
-              borderTop: `2px solid ${tab === t.id ? '#0F5132' : 'transparent'}`,
-              transition: 'color .15s',
-            }}
-          >
-            <span style={{ fontSize: 20 }}>{t.icon}</span>
-            <span style={{ fontSize: 11, fontWeight: tab === t.id ? 600 : 400 }}>{t.label}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
+              fontFamily: 'inherit',
+              color: tab === t.id ? '#0B1928' : '#8496AA',
+ 

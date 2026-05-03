@@ -1,36 +1,40 @@
 /* ════════════════════════════════════════════════════════════════
-   BrasilConnect USA — Sistema de Design Premium
-   Paleta inspirada no Brasil (verde + ouro envelhecido) com toque US
+   BrasilConnect USA — Sistema de Design Editorial
+   Paleta editorial: navy profundo + verde floresta + dourado envelhecido
+   Tipografia: Fraunces (display serif italic) + Sora (sans moderna)
    ════════════════════════════════════════════════════════════════ */
 
 :root {
   /* ── Brand ─────────────────────────────────────────────────── */
-  --brand-green:        #0F5132;   /* Verde Brasil profundo */
-  --brand-green-dark:   #073824;
-  --brand-green-soft:   #E8EFEB;   /* Tinte de fundo */
-  --brand-navy:         #1B2845;   /* Navy USA */
-  --brand-navy-soft:    #E8EBF1;
-  --brand-gold:         #B89968;   /* Ouro envelhecido (não amarelo) */
+  --brand-green:        #2A7A4F;   /* Verde floresta editorial */
+  --brand-green-dark:   #1F5E3D;
+  --brand-green-light:  #35A066;
+  --brand-green-soft:   #EAF3EE;   /* Tinte de fundo */
+  --brand-navy:         #0B1928;   /* Navy quase preto */
+  --brand-navy-light:   #162840;
+  --brand-navy-soft:    #E5EAF1;
+  --brand-gold:         #C9953A;   /* Dourado quente */
   --brand-gold-dark:    #8C6D3D;
+  --brand-gold-light:   #E5B85A;
   --brand-gold-soft:    #F5EFE0;
 
   /* ── Surfaces ──────────────────────────────────────────────── */
-  --paper:              #FAF7F0;   /* Creme quente */
-  --paper-soft:         #F1ECDF;
+  --paper:              #F7F3ED;   /* Creme editorial */
+  --paper-soft:         #EDE6DA;
   --paper-elevated:     #FFFFFF;
 
   /* ── Ink (tipografia) ──────────────────────────────────────── */
-  --ink:                #1A1F1C;
-  --ink-soft:           #4B4F4D;
-  --ink-muted:          #6B6E68;
+  --ink:                #1A2B3C;
+  --ink-soft:           #4A6070;
+  --ink-muted:          #8496AA;
 
   /* ── Hairlines / dividers ──────────────────────────────────── */
-  --line:               #E5E1D6;
-  --line-soft:          #F0EBE0;
+  --line:               #E2E8F0;
+  --line-soft:          #EDE6DA;
 
   /* ── Tipografia ────────────────────────────────────────────── */
-  --font-serif:         'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --font-sans:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif:         'Fraunces', Georgia, 'Cormorant Garamond', 'Times New Roman', serif;
+  --font-sans:          'Sora', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
   --font-display:       var(--font-serif);
   --font-body:          var(--font-sans);
 

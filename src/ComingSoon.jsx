@@ -55,7 +55,7 @@ export default function ComingSoon() {
     <div style={S.page}>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
       <main style={S.container}>
         {/* Logo */}
@@ -172,8 +172,8 @@ const PALETTE = {
   paper: '#FAF7F0',
   paperSoft: '#F1ECDF',
   paperElevated: '#FFFFFF',
-  brandGreen: '#0F5132',
-  brandGreenDark: '#073824',
+  brandGreen: '#2A7A4F',
+  brandGreenDark: '#1F5E3D',
   brandNavy: '#1B2845',
   brandGold: '#B89968',
   brandGoldDark: '#8C6D3D',
@@ -184,8 +184,8 @@ const PALETTE = {
   line: '#E5E1D6',
 }
 
-const FONT_SERIF = "'Cormorant Garamond', Georgia, 'Times New Roman', serif"
-const FONT_SANS  = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+const FONT_SERIF = "'Fraunces', Georgia, 'Times New Roman', serif"
+const FONT_SANS  = "'Sora', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
 
 const S = {
   page: { minHeight: '100vh', background: PALETTE.paper, fontFamily: FONT_SANS, color: PALETTE.ink, padding: '32px 16px' },
