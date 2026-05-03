@@ -2,6 +2,7 @@
 import BolaoScreen from './BolaoScreen'
 import NegociosScreen from './NegociosScreen'
 import AgendaApp from './AgendaApp'
+import FeedScreen from './FeedScreen'
 
 // â”€â”€â”€ Constantes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -969,18 +970,18 @@ function VoosScreen({ affiliateLinks }) {
   )
 }
 
-// â”€â”€â”€ App Principal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// === App Principal ===
 
 const TABS = [
-  { id: 'remessas',  icon: 'ðŸ’¸', label: 'Remessas' },
-  { id: 'voos',      icon: 'âœˆï¸',  label: 'Voos' },
-  { id: 'agenda',    icon: 'ðŸ“…', label: 'Agenda' },
-  { id: 'negocios',  icon: 'ðŸª', label: 'NegÃ³cios' },
-  { id: 'bolao',     icon: 'âš½',  label: 'BolÃ£o' },
+  { id: 'feed',      icon: '🏠', label: 'Feed' },
+  { id: 'remessas',  icon: '💸', label: 'Câmbio' },
+  { id: 'voos',      icon: '✈️', label: 'Voos' },
+  { id: 'negocios',  icon: '🏪', label: 'Negócios' },
+  { id: 'bolao',     icon: '⚽', label: 'Bolão' },
 ]
 
 export default function App() {
-  const [tab, setTab] = useState('remessas')
+  const [tab, setTab] = useState('feed')
   const [affiliateLinks, setAffiliateLinks] = useState({})
 
   useEffect(() => {
@@ -992,7 +993,6 @@ export default function App() {
 
   return (
     <div style={{ maxWidth: 480, margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100dvh', background: '#FAF7F0', fontFamily: "'Sora', -apple-system, BlinkMacSystemFont, sans-serif" }}>
-      {/* Top bar */}
       <div style={{
         background: '#FFFFFF', borderBottom: '1px solid #E5E1D6',
         padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 8,
@@ -1007,8 +1007,8 @@ export default function App() {
         </a>
       </div>
 
-      {/* Content */}
       <div style={{ flex: 1, padding: tab === 'agenda' ? 0 : '16px' }}>
+        {tab === 'feed'     && <FeedScreen onNavigate={setTab} />}
         {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
         {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
         {tab === 'agenda'   && <AgendaApp />}
@@ -1016,7 +1016,6 @@ export default function App() {
         {tab === 'bolao'    && <BolaoScreen />}
       </div>
 
-      {/* Bottom nav */}
       <div style={{
         background: '#FFFFFF', borderTop: '1px solid #E5E1D6',
         display: 'flex', position: 'sticky', bottom: 0,
