@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Planos · AgendaPro · BrasilConnect</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    :root {
+      --green: #009c3b;
+      --navy:  #002776;
+      --gold:  #ffdf00;
+      --bg:    #f6f7f9;
+      --line:  #e5e7eb;
+      --txt:   #111827;
+      --muted: #6b7280;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+      -webkit-font-smoothing: antialiased;
+    }
+    .test-banner {
+      background: #fef3c7;
+      border-bottom: 1px solid #fbbf24;
+      color: #78350f;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .live-banner {
+      background: #dcfce7;
+      border-bottom: 1px solid #16a34a;
+      color: #14532d;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .warn-banner {
+      background: #fee2e2;
+      border-bottom: 1px solid #ef4444;
+      color: #7f1d1d;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+    .brand {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .brand span { color: var(--gold); }
+    .brand b { color: var(--navy); }
+    h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 8px 0 6px;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 15px;
+      margin: 0 0 28px;
+      max-width: 560px;
+    }
+    .login-box {
+      background: #fff;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 20px 22px;
+      margin-bottom: 28px;
+      max-width: 420px;
+    }
+    .login-box label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .login-box input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+    }
+    .login-box input:focus { border-color: var(--navy); }
+    .login-box button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: var(--navy);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .login-box .who {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .login-box .who b { color: var(--navy); }
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+    }
+    .plan {
+      background: #fff;
+      border: 1.5px solid var(--line);
+      border-radius: 14px;
+      padding: 24px 22px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .plan.popular {
+      border-color: var(--green);
+      border-width: 2px;
+      box-shadow: 0 8px 24px rgba(0, 156, 59, 0.08);
+    }
+    .badge {
+      position: absolute;
+      top: -10px;
+      right: 16px;
+      background: var(--green);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.5px;
+    }
+    .plan-name {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .plan-price {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 8px 0 2px;
+    }
+    .plan-price small {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+    .plan-desc {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 8px 0 18px;
+      line-height: 1.5;
+    }
+    .plan ul {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 22px;
+      flex: 1;
+    }
+    .plan li {
+      padding: 7px 0 7px 26px;
+      font-size: 13px;
+      position: relative;
+      line-height: 1.5;
+    }
+    .plan li:before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      top: 7px;
+      color: var(--green);
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .plan li.disabled {
+      color: #9ca3af;
+    }
+    .plan li.disabled:before {
+      content: '×';
+      color: #d1d5db;
+    }
+    .plan button {
+      width: 100%;
+      padding: 12px 0;
+      border: none;
+      border-radius: 9px;
+      background: var(--navy);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .plan.popular button { background: var(--green); }
+    .plan button:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    .plan button:hover:not(:disabled) { opacity: 0.9; }
+    .trial-note {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      margin-top: 8px;
+    }
+    .footer-note {
+      margin-top: 28px;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .err {
+      background: #fee2e2;
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .ok {
+      background: #dcfce7;
+      border: 1px solid #86efac;
+      color: #166534;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 600px) {
+      h1 { font-size: 26px; }
+      .container { padding: 24px 16px 60px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="banner"></div>
+
+  <div class="container">
+    <div class="brand"><b>Brasil</b><span>Connect</span> · AgendaPro</div>
+    <h1>Escolhe o plano ideal pro seu negócio</h1>
+    <p class="subtitle">14 dias grátis em qualquer plano. Cancela quando quiser, sem multa. Cobramos só depois do trial.</p>
+
+    <div id="msg"></div>
+
+    <div id="login-section" class="login-box">
+      <label for="email">Email do seu cadastro de profissional</label>
+      <input id="email" type="email" placeholder="seu@email.com" />
+      <button onclick="login()">Continuar</button>
+      <div id="login-msg" style="margin-top:10px;font-size:12px;color:#6b7280;"></div>
+    </div>
+
+    <div id="logged-in" class="login-box" style="display:none;">
+      <div class="who">Assinando como: <b id="who-name"></b> (<span id="who-email"></span>)</div>
+      <button onclick="logout()" style="background:transparent;color:#6b7280;border:1px solid #e5e7eb;margin-top:6px;">Trocar conta</button>
+    </div>
+
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">$19<small>/mês</small></div>
+        <div class="plan-desc">Ideal pra quem tá começando — manicure, esteticista, professora particular</div>
+        <ul>
+          <li>1 profissional</li>
+          <li>Agendamentos ilimitados</li>
+          <li>Lembrete por email automático</li>
+          <li>Página pública /agenda/seu-nome</li>
+          <li class="disabled">Lembrete por SMS</li>
+          <li class="disabled">Reviews dos clientes</li>
+          <li class="disabled">Multi-profissionais</li>
+        </ul>
+        <button onclick="subscribe('starter')" id="btn-starter">Começar trial 14 dias</button>
+        <div class="trial-note">Sem cobrança nos primeiros 14 dias</div>
+      </div>
+
+      <div class="plan popular">
+        <div class="badge">Mais popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">$39<small>/mês</small></div>
+        <div class="plan-desc">Pro que já tem clientela e quer reduzir falta — SMS lembra todo mundo</div>
+        <ul>
+          <li>1 profissional</li>
+          <li>Agendamentos ilimitados</li>
+          <li>Lembrete por email + <b>SMS</b></li>
+          <li>Página pública customizada</li>
+          <li>Reviews públicos com selo BrasilConnect</li>
+          <li>Galeria de fotos do trabalho</li>
+          <li class="disabled">Multi-profissionais</li>
+        </ul>
+        <button onclick="subscribe('pro')" id="btn-pro">Começar trial 14 dias</button>
+        <div class="trial-note">Sem cobrança nos primeiros 14 dias</div>
+      </div>
+
+      <div class="plan">
+        <div class="plan-name">Salão</div>
+        <div class="plan-price">$79<small>/mês</small></div>
+        <div class="plan-desc">Salão ou clínica com vários profissionais — controle agenda e relatórios</div>
+        <ul>
+          <li><b>Até 10 profissionais</b></li>
+          <li>Agendamentos ilimitados</li>
+          <li>Lembrete por email + SMS</li>
+          <li>Página pública customizada</li>
+          <li>Reviews + galeria</li>
+          <li>Relatórios financeiros mensais</li>
+          <li>Sem branding "Powered by BrasilConnect"</li>
+        </ul>
+        <button onclick="subscribe('salao')" id="btn-salao">Começar trial 14 dias</button>
+        <div class="trial-note">Sem cobrança nos primeiros 14 dias</div>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      <b>Como funciona o trial:</b> Você coloca o cartão agora (precisa pra ativar). Nos primeiros 14 dias é tudo de graça. No 15º dia cobramos automático no cartão. Pode cancelar quando quiser nesse período sem nenhuma cobrança — fica sabendo por email 3 dias antes do trial acabar.
+    </div>
+  </div>
+
+<script>
+let currentProvider = null;
+
+async function detectMode() {
+  try {
+    const r = await fetch('/api/stripe/status');
+    const d = await r.json();
+    const banner = document.getElementById('banner');
+    if (!d.configured) {
+      banner.className = 'warn-banner';
+      banner.textContent = '⚠️ Stripe não configurado no servidor. Veja SETUP_STRIPE_TEST.md no projeto.';
+    } else if (d.mode === 'test') {
+      banner.className = 'test-banner';
+      banner.innerHTML = '🧪 <b>MODO TESTE</b> · Use cartão fake <code>4242 4242 4242 4242</code> · qualquer CVC e data futura · NÃO há cobrança real';
+    } else if (d.mode === 'live') {
+      banner.className = 'live-banner';
+      banner.textContent = '✅ Modo produção — cobranças reais habilitadas';
+    }
+    if (d.configured && (!d.has_starter || !d.has_pro || !d.has_salon)) {
+      const missing = [];
+      if (!d.has_starter) missing.push('STRIPE_PRICE_STARTER');
+      if (!d.has_pro)     missing.push('STRIPE_PRICE_PRO');
+      if (!d.has_salon)   missing.push('STRIPE_PRICE_SALON');
+      showMsg('Faltam env vars no Vercel: ' + missing.join(', '), 'err');
+    }
+  } catch(e) {
+    console.error('Erro ao verificar Stripe', e);
+  }
+}
+
+function showMsg(text, type) {
+  const m = document.getElementById('msg');
+  m.className = type;
+  m.textContent = text;
+  setTimeout(() => { m.className=''; m.textContent=''; }, 8000);
+}
+
+async function login() {
+  const email = document.getElementById('email').value.trim().toLowerCase();
+  const lmsg = document.getElementById('login-msg');
+  if (!email || !email.includes('@')) { lmsg.textContent = 'Email inválido'; return; }
+  lmsg.textContent = 'Buscando seu cadastro...';
+  try {
+    const r = await fetch('/api/agenda/provider?email=' + encodeURIComponent(email));
+    const d = await r.json();
+    if (!d.provider) {
+      lmsg.innerHTML = 'Não achamos cadastro com esse email. Cadastre-se primeiro em <a href="/assinante">/assinante</a>';
+      return;
+    }
+    currentProvider = d.provider;
+    localStorage.setItem('bc_planos_provider', JSON.stringify(d.provider));
+    showLoggedIn();
+  } catch(e) {
+    lmsg.textContent = 'Erro: ' + e.message;
+  }
+}
+
+function showLoggedIn() {
+  document.getElementById('login-section').style.display = 'none';
+  document.getElementById('logged-in').style.display = 'block';
+  document.getElementById('who-name').textContent = currentProvider.name || '(sem nome)';
+  document.getElementById('who-email').textContent = currentProvider.email;
+}
+
+function logout() {
+  currentProvider = null;
+  localStorage.removeItem('bc_planos_provider');
+  document.getElementById('login-section').style.display = 'block';
+  document.getElementById('logged-in').style.display = 'none';
+  document.getElementById('email').value = '';
+}
+
+async function subscribe(plan) {
+  if (!currentProvider) {
+    showMsg('Faz login primeiro com seu email cadastrado', 'err');
+    return;
+  }
+  const btn = document.getElementById('btn-' + plan);
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'Abrindo Stripe...';
+  try {
+    const r = await fetch('/api/stripe/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ provider_id: currentProvider.id, plan }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Erro ao criar checkout');
+    window.location.href = d.checkout_url;
+  } catch(e) {
+    showMsg(e.message, 'err');
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+}
+
+// Init
+window.addEventListener('DOMContentLoaded', () => {
+  detectMode();
+  // Restaurar login do localStorage
+  try {
+    const cached = localStorage.getItem('bc_planos_provider');
+    if (cached) {
+      currentProvider = JSON.parse(cached);
+      showLoggedIn();
+    }
+  } catch(_) {}
+  // Mostrar mensagem se voltou do checkout
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('subscribed') === '1') showMsg('🎉 Assinatura ativada! Seu trial de 14 dias começou.', 'ok');
+});
+</script>
+</body>
+</html>

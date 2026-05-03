@@ -3,66 +3,181 @@
     {
       "source": "/",
       "destination": "/landing.html",
-      "missing": [{ "type": "query", "key": "preview" }]
+      "missing": [
+        {
+          "type": "query",
+          "key": "preview"
+        }
+      ]
     },
-    { "source": "/go/:partner",                  "destination": "/api/go?partner=:partner" },
-    { "source": "/r/:code",                      "destination": "/api/referral/track?code=:code" },
-    { "source": "/indique",                      "destination": "/indique/index.html" },
-    { "source": "/agenda",                       "destination": "/agenda/index.html" },
-    { "source": "/agenda/review/:token",         "destination": "/agenda/review.html" },
-    { "source": "/agenda/:slug",                 "destination": "/agenda/profile.html" },
-    { "source": "/negocio",                      "destination": "/negocio/index.html" },
-    { "source": "/negocio/:slug",                "destination": "/negocio/profile.html" },
-    { "source": "/grupos",                       "destination": "/grupos/index.html" },
-    { "source": "/viagem",                       "destination": "/viagem/index.html" },
-    { "source": "/admin",                        "destination": "/admin/mindmap.html" },
-    { "source": "/admin/mindmap",                "destination": "/admin/mindmap.html" },
-    { "source": "/admin/manage",                 "destination": "/admin/manage.html" },
-    { "source": "/admin/waitlist",               "destination": "/admin/waitlist.html" },
-    { "source": "/admin/analytics",              "destination": "/admin/analytics.html" },
-    { "source": "/admin/utm-builder",            "destination": "/admin/utm-builder.html" },
-    { "source": "/assinante",                    "destination": "/assinante/index.html" },
-    { "source": "/sitemap.xml",                  "destination": "/sitemap.xml" },
-    { "source": "/robots.txt",                   "destination": "/robots.txt" }
+    {
+      "source": "/go/:partner",
+      "destination": "/api/go?partner=:partner"
+    },
+    {
+      "source": "/r/:code",
+      "destination": "/api/referral/track?code=:code"
+    },
+    {
+      "source": "/indique",
+      "destination": "/indique/index.html"
+    },
+    {
+      "source": "/agenda",
+      "destination": "/agenda/index.html"
+    },
+    {
+      "source": "/agenda/review/:token",
+      "destination": "/agenda/review.html"
+    },
+    {
+      "source": "/agenda/:slug",
+      "destination": "/agenda/profile.html"
+    },
+    {
+      "source": "/negocio",
+      "destination": "/negocio/index.html"
+    },
+    {
+      "source": "/negocio/:slug",
+      "destination": "/negocio/profile.html"
+    },
+    {
+      "source": "/grupos",
+      "destination": "/grupos/index.html"
+    },
+    {
+      "source": "/viagem",
+      "destination": "/viagem/index.html"
+    },
+    {
+      "source": "/agenda/planos",
+      "destination": "/agenda/planos.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin/mindmap.html"
+    },
+    {
+      "source": "/admin/mindmap",
+      "destination": "/admin/mindmap.html"
+    },
+    {
+      "source": "/admin/manage",
+      "destination": "/admin/manage.html"
+    },
+    {
+      "source": "/admin/waitlist",
+      "destination": "/admin/waitlist.html"
+    },
+    {
+      "source": "/admin/analytics",
+      "destination": "/admin/analytics.html"
+    },
+    {
+      "source": "/admin/utm-builder",
+      "destination": "/admin/utm-builder.html"
+    },
+    {
+      "source": "/assinante",
+      "destination": "/assinante/index.html"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/sitemap.xml"
+    },
+    {
+      "source": "/robots.txt",
+      "destination": "/robots.txt"
+    }
   ],
   "crons": [
-    { "path": "/api/check-alerts",                                   "schedule": "0 12 * * *" },
-    { "path": "/api/cron/drip?secret=__CRON__",                       "schedule": "0 14 * * *" },
-    { "path": "/api/agenda/reminders?secret=__CRON__",                "schedule": "0 17 * * *" }
+    {
+      "path": "/api/check-alerts",
+      "schedule": "0 12 * * *"
+    },
+    {
+      "path": "/api/cron/drip?secret=__CRON__",
+      "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/agenda/reminders?secret=__CRON__",
+      "schedule": "0 17 * * *"
+    }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin",  "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
-        { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization, x-admin-secret, x-cron-secret" }
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization, x-admin-secret, x-cron-secret"
+        }
       ]
     },
-    { "source": "/admin/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }] },
+    {
+      "source": "/admin/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
     {
       "source": "/sw.js",
       "headers": [
-        { "key": "Service-Worker-Allowed", "value": "/" },
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
       ]
     },
     {
       "source": "/manifest.json",
-      "headers": [{ "key": "Content-Type", "value": "application/manifest+json" }]
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        }
+      ]
     },
     {
       "source": "/sitemap.xml",
       "headers": [
-        { "key": "Content-Type",  "value": "application/xml; charset=utf-8" },
-        { "key": "Cache-Control", "value": "public, max-age=3600" }
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600"
+        }
       ]
     },
     {
       "source": "/robots.txt",
       "headers": [
-        { "key": "Content-Type",  "value": "text/plain; charset=utf-8" },
-        { "key": "Cache-Control", "value": "public, max-age=86400" }
+        {
+          "key": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
       ]
     }
   ]

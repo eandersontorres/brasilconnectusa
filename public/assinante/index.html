@@ -334,6 +334,20 @@
           <h2>${prov ? prov.name : 'Cadastrar novo perfil'}</h2>
           <p class="sub">${prov ? 'Logado como ' + email : 'Preencha pra aparecer no AgendaPro'} · <button class="btn-link" onclick="logout()">Sair</button></p>
 
+          ${prov ? `
+            <div style="background:linear-gradient(135deg,#002776 0%,#0f2340 100%);color:#fff;padding:16px 18px;border-radius:12px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+              <div>
+                <div style="font-weight:700;font-size:15px;margin-bottom:2px;">
+                  ${prov.plan_status === 'active' || prov.plan_status === 'trialing' ? '✅ Plano: ' + (prov.plan || 'starter').toUpperCase() : '🔓 Sem plano ativo'}
+                </div>
+                <div style="font-size:12px;opacity:0.85;">
+                  ${prov.plan_status === 'trialing' ? 'Em trial gratuito de 14 dias' : prov.plan_status === 'active' ? 'Assinatura ativa' : 'Assine pra liberar agendamentos, lembretes e página própria'}
+                </div>
+              </div>
+              <a href="/agenda/planos" style="background:#ffdf00;color:#002776;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;">${prov.plan_status === 'active' || prov.plan_status === 'trialing' ? 'Trocar plano' : 'Ver planos →'}</a>
+            </div>
+          ` : ''}
+
           <form id="provForm" class="form-grid" onsubmit="saveProv(event)">
             <div class="row-2">
               <div>
