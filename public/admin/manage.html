@@ -119,6 +119,7 @@
             <button class="tab-btn ${currentTab==='enterprise'?'active':''}" onclick="switchTab('enterprise')">Leads Enterprise</button>
             <button class="tab-btn ${currentTab==='reports'?'active':''}" onclick="switchTab('reports')">Reports</button>
             <button class="tab-btn ${currentTab==='businesses'?'active':''}" onclick="switchTab('businesses')">Negócios pendentes</button>
+            <button class="tab-btn ${currentTab==='bolao'?'active':''}" onclick="switchTab('bolao')">Bolão Copa</button>
           </div>
           <div id="tab-content"><p class="muted">Carregando…</p></div>
         </div>
@@ -135,6 +136,7 @@
         else if (tab === 'enterprise') await loadEnterprise(c)
         else if (tab === 'reports')    await loadReports(c)
         else if (tab === 'businesses') await loadBusinesses(c)
+        else if (tab === 'bolao')      await loadBolao(c)
       } catch (e) {
         c.innerHTML = '<div class="err-banner">' + escapeHtml(e.message) + '</div>'
       }
@@ -275,6 +277,61 @@
           `).join('') + '</div>'
       } catch (e) {
         c.innerHTML = '<div class="empty">Erro ao carregar.</div>'
+      }
+    }
+
+    async function loadBolao(c) {
+      try {
+        const r = await fetch('/api/bolao?action=admin-matches', { headers: { 'x-admin-secret': getSecret() } })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro ao carregar partidas')
+        const matches = d.matches || []
+        if (matches.length === 0) { c.innerHTML = '<div class="panel"><div class="empty">Nenhuma partida cadastrada. Rode supabase/bolao_schema.sql primeiro.</div></div>'; return }
+        const finished = matches.filter(m => m.status === 'finished').length
+        const upcoming = matches.length - finished
+        c.innerHTML = '<div class="panel"><div class="panel-eyebrow">BOLAO COPA 2026</div><h3>' + matches.length + ' partidas (' + finished + ' finalizadas, ' + upcoming + ' pendentes)</h3>' +
+          '<p class="panel-sub">Atualize o placar de uma partida e o ranking se ajusta automaticamente.</p>' +
+          matches.map(m => `
+            <div class="item">
+              <div class="head">
+                <div>
+                  <div class="name">${escapeHtml(m.home_team)} <span style="opacity:.5">vs</span> ${escapeHtml(m.away_team)}</div>
+                  <div class="meta">${escapeHtml(m.phase || '')}${m.group_name ? ' / Grupo ' + m.group_name : ''} · ${new Date(m.match_date).toLocaleString('pt-BR')} · ${m.predictions_count} palpites</div>
+                </div>
+                <span class="badge badge-${m.status === 'finished' ? 'done' : 'pending'}">${m.status}</span>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;">
+                <input id="hs-${m.id}" type="number" min="0" max="50" value="${m.home_score ?? ''}" placeholder="${m.home_team.slice(0,3)}" style="width:72px;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:14px;text-align:center;" />
+                <span style="font-weight:700;color:var(--ink-muted);">x</span>
+                <input id="as-${m.id}" type="number" min="0" max="50" value="${m.away_score ?? ''}" placeholder="${m.away_team.slice(0,3)}" style="width:72px;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:14px;text-align:center;" />
+                <button class="btn-mini btn-mark" onclick="setBolaoResult(${m.id})">Salvar placar</button>
+                <span id="msg-${m.id}" style="font-size:12px;color:var(--ink-muted);"></span>
+              </div>
+            </div>
+          `).join('') + '</div>'
+      } catch (e) {
+        c.innerHTML = '<div class="err-banner">' + escapeHtml(e.message) + '</div>'
+      }
+    }
+
+    async function setBolaoResult(matchId) {
+      const h = document.getElementById('hs-' + matchId).value
+      const a = document.getElementById('as-' + matchId).value
+      const msg = document.getElementById('msg-' + matchId)
+      if (h === '' || a === '') { msg.style.color = '#dc2626'; msg.textContent = 'Preencha os 2 placares'; return }
+      msg.style.color = 'var(--ink-muted)'; msg.textContent = 'Salvando...'
+      try {
+        const r = await fetch('/api/bolao?action=set-result', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+          body: JSON.stringify({ match_id: matchId, home_score: Number(h), away_score: Number(a) }),
+        })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        msg.style.color = '#16a34a'; msg.textContent = 'OK · ' + d.message
+        setTimeout(() => loadTab('bolao'), 1200)
+      } catch (e) {
+        msg.style.color = '#dc2626'; msg.textContent = e.message
       }
     }
 

@@ -428,5 +428,68 @@ export default async function handler(req, res) {
     }
   }
 
+  // POST: set-result (admin global) — view recalcula auto
+  if (req.method === 'POST' && action === 'set-result') {
+    const adminSecret = req.headers['x-admin-secret']
+    if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+    const { match_id, home_score, away_score, status } = req.body || {}
+    if (!match_id || home_score === undefined || away_score === undefined) {
+      return res.status(400).json({ error: 'match_id, home_score e away_score obrigatorios' })
+    }
+    const h = Number(home_score), a = Number(away_score)
+    if (!Number.isInteger(h) || !Number.isInteger(a) || h < 0 || a < 0 || h > 50 || a > 50) {
+      return res.status(400).json({ error: 'Placar invalido (0-50)' })
+    }
+    try {
+      const supabase = getSupabase()
+      const newStatus = status || 'finished'
+      const { data: match, error } = await supabase
+        .from('bc_copa_matches')
+        .update({ home_score: h, away_score: a, status: newStatus })
+        .eq('id', match_id)
+        .select('id, home_team, away_team, home_score, away_score, status, match_date')
+        .single()
+      if (error) throw error
+      if (!match) return res.status(404).json({ error: 'Partida nao encontrada' })
+      const { count: affected } = await supabase
+        .from('bc_bolao_predictions')
+        .select('id', { count: 'exact', head: true })
+        .eq('match_id', match_id)
+      return res.status(200).json({
+        success: true, match, predictions_affected: affected || 0,
+        message: (affected || 0) + ' palpites recalculados.',
+      })
+    } catch (e) {
+      console.error('bolao/set-result error:', e.message)
+      return res.status(500).json({ error: 'Erro: ' + e.message })
+    }
+  }
+
+  // GET: admin-matches (lista todas com contagem de palpites)
+  if (req.method === 'GET' && action === 'admin-matches') {
+    const adminSecret = req.headers['x-admin-secret']
+    if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase
+        .from('bc_copa_matches')
+        .select('id, phase, group_name, home_team, away_team, match_date, venue, home_score, away_score, status')
+        .order('match_date', { ascending: true })
+      if (error) throw error
+      const { data: counts } = await supabase.from('bc_bolao_predictions').select('match_id')
+      const pcMap = {}
+      ;(counts || []).forEach(p => { pcMap[p.match_id] = (pcMap[p.match_id] || 0) + 1 })
+      const matches = (data || []).map(m => ({ ...m, predictions_count: pcMap[m.id] || 0 }))
+      return res.status(200).json({ success: true, matches })
+    } catch (e) {
+      console.error('bolao/admin-matches error:', e.message)
+      return res.status(500).json({ error: 'Erro: ' + e.message })
+    }
+  }
+
   return res.status(405).json({ error: 'Method not allowed' })
 }

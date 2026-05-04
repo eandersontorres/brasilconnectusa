@@ -259,25 +259,30 @@
             </div>
 
             <div class="help-box">
-              <strong>Fotos e vídeo</strong> — cole URLs públicas (Imgur, Cloudinary, Drive público).
-              Em breve: upload direto. Vídeo do YouTube ou Vimeo (URL público).
+              <strong>Fotos e vídeo</strong> — clica em "Escolher arquivo" abaixo (compressão automática até 200KB). Vídeo: cole URL pública do YouTube ou Vimeo.
             </div>
 
             <div>
-              <label>Logo (URL)</label>
-              <input name="logo_url" type="url" value="${esc(biz?.logo_url)}" />
+              <label>Logo</label>
+              <input name="logo_url" type="url" placeholder="https://... ou faça upload abaixo" value="${esc(biz?.logo_url)}" />
+              <input type="file" accept="image/*" onchange="uploadFile(this, 'logo_url', 'businesses')" style="margin-top:6px;font-size:12px;" />
+              <span id="status-logo_url" style="font-size:11px;color:var(--ink-muted);margin-left:8px;"></span>
             </div>
             <div>
-              <label>Foto de capa (URL)</label>
-              <input name="cover_url" type="url" value="${esc(biz?.cover_url)}" />
+              <label>Foto de capa</label>
+              <input name="cover_url" type="url" placeholder="https://... ou faça upload abaixo" value="${esc(biz?.cover_url)}" />
+              <input type="file" accept="image/*" onchange="uploadFile(this, 'cover_url', 'businesses')" style="margin-top:6px;font-size:12px;" />
+              <span id="status-cover_url" style="font-size:11px;color:var(--ink-muted);margin-left:8px;"></span>
             </div>
             <div>
               <label>Vídeo (YouTube ou Vimeo)</label>
               <input name="video_url" type="url" placeholder="https://youtube.com/watch?v=..." value="${esc(biz?.video_url)}" />
             </div>
             <div>
-              <label>Galeria (URLs separadas por vírgula, até 10)</label>
+              <label>Galeria (até 10 fotos)</label>
               <textarea name="gallery_urls" rows="3" placeholder="https://...jpg, https://...jpg">${(biz?.gallery_urls || []).join(', ')}</textarea>
+              <input type="file" accept="image/*" multiple onchange="uploadGallery(this, 'businesses')" style="margin-top:6px;font-size:12px;" />
+              <span id="status-gallery" style="font-size:11px;color:var(--ink-muted);margin-left:8px;"></span>
               ${biz?.gallery_urls?.length ? '<div class="gallery">' + biz.gallery_urls.map(u => '<img src="' + esc(u) + '" />').join('') + '</div>' : ''}
             </div>
 
@@ -452,6 +457,75 @@
     function esc(s) {
       if (s === null || s === undefined) return ''
       return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
+    }
+
+    // ═══ Upload helpers (compressao client-side + Supabase Storage) ═══
+    async function compressImage(file, maxDim = 1024, quality = 0.82) {
+      const img = await new Promise((resolve, reject) => {
+        const i = new Image()
+        i.onload = () => resolve(i)
+        i.onerror = reject
+        i.src = URL.createObjectURL(file)
+      })
+      let w = img.width, h = img.height
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim }
+        else { w = Math.round(w * maxDim / h); h = maxDim }
+      }
+      const canvas = document.createElement('canvas')
+      canvas.width = w; canvas.height = h
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h)
+      return canvas.toDataURL('image/jpeg', quality)
+    }
+
+    async function uploadOne(file, folder) {
+      const email = getEmail() || 'anon'
+      const dataUrl = await compressImage(file)
+      const r = await fetch('/api/upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file_data: dataUrl, folder, email }),
+      })
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error || 'Erro no upload')
+      return d.url
+    }
+
+    async function uploadFile(input, fieldName, folder) {
+      const file = input.files[0]
+      if (!file) return
+      const status = document.getElementById('status-' + fieldName)
+      if (status) { status.style.color = 'var(--ink-muted)'; status.textContent = 'Comprimindo...' }
+      try {
+        const url = await uploadOne(file, folder)
+        const target = document.querySelector('[name="' + fieldName + '"]')
+        if (target) target.value = url
+        if (status) { status.style.color = '#16a34a'; status.textContent = '✓ Enviado' }
+      } catch (e) {
+        if (status) { status.style.color = '#dc2626'; status.textContent = e.message }
+      }
+    }
+
+    async function uploadGallery(input, folder) {
+      const files = Array.from(input.files || []).slice(0, 10)
+      if (!files.length) return
+      const status = document.getElementById('status-gallery')
+      const target = document.querySelector('[name="gallery_urls"]')
+      if (status) { status.style.color = 'var(--ink-muted)'; status.textContent = '0/' + files.length + ' enviadas...' }
+      const urls = []
+      for (let i = 0; i < files.length; i++) {
+        try {
+          const url = await uploadOne(files[i], folder)
+          urls.push(url)
+          if (status) status.textContent = (i + 1) + '/' + files.length + ' enviadas...'
+        } catch (e) {
+          if (status) { status.style.color = '#dc2626'; status.textContent = 'Erro: ' + e.message; return }
+        }
+      }
+      const existing = target?.value ? target.value.split(',').map(s => s.trim()).filter(Boolean) : []
+      const all = [...existing, ...urls].slice(0, 10)
+      if (target) target.value = all.join(', ')
+      if (status) { status.style.color = '#16a34a'; status.textContent = '✓ ' + urls.length + ' enviadas' }
     }
 
     render()
