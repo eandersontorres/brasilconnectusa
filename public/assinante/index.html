@@ -108,6 +108,7 @@
     <div class="tabs">
       <button class="tab active" data-tab="negocio" onclick="switchTab('negocio')">🏪 Meu Negócio</button>
       <button class="tab" data-tab="profissional" onclick="switchTab('profissional')">📅 Sou profissional (AgendaPro)</button>
+      <button class="tab" data-tab="cardapio" onclick="switchTab('cardapio')">🍽️ Cardápio</button>
     </div>
 
     <div id="content"></div>
@@ -181,6 +182,7 @@
 
       try {
         if (currentTab === 'negocio') await renderNegocio(email)
+        else if (currentTab === 'cardapio') await renderCardapio(email)
         else await renderProfissional(email)
       } catch (e) {
         root.innerHTML = '<div style="padding: 32px; color: #991B1B;">Erro: ' + e.message + '</div>'
@@ -482,6 +484,259 @@
     function esc(s) {
       if (s === null || s === undefined) return ''
       return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
+    }
+
+    // ═══ Cardapio (CRUD menu) ═══
+    let cardapioBiz = null
+    let cardapioCats = []
+    let cardapioItems = []
+
+    async function renderCardapio(email) {
+      // Busca o negocio pelo email
+      const r = await fetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
+      const data = await r.json().catch(() => ({}))
+      const biz = (data.businesses || [])[0]
+
+      if (!biz) {
+        root.innerHTML = '<div class="panel"><div class="help-box">Cadastre seu negócio na aba <strong>Meu Negócio</strong> primeiro.</div></div>'
+        return
+      }
+      cardapioBiz = biz
+
+      // Busca status Stripe
+      const sr = await fetch('/api/restaurant/status?business_id=' + biz.id)
+      const sd = await sr.json().catch(() => ({}))
+      const ready = sd.business?.ready_for_orders
+
+      if (!ready) {
+        root.innerHTML = `
+          <div class="panel">
+            <h2>🍽️ Cardápio</h2>
+            <p class="sub">Disponível depois que você ativar pedidos online.</p>
+            <div class="help-box">
+              <strong>Antes de criar o cardápio</strong> — vai na aba <strong>Meu Negócio</strong> e clica em <strong>"Ativar pedidos →"</strong>. Você precisa terminar o setup do Stripe (LLC, conta bancária) pra começar a receber pedidos.
+            </div>
+          </div>
+        `
+        return
+      }
+
+      // Carrega menu
+      const mr = await fetch('/api/restaurant/menu?action=list&business_id=' + biz.id)
+      const md = await mr.json().catch(() => ({}))
+      cardapioCats = md.categories || []
+      cardapioItems = md.items || []
+
+      const ordersToggle = biz.accepts_orders
+        ? '<button onclick="toggleAcceptsOrders(false)" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">⏸️ Pausar pedidos</button>'
+        : '<button onclick="toggleAcceptsOrders(true)" style="background:#dcfce7;color:#166534;border:1px solid #86efac;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">▶️ Aceitar pedidos</button>'
+
+      root.innerHTML = `
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px;">
+            <div>
+              <h2>🍽️ Cardápio de ${esc(biz.name)}</h2>
+              <p class="sub" style="margin-bottom:0;">${cardapioCats.length} categorias · ${cardapioItems.length} itens · ${cardapioItems.filter(i=>i.available).length} disponíveis</p>
+            </div>
+            ${ordersToggle}
+          </div>
+
+          <div class="help-box" style="background:#FEF3C7;color:#78350f;border-color:#fbbf24;">
+            <strong>${biz.accepts_orders ? '✅ Aceitando pedidos' : '⏸️ Pedidos pausados'}</strong> — público vê o cardápio em <a href="/negocio/${biz.slug}/cardapio" target="_blank" style="color:#92400e;text-decoration:underline;">brasilconnectusa.com/negocio/${biz.slug}/cardapio</a>
+          </div>
+
+          <div style="display:flex;gap:8px;margin:18px 0;">
+            <button class="btn-primary" onclick="editCategory(null)">+ Categoria</button>
+            <button class="btn-primary" onclick="editItem(null)" style="background:var(--green);">+ Item</button>
+          </div>
+
+          <div id="cardapio-list">
+            ${cardapioCats.length === 0 ? '<div class="help-box">Comece criando uma categoria (ex: "Pratos principais", "Sobremesas")</div>' : ''}
+            ${cardapioCats.map(cat => `
+              <div style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <strong style="font-size:15px;">${esc(cat.name)}</strong>
+                  <div style="display:flex;gap:6px;">
+                    <button onclick="editCategory('${cat.id}')" style="background:transparent;border:1px solid var(--line);padding:4px 10px;border-radius:5px;font-size:11px;cursor:pointer;">Editar</button>
+                    <button onclick="deleteCategory('${cat.id}','${esc(cat.name)}')" style="background:transparent;border:1px solid #fca5a5;color:#991b1b;padding:4px 10px;border-radius:5px;font-size:11px;cursor:pointer;">Excluir</button>
+                  </div>
+                </div>
+                ${cardapioItems.filter(i => i.category_id === cat.id).map(item => itemRow(item)).join('') || '<div style="font-size:12px;color:var(--ink-muted);font-style:italic;">Nenhum item nessa categoria ainda</div>'}
+              </div>
+            `).join('')}
+            ${cardapioItems.filter(i => !i.category_id).length > 0 ? `
+              <div style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:10px;">
+                <strong style="font-size:14px;color:var(--ink-muted);">Sem categoria</strong>
+                ${cardapioItems.filter(i => !i.category_id).map(itemRow).join('')}
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `
+    }
+
+    function itemRow(item) {
+      const price = (item.price_cents / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+      return `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);">
+          ${item.photo_url ? '<img src="' + esc(item.photo_url) + '" style="width:48px;height:48px;object-fit:cover;border-radius:6px;" />' : '<div style="width:48px;height:48px;background:var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--ink-muted);font-size:20px;">🍽️</div>'}
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;font-size:13px;">${esc(item.name)} <span style="color:var(--green);font-weight:700;">${price}</span></div>
+            <div style="font-size:11px;color:var(--ink-muted);">${item.description ? esc(item.description.slice(0,80)) : ''}</div>
+          </div>
+          <label style="display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;">
+            <input type="checkbox" ${item.available ? 'checked' : ''} onchange="toggleItemAvailable('${item.id}', this.checked)" style="width:auto;" />
+            ${item.available ? 'Disponível' : 'Esgotado'}
+          </label>
+          <button onclick="editItem('${item.id}')" style="background:transparent;border:1px solid var(--line);padding:4px 10px;border-radius:5px;font-size:11px;cursor:pointer;">Editar</button>
+        </div>
+      `
+    }
+
+    async function toggleAcceptsOrders(on) {
+      try {
+        const r = await fetch('/api/restaurant/menu?action=activate-orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), accepts_orders: on }),
+        })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        cardapioBiz.accepts_orders = on
+        showToast(on ? 'Pedidos ativos!' : 'Pedidos pausados.')
+        renderCardapio(getEmail())
+      } catch (e) { showToast(e.message, true) }
+    }
+
+    async function toggleItemAvailable(itemId, available) {
+      try {
+        await fetch('/api/restaurant/menu?action=toggle-available', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), item_id: itemId, available }),
+        })
+      } catch (e) { showToast(e.message, true) }
+    }
+
+    function editCategory(id) {
+      const cat = id ? cardapioCats.find(c => c.id === id) : { name: '', display_order: cardapioCats.length }
+      const name = prompt('Nome da categoria (ex: Pratos principais):', cat.name || '')
+      if (!name) return
+      saveCategory({ ...cat, name, id: cat.id || null })
+    }
+
+    async function saveCategory(category) {
+      try {
+        const r = await fetch('/api/restaurant/menu?action=save-category', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), category }),
+        })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        showToast('Categoria salva!')
+        renderCardapio(getEmail())
+      } catch (e) { showToast(e.message, true) }
+    }
+
+    async function deleteCategory(id, name) {
+      if (!confirm('Excluir categoria "' + name + '"? Items dentro ficam sem categoria.')) return
+      try {
+        await fetch('/api/restaurant/menu?action=delete-category', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), category_id: id }),
+        })
+        showToast('Categoria excluída.')
+        renderCardapio(getEmail())
+      } catch (e) { showToast(e.message, true) }
+    }
+
+    function editItem(id) {
+      const item = id ? cardapioItems.find(i => i.id === id) : { name: '', price_cents: 0, available: true, display_order: cardapioItems.length }
+      openItemModal(item)
+    }
+
+    function openItemModal(item) {
+      const catOptions = cardapioCats.map(c => '<option value="' + c.id + '"' + (c.id === item.category_id ? ' selected' : '') + '>' + esc(c.name) + '</option>').join('')
+      const modalHTML = `
+        <div id="item-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;" onclick="if(event.target.id==='item-modal')document.getElementById('item-modal').remove()">
+          <div style="background:#fff;border-radius:14px;padding:24px;width:100%;max-width:500px;">
+            <h3 style="font-family:'Fraunces',serif;color:var(--navy);margin-bottom:14px;">${item.id ? 'Editar' : 'Novo'} item</h3>
+            <form id="item-form" onsubmit="submitItem(event, '${item.id || ''}')">
+              <div style="margin-bottom:10px;"><label>Nome *</label><input name="name" required value="${esc(item.name)}" /></div>
+              <div style="margin-bottom:10px;"><label>Descrição</label><textarea name="description" rows="2">${esc(item.description)}</textarea></div>
+              <div class="row-2" style="margin-bottom:10px;">
+                <div><label>Preço (USD) *</label><input name="price" type="number" step="0.01" min="0.5" required value="${(item.price_cents || 0) / 100}" /></div>
+                <div><label>Categoria</label><select name="category_id"><option value="">Sem categoria</option>${catOptions}</select></div>
+              </div>
+              <div style="margin-bottom:10px;">
+                <label>Foto</label>
+                <input name="photo_url" type="url" placeholder="https://... ou upload abaixo" value="${esc(item.photo_url)}" />
+                <input type="file" accept="image/*" onchange="uploadFile(this, 'photo_url', 'menu')" style="margin-top:6px;font-size:12px;" />
+                <span id="status-photo_url" style="font-size:11px;color:var(--ink-muted);"></span>
+              </div>
+              <div style="margin-bottom:10px;"><label>Ingredientes (opcional)</label><input name="ingredients" placeholder="Frango, arroz, feijão..." value="${esc(item.ingredients)}" /></div>
+              <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;font-size:13px;">
+                <label style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);"><input type="checkbox" name="available" ${item.available !== false ? 'checked' : ''} style="width:auto;margin-right:4px;" /> Disponível</label>
+                <label style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);"><input type="checkbox" name="is_vegetarian" ${item.is_vegetarian ? 'checked' : ''} style="width:auto;margin-right:4px;" /> Vegetariano</label>
+                <label style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);"><input type="checkbox" name="is_gluten_free" ${item.is_gluten_free ? 'checked' : ''} style="width:auto;margin-right:4px;" /> Sem glúten</label>
+                <label style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--ink);"><input type="checkbox" name="is_spicy" ${item.is_spicy ? 'checked' : ''} style="width:auto;margin-right:4px;" /> Picante 🌶️</label>
+              </div>
+              <div style="display:flex;gap:8px;justify-content:flex-end;">
+                ${item.id ? '<button type="button" onclick="deleteItem(\''+item.id+'\',\''+esc(item.name)+'\')" style="background:transparent;border:1px solid #fca5a5;color:#991b1b;padding:10px 16px;border-radius:8px;font-size:13px;cursor:pointer;">Excluir</button>' : ''}
+                <button type="button" onclick="document.getElementById('item-modal').remove()" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);padding:10px 16px;border-radius:8px;font-size:13px;cursor:pointer;">Cancelar</button>
+                <button type="submit" class="btn-primary">Salvar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `
+      document.body.insertAdjacentHTML('beforeend', modalHTML)
+    }
+
+    async function submitItem(e, id) {
+      e.preventDefault()
+      const fd = new FormData(e.target)
+      const item = {
+        id: id || null,
+        name: fd.get('name'),
+        description: fd.get('description') || '',
+        price_cents: Math.round(Number(fd.get('price')) * 100),
+        category_id: fd.get('category_id') || null,
+        photo_url: fd.get('photo_url') || null,
+        ingredients: fd.get('ingredients') || null,
+        available: fd.get('available') === 'on',
+        is_vegetarian: fd.get('is_vegetarian') === 'on',
+        is_gluten_free: fd.get('is_gluten_free') === 'on',
+        is_spicy: fd.get('is_spicy') === 'on',
+      }
+      try {
+        const r = await fetch('/api/restaurant/menu?action=save-item', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), item }),
+        })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        document.getElementById('item-modal').remove()
+        showToast('Item salvo!')
+        renderCardapio(getEmail())
+      } catch (err) { showToast(err.message, true) }
+    }
+
+    async function deleteItem(id, name) {
+      if (!confirm('Excluir "' + name + '"?')) return
+      try {
+        await fetch('/api/restaurant/menu?action=delete-item', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), item_id: id }),
+        })
+        document.getElementById('item-modal')?.remove()
+        showToast('Item excluído.')
+        renderCardapio(getEmail())
+      } catch (e) { showToast(e.message, true) }
     }
 
     // ═══ Restaurant onboard (Stripe Connect Express) ═══
