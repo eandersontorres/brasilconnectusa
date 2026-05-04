@@ -129,7 +129,7 @@ function StepLocation({ data, setData, onBack, onNext }) {
           ))}
         </select>
       </div>
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 18 }}>
         <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 6 }}>
           Cidade (opcional)
         </label>
@@ -143,6 +143,30 @@ function StepLocation({ data, setData, onBack, onNext }) {
             color: C.ink,
           }}
         />
+      </div>
+      <div style={{ marginBottom: 24 }}>
+        <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 6 }}>
+          Quão longe você quer ver posts?
+        </label>
+        <select value={data.radius_miles ?? 25}
+          onChange={e => setData({ ...data, radius_miles: Number(e.target.value) })}
+          style={{
+            width: '100%', padding: '12px 14px', borderRadius: 10,
+            border: '1.5px solid ' + C.line, fontSize: 15, outline: 'none',
+            background: C.white, boxSizing: 'border-box', fontFamily: FONT.sans,
+            color: C.ink,
+          }}>
+          <option value={0}>Só minha cidade</option>
+          <option value={10}>10 milhas</option>
+          <option value={25}>25 milhas (recomendado)</option>
+          <option value={50}>50 milhas</option>
+          <option value={100}>100 milhas</option>
+          <option value={999}>Todo o estado</option>
+          <option value={9999}>Nacional (todos os estados)</option>
+        </select>
+        <div style={{ fontSize: 12, color: C.inkMuted, marginTop: 6, lineHeight: 1.4 }}>
+          Você sempre pode mudar isso depois nas configurações.
+        </div>
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={onBack} style={{
@@ -423,7 +447,7 @@ export default function OnboardingFlow({ user, onComplete }) {
 
   async function handleNext2() {
     try {
-      await saveStep(2, { state: data.state, city: data.city, country: 'USA' })
+      await saveStep(2, { state: data.state, city: data.city, country: 'USA', radius_miles: data.radius_miles ?? 25 })
       setStep(3)
     } catch (_) {}
   }
