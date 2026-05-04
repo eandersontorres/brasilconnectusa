@@ -94,6 +94,16 @@ export default async function handler(req, res) {
         }
         break
       }
+      // Restaurant: Stripe Connect Express
+      case 'account.updated': {
+        const acc = event.data.object
+        await supabase.from('bc_businesses').update({
+          stripe_onboarded: acc.details_submitted,
+          stripe_charges_enabled: acc.charges_enabled,
+          stripe_payouts_enabled: acc.payouts_enabled,
+        }).eq('stripe_account_id', acc.id)
+        break
+      }
     }
     return res.status(200).json({ received: true })
   } catch (e) {
