@@ -162,6 +162,32 @@ export default async function handler(req, res) {
       // Email pro cliente (best effort)
       sendStatusEmail(order, auth.biz, newStatus)
 
+      // Push pro cliente (best effort)
+      try {
+        const { sendPushTo } = await import('../_lib/push.js')
+        const lblMap = {
+          confirmed:  { title: '✅ Pedido confirmado',     body: '' },
+          preparing:  { title: '👨‍🍳 Preparando seu pedido', body: '' },
+          ready:      { title: '🛍️ Pronto pra retirar!',   body: '' },
+          delivered:  { title: '🎉 Pedido entregue',       body: 'Bom apetite!' },
+          canceled:   { title: '❌ Pedido cancelado',      body: cancel_reason || '' },
+        }
+        const lbl = lblMap[newStatus]
+        if (lbl) {
+          await sendPushTo({
+            user_email: order.customer_email,
+            topic: 'restaurant_status',
+            title: lbl.title,
+            body: '#' + order.order_number + ' em ' + auth.biz.name + (lbl.body ? ' · ' + lbl.body : ''),
+            url: '/pedido/' + order.id,
+            type: 'restaurant_order_status',
+            data: { order_id: order.id, status: newStatus },
+          })
+        }
+      } catch (pushErr) {
+        console.error('push status failed:', pushErr.message)
+      }
+
       return res.status(200).json({ success: true, order })
     }
 

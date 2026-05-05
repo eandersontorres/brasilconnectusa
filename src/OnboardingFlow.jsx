@@ -135,6 +135,15 @@ function StepLocation({ data, setData, onBack, onNext }) {
         </label>
         <input type="text" value={data.city || ''}
           onChange={e => setData({ ...data, city: e.target.value })}
+          onBlur={async e => {
+            const city = e.target.value.trim()
+            if (!city || !data.state || data.radius_miles != null) return
+            try {
+              const r = await fetch('/api/suggest-radius?city=' + encodeURIComponent(city) + '&state=' + data.state)
+              const d = await r.json()
+              if (d.suggested_miles != null) setData(prev => ({ ...prev, radius_miles: d.suggested_miles }))
+            } catch (_) {}
+          }}
           placeholder="Boston, Austin, Miami…"
           style={{
             width: '100%', padding: '12px 14px', borderRadius: 10,

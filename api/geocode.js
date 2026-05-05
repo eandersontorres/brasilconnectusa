@@ -7,6 +7,7 @@
  * Body: { cities: [{ city, state }] }
  */
 import { createClient } from '@supabase/supabase-js'
+import { rateLimit } from './_lib/rateLimit.js'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
@@ -81,6 +82,9 @@ export async function geocodeWithCache(city, state) {
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
+
+  const _rl = rateLimit(req, { windowMs: 60000, max: 30 })
+  if (_rl) return res.status(429).json({ error: 'Muitas requisicoes. Tenta de novo em ' + _rl.retryAfter + 's.' })
 
   if (req.method === 'GET') {
     const { city, state } = req.query

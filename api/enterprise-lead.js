@@ -4,9 +4,13 @@
  * Salva lead Enterprise no Supabase + envia email pra equipe via Resend
  */
 import { createClient } from '@supabase/supabase-js'
+import { rateLimit } from './_lib/rateLimit.js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
+
+  const _rl = rateLimit(req, { windowMs: 60000, max: 3 })
+  if (_rl) return res.status(429).json({ error: 'Muitas requisicoes. Tenta de novo em ' + _rl.retryAfter + 's.' })
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
   try {

@@ -117,7 +117,7 @@
             <button class="tab-btn ${currentTab==='requests'?'active':''}" onclick="switchTab('requests')">Pedidos pendentes</button>
             <button class="tab-btn ${currentTab==='contact'?'active':''}" onclick="switchTab('contact')">Fale Conosco</button>
             <button class="tab-btn ${currentTab==='enterprise'?'active':''}" onclick="switchTab('enterprise')">Leads Enterprise</button>
-            <button class="tab-btn ${currentTab==='reports'?'active':''}" onclick="switchTab('reports')">Reports</button>
+            <button class="tab-btn ${currentTab==='reports'?'active':''}" onclick="switchTab('reports')">Moderação</button>
             <button class="tab-btn ${currentTab==='businesses'?'active':''}" onclick="switchTab('businesses')">Negócios pendentes</button>
             <button class="tab-btn ${currentTab==='bolao'?'active':''}" onclick="switchTab('bolao')">Bolão Copa</button>
           </div>
@@ -222,7 +222,50 @@
     }
 
     async function loadReports(c) {
-      c.innerHTML = '<div class="panel"><div class="empty">Reports — em breve.<br>Por enquanto, veja na tabela <strong>bc_reports</strong> no Supabase.</div></div>'
+      try {
+        const r = await fetch('/api/admin/reports?status=pending', { headers: { 'x-admin-secret': getSecret() } })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        const list = d.reports || []
+        if (list.length === 0) {
+          c.innerHTML = '<div class="panel"><div class="empty">✅ Nenhuma denúncia pendente.</div></div>'
+          return
+        }
+        c.innerHTML = '<div class="panel"><div class="panel-eyebrow">MODERACAO</div><h3>' + list.length + ' denúncias pendentes</h3>' +
+          '<p class="panel-sub">Cada denúncia mostra o que foi reportado e por que. Você decide: dispensar, marcar revisado, ou apagar o conteúdo.</p>' +
+          list.map(r => `
+            <div class="item">
+              <div class="head">
+                <div>
+                  <div class="name">${escapeHtml(r.target_type)} #${escapeHtml((r.target_id || '').slice(0, 8))}</div>
+                  <div class="meta">Motivo: ${escapeHtml(r.reason)} · ${new Date(r.created_at).toLocaleString('pt-BR')}</div>
+                </div>
+                <span class="badge badge-pending">${escapeHtml(r.status)}</span>
+              </div>
+              ${r.details ? '<div class="answer">' + escapeHtml(r.details) + '</div>' : ''}
+              <div class="actions" style="margin-top:10px;">
+                <button class="btn-mini btn-approve" onclick="resolveReport('${r.id}', 'dismissed', null, false)">Dispensar</button>
+                <button class="btn-mini btn-mark" onclick="resolveReport('${r.id}', 'reviewed', 'warned', false)">Marcar revisado</button>
+                <button class="btn-mini btn-reject" onclick="resolveReport('${r.id}', 'actioned', 'removed_post', true)">Apagar conteúdo</button>
+              </div>
+            </div>
+          `).join('') + '</div>'
+      } catch (e) {
+        c.innerHTML = '<div class="err-banner">' + escapeHtml(e.message) + '</div>'
+      }
+    }
+
+    async function resolveReport(id, status, action, deleteTarget) {
+      if (deleteTarget && !confirm('Apagar o conteúdo denunciado? Não pode ser desfeito facilmente.')) return
+      try {
+        const r = await fetch('/api/admin/reports?action=resolve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+          body: JSON.stringify({ report_id: id, status, action_taken: action, delete_target: deleteTarget }),
+        })
+        if (!r.ok) throw new Error((await r.json()).error || 'Erro')
+        loadTab('reports')
+      } catch (e) { alert(e.message) }
     }
 
     async function loadEnterprise(c) {

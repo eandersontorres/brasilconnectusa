@@ -104,7 +104,7 @@ export default async function handler(req, res) {
         }).eq('stripe_account_id', acc.id)
         break
       }
-      // Restaurant: pedido pago
+      // Restaurant: pedido pago — atualiza order + notifica dono via push
       case 'payment_intent.succeeded': {
         const intent = event.data.object
         const meta = intent.metadata || {}
@@ -115,6 +115,36 @@ export default async function handler(req, res) {
             stripe_charge_id: intent.latest_charge,
             confirmed_at: new Date().toISOString(),
           }).eq('id', meta.order_id)
+
+          // Push pro dono do restaurante (best effort, nao bloqueia webhook)
+          try {
+            const { data: order } = await supabase
+              .from('bc_orders')
+              .select('id, order_number, customer_name, total_cents, business_id')
+              .eq('id', meta.order_id)
+              .single()
+            if (order) {
+              const { data: biz } = await supabase
+                .from('bc_businesses')
+                .select('owner_email, name')
+                .eq('id', order.business_id)
+                .single()
+              if (biz?.owner_email) {
+                const { sendPushTo } = await import('../_lib/push.js')
+                await sendPushTo({
+                  user_email: biz.owner_email,
+                  topic: 'orders',
+                  title: '🔔 Novo pedido #' + order.order_number,
+                  body: (order.customer_name || 'Cliente') + ' · $' + (order.total_cents / 100).toFixed(2),
+                  url: '/assinante?tab=pedidos',
+                  type: 'restaurant_order_new',
+                  data: { order_id: order.id },
+                })
+              }
+            }
+          } catch (pushErr) {
+            console.error('push order new failed:', pushErr.message)
+          }
         }
         break
       }

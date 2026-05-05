@@ -36,6 +36,17 @@ function err(res, code, msg) {
   return res.status(code).json({ error: msg })
 }
 
+
+// Extrai @mentions de texto (3-30 chars alfanumericos)
+function extractMentionUsernames(text) {
+  if (!text) return []
+  const re = /(?:^|\s)@([a-zA-Z0-9_]{3,30})/g
+  const out = []
+  let m
+  while ((m = re.exec(text)) !== null) out.push(m[1].toLowerCase())
+  return [...new Set(out)]
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   const action = req.query?.action
@@ -436,6 +447,71 @@ export default async function handler(req, res) {
 
       // Incrementa comment_count no post
       await supabase.from('bc_posts').update({ comment_count: (post.comment_count || 0) + 1 }).eq('id', post_id)
+
+      // === Notificacoes (best effort, async) ===
+      try {
+        const { createNotification } = await import('./_lib/notify.js')
+
+        // 1. Pega autor do post + autor da resposta + autor do comentario novo
+        const { data: postFull } = await supabase.from('bc_posts').select('author_id, title').eq('id', post_id).single()
+        const { data: commenter } = await supabase.from('bc_profiles').select('display_name, full_name').eq('user_id', user_id).maybeSingle()
+        const commenterName = commenter?.display_name || commenter?.full_name || 'Alguem'
+
+        // 2. Notif pro autor do post (se nao for o proprio comentando)
+        if (postFull?.author_id && postFull.author_id !== user_id) {
+          await createNotification({
+            user_id: postFull.author_id,
+            type: 'comment',
+            title: commenterName + ' comentou no seu post',
+            body: String(body).slice(0, 100),
+            url: '/post/' + post_id,
+            icon: '💬',
+            metadata: { post_id, comment_id: data.id },
+            also_push: true, push_topic: 'community',
+          })
+        }
+
+        // 3. Se eh resposta a outro comentario, notifica o autor do parent
+        if (parent_id) {
+          const { data: parentCmt } = await supabase.from('bc_comments').select('author_id').eq('id', parent_id).maybeSingle()
+          if (parentCmt?.author_id && parentCmt.author_id !== user_id && parentCmt.author_id !== postFull?.author_id) {
+            await createNotification({
+              user_id: parentCmt.author_id,
+              type: 'comment_reply',
+              title: commenterName + ' respondeu seu comentario',
+              body: String(body).slice(0, 100),
+              url: '/post/' + post_id,
+              icon: '↩️',
+              metadata: { post_id, comment_id: data.id, parent_id },
+              also_push: true, push_topic: 'community',
+            })
+          }
+        }
+
+        // 4. Mentions: @username → busca user com display_name = username e notifica
+        const mentions = extractMentionUsernames(body)
+        if (mentions.length > 0) {
+          const { data: mentionedUsers } = await supabase
+            .from('bc_profiles')
+            .select('user_id, display_name')
+            .in('display_name', mentions)
+            .neq('user_id', user_id)                            // nao notifica voce mesmo
+          for (const u of mentionedUsers || []) {
+            await createNotification({
+              user_id: u.user_id,
+              type: 'mention',
+              title: commenterName + ' mencionou voce',
+              body: String(body).slice(0, 100),
+              url: '/post/' + post_id,
+              icon: '@',
+              metadata: { post_id, comment_id: data.id, mentioned_by: user_id },
+              also_push: true, push_topic: 'community',
+            })
+          }
+        }
+      } catch (notifErr) {
+        console.error('comment notif failed:', notifErr.message)
+      }
 
       return res.status(201).json({ success: true, comment: data })
     }

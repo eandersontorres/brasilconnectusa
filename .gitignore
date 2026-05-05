@@ -18,6 +18,9 @@ build/
 # Vercel
 .vercel/
 
+# Claude Code worktrees
+.claude/
+
 # Logs
 npm-debug.log*
 yarn-debug.log*
