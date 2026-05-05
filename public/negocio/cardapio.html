@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Cardápio · BrasilConnect</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    :root {
+      --green: #009c3b; --navy: #002776; --gold: #ffdf00;
+      --bg: #f9fafb; --line: #e5e7eb; --txt: #111827; --muted: #6b7280;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--txt); padding-bottom: 80px; }
+    .topbar { background: #fff; border-bottom: 1px solid var(--line); padding: 14px 16px; position: sticky; top: 0; z-index: 50; display: flex; align-items: center; gap: 14px; }
+    .topbar a { color: var(--navy); text-decoration: none; font-size: 13px; }
+    .biz-header { padding: 24px 20px; background: linear-gradient(135deg, var(--navy), #0f2340); color: #fff; }
+    .biz-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+    .biz-header .meta { font-size: 13px; opacity: 0.85; }
+    .content { max-width: 720px; margin: 0 auto; padding: 16px; }
+    .empty { padding: 60px 20px; text-align: center; color: var(--muted); }
+    .cat { margin-bottom: 28px; }
+    .cat h2 { font-size: 18px; font-weight: 700; margin-bottom: 4px; padding-bottom: 8px; border-bottom: 2px solid var(--green); }
+    .cat .desc { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+    .item { display: flex; gap: 12px; background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: transform .1s; }
+    .item:hover { transform: translateY(-1px); border-color: var(--green); }
+    .item-photo { width: 96px; height: 96px; flex-shrink: 0; border-radius: 8px; object-fit: cover; background: #f3f4f6; }
+    .item-photo.placeholder { display: flex; align-items: center; justify-content: center; font-size: 32px; color: #9ca3af; }
+    .item-info { flex: 1; min-width: 0; }
+    .item-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+    .item-desc { font-size: 13px; color: var(--muted); line-height: 1.4; max-height: 38px; overflow: hidden; }
+    .item-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+    .item-price { font-weight: 700; color: var(--green); font-size: 15px; }
+    .badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
+    .badge { font-size: 10px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; color: var(--muted); }
+    .badge.vegan { background: #dcfce7; color: #166534; }
+    .badge.gf { background: #fef3c7; color: #92400e; }
+    .badge.spicy { background: #fee2e2; color: #991b1b; }
+    .add-btn { background: var(--navy); color: #fff; border: none; padding: 8px 14px; border-radius: 7px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .cart-fab { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--green); color: #fff; padding: 14px 28px; border-radius: 30px; box-shadow: 0 6px 20px rgba(0,156,59,0.35); cursor: pointer; font-size: 15px; font-weight: 700; border: none; display: none; z-index: 40; }
+    .cart-fab.show { display: block; }
+    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: none; align-items: flex-start; justify-content: center; padding: 20px 12px; overflow-y: auto; }
+    .modal-bg.open { display: flex; }
+    .modal { background: #fff; border-radius: 14px; padding: 20px; width: 100%; max-width: 480px; }
+    .modal h2 { font-size: 18px; margin-bottom: 12px; }
+    .cart-item { display: flex; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+    .cart-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+    .cart-item .name { flex: 1; font-size: 13px; font-weight: 600; }
+    .cart-item .qty { display: flex; align-items: center; gap: 6px; }
+    .cart-item .qty button { width: 26px; height: 26px; border: 1px solid var(--line); background: #fff; border-radius: 50%; cursor: pointer; font-size: 14px; font-weight: 700; }
+    .cart-totals { margin-top: 14px; padding-top: 14px; border-top: 2px solid var(--line); }
+    .cart-totals div { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+    .cart-totals .total { font-size: 16px; font-weight: 700; padding-top: 6px; border-top: 1px solid var(--line); margin-top: 6px; }
+    label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; margin-top: 10px; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--line); border-radius: 7px; font-family: inherit; font-size: 14px; outline: none; box-sizing: border-box; }
+    input:focus, select:focus, textarea:focus { border-color: var(--green); }
+    .btn-checkout { width: 100%; background: var(--green); color: #fff; border: none; padding: 14px; border-radius: 9px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 14px; }
+    .btn-checkout:disabled { background: #9ca3af; cursor: not-allowed; }
+    .btn-secondary { width: 100%; background: transparent; border: 1px solid var(--line); color: var(--muted); padding: 10px; border-radius: 8px; font-size: 13px; cursor: pointer; margin-top: 8px; }
+    .err { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 8px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
+    .ok { background: #dcfce7; border: 1px solid #86efac; color: #166534; padding: 8px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 10px; }
+    #stripe-element { margin-top: 14px; padding: 12px; background: #fff; border: 1px solid var(--line); border-radius: 7px; min-height: 40px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/">← Brasil<b style="color:var(--gold);font-weight:600;">Connect</b></a>
+    <div style="flex:1"></div>
+    <button onclick="openCart()" id="cart-btn-top" style="background:transparent;border:none;cursor:pointer;font-size:13px;color:var(--navy);font-weight:600;">🛒 <span id="cart-count">0</span></button>
+  </div>
+
+  <div id="biz-header" class="biz-header">
+    <h1 id="biz-name">Carregando...</h1>
+    <div class="meta" id="biz-meta"></div>
+  </div>
+
+  <div class="content">
+    <div id="msg"></div>
+    <div id="menu" class="empty">Carregando cardápio...</div>
+  </div>
+
+  <button class="cart-fab" id="cart-fab" onclick="openCart()">🛒 Ver carrinho · <span id="fab-total">$0.00</span></button>
+
+  <!-- Modal Carrinho -->
+  <div id="cart-modal" class="modal-bg" onclick="if(event.target.id==='cart-modal')closeCart()">
+    <div class="modal">
+      <h2>Seu pedido</h2>
+      <div id="cart-list"></div>
+      <div id="cart-totals" class="cart-totals" style="display:none;"></div>
+      <button class="btn-checkout" id="btn-go-checkout" onclick="goCheckout()" style="display:none;">Continuar pra pagamento</button>
+      <button class="btn-secondary" onclick="closeCart()">Voltar pro cardápio</button>
+    </div>
+  </div>
+
+  <!-- Modal Checkout -->
+  <div id="checkout-modal" class="modal-bg" onclick="if(event.target.id==='checkout-modal')closeCheckout()">
+    <div class="modal">
+      <h2>Finalizar pedido</h2>
+      <div id="checkout-msg"></div>
+      <form id="checkout-form" onsubmit="submitCheckout(event)">
+        <label>Seu nome *</label>
+        <input name="name" required />
+        <label>Email *</label>
+        <input name="email" type="email" required />
+        <label>Telefone (opcional)</label>
+        <input name="phone" placeholder="+1..." />
+
+        <label>Tipo de pedido</label>
+        <select name="type" id="order-type" onchange="toggleDelivery()">
+          <option value="pickup">Retirar no local (pickup)</option>
+          <option value="delivery">Delivery</option>
+        </select>
+
+        <div id="delivery-fields" style="display:none;">
+          <label>Endereço *</label>
+          <input name="delivery_address" placeholder="Rua e número" />
+          <div style="display:grid;grid-template-columns:1fr 80px 100px;gap:8px;">
+            <div><label>Cidade</label><input name="delivery_city" /></div>
+            <div><label>Estado</label><input name="delivery_state" maxlength="2" /></div>
+            <div><label>ZIP</label><input name="delivery_zip" /></div>
+          </div>
+          <label>Instruções de entrega</label>
+          <input name="delivery_notes" placeholder="Apt 3B, deixar na portaria..." />
+        </div>
+
+        <label>Observações pra cozinha (opcional)</label>
+        <textarea name="notes" rows="2" placeholder="Sem cebola, ponto da carne..."></textarea>
+
+        <label>Gorjeta (opcional)</label>
+        <select name="tip">
+          <option value="0">Sem gorjeta</option>
+          <option value="10">10%</option>
+          <option value="15" selected>15%</option>
+          <option value="18">18%</option>
+          <option value="20">20%</option>
+        </select>
+
+        <div id="totals-preview" style="margin:14px 0;padding:10px;background:var(--bg);border-radius:8px;font-size:13px;"></div>
+
+        <div id="stripe-element"></div>
+        <div id="stripe-errors" style="color:#991b1b;font-size:12px;margin-top:6px;"></div>
+
+        <button type="submit" class="btn-checkout" id="btn-pay">Pagar agora</button>
+        <button type="button" class="btn-secondary" onclick="closeCheckout()">Cancelar</button>
+      </form>
+    </div>
+  </div>
+
+<script>
+const slug = window.location.pathname.split('/')[2]
+let bizData = null
+let menuItems = []
+let categories = []
+let cart = JSON.parse(localStorage.getItem('cart_' + slug) || '{}')
+let stripe = null
+let elements = null
+let paymentElement = null
+let currentOrderId = null
+
+const fmt = n => '$' + (n / 100).toFixed(2)
+
+async function loadMenu() {
+  try {
+    const r = await fetch('/api/restaurant/menu?action=public&business_slug=' + slug)
+    const d = await r.json()
+    if (!r.ok) throw new Error(d.error || 'Erro')
+    bizData = d.business
+    categories = d.categories || []
+    menuItems = d.items || []
+
+    document.getElementById('biz-name').textContent = bizData.name
+    document.getElementById('biz-meta').textContent =
+      (bizData.pickup_only ? 'Apenas retirada' : 'Retirada e delivery') +
+      ' · Preparo médio: ' + (bizData.prep_time_min || 30) + ' min' +
+      (bizData.min_order_cents ? ' · Mínimo ' + fmt(bizData.min_order_cents) : '')
+
+    renderMenu()
+    updateCartUI()
+  } catch (e) {
+    document.getElementById('menu').innerHTML = '<div class="err">' + e.message + '</div>'
+  }
+}
+
+function renderMenu() {
+  const container = document.getElementById('menu')
+  if (menuItems.length === 0) {
+    container.innerHTML = '<div class="empty">Cardápio vazio. Volta mais tarde!</div>'
+    return
+  }
+  container.className = ''
+  let html = ''
+  // Categorias com items
+  for (const cat of categories) {
+    const items = menuItems.filter(i => i.category_id === cat.id)
+    if (items.length === 0) continue
+    html += '<div class="cat"><h2>' + esc(cat.name) + '</h2>'
+    if (cat.description) html += '<div class="desc">' + esc(cat.description) + '</div>'
+    items.forEach(item => { html += renderItem(item) })
+    html += '</div>'
+  }
+  // Sem categoria
+  const noCat = menuItems.filter(i => !i.category_id)
+  if (noCat.length) {
+    html += '<div class="cat"><h2>Outros</h2>'
+    noCat.forEach(item => { html += renderItem(item) })
+    html += '</div>'
+  }
+  container.innerHTML = html
+}
+
+function renderItem(item) {
+  const photo = item.photo_url
+    ? '<img class="item-photo" src="' + esc(item.photo_url) + '" />'
+    : '<div class="item-photo placeholder">🍽️</div>'
+  const badges = []
+  if (item.is_vegetarian) badges.push('<span class="badge vegan">Veg</span>')
+  if (item.is_gluten_free) badges.push('<span class="badge gf">Sem glúten</span>')
+  if (item.is_spicy) badges.push('<span class="badge spicy">Picante</span>')
+  return '<div class="item" onclick="addToCart(\\''+item.id+'\\')">'
+    + photo
+    + '<div class="item-info">'
+    +   '<div class="item-name">' + esc(item.name) + '</div>'
+    +   (item.description ? '<div class="item-desc">' + esc(item.description) + '</div>' : '')
+    +   (badges.length ? '<div class="badges">' + badges.join('') + '</div>' : '')
+    +   '<div class="item-bottom"><span class="item-price">' + fmt(item.price_cents) + '</span><button class="add-btn">+ Adicionar</button></div>'
+    + '</div>'
+    + '</div>'
+}
+
+function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])) }
+
+function addToCart(itemId) {
+  cart[itemId] = (cart[itemId] || 0) + 1
+  saveCart()
+}
+
+function changeQty(itemId, delta) {
+  cart[itemId] = (cart[itemId] || 0) + delta
+  if (cart[itemId] <= 0) delete cart[itemId]
+  saveCart()
+  renderCart()
+}
+
+function saveCart() {
+  localStorage.setItem('cart_' + slug, JSON.stringify(cart))
+  updateCartUI()
+}
+
+function updateCartUI() {
+  const totalQty = Object.values(cart).reduce((s, q) => s + q, 0)
+  document.getElementById('cart-count').textContent = totalQty
+  const fab = document.getElementById('cart-fab')
+  if (totalQty > 0) {
+    fab.classList.add('show')
+    document.getElementById('fab-total').textContent = fmt(getSubtotal())
+  } else {
+    fab.classList.remove('show')
+  }
+}
+
+function getSubtotal() {
+  let total = 0
+  for (const [id, qty] of Object.entries(cart)) {
+    const item = menuItems.find(i => i.id === id)
+    if (item) total += item.price_cents * qty
+  }
+  return total
+}
+
+function openCart() {
+  renderCart()
+  document.getElementById('cart-modal').classList.add('open')
+}
+function closeCart() { document.getElementById('cart-modal').classList.remove('open') }
+
+function renderCart() {
+  const list = document.getElementById('cart-list')
+  const totals = document.getElementById('cart-totals')
+  const btn = document.getElementById('btn-go-checkout')
+  const subtotal = getSubtotal()
+  if (subtotal === 0) {
+    list.innerHTML = '<div class="empty" style="padding:20px;">Carrinho vazio</div>'
+    totals.style.display = 'none'
+    btn.style.display = 'none'
+    return
+  }
+  let html = ''
+  for (const [id, qty] of Object.entries(cart)) {
+    const item = menuItems.find(i => i.id === id)
+    if (!item) continue
+    html += '<div class="cart-item">'
+      + (item.photo_url ? '<img src="'+esc(item.photo_url)+'" />' : '<div style="width:50px;height:50px;background:#f3f4f6;border-radius:6px;display:flex;align-items:center;justify-content:center;">🍽️</div>')
+      + '<div class="name">' + esc(item.name) + '<br><span style="color:var(--muted);font-weight:400;">' + fmt(item.price_cents) + ' ea</span></div>'
+      + '<div class="qty"><button onclick="changeQty(\\''+id+'\\',-1)">−</button><span>'+qty+'</span><button onclick="changeQty(\\''+id+'\\',1)">+</button></div>'
+      + '</div>'
+  }
+  list.innerHTML = html
+  totals.style.display = 'block'
+  totals.innerHTML = '<div><span>Subtotal</span><span>' + fmt(subtotal) + '</span></div>'
+    + (subtotal < (bizData.min_order_cents || 0) ? '<div style="color:#dc2626;font-size:12px;margin-top:6px;">Mínimo: ' + fmt(bizData.min_order_cents) + '</div>' : '')
+  btn.style.display = subtotal >= (bizData.min_order_cents || 0) ? 'block' : 'none'
+}
+
+function goCheckout() {
+  closeCart()
+  document.getElementById('checkout-modal').classList.add('open')
+  updateTotalsPreview()
+  initStripe()
+}
+
+function closeCheckout() {
+  document.getElementById('checkout-modal').classList.remove('open')
+  document.getElementById('checkout-msg').innerHTML = ''
+}
+
+function toggleDelivery() {
+  const t = document.getElementById('order-type').value
+  document.getElementById('delivery-fields').style.display = t === 'delivery' ? 'block' : 'none'
+  updateTotalsPreview()
+}
+
+function updateTotalsPreview() {
+  const subtotal = getSubtotal()
+  const type = document.getElementById('order-type').value
+  const tipPct = parseInt(document.getElementById('checkout-form').tip.value) || 0
+  const deliveryFee = type === 'delivery' ? (bizData.delivery_fee_cents || 0) : 0
+  const tip = Math.round(subtotal * (tipPct / 100))
+  const total = subtotal + deliveryFee + tip
+  document.getElementById('totals-preview').innerHTML =
+    '<div style="display:flex;justify-content:space-between;"><span>Subtotal</span><span>'+fmt(subtotal)+'</span></div>'
+    + (deliveryFee ? '<div style="display:flex;justify-content:space-between;"><span>Entrega</span><span>'+fmt(deliveryFee)+'</span></div>' : '')
+    + (tip ? '<div style="display:flex;justify-content:space-between;"><span>Gorjeta ('+tipPct+'%)</span><span>'+fmt(tip)+'</span></div>' : '')
+    + '<div style="display:flex;justify-content:space-between;font-weight:700;border-top:1px solid var(--line);margin-top:6px;padding-top:6px;"><span>Total</span><span>'+fmt(total)+'</span></div>'
+}
+
+document.getElementById('checkout-form')?.addEventListener('change', updateTotalsPreview)
+
+async function initStripe() {
+  if (stripe) return  // ja inicializado
+  // Pega publishable key do Stripe (precisamos expor via env publica)
+  // Por enquanto, busca de window.STRIPE_PK setado por outro endpoint
+  if (!window.STRIPE_PK) {
+    const r = await fetch('/api/stripe/status')
+    const d = await r.json()
+    // status nao retorna PK por seguranca, vamos pedir endpoint dedicado
+    // Por ora, usa env publica via meta tag (se tiver)
+  }
+  // O componente Elements eh montado depois de criar PaymentIntent (no submit)
+}
+
+async function submitCheckout(e) {
+  e.preventDefault()
+  const fd = new FormData(e.target)
+  const subtotal = getSubtotal()
+  const type = fd.get('type')
+  const tipPct = parseInt(fd.get('tip')) || 0
+  const tipCents = Math.round(subtotal * (tipPct / 100))
+
+  const items = Object.entries(cart).map(([menu_item_id, quantity]) => ({ menu_item_id, quantity }))
+  if (items.length === 0) return
+
+  const btn = document.getElementById('btn-pay')
+  btn.disabled = true
+  btn.textContent = 'Criando pedido...'
+  const msg = document.getElementById('checkout-msg')
+  msg.innerHTML = ''
+
+  try {
+    // 1. Cria order + PaymentIntent
+    const r = await fetch('/api/restaurant/order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        business_id: bizData.id,
+        customer_email: fd.get('email'),
+        customer_name: fd.get('name'),
+        customer_phone: fd.get('phone'),
+        type,
+        delivery_address: fd.get('delivery_address'),
+        delivery_city: fd.get('delivery_city'),
+        delivery_state: fd.get('delivery_state'),
+        delivery_zip: fd.get('delivery_zip'),
+        delivery_notes: fd.get('delivery_notes'),
+        notes: fd.get('notes'),
+        tip_cents: tipCents,
+        items,
+      }),
+    })
+    const d = await r.json()
+    if (!r.ok) throw new Error(d.error || 'Erro')
+
+    currentOrderId = d.order_id
+
+    // 2. Inicializa Stripe Elements com client_secret
+    const pkRes = await fetch('/api/stripe/pk')
+    const pkData = await pkRes.json()
+    if (!pkData.publishable_key) throw new Error('Stripe nao configurado (sem chave publica)')
+
+    stripe = Stripe(pkData.publishable_key)
+    elements = stripe.elements({ clientSecret: d.client_secret })
+    paymentElement = elements.create('payment')
+    paymentElement.mount('#stripe-element')
+
+    btn.textContent = 'Confirmar pagamento'
+    btn.disabled = false
+
+    // Substitui handler pra agora confirmar
+    e.target.onsubmit = async (ev) => {
+      ev.preventDefault()
+      btn.disabled = true; btn.textContent = 'Processando...'
+      const result = await stripe.confirmPayment({
+        elements,
+        confirmParams: { return_url: window.location.origin + '/pedido/' + currentOrderId },
+        redirect: 'if_required',
+      })
+      if (result.error) {
+        document.getElementById('stripe-errors').textContent = result.error.message
+        btn.disabled = false; btn.textContent = 'Tentar novamente'
+      } else {
+        // Sucesso (sem redirect 3DS)
+        localStorage.removeItem('cart_' + slug)
+        window.location.href = '/pedido/' + currentOrderId
+      }
+    }
+  } catch (err) {
+    msg.innerHTML = '<div class="err">' + err.message + '</div>'
+    btn.disabled = false; btn.textContent = 'Pagar agora'
+  }
+}
+
+loadMenu()
+</script>
+</body>
+</html>

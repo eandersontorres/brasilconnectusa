@@ -109,6 +109,7 @@
       <button class="tab active" data-tab="negocio" onclick="switchTab('negocio')">🏪 Meu Negócio</button>
       <button class="tab" data-tab="profissional" onclick="switchTab('profissional')">📅 Sou profissional (AgendaPro)</button>
       <button class="tab" data-tab="cardapio" onclick="switchTab('cardapio')">🍽️ Cardápio</button>
+      <button class="tab" data-tab="pedidos" onclick="switchTab('pedidos')">📋 Pedidos <span id="orders-badge" style="background:#dc2626;color:#fff;border-radius:10px;padding:2px 7px;font-size:10px;font-weight:700;margin-left:4px;display:none;"></span></button>
     </div>
 
     <div id="content"></div>
@@ -183,6 +184,7 @@
       try {
         if (currentTab === 'negocio') await renderNegocio(email)
         else if (currentTab === 'cardapio') await renderCardapio(email)
+        else if (currentTab === 'pedidos') await renderPedidos(email)
         else await renderProfissional(email)
       } catch (e) {
         root.innerHTML = '<div style="padding: 32px; color: #991B1B;">Erro: ' + e.message + '</div>'
@@ -484,6 +486,162 @@
     function esc(s) {
       if (s === null || s === undefined) return ''
       return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
+    }
+
+    // ═══ Pedidos (painel do dono) ═══
+    let pedidosBiz = null
+    let pedidosPolling = null
+    let lastNewCount = 0
+
+    async function renderPedidos(email) {
+      const r = await fetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
+      const data = await r.json().catch(() => ({}))
+      const biz = (data.businesses || [])[0]
+      if (!biz) {
+        root.innerHTML = '<div class="panel"><div class="help-box">Cadastre seu negócio na aba <strong>Meu Negócio</strong> primeiro.</div></div>'
+        return
+      }
+      pedidosBiz = biz
+      await refreshPedidos(true)
+
+      // Inicia polling 30s
+      if (pedidosPolling) clearInterval(pedidosPolling)
+      pedidosPolling = setInterval(() => refreshPedidos(false), 30000)
+    }
+
+    async function refreshPedidos(initial) {
+      if (!pedidosBiz) return
+      try {
+        const r = await fetch('/api/restaurant/orders?action=list&business_id=' + pedidosBiz.id + '&owner_email=' + encodeURIComponent(getEmail()))
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+
+        // Som de alerta se chegou pedido novo
+        if (!initial && d.new_count > lastNewCount) playAlertSound()
+        lastNewCount = d.new_count
+
+        // Badge no tab
+        const badge = document.getElementById('orders-badge')
+        if (d.new_count > 0) {
+          badge.style.display = 'inline-block'
+          badge.textContent = d.new_count
+        } else {
+          badge.style.display = 'none'
+        }
+
+        // Renderiza so se a tab atual for pedidos
+        if (currentTab === 'pedidos') drawPedidos(d.orders || [])
+      } catch (e) {
+        console.error('refreshPedidos:', e.message)
+      }
+    }
+
+    function drawPedidos(orders) {
+      const groups = { confirmed: [], preparing: [], ready: [], delivered: [], canceled: [], pending: [] }
+      orders.forEach(o => { (groups[o.status] || groups.pending).push(o) })
+
+      const totalActive = groups.confirmed.length + groups.preparing.length + groups.ready.length
+
+      root.innerHTML = `
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+            <h2>📋 Pedidos</h2>
+            <button onclick="refreshPedidos(false)" style="background:transparent;border:1px solid var(--line);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;">🔄 Atualizar</button>
+          </div>
+          <p class="sub">${totalActive} ativos · ${groups.delivered.length} entregues hoje · auto-refresh a cada 30s</p>
+
+          ${columnsHtml('🟢 Confirmados', groups.confirmed, 'preparing', 'Começar preparo')}
+          ${columnsHtml('👨‍🍳 Em preparo', groups.preparing, 'ready', 'Marcar pronto')}
+          ${columnsHtml('🛍️ Prontos', groups.ready, 'delivered', 'Marcar entregue')}
+
+          ${groups.delivered.length > 0 ? `
+            <details style="margin-top:18px;">
+              <summary style="cursor:pointer;font-weight:600;font-size:14px;color:var(--ink-soft);">Entregues recentes (${groups.delivered.length})</summary>
+              <div style="margin-top:10px;">
+                ${groups.delivered.slice(0, 10).map(o => orderCard(o, null, null, true)).join('')}
+              </div>
+            </details>
+          ` : ''}
+
+          ${orders.length === 0 ? '<div class="help-box">Nenhum pedido ainda. Quando chegar, vai aparecer aqui com som de alerta.</div>' : ''}
+        </div>
+      `
+    }
+
+    function columnsHtml(title, orders, nextStatus, nextLabel) {
+      if (orders.length === 0) return ''
+      return '<div style="margin-bottom:18px;"><h3 style="font-size:14px;font-weight:700;margin-bottom:10px;color:var(--ink-soft);">' + title + ' (' + orders.length + ')</h3>'
+        + orders.map(o => orderCard(o, nextStatus, nextLabel, false)).join('')
+        + '</div>'
+    }
+
+    function orderCard(o, nextStatus, nextLabel, compact) {
+      const ageMin = Math.round((Date.now() - new Date(o.created_at).getTime()) / 60000)
+      const itemsList = (o.items || []).map(i => i.quantity + 'x ' + esc(i.item_name) + (i.notes ? ' (' + esc(i.notes) + ')' : '')).join(' · ')
+      return `
+        <div style="background:${compact ? 'var(--paper)' : '#fff'};border:1px solid var(--line);border-radius:10px;padding:${compact ? '10px 12px' : '14px 16px'};margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+            <div>
+              <div style="font-weight:700;font-size:${compact ? '13' : '15'}px;">#${o.order_number} · ${esc(o.customer_name || o.customer_email)}</div>
+              <div style="font-size:11px;color:var(--ink-muted);">${ageMin}min atrás · ${o.type === 'delivery' ? '🛵 Delivery' : '🛍️ Pickup'} · ${o.customer_phone ? esc(o.customer_phone) : ''}</div>
+            </div>
+            <div style="font-weight:700;color:var(--green);font-size:${compact ? '14' : '16'}px;">$${(o.total_cents / 100).toFixed(2)}</div>
+          </div>
+          ${!compact ? '<div style="font-size:12px;color:var(--ink-soft);background:var(--paper);padding:8px;border-radius:6px;margin-bottom:8px;">' + esc(itemsList) + '</div>' : ''}
+          ${o.notes && !compact ? '<div style="font-size:12px;color:#92400e;background:#fef3c7;padding:6px 10px;border-radius:6px;margin-bottom:8px;">📝 ' + esc(o.notes) + '</div>' : ''}
+          ${o.type === 'delivery' && o.delivery_address && !compact ? '<div style="font-size:12px;color:var(--ink-soft);margin-bottom:8px;">📍 ' + esc(o.delivery_address) + (o.delivery_city ? ', ' + esc(o.delivery_city) : '') + '</div>' : ''}
+          ${nextStatus ? `
+            <div style="display:flex;gap:6px;">
+              <button onclick="updateOrderStatus('${o.id}','${nextStatus}')" class="btn-primary" style="padding:8px 14px;font-size:12px;flex:1;">${nextLabel} →</button>
+              <button onclick="cancelOrder('${o.id}')" style="background:transparent;border:1px solid #fca5a5;color:#991b1b;padding:8px 12px;border-radius:6px;font-size:12px;cursor:pointer;">Cancelar</button>
+            </div>
+          ` : ''}
+        </div>
+      `
+    }
+
+    async function updateOrderStatus(orderId, status) {
+      try {
+        const r = await fetch('/api/restaurant/orders?action=update-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ business_id: pedidosBiz.id, owner_email: getEmail(), order_id: orderId, status }),
+        })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        showToast('Status atualizado: ' + status)
+        refreshPedidos(false)
+      } catch (e) { showToast(e.message, true) }
+    }
+
+    async function cancelOrder(orderId) {
+      const reason = prompt('Motivo do cancelamento (cliente vai ver):', '')
+      if (reason === null) return
+      try {
+        const r = await fetch('/api/restaurant/orders?action=update-status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ business_id: pedidosBiz.id, owner_email: getEmail(), order_id: orderId, status: 'canceled', cancel_reason: reason }),
+        })
+        if (!r.ok) throw new Error((await r.json()).error || 'Erro')
+        showToast('Pedido cancelado.')
+        refreshPedidos(false)
+      } catch (e) { showToast(e.message, true) }
+    }
+
+    function playAlertSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)()
+        const o = ctx.createOscillator(), g = ctx.createGain()
+        o.type = 'sine'; o.frequency.setValueAtTime(880, ctx.currentTime)
+        o.frequency.setValueAtTime(660, ctx.currentTime + 0.15)
+        o.frequency.setValueAtTime(880, ctx.currentTime + 0.30)
+        g.gain.setValueAtTime(0.3, ctx.currentTime)
+        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5)
+        o.connect(g); g.connect(ctx.destination)
+        o.start(); o.stop(ctx.currentTime + 0.5)
+        showToast('🔔 Pedido novo!')
+      } catch (e) { /* ignore audio failures */ }
     }
 
     // ═══ Cardapio (CRUD menu) ═══

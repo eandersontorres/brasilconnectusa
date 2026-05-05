@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pedido · BrasilConnect</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <style>
+    :root { --green: #009c3b; --navy: #002776; --gold: #ffdf00; --bg: #f9fafb; --line: #e5e7eb; --txt: #111827; --muted: #6b7280; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--txt); }
+    .topbar { background: #fff; border-bottom: 1px solid var(--line); padding: 14px 16px; }
+    .topbar a { color: var(--navy); text-decoration: none; font-size: 13px; }
+    .container { max-width: 600px; margin: 30px auto; padding: 0 16px; }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 24px; margin-bottom: 16px; }
+    .status-hero { text-align: center; padding: 40px 24px; }
+    .status-emoji { font-size: 48px; margin-bottom: 12px; }
+    .status-text { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+    .status-sub { font-size: 14px; color: var(--muted); }
+    .order-num { background: var(--bg); padding: 12px; border-radius: 8px; text-align: center; font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+    .order-num b { color: var(--navy); font-size: 16px; }
+    .timeline { display: flex; gap: 4px; margin: 20px 0; }
+    .step { flex: 1; height: 5px; border-radius: 3px; background: var(--line); }
+    .step.done { background: var(--green); }
+    .item-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+    .item-row:last-child { border-bottom: none; }
+    .totals { padding-top: 12px; border-top: 2px solid var(--line); margin-top: 8px; }
+    .totals div { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+    .totals .total { font-size: 16px; font-weight: 700; padding-top: 6px; border-top: 1px solid var(--line); margin-top: 6px; }
+    h2 { font-size: 16px; margin-bottom: 12px; }
+    .err { background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; padding: 12px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/">← Brasil<b style="color:var(--gold);font-weight:600;">Connect</b></a>
+  </div>
+  <div class="container">
+    <div id="content"><div class="card"><div class="status-hero"><div class="status-emoji">⏳</div><div class="status-text">Carregando...</div></div></div></div>
+  </div>
+
+<script>
+const orderId = window.location.pathname.split('/')[2]
+const fmt = n => '$' + (n / 100).toFixed(2)
+const STATUS_FLOW = ['pending', 'confirmed', 'preparing', 'ready', 'delivered']
+const STATUS_LABELS = {
+  pending:    { emoji: '⏳', text: 'Aguardando confirmação',          sub: 'O restaurante vai confirmar em breve.' },
+  confirmed:  { emoji: '✅', text: 'Pedido confirmado!',              sub: 'A cozinha já recebeu seu pedido.' },
+  preparing:  { emoji: '👨‍🍳', text: 'Preparando seu pedido',          sub: 'Logo logo fica pronto.' },
+  ready:      { emoji: '🛍️', text: 'Pronto pra retirar!',              sub: 'Pode buscar.' },
+  delivered:  { emoji: '🎉', text: 'Entregue! Bom apetite!',          sub: 'Esperamos você de volta.' },
+  canceled:   { emoji: '❌', text: 'Pedido cancelado',                sub: 'Se foi engano, tenta de novo ou fale com o restaurante.' },
+}
+
+async function loadOrder() {
+  try {
+    const r = await fetch('/api/restaurant/order?id=' + orderId)
+    const d = await r.json()
+    if (!r.ok) throw new Error(d.error || 'Erro')
+    render(d)
+  } catch (e) {
+    document.getElementById('content').innerHTML = '<div class="card"><div class="err">' + e.message + '</div></div>'
+  }
+}
+
+function esc(s) { return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])) }
+
+function render(d) {
+  const o = d.order
+  const items = d.items
+  const biz = d.business
+  const stat = STATUS_LABELS[o.status] || STATUS_LABELS.pending
+  const stepIdx = STATUS_FLOW.indexOf(o.status)
+
+  let timelineHtml = ''
+  if (o.status !== 'canceled' && o.type === 'pickup') {
+    const flow = ['pending', 'confirmed', 'preparing', 'ready', 'delivered']
+    timelineHtml = '<div class="timeline">' +
+      flow.map((s, i) => '<div class="step ' + (i <= stepIdx ? 'done' : '') + '"></div>').join('') +
+      '</div>'
+  }
+
+  let itemsHtml = items.map(i => {
+    const note = i.notes ? '<div style="font-size:11px;color:var(--muted);">' + esc(i.notes) + '</div>' : ''
+    return '<div class="item-row"><div>' + i.quantity + 'x ' + esc(i.item_name) + note + '</div><span>' + fmt(i.subtotal_cents) + '</span></div>'
+  }).join('')
+
+  document.getElementById('content').innerHTML =
+    '<div class="card status-hero">'
+    + '<div class="status-emoji">' + stat.emoji + '</div>'
+    + '<div class="status-text">' + stat.text + '</div>'
+    + '<div class="status-sub">' + stat.sub + '</div>'
+    + timelineHtml
+    + '</div>'
+    + '<div class="order-num">Pedido <b>#' + o.order_number + '</b> em ' + esc(biz.name) + '</div>'
+    + '<div class="card"><h2>Items</h2>' + itemsHtml
+    +   '<div class="totals">'
+    +   '<div><span>Subtotal</span><span>' + fmt(o.subtotal_cents) + '</span></div>'
+    +   (o.delivery_fee_cents ? '<div><span>Entrega</span><span>' + fmt(o.delivery_fee_cents) + '</span></div>' : '')
+    +   (o.tip_cents ? '<div><span>Gorjeta</span><span>' + fmt(o.tip_cents) + '</span></div>' : '')
+    +   '<div class="total"><span>Total pago</span><span>' + fmt(o.total_cents) + '</span></div>'
+    +   '</div>'
+    + '</div>'
+    + (biz.phone || biz.whatsapp ? '<div class="card"><h2>Contato do restaurante</h2><div style="font-size:14px;">' + (biz.whatsapp ? '<a href="https://wa.me/' + biz.whatsapp.replace(/\D/g,'') + '" style="color:var(--green);text-decoration:none;">📱 WhatsApp: ' + esc(biz.whatsapp) + '</a><br>' : '') + (biz.phone ? '<a href="tel:' + esc(biz.phone) + '" style="color:var(--navy);text-decoration:none;">📞 ' + esc(biz.phone) + '</a>' : '') + '</div></div>' : '')
+
+  // Auto-refresh a cada 15s se status nao for final
+  if (o.status !== 'delivered' && o.status !== 'canceled') {
+    setTimeout(loadOrder, 15000)
+  }
+}
+
+loadOrder()
+</script>
+</body>
+</html>

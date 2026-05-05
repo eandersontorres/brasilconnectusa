@@ -39,6 +39,14 @@
       "destination": "/negocio/index.html"
     },
     {
+      "source": "/pedido/:id",
+      "destination": "/negocio/pedido.html"
+    },
+    {
+      "source": "/negocio/:slug/cardapio",
+      "destination": "/negocio/cardapio.html"
+    },
+    {
       "source": "/negocio/:slug",
       "destination": "/negocio/profile.html"
     },

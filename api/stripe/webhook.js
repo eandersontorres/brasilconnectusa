@@ -104,6 +104,30 @@ export default async function handler(req, res) {
         }).eq('stripe_account_id', acc.id)
         break
       }
+      // Restaurant: pedido pago
+      case 'payment_intent.succeeded': {
+        const intent = event.data.object
+        const meta = intent.metadata || {}
+        if (meta.type === 'restaurant_order' && meta.order_id) {
+          await supabase.from('bc_orders').update({
+            payment_status: 'paid',
+            status: 'confirmed',
+            stripe_charge_id: intent.latest_charge,
+            confirmed_at: new Date().toISOString(),
+          }).eq('id', meta.order_id)
+        }
+        break
+      }
+      case 'payment_intent.payment_failed': {
+        const intent = event.data.object
+        const meta = intent.metadata || {}
+        if (meta.type === 'restaurant_order' && meta.order_id) {
+          await supabase.from('bc_orders').update({
+            payment_status: 'failed',
+          }).eq('id', meta.order_id)
+        }
+        break
+      }
     }
     return res.status(200).json({ received: true })
   } catch (e) {
