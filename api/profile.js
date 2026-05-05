@@ -122,6 +122,20 @@ export default async function handler(req, res) {
         update.state = String(update.state).toUpperCase()
       }
 
+      // Auto-geocode se setou city + state (best effort, nao bloqueia)
+      if (update.city && update.state) {
+        try {
+          const { geocodeWithCache } = await import('./geocode.js')
+          const geo = await geocodeWithCache(update.city, update.state)
+          if (geo) {
+            update.latitude = geo.latitude
+            update.longitude = geo.longitude
+          }
+        } catch (geoErr) {
+          console.error('geocode skipped:', geoErr.message)
+        }
+      }
+
       const { data, error } = await supabase
         .from('bc_profiles')
         .upsert(update, { onConflict: 'user_id' })

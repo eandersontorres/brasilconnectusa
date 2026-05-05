@@ -93,6 +93,13 @@ export default async function handler(req, res) {
       const { user_id, limit = 50 } = req.query
       if (!user_id) return err(res, 400, 'user_id é obrigatório')
 
+      // Carrega perfil do user (lat/lng + radius_miles)
+      const { data: profile } = await supabase
+        .from('bc_profiles')
+        .select('latitude, longitude, radius_miles, state')
+        .eq('user_id', user_id)
+        .maybeSingle()
+
       // Pega IDs das comunidades que o user segue
       const { data: memberships } = await supabase
         .from('bc_community_members')
@@ -120,20 +127,70 @@ export default async function handler(req, res) {
         .limit(Number(limit))
       if (error) throw error
 
-      // Junta nomes das comunidades
+      // Junta dados das comunidades incluindo lat/lng + type
       const { data: communities } = await supabase
         .from('bc_communities')
-        .select('id, slug, name, icon')
+        .select('id, slug, name, icon, type, geo_state, latitude, longitude')
         .in('id', communityIds)
       const cMap = {}
       for (const c of communities || []) cMap[c.id] = c
 
-      const enriched = (posts || []).map(p => ({
-        ...p,
-        community: cMap[p.community_id] || null,
-      }))
+      // === Filtro por raio ===
+      // radius_miles:
+      //   0      = so minha cidade (mesma lat/lng aprox)
+      //   10/25/50/100 = raio em milhas (haversine)
+      //   999    = todo o estado
+      //   9999   = nacional (sem filtro)
+      //   undefined/null = mesmo que 9999 (default permissivo)
+      const radius = profile?.radius_miles
+      const userLat = profile?.latitude != null ? Number(profile.latitude) : null
+      const userLng = profile?.longitude != null ? Number(profile.longitude) : null
 
-      return res.status(200).json({ success: true, posts: enriched })
+      function haversineMiles(lat1, lng1, lat2, lng2) {
+        const R = 3958.8 // raio da Terra em milhas
+        const toRad = d => d * Math.PI / 180
+        const dLat = toRad(lat2 - lat1)
+        const dLng = toRad(lng2 - lng1)
+        const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2
+        return 2 * R * Math.asin(Math.sqrt(a))
+      }
+
+      function communityMatches(community) {
+        if (!community) return true                       // post sem comunidade → mantém
+        if (community.type === 'national') return true    // categorias nacionais sempre aparecem
+        if (radius == null || radius === 9999) return true // nacional/sem filtro
+
+        // Filtro por estado (raio = 999 = estado todo)
+        if (radius === 999) {
+          if (community.type === 'general') return true
+          if (!profile?.state || !community.geo_state) return true
+          return community.geo_state === profile.state
+        }
+
+        // Filtro por raio em milhas (precisa lat/lng dos dois lados)
+        if (userLat != null && userLng != null && community.latitude != null && community.longitude != null) {
+          const dist = haversineMiles(userLat, userLng, Number(community.latitude), Number(community.longitude))
+          return dist <= (radius || 25)
+        }
+
+        // Sem coordenadas: fallback pra estado
+        if (profile?.state && community.geo_state) return community.geo_state === profile.state
+        return true                                         // permissivo se nao temos info
+      }
+
+      const enriched = (posts || [])
+        .map(p => ({ ...p, community: cMap[p.community_id] || null }))
+        .filter(p => communityMatches(p.community))
+
+      return res.status(200).json({
+        success: true,
+        posts: enriched,
+        filter: {
+          radius_miles: radius,
+          has_location: userLat != null,
+          state: profile?.state || null,
+        },
+      })
     }
 
     // ══════════ GET: feed público (sem login, mostra comunidade GERAL) ════
