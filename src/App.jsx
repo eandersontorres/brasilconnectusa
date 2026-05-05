@@ -3,6 +3,7 @@ import BolaoScreen from './BolaoScreen'
 import NegociosScreen from './NegociosScreen'
 import AgendaApp from './AgendaApp'
 import AppShell from './AppShell'
+import PushPrompt from './PushPrompt'
 import FeedScreen from './FeedScreen'
 import DiscoverScreen from './DiscoverScreen'
 
@@ -1112,14 +1113,17 @@ export default function App() {
   }, [])
 
   return (
-    <AppShell tab={tab} setTab={setTab}>
-      {tab === 'feed'     && <FeedScreen onNavigate={setTab} />}
-      {tab === 'discover' && <DiscoverScreen onNavigate={setTab} />}
-      {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
-      {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
-      {tab === 'agenda'   && <AgendaApp />}
-      {tab === 'negocios' && <NegociosScreen />}
-      {tab === 'bolao'    && <BolaoScreen />}
-    </AppShell>
+    <>
+      <AppShell tab={tab} setTab={setTab}>
+        {tab === 'feed'     && <FeedScreen onNavigate={setTab} />}
+        {tab === 'discover' && <DiscoverScreen onNavigate={setTab} />}
+        {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
+        {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
+        {tab === 'agenda'   && <AgendaApp />}
+        {tab === 'negocios' && <NegociosScreen />}
+        {tab === 'bolao'    && <BolaoScreen />}
+      </AppShell>
+      <PushPrompt />
+    </>
   )
 }
