@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { C, FONT, useIsMobile } from './lib/colors'
 import { useAuth } from './AuthModal'
 import OnboardingFlow from './OnboardingFlow'
+import NotificationBell from './NotificationBell'
 
 // ────────────────────────────────────────────────────────────────────────────
 //   AppShell — layout responsivo (mobile bottom nav + desktop 3 colunas)
@@ -46,6 +47,7 @@ function MobileTopBar({ user, onSignIn, onSignOut }) {
     }}>
       <Logo size={20} />
       <div style={{ flex: 1 }} />
+      {user && <NotificationBell user={user} />}
       {user ? (
         <button onClick={onSignOut} title="Sair" style={{
           width: 32, height: 32, borderRadius: '50%', background: C.green,
@@ -123,6 +125,7 @@ function DesktopTopBar({ user, onSignIn, onSignOut, search, setSearch }) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {user && <NotificationBell user={user} />}
         {user ? (
           <button onClick={onSignOut} title={user.email + ' — clique pra sair'} style={{
             width: 34, height: 34, borderRadius: '50%', background: C.green,
