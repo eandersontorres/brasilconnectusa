@@ -7,73 +7,238 @@
   <link rel="canonical" href="https://brasilconnectusa.com/grupos/">
   <title>Grupos de Interesse — Brasileiros nos EUA | BrasilConnect</title>
   <meta name="description" content="Encontre brasileiros com seus interesses na sua cidade. Futebol, vinho, livros, mães, gamers, tech — grupos ativos só quando tem gente.">
-  <meta name="theme-color" content="#009c3b">
+  <meta name="theme-color" content="#1F4D3F">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/premium.css">
+
   <style>
-    .cat-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 0 0 8px; margin-bottom: 18px; }
-    .cat-tab { padding: 10px 18px; background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 999px; font-size: 13px; cursor: pointer; white-space: nowrap; font-family: inherit; font-weight: 500; }
-    .cat-tab.active { background: var(--brand-green); color: var(--paper); border-color: var(--brand-green); }
-    .interest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-    .interest-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px; cursor: pointer; transition: all 0.15s; }
-    .interest-card:hover { border-color: var(--brand-gold); transform: translateY(-1px); }
-    .interest-card.sensitive { border-left: 3px solid var(--brand-gold); }
-    .interest-card .name { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
-    .interest-card .desc { font-size: 13px; color: var(--ink-muted); line-height: 1.5; }
-    .interest-card .threshold { font-size: 11px; color: var(--brand-gold-dark); font-weight: 600; margin-top: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
-    .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: none; align-items: flex-end; }
+    /* Interest cards (específicos desta página) */
+    .interest-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .interest-card {
+      background: var(--paper-elevated);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 24px;
+      cursor: pointer;
+      transition: all .15s;
+      display: flex; flex-direction: column;
+    }
+    .interest-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .interest-card.sensitive {
+      border-left: 3px solid var(--accent);
+    }
+    .interest-icon {
+      font-size: 32px;
+      margin-bottom: 14px;
+      line-height: 1;
+    }
+    .interest-cat-tag {
+      display: inline-flex;
+      padding: 3px 10px;
+      background: var(--green-soft);
+      color: var(--green-deep);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 5px;
+      margin-bottom: 8px;
+      align-self: flex-start;
+    }
+    .interest-card.sensitive .interest-cat-tag {
+      background: var(--gold-soft);
+      color: var(--accent-deep);
+    }
+    .interest-name {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin: 0 0 6px;
+      line-height: 1.3;
+    }
+    .interest-desc {
+      font-size: 13px;
+      color: var(--ink-muted);
+      line-height: 1.55;
+      flex: 1;
+    }
+    .interest-threshold {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+    }
+
+    /* Modal — atualizado com paleta nova */
+    .modal-bg {
+      position: fixed; inset: 0;
+      background: rgba(26, 31, 28, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+    }
     .modal-bg.open { display: flex; }
-    .modal { background: var(--paper-elevated); border-radius: 20px 20px 0 0; padding: 28px 24px; width: 100%; max-width: 520px; margin: 0 auto; }
-    .modal h2 { font-family: var(--font-display); margin: 0 0 8px; }
-    .progress-bar { background: var(--paper-soft); height: 8px; border-radius: 4px; margin: 16px 0 8px; overflow: hidden; }
-    .progress-fill { background: var(--brand-gold); height: 100%; transition: width 0.5s; }
+    .modal {
+      background: var(--paper-elevated);
+      border-radius: 20px 20px 0 0;
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+    .modal h2 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      margin: 0 0 8px;
+      color: var(--ink);
+    }
+    .modal-eyebrow {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .modal input,
+    .modal select {
+      width: 100%;
+      padding: 12px 0;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--line-strong);
+      outline: none;
+      margin-bottom: 14px;
+      transition: border-color .15s;
+    }
+    .modal input:focus,
+    .modal select:focus { border-bottom-color: var(--green-deep); }
+    .modal input::placeholder { color: var(--ink-muted); }
+
+    .progress-bar {
+      background: var(--paper-soft);
+      height: 6px;
+      border-radius: 3px;
+      margin: 14px 0 8px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      background: var(--accent);
+      height: 100%;
+      transition: width 0.6s;
+    }
     .progress-text { font-size: 13px; color: var(--ink-muted); margin-bottom: 16px; }
-    .modal input { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md); margin-bottom: 10px; font-family: inherit; font-size: 14px; box-sizing: border-box; }
-    .modal-success { background: var(--brand-gold-soft); padding: 18px; border-radius: var(--r-md); margin-top: 12px; }
+    .modal-success {
+      background: var(--gold-soft);
+      padding: 18px;
+      border-radius: var(--r-md);
+      margin-top: 12px;
+      border-left: 3px solid var(--accent);
+    }
   </style>
 </head>
-<body>
-  <header class="site-header">
-    <div class="container">
-      <a class="logo" href="/"><img src="/img/logo.svg" alt="BrasilConnect" /></a>
-      <nav class="site-nav"><a href="/custo-de-vida/">Cidades</a><a href="/guias/">Guias</a><a href="/negocio/">Negócios</a><a href="/grupos/" style="color:var(--brand-green);font-weight:600;">Grupos</a></nav>
+<body class="has-flag-stripe">
+
+  <div class="flag-stripe" aria-hidden="true"></div>
+
+  <nav class="bc-nav">
+    <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+    <div class="bc-nav-r">
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/agenda/" class="bc-nl">Agenda</a>
+      <a href="/negocio/" class="bc-nl">Negócios</a>
+      <a href="/grupos/" class="bc-nl active">Grupos</a>
     </div>
-  </header>
+  </nav>
 
   <main>
+    <!-- ── HERO ── -->
     <section class="hero">
       <div class="container-narrow">
-        <div class="eyebrow">Grupos de Interesse · Brasileiros nos EUA</div>
-        <h1>Encontre sua tribo brasileira</h1>
-        <p class="lede">Futebol no domingo, clube do livro, mães de recém-nascidos, vinho, games. Cada grupo só nasce quando tem gente suficiente — você se cadastra, e a gente avisa quando o grupo na sua cidade for ativado. Membro Pro $4,99/mês.</p>
+        <div class="eyebrow">Comunidade · BrasilConnect</div>
+        <h1>Encontre sua <em>tribo</em> brasileira.</h1>
+        <p class="lede">Futebol no domingo, clube do livro, mães de recém-nascidos, vinho, games. Cada grupo só nasce quando tem gente suficiente — você se cadastra, e a gente avisa quando o grupo na sua cidade for ativado. <strong>Membro Pro $4,99/mês</strong>.</p>
       </div>
     </section>
 
-    <section>
+    <!-- ── INTERESSES ── -->
+    <section class="section">
       <div class="container">
-        <div class="cat-tabs" id="catTabs">
-          <button class="cat-tab active" data-cat="">Todos</button>
-          <button class="cat-tab" data-cat="esporte">⚽ Esportes</button>
-          <button class="cat-tab" data-cat="cultura">🍷 Cultura</button>
-          <button class="cat-tab" data-cat="tech">💻 Tech & Negócios</button>
-          <button class="cat-tab" data-cat="lazer">🎮 Lazer</button>
-          <button class="cat-tab" data-cat="familia">👶 Família</button>
+        <div class="cat-pills" id="catTabs">
+          <button class="cat-pill active" data-cat="">Todos</button>
+          <button class="cat-pill" data-cat="esporte">Esportes</button>
+          <button class="cat-pill" data-cat="cultura">Cultura</button>
+          <button class="cat-pill" data-cat="tech">Tech &amp; Negócios</button>
+          <button class="cat-pill" data-cat="lazer">Lazer</button>
+          <button class="cat-pill" data-cat="familia">Família</button>
         </div>
+
         <div class="interest-grid" id="grid"></div>
       </div>
     </section>
 
-    <section>
+    <!-- ── COMO FUNCIONA ── -->
+    <section class="section">
       <div class="container-narrow">
-        <h2>Como funciona</h2>
-        <ol style="color:var(--ink-soft);font-size:15px;line-height:1.8;padding-left:20px;">
-          <li><strong>Você se cadastra</strong> em um interesse + cidade</li>
-          <li><strong>O sistema conta</strong> quantas pessoas estão esperando o mesmo grupo</li>
-          <li><strong>Quando atinge o threshold</strong> (5–10 pessoas dependendo do interesse), o grupo é ativado</li>
-          <li><strong>Você recebe um email</strong> com o link pra entrar — assinatura Member $4,99/mês</li>
-        </ol>
+        <div class="eyebrow">Como funciona</div>
+        <h2>Grupos que só nascem quando tem gente.</h2>
+
+        <div class="feature-list" style="margin-top:32px;">
+          <div class="feature-item">
+            <div class="feature-num">01</div>
+            <div class="feature-body">
+              <h3>Você se cadastra</h3>
+              <p>Escolhe um interesse + sua cidade. Sem pagar nada nessa etapa.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-num">02</div>
+            <div class="feature-body">
+              <h3>O sistema conta</h3>
+              <p>Quantas pessoas estão esperando o mesmo grupo na mesma região.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-num">03</div>
+            <div class="feature-body">
+              <h3>Quando atinge o threshold</h3>
+              <p>5–10 pessoas dependendo do interesse, o grupo é ativado automaticamente.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-num">04</div>
+            <div class="feature-body">
+              <h3>Você recebe um email</h3>
+              <p>Com o link pra entrar — assinatura Member $4,99/mês começa só agora.</p>
+            </div>
+          </div>
+        </div>
+
         <div class="callout">
           <strong>Inversão da lógica do WhatsApp:</strong> em vez de pagar pra ter um grupo vazio, você paga pra entrar num grupo que já tem gente. Assinatura é só ativada depois que o grupo está cheio.
         </div>
@@ -87,14 +252,37 @@
     </div>
   </div>
 
-  <footer class="site-footer">
+  <footer class="bc-footer">
     <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
+          <p class="footer-tagline">A plataforma para brasileiros nos EUA — feita por brasileiros, para brasileiros.</p>
+        </div>
+        <div>
+          <h4>Comunidade</h4>
+          <a href="/grupos/">Grupos</a>
+          <a href="/negocio/">Negócios</a>
+          <a href="/?preview=brasil2026">App</a>
+        </div>
+        <div>
+          <h4>Produtos</h4>
+          <a href="/agenda/">AgendaPro</a>
+          <a href="/viagem/">Viagem</a>
+        </div>
+        <div>
+          <h4>Sobre</h4>
+          <a href="/">Início</a>
+          <a href="/custo-de-vida/">Cidades</a>
+          <a href="/guias/">Guias</a>
+        </div>
+      </div>
       <div class="footer-bottom">© 2026 BrasilConnect USA</div>
     </div>
   </footer>
 
   <script>
-    // 26 interesses com ícone + descrição (sincronizar com bc_interest_config seed)
+    // 26 interesses com ícone + descrição
     const INTERESTS = [
       // Esportes
       { id:'futebol', name:'Futebol', cat:'esporte', desc:'Pelada de domingo, futsal, society', icon:'⚽', threshold:8 },
@@ -130,6 +318,7 @@
     ]
 
     const STATES = ['TX','FL','MA','NY','CA','GA','NJ','IL','PA','VA','NC','CO','AZ','WA','MD','TN']
+    const CAT_LABEL = { esporte:'Esporte', cultura:'Cultura', tech:'Tech', lazer:'Lazer', familia:'Família' }
     let activeCat = ''
 
     const $ = id => document.getElementById(id)
@@ -138,17 +327,18 @@
     function render() {
       const list = INTERESTS.filter(i => !activeCat || i.cat === activeCat)
       $('grid').innerHTML = list.map(i => `
-        <div class="interest-card ${i.sensitive?'sensitive':''}" onclick="openModal('${i.id}')">
-          <div style="font-size:24px;margin-bottom:6px;">${i.icon}</div>
-          <div class="name">${escapeHtml(i.name)}</div>
-          <div class="desc">${escapeHtml(i.desc)}</div>
-          <div class="threshold">Ativa com ${i.threshold} pessoas</div>
-        </div>
+        <article class="interest-card${i.sensitive?' sensitive':''}" onclick="openModal('${i.id}')">
+          <div class="interest-icon">${i.icon}</div>
+          <span class="interest-cat-tag">${escapeHtml(CAT_LABEL[i.cat] || i.cat)}</span>
+          <h3 class="interest-name">${escapeHtml(i.name)}</h3>
+          <p class="interest-desc">${escapeHtml(i.desc)}</p>
+          <div class="interest-threshold">Ativa com ${i.threshold} pessoas</div>
+        </article>
       `).join('')
     }
 
-    document.querySelectorAll('.cat-tab').forEach(t => t.onclick = () => {
-      document.querySelectorAll('.cat-tab').forEach(x => x.classList.remove('active'))
+    document.querySelectorAll('.cat-pill').forEach(t => t.onclick = () => {
+      document.querySelectorAll('.cat-pill').forEach(x => x.classList.remove('active'))
       t.classList.add('active'); activeCat = t.dataset.cat; render()
     })
 
@@ -157,12 +347,12 @@
       if (!interest) return
       $('modal').classList.add('open')
       $('modalContent').innerHTML = `
-        <div style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-bottom:8px;">${interest.icon} ${escapeHtml(interest.cat)}</div>
+        <div class="modal-eyebrow">${interest.icon} ${escapeHtml(CAT_LABEL[interest.cat] || interest.cat)}</div>
         <h2>${escapeHtml(interest.name)}</h2>
-        <p style="color:var(--ink-soft);font-size:14px;">${escapeHtml(interest.desc)}</p>
+        <p style="color:var(--ink-soft);font-size:14px;margin-bottom:20px;">${escapeHtml(interest.desc)}</p>
         <form id="signupForm">
           <input name="email" type="email" placeholder="seu@email.com" required />
-          <select name="state" required style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:10px;font-family:inherit;font-size:14px;">
+          <select name="state" required>
             <option value="">Estado *</option>
             ${STATES.map(s => `<option value="${s}">${s}</option>`).join('')}
           </select>
@@ -186,7 +376,7 @@
               <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;"></div></div>
               <div class="progress-text">${d.position} de ${d.threshold} pessoas em ${escapeHtml(body.state)}.${d.group_created?' Grupo ativado! Você vai receber um email com o link.':' Vamos ativar o grupo quando atingirmos o threshold.'}</div>
               <p style="font-size:13px;color:var(--ink-soft);">Compartilhe pra acelerar:</p>
-              <a href="https://wa.me/?text=${encodeURIComponent('Estou esperando o grupo de '+interest.name+' nos EUA: https://brasilconnectusa.com/grupos/')}" target="_blank" rel="noopener" style="display:inline-block;padding:10px 18px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:13px;">📱 Compartilhar no WhatsApp</a>
+              <a href="https://wa.me/?text=${encodeURIComponent('Estou esperando o grupo de '+interest.name+' nos EUA: https://brasilconnectusa.com/grupos/')}" target="_blank" rel="noopener" style="display:inline-block;padding:10px 18px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:13px;">Compartilhar no WhatsApp</a>
             </div>
           `
         } catch (e) {
