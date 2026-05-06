@@ -5,198 +5,161 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="canonical" href="https://brasilconnectusa.com/agenda/">
-  <title>AgendaPro — Agendamento online para profissionais brasileiras nos EUA | BrasilConnect</title>
-  <meta name="description" content="Sistema de agendamento online para cabeleireiras, manicures, esteticistas e outros profissionais brasileiros nos EUA. Receba clientes via BrasilConnect, controle agenda e cobre depósito antecipado.">
+  <title>AgendaPro — Agenda online para profissionais brasileiros nos EUA | BrasilConnect</title>
+  <meta name="description" content="Sistema de agendamento online para profissionais autônomos brasileiros nos EUA. Receba clientes, controle agenda, lembre via WhatsApp e cobre sinal antecipado.">
   <meta name="robots" content="index, follow">
-  <meta name="theme-color" content="#009c3b">
+  <meta name="theme-color" content="#1F4D3F">
 
   <meta property="og:type" content="website">
-  <meta property="og:title" content="AgendaPro — Sistema de agendamento para profissionais brasileiras">
-  <meta property="og:description" content="Receba clientes via BrasilConnect. Controle agenda, cobre depósito, mande lembretes no WhatsApp.">
+  <meta property="og:title" content="AgendaPro — Sistema de agendamento para profissionais brasileiros nos EUA">
+  <meta property="og:description" content="Receba clientes via BrasilConnect. Controle agenda, cobre sinal, mande lembretes no WhatsApp.">
   <meta property="og:image" content="https://brasilconnectusa.com/img/logo-mark.svg">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,200;1,9..144,300&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/premium.css">
-
-  <style>
-    .plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 28px 0; }
-    .plan-card {
-      background: var(--paper-elevated);
-      border: 1px solid var(--line);
-      border-radius: var(--r-lg);
-      padding: 28px 24px;
-      position: relative;
-    }
-    .plan-card.featured { border: 2px solid var(--brand-gold); }
-    .plan-card .featured-badge {
-      position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
-      background: var(--brand-gold); color: var(--paper);
-      padding: 4px 14px; border-radius: 999px;
-      font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
-    }
-    .plan-card h3 { font-family: var(--font-display); font-size: 1.5rem; margin: 0 0 6px; color: var(--ink); }
-    .plan-card .price {
-      font-family: var(--font-display);
-      font-size: 2.4rem; font-weight: 700; color: var(--ink); margin: 14px 0 4px;
-    }
-    .plan-card .price small { font-size: 0.9rem; font-weight: 400; color: var(--ink-muted); }
-    .plan-card .features { list-style: none; padding: 0; margin: 18px 0; }
-    .plan-card .features li { padding: 6px 0 6px 22px; position: relative; font-size: 0.9rem; color: var(--ink-soft); border-bottom: 1px solid var(--line-soft); }
-    .plan-card .features li:last-child { border-bottom: none; }
-    .plan-card .features li::before { content: '✓'; position: absolute; left: 0; color: var(--brand-gold-dark); font-weight: 700; }
-
-    .feature-row {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center;
-      padding: 36px 0; border-bottom: 1px solid var(--line);
-    }
-    .feature-row:nth-child(even) > div:first-child { order: 2; }
-    .feature-row .ftxt h3 { font-family: var(--font-display); font-size: 1.6rem; margin: 0 0 10px; color: var(--ink); }
-    .feature-row .ftxt p { color: var(--ink-soft); margin: 0; font-size: 0.98rem; line-height: 1.65; }
-    .feature-row .fimg {
-      background: var(--paper-soft); border-radius: var(--r-lg);
-      padding: 32px; text-align: center; min-height: 160px;
-      display: flex; align-items: center; justify-content: center;
-      border: 1px solid var(--line);
-    }
-    .feature-row .fimg .icon-wrap {
-      font-family: var(--font-display); font-size: 2.4rem; font-weight: 600; color: var(--brand-green);
-    }
-    @media (max-width: 720px) {
-      .feature-row { grid-template-columns: 1fr; gap: 18px; padding: 28px 0; }
-      .feature-row:nth-child(even) > div:first-child { order: 0; }
-    }
-  </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container">
-      <a class="logo" href="/"><img src="/img/logo.svg" alt="BrasilConnect USA" /></a>
-      <nav class="site-nav">
-        <a href="/custo-de-vida/">Custo de Vida</a>
-        <a href="/guias/">Guias</a>
-        <a href="/agenda/" style="color: var(--brand-green); font-weight: 600;">Agenda</a>
-        <a href="/?preview=brasil2026">App</a>
-      </nav>
+
+  <nav class="bc-nav">
+    <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+    <div class="bc-nav-r">
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/agenda/" class="bc-nl active">Agenda</a>
+      <a href="/negocio/" class="bc-nl">Negócios</a>
+      <a href="/?preview=brasil2026" class="bc-nl">App</a>
     </div>
-  </header>
+  </nav>
 
   <main>
+    <!-- ── HERO PRODUTO ── -->
     <section class="hero">
       <div class="container-narrow">
-        <div class="eyebrow">AgendaPro · para profissionais</div>
-        <h1>Sua agenda online, do jeito que brasileiras nos EUA precisam</h1>
-        <p class="lede">Cabeleireira, manicure, esteticista, personal trainer, professora. Receba agendamentos sem ficar 24h no celular, lembre clientes no WhatsApp e cobre depósito pra acabar com o no-show. Tudo dentro do BrasilConnect — onde a comunidade brasileira já está.</p>
-        <div style="display:flex; gap:12px; margin-top:24px; flex-wrap:wrap;">
+        <div class="eyebrow">Produto BrasilConnect</div>
+        <div class="hero-product">Agenda<em>Pro</em></div>
+        <p class="hero-tagline">Sua agenda online, <em>do jeito certo.</em></p>
+        <p class="lede">Para todo profissional autônomo que vive de hora marcada — barbeiros, esteticistas, personal trainers, terapeutas, professores particulares, fotógrafos, nutricionistas. Receba agendamentos sem ficar 24h no celular, lembre clientes no WhatsApp e cobre sinal pra acabar com o no-show.</p>
+        <div style="display:flex; gap:14px; margin-top:36px; flex-wrap:wrap;">
           <a href="#planos" class="btn btn-primary">Ver planos</a>
-          <a href="#como-funciona" class="btn btn-secondary">Como funciona</a>
+          <a href="#como-funciona" class="btn btn-ghost">Como funciona</a>
         </div>
       </div>
     </section>
 
-    <section id="como-funciona">
+    <!-- ── COMO FUNCIONA ── -->
+    <section class="section" id="como-funciona">
       <div class="container-narrow">
-        <h2 style="text-align:center; margin-top: 48px; margin-bottom: 8px;">Tudo que você precisa, nada que você não usa</h2>
-        <p class="muted" style="text-align:center; margin-bottom: 36px;">Construído pensando em uma profissional sozinha ou com equipe pequena. Sem burocracia corporativa.</p>
+        <div class="eyebrow">Funcionalidades</div>
+        <h2>Tudo que você precisa, <em>nada que você não usa.</em></h2>
+        <p class="lede" style="margin-top:14px;">Construído para o autônomo que toca tudo sozinho ou com equipe pequena. Sem burocracia corporativa.</p>
 
-        <div class="feature-row">
-          <div class="ftxt">
-            <h3>Sua página pública pronta</h3>
-            <p>Você ganha um link tipo <code style="background:var(--paper-soft); padding:2px 6px; border-radius:4px;">brasilconnectusa.com/agenda/seu-nome</code> com seus serviços, preços e horários disponíveis. Compartilha no Instagram, WhatsApp e impresso. Cliente clica e agenda em 30 segundos.</p>
+        <div class="feature-list" style="margin-top:48px;">
+          <div class="feature-item">
+            <div class="feature-num">01</div>
+            <div class="feature-body">
+              <h3>Sua página pública pronta</h3>
+              <p>Você ganha um link tipo <code>brasilconnectusa.com/agenda/seu-nome</code> com seus serviços, preços e horários disponíveis. Compartilha no Instagram, WhatsApp e impresso. Cliente clica e agenda em 30 segundos.</p>
+            </div>
           </div>
-          <div class="fimg"><div class="icon-wrap">/agenda/seu-nome</div></div>
-        </div>
 
-        <div class="feature-row">
-          <div class="ftxt">
-            <h3>Lembretes no WhatsApp automáticos</h3>
-            <p>24 horas antes do agendamento, o sistema dispara mensagem no WhatsApp da cliente. No-show cai em até 60% só com isso.</p>
+          <div class="feature-item">
+            <div class="feature-num">02</div>
+            <div class="feature-body">
+              <h3>Lembretes no WhatsApp automáticos</h3>
+              <p>24 horas antes do agendamento, o sistema dispara mensagem no WhatsApp da cliente. No-show cai em até 60% só com isso.</p>
+            </div>
           </div>
-          <div class="fimg"><div class="icon-wrap">📱 → ⏰ −24h</div></div>
-        </div>
 
-        <div class="feature-row">
-          <div class="ftxt">
-            <h3>Cobre depósito antecipado</h3>
-            <p>Cliente paga $10-30 de sinal via Stripe na hora de agendar. Se não comparecer, dinheiro fica com você. Cliente que de fato vem, recebe valor descontado no serviço.</p>
+          <div class="feature-item">
+            <div class="feature-num">03</div>
+            <div class="feature-body">
+              <h3>Cobre sinal antecipado</h3>
+              <p>Você define o valor do sinal — cliente paga via Stripe na hora de agendar. Se não comparecer, dinheiro fica com você. Cliente que comparece, recebe o valor descontado no serviço.</p>
+            </div>
           </div>
-          <div class="fimg"><div class="icon-wrap">💳 sinal $20</div></div>
-        </div>
 
-        <div class="feature-row">
-          <div class="ftxt">
-            <h3>Cliente paga em Zelle, dinheiro ou cartão</h3>
-            <p>Você escolhe os métodos. Pra valor cheio do serviço (não do sinal), aceita o que preferir — sem taxa do Stripe na maior parte do dinheiro.</p>
+          <div class="feature-item">
+            <div class="feature-num">04</div>
+            <div class="feature-body">
+              <h3>Cliente paga em Zelle, dinheiro ou cartão</h3>
+              <p>Você escolhe os métodos. Para o valor cheio do serviço, aceita o que preferir — sem taxa do Stripe na maior parte do dinheiro.</p>
+            </div>
           </div>
-          <div class="fimg"><div class="icon-wrap">Z 💵 💳</div></div>
-        </div>
 
-        <div class="feature-row">
-          <div class="ftxt">
-            <h3>Avaliações dos seus clientes</h3>
-            <p>Após o serviço, cliente recebe link único pra deixar uma estrela. Avaliações ficam públicas no seu perfil — vira sua maior alavanca de captação. Não precisa pedir, é automático.</p>
+          <div class="feature-item">
+            <div class="feature-num">05</div>
+            <div class="feature-body">
+              <h3>Avaliações dos seus clientes</h3>
+              <p>Após o serviço, cliente recebe link único pra deixar uma estrela. Avaliações ficam públicas no seu perfil — vira sua maior alavanca de captação. Não precisa pedir, é automático.</p>
+            </div>
           </div>
-          <div class="fimg"><div class="icon-wrap">★ ★ ★ ★ ★</div></div>
         </div>
       </div>
     </section>
 
-    <section id="planos">
-      <div class="container-narrow">
-        <h2 style="text-align:center; margin-top: 64px;">Planos</h2>
-        <p class="muted" style="text-align:center; margin-bottom: 28px;">14 dias grátis em qualquer plano. Cancela quando quiser.</p>
+    <!-- ── PLANOS ── -->
+    <section class="section" id="planos">
+      <div class="container">
+        <div class="section-head" style="text-align:center; flex-direction:column; align-items:center; margin-bottom:48px;">
+          <div class="eyebrow" style="text-align:center;">Planos</div>
+          <h2 style="margin: 0 auto 8px;">14 dias grátis. Cancele quando quiser.</h2>
+        </div>
 
-        <div class="plan-grid">
-          <div class="plan-card">
-            <h3>Starter</h3>
-            <p class="muted" style="font-size:0.9rem; margin:0;">Pra quem está começando</p>
-            <div class="price">$19<small>/mês</small></div>
-            <ul class="features">
+        <div class="plans">
+          <div class="plan">
+            <div class="plan-tag">Starter</div>
+            <h3>Para começar</h3>
+            <p class="plan-sub">Quem está testando o sistema</p>
+            <div class="plan-price">$19<small> / mês</small></div>
+            <ul>
               <li>1 profissional</li>
               <li>Página pública e agendamento</li>
               <li>Até 50 clientes cadastrados</li>
               <li>Suporte por email</li>
             </ul>
-            <a href="#cadastro" class="btn btn-secondary" style="width:100%; justify-content:center;">Começar grátis 14 dias</a>
+            <a href="#cadastro" class="btn-link">Começar grátis</a>
           </div>
 
-          <div class="plan-card featured">
-            <span class="featured-badge">Mais popular</span>
-            <h3>Pro</h3>
-            <p class="muted" style="font-size:0.9rem; margin:0;">O que a maioria escolhe</p>
-            <div class="price">$39<small>/mês</small></div>
-            <ul class="features">
+          <div class="plan featured">
+            <div class="plan-tag">Pro · mais escolhido</div>
+            <h3>Para crescer</h3>
+            <p class="plan-sub">A maioria dos profissionais</p>
+            <div class="plan-price">$39<small> / mês</small></div>
+            <ul>
               <li>Tudo do Starter</li>
               <li>Lembretes automáticos no WhatsApp</li>
-              <li>Cobrança de depósito antecipado (Stripe)</li>
+              <li>Cobrança de sinal antecipado</li>
               <li>Avaliações públicas</li>
-              <li>Analytics — faturamento, top clientes</li>
+              <li>Analytics e relatórios</li>
               <li>Clientes ilimitados</li>
             </ul>
-            <a href="#cadastro" class="btn btn-primary" style="width:100%; justify-content:center;">Começar grátis 14 dias</a>
+            <a href="#cadastro" class="btn btn-primary" style="width:100%; justify-content:center; margin-top:8px;">Começar grátis</a>
           </div>
 
-          <div class="plan-card">
-            <h3>Premium</h3>
-            <p class="muted" style="font-size:0.9rem; margin:0;">Equipes e consultórios</p>
-            <div class="price">$79<small>/mês</small></div>
-            <ul class="features">
+          <div class="plan">
+            <div class="plan-tag">Premium</div>
+            <h3>Para equipes</h3>
+            <p class="plan-sub">Consultórios e estúdios</p>
+            <div class="plan-price">$79<small> / mês</small></div>
+            <ul>
               <li>Tudo do Pro</li>
               <li>Até 10 profissionais</li>
               <li>Agenda compartilhada</li>
-              <li>Relatório de faturamento por profissional</li>
+              <li>Relatório por profissional</li>
               <li>Prioridade em busca</li>
             </ul>
-            <a href="#cadastro" class="btn btn-secondary" style="width:100%; justify-content:center;">Começar grátis 14 dias</a>
+            <a href="#cadastro" class="btn-link">Começar grátis</a>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="cadastro">
+    <!-- ── CTA CADASTRO ── -->
+    <section class="section" id="cadastro">
       <div class="container-narrow">
-        <div class="cta-section" style="margin-top:48px;">
+        <div class="cta-section">
           <h2>Quero meu AgendaPro</h2>
           <p class="lede">Estamos aceitando profissionais por convite enquanto preparamos o lançamento. Cadastre seu email e a gente te chama assim que abrir.</p>
           <a href="/" class="btn btn-primary">Entrar na lista de espera</a>
@@ -204,16 +167,18 @@
       </div>
     </section>
 
-    <section>
+    <!-- ── FAQ ── -->
+    <section class="section">
       <div class="container-narrow">
-        <h2 style="margin-top:32px;">Perguntas frequentes</h2>
+        <div class="eyebrow">Perguntas frequentes</div>
+        <h2 style="margin-bottom:24px;">Dúvidas comuns.</h2>
         <details class="faq-item">
           <summary>Quanto custa pra começar?</summary>
           <p>Os primeiros 14 dias são gratuitos em qualquer plano — você testa antes de pagar. Não precisa cadastrar cartão de crédito pra começar o trial.</p>
         </details>
         <details class="faq-item">
           <summary>Preciso ter LLC ou EIN?</summary>
-          <p>Não pra usar o AgendaPro. Você pode operar como autônoma. Mas pra crescer e separar contas pessoais das profissionais, recomendamos abrir uma LLC e EIN — tem nosso <a href="/guias/abrir-llc/">guia completo</a> sobre isso.</p>
+          <p>Não pra usar o AgendaPro. Você pode operar como autônomo. Mas pra crescer e separar contas pessoais das profissionais, recomendamos abrir uma LLC e EIN — tem nosso <a href="/guias/abrir-llc/">guia completo</a> sobre isso.</p>
         </details>
         <details class="faq-item">
           <summary>Como cobro o cliente do valor cheio do serviço?</summary>
@@ -231,11 +196,11 @@
     </section>
   </main>
 
-  <footer class="site-footer">
+  <footer class="bc-footer">
     <div class="container">
       <div class="footer-grid">
         <div>
-          <div class="footer-logo"><img src="/img/logo.svg" alt="BrasilConnect USA" /></div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
           <p class="footer-tagline">A plataforma para brasileiros nos EUA — feita por brasileiros, para brasileiros.</p>
         </div>
         <div>
@@ -257,7 +222,7 @@
           <a href="/guias/">Guias</a>
         </div>
       </div>
-      <div class="footer-bottom">© 2026 BrasilConnect USA · Todos os direitos reservados.</div>
+      <div class="footer-bottom">© 2026 BrasilConnect USA</div>
     </div>
   </footer>
 </body>
