@@ -4,89 +4,109 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <title>Indique brasileiros e ganhe — BrasilConnect USA</title>
+  <title>Indique brasileiros e ganhe US$ 10 — BrasilConnect USA</title>
   <meta name="description" content="Indique 3 brasileiros que se cadastrem e usem nossos parceiros — receba US$ 10 em gift card Amazon.">
   <meta name="robots" content="noindex, follow">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,200;1,9..144,300&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/premium.css">
 
   <style>
+    /* Code display */
     .code-display {
       background: var(--paper-elevated);
-      border: 1px solid var(--brand-gold);
-      border-radius: var(--r-md);
-      padding: 28px 24px;
+      border: 1px solid var(--accent);
+      border-radius: 14px;
+      padding: 32px 28px;
       text-align: center;
-      margin: 24px 0;
+      margin: 32px 0;
     }
-    .code-display .label {
-      text-transform: uppercase;
-      letter-spacing: 0.18em;
+    .code-display .code-label {
+      font-family: var(--font-sans);
       font-size: 11px;
-      font-weight: 600;
-      color: var(--brand-gold-dark);
-      margin-bottom: 12px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 14px;
     }
     .code-display .code {
       font-family: var(--font-display);
-      font-size: 2.5rem;
-      font-weight: 700;
+      font-size: 2.6rem;
+      font-weight: 300;
       color: var(--ink);
       letter-spacing: 0.04em;
       margin: 0;
+      line-height: 1;
     }
     .code-display .copy-row {
       display: flex;
       gap: 8px;
       max-width: 480px;
-      margin: 18px auto 0;
+      margin: 22px auto 0;
     }
     .code-display .copy-row input {
       flex: 1;
-      padding: 11px 14px;
+      padding: 12px 14px;
       border: 1px solid var(--line);
-      border-radius: var(--r-md);
-      font-family: inherit;
+      border-radius: 10px;
+      font-family: var(--font-sans);
       font-size: 13px;
       background: var(--paper);
       color: var(--ink);
       outline: none;
     }
+
+    /* Progress row */
     .progress-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
-      margin: 20px 0;
+      margin: 24px 0;
     }
     .progress-step {
       background: var(--paper-elevated);
       border: 1px solid var(--line);
-      border-radius: var(--r-md);
-      padding: 18px 16px;
+      border-radius: 14px;
+      padding: 24px 18px;
       text-align: center;
+      transition: all .15s;
     }
-    .progress-step.done { border-color: var(--brand-gold); background: var(--brand-gold-soft); }
+    .progress-step.done {
+      border-color: var(--accent);
+      background: var(--gold-soft);
+    }
     .progress-step .num {
       font-family: var(--font-display);
-      font-size: 1.8rem;
-      font-weight: 700;
+      font-size: 2rem;
+      font-weight: 300;
       color: var(--ink);
       line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    .progress-step .num small {
+      font-family: var(--font-sans);
+      font-size: 0.6em;
+      color: var(--ink-muted);
+      font-weight: 400;
+      letter-spacing: 0;
     }
     .progress-step .lbl {
+      font-family: var(--font-sans);
       font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.18em;
       color: var(--ink-muted);
-      margin-top: 6px;
-      font-weight: 600;
+      margin-top: 10px;
+      font-weight: 500;
     }
+
+    /* Share grid */
     .share-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
       margin-top: 18px;
     }
     .share-btn {
@@ -97,88 +117,155 @@
       padding: 14px 18px;
       background: var(--paper-elevated);
       border: 1px solid var(--line);
-      border-radius: var(--r-md);
+      border-radius: 10px;
       color: var(--ink);
       text-decoration: none;
-      font-weight: 600;
+      font-weight: 500;
       font-size: 14px;
+      transition: all .15s;
     }
-    .share-btn:hover { border-color: var(--brand-gold); }
-    .share-btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-    .share-btn.primary:hover { background: var(--brand-green); border-color: var(--brand-green); }
+    .share-btn:hover { border-color: var(--green-deep); color: var(--green-deep); }
+    .share-btn.primary {
+      background: var(--green-deep);
+      color: var(--paper);
+      border-color: var(--green-deep);
+    }
+    .share-btn.primary:hover { background: var(--green-deep-hover); border-color: var(--green-deep-hover); color: var(--paper); }
 
+    /* Access form */
     .access-form {
       max-width: 480px;
       margin: 32px auto;
-      padding: 32px 28px;
+      padding: 36px 32px;
       background: var(--paper-elevated);
       border: 1px solid var(--line);
-      border-radius: var(--r-lg);
+      border-radius: 16px;
+    }
+    .access-form h3 {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 500;
+      margin: 0 0 8px;
+      letter-spacing: -0.01em;
     }
     .access-form input {
       width: 100%;
-      padding: 12px 14px;
-      font-size: 14px;
-      border: 1px solid var(--line);
-      border-radius: var(--r-md);
-      margin-bottom: 12px;
-      box-sizing: border-box;
-      font-family: inherit;
+      padding: 12px 0;
+      font-size: 15px;
+      font-family: var(--font-sans);
+      border: none;
+      border-bottom: 1px solid var(--line-strong);
+      background: transparent;
+      color: var(--ink);
       outline: none;
-      background: var(--paper);
+      margin: 16px 0;
+      transition: border-color .15s;
     }
-    .err-box { background: #FBE9E7; color: #802020; border: 1px solid #E8C2BC; padding: 10px 14px; border-radius: var(--r-sm); font-size: 13px; margin: 12px 0; }
-    .ok-box { background: var(--brand-gold-soft); color: var(--brand-gold-dark); border: 1px solid var(--brand-gold); padding: 14px; border-radius: var(--r-md); margin: 16px 0; font-size: 14px; }
+    .access-form input:focus { border-bottom-color: var(--green-deep); }
+    .access-form input::placeholder { color: var(--ink-muted); }
+
+    /* Status boxes */
+    .err-box {
+      background: rgba(159, 45, 45, 0.08);
+      color: #802020;
+      border: 1px solid rgba(159, 45, 45, 0.25);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin: 14px 0;
+    }
+    .ok-box {
+      background: var(--gold-soft);
+      color: var(--accent-deep);
+      border-left: 3px solid var(--accent);
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin: 18px 0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
   </style>
 </head>
-<body>
+<body class="has-flag-stripe">
 
-  <header class="site-header">
-    <div class="container">
-      <a class="logo" href="/"><img src="/img/logo.svg" alt="BrasilConnect USA" /></a>
-      <nav class="site-nav">
-        <a href="/custo-de-vida/">Custo de Vida</a>
-        <a href="/guias/">Guias</a>
-        <a href="/?preview=brasil2026">App</a>
-      </nav>
+  <div class="flag-stripe" aria-hidden="true"></div>
+
+  <nav class="bc-nav">
+    <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+    <div class="bc-nav-r">
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/?preview=brasil2026" class="bc-nl">App</a>
     </div>
-  </header>
+  </nav>
 
   <main>
+    <!-- ── HERO ── -->
     <section class="hero">
       <div class="container-narrow">
-        <div class="eyebrow">PROGRAMA DE INDICAÇÃO</div>
-        <h1>Indique brasileiros — receba US$ 10 em Amazon Gift Card</h1>
-        <p class="lede">Compartilhe o BrasilConnect com outros brasileiros nos EUA. Quando 3 deles usarem nossos parceiros recomendados (Lemonade, Mint, Mercury, MyUS, ZenBusiness ou Capital One), enviamos um gift card de US$ 10 da Amazon para o seu email.</p>
+        <div class="eyebrow">Programa de Indicação</div>
+        <h1>Indique brasileiros, <em>ganhe US$ 10.</em></h1>
+        <p class="lede">Compartilhe o BrasilConnect com brasileiros nos EUA. Quando 3 deles usarem nossos parceiros recomendados (Lemonade, Mint, Mercury, MyUS, ZenBusiness ou Capital One), enviamos um Amazon Gift Card de US$ 10 pro seu email.</p>
       </div>
     </section>
 
-    <section>
+    <!-- ── DASHBOARD / ACCESS FORM ── -->
+    <section class="section">
       <div class="container-narrow">
         <div id="content"></div>
       </div>
     </section>
 
-    <section>
+    <!-- ── COMO FUNCIONA ── -->
+    <section class="section">
       <div class="container-narrow">
-        <h2>Como funciona</h2>
-        <ol style="padding-left:20px;color:var(--ink-soft);font-size:15px;line-height:1.8;">
-          <li><strong>Você compartilha seu link</strong> com brasileiros nos EUA via WhatsApp, Telegram ou redes sociais.</li>
-          <li><strong>Cada pessoa que clica</strong> e se cadastra na lista de espera conta como signup.</li>
-          <li><strong>Quando essa pessoa clica em um dos parceiros recomendados</strong> (Lemonade, Mint, Mercury, MyUS, ZenBusiness, Capital One), ela vira "qualificada".</li>
-          <li><strong>Após 3 indicações qualificadas</strong>, enviamos US$ 10 em Amazon Gift Card para o seu email em até 7 dias úteis.</li>
-        </ol>
+        <div class="eyebrow">Como funciona</div>
+        <h2>Quatro passos simples.</h2>
+
+        <div class="feature-list" style="margin-top:32px;">
+          <div class="feature-item">
+            <div class="feature-num">01</div>
+            <div class="feature-body">
+              <h3>Compartilhe seu link</h3>
+              <p>Pegue o link único que aparece acima e mande pra brasileiros nos EUA via WhatsApp, Telegram, redes sociais ou email.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-num">02</div>
+            <div class="feature-body">
+              <h3>Cada cadastro conta como signup</h3>
+              <p>Quando alguém clica e se cadastra na lista de espera usando seu link, fica registrado como signup.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-num">03</div>
+            <div class="feature-body">
+              <h3>Use parceiro = vira "qualificado"</h3>
+              <p>Quando essa pessoa clica em um dos parceiros recomendados (Lemonade, Mint, Mercury, MyUS, ZenBusiness, Capital One), ela vira indicação qualificada.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="feature-num">04</div>
+            <div class="feature-body">
+              <h3>3 qualificados = US$ 10 no seu email</h3>
+              <p>Após 3 indicações qualificadas, enviamos US$ 10 em Amazon Gift Card pro seu email em até 7 dias úteis.</p>
+            </div>
+          </div>
+        </div>
+
         <div class="callout">
-          <strong>Limite:</strong> Atualmente honramos até 100 gift cards por mês total. Em caso de fila, processamos por ordem de quem qualificou primeiro.
+          <strong>Limite mensal:</strong> Atualmente honramos até 100 gift cards por mês. Em caso de fila, processamos por ordem de quem qualificou primeiro.
         </div>
       </div>
     </section>
 
-    <section>
+    <!-- ── POR QUE INDICAR ── -->
+    <section class="section">
       <div class="container-narrow">
-        <h2>Por que vale a pena indicar</h2>
-        <p>O BrasilConnect USA está sendo construído para ajudar brasileiros nos EUA a economizar e navegar a vida americana com menos atrito. Cada pessoa que você indica recebe os mesmos benefícios:</p>
-        <ul style="padding-left:20px;color:var(--ink-soft);font-size:15px;line-height:1.7;">
+        <div class="eyebrow">Por que vale a pena</div>
+        <h2>Cada pessoa indicada também ganha.</h2>
+        <p class="lede" style="margin-top:14px;">O BrasilConnect USA está sendo construído pra ajudar brasileiros nos EUA a economizar e navegar a vida americana com menos atrito. Cada pessoa que você indica recebe os mesmos benefícios:</p>
+        <ul style="padding-left:20px;color:var(--ink-soft);font-size:15px;line-height:1.85;margin-top:18px;">
           <li>Acesso ao guia de chegada nos EUA</li>
           <li>Comparativo de custo de vida em 12 cidades</li>
           <li>Guias passo a passo de CNH, ITIN, conta bancária e mais</li>
@@ -188,11 +275,11 @@
     </section>
   </main>
 
-  <footer class="site-footer">
+  <footer class="bc-footer">
     <div class="container">
       <div class="footer-grid">
         <div>
-          <div class="footer-logo"><img src="/img/logo.svg" alt="BrasilConnect USA" /></div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
           <p class="footer-tagline">A plataforma para brasileiros nos EUA — feita por brasileiros, para brasileiros.</p>
         </div>
         <div>
@@ -214,9 +301,7 @@
           <a href="/guias/">Todos os guias</a>
         </div>
       </div>
-      <div class="footer-bottom">
-        © 2026 BrasilConnect USA · Todos os direitos reservados.
-      </div>
+      <div class="footer-bottom">© 2026 BrasilConnect USA</div>
     </div>
   </footer>
 
@@ -232,13 +317,13 @@
     function renderAccessForm(errMsg) {
       content.innerHTML = `
         <div class="access-form">
-          <h3 style="font-family:var(--font-display);margin-top:0;">Ver meu progresso</h3>
-          <p class="muted" style="font-size:14px;">Digite o email com que você se cadastrou na lista de espera.</p>
+          <h3>Ver meu progresso</h3>
+          <p class="muted" style="font-size:14px;margin:0;">Digite o email com que você se cadastrou na lista de espera.</p>
           ${errMsg ? `<div class="err-box">${escapeHtml(errMsg)}</div>` : ''}
           <input id="email" type="email" placeholder="seu@email.com" />
-          <button class="btn btn-primary" id="loadBtn" style="width:100%;">Ver meu código →</button>
-          <p class="muted" style="font-size:12px;margin-top:14px;text-align:center;">
-            Ainda não está na lista de espera? <a href="/">Cadastre-se aqui primeiro.</a>
+          <button class="btn btn-primary" id="loadBtn" style="width:100%; justify-content:center;">Ver meu código</button>
+          <p class="muted" style="font-size:12px;margin-top:18px;text-align:center;">
+            Ainda não está na lista de espera? <a href="/" style="color:var(--green-deep);">Cadastre-se aqui primeiro.</a>
           </p>
         </div>
       `
@@ -254,9 +339,7 @@
       if (!email || !email.includes('@')) {
         return renderAccessForm('Email inválido')
       }
-
       content.innerHTML = '<p class="muted" style="text-align:center;padding:32px;">Carregando…</p>'
-
       try {
         const r = await fetch('/api/referral/status?email=' + encodeURIComponent(email))
         if (r.status === 404) {
@@ -268,7 +351,6 @@
         }
         const data = await r.json()
         renderDashboard(data)
-        // Persistir email na URL para próximas visitas
         const url = new URL(window.location.href)
         url.searchParams.set('email', email)
         window.history.replaceState({}, '', url)
@@ -283,7 +365,7 @@
 
       content.innerHTML = `
         <div class="code-display">
-          <div class="label">SEU CÓDIGO DE INDICAÇÃO</div>
+          <div class="code-label">Seu código de indicação</div>
           <div class="code">${escapeHtml(d.code)}</div>
           <div class="copy-row">
             <input id="linkInput" type="text" value="${escapeHtml(link)}" readonly onclick="this.select()" />
@@ -291,7 +373,7 @@
           </div>
         </div>
 
-        <h3 style="font-family:var(--font-display);margin-top:32px;">Seu progresso</h3>
+        <div class="eyebrow" style="margin-top:48px;">Seu progresso</div>
         <div class="progress-row">
           <div class="progress-step ${d.stats.clicks > 0 ? 'done' : ''}">
             <div class="num">${d.stats.clicks}</div>
@@ -302,22 +384,22 @@
             <div class="lbl">Cadastros</div>
           </div>
           <div class="progress-step ${d.stats.qualified >= 3 ? 'done' : ''}">
-            <div class="num">${d.stats.qualified} <span style="font-size:0.7em;color:var(--ink-muted);">/ 3</span></div>
+            <div class="num">${d.stats.qualified}<small> / 3</small></div>
             <div class="lbl">Qualificados</div>
           </div>
         </div>
 
         ${d.reward.status === 'eligible' ? `
         <div class="ok-box">
-          🎉 <strong>Você atingiu a meta!</strong> Vamos enviar seu Amazon Gift Card de US$ 10 para ${escapeHtml(d.email)} em até 7 dias úteis.
+          <strong>✓ Você atingiu a meta!</strong> Vamos enviar seu Amazon Gift Card de US$ 10 para ${escapeHtml(d.email)} em até 7 dias úteis.
         </div>` : d.reward.status === 'paid' ? `
         <div class="ok-box">
-          ✓ Recompensa já enviada em ${d.reward.rewardedAt ? new Date(d.reward.rewardedAt).toLocaleDateString('pt-BR') : 'data desconhecida'}.
+          <strong>✓ Recompensa já enviada</strong> em ${d.reward.rewardedAt ? new Date(d.reward.rewardedAt).toLocaleDateString('pt-BR') : 'data desconhecida'}.
         </div>` : `
-        <p class="muted" style="font-size:14px;">Faltam <strong style="color:var(--ink);">${d.reward.remaining}</strong> indicações qualificadas para receber seu gift card.</p>
+        <p class="muted" style="font-size:14px;">Faltam <strong style="color:var(--ink);">${d.reward.remaining}</strong> indicações qualificadas pra receber seu gift card.</p>
         `}
 
-        <h3 style="font-family:var(--font-display);margin-top:32px;">Compartilhar</h3>
+        <div class="eyebrow" style="margin-top:48px;">Compartilhar</div>
         <div class="share-grid">
           <a class="share-btn primary" href="https://wa.me/?text=${shareMsg}" target="_blank" rel="noopener">WhatsApp</a>
           <a class="share-btn" href="https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent('Plataforma para brasileiros nos EUA')}" target="_blank" rel="noopener">Telegram</a>
@@ -325,8 +407,8 @@
           <a class="share-btn" href="sms:?&body=${shareMsg}">SMS</a>
         </div>
 
-        <p class="muted" style="font-size:13px;margin-top:24px;text-align:center;">
-          <a href="?email=" onclick="event.preventDefault(); window.history.replaceState({},'','/indique/'); window.location.reload();">Acessar com outro email</a>
+        <p class="muted" style="font-size:13px;margin-top:32px;text-align:center;">
+          <a href="?email=" onclick="event.preventDefault(); window.history.replaceState({},'','/indique/'); window.location.reload();" style="color:var(--green-deep);">Acessar com outro email</a>
         </p>
       `
 
@@ -343,7 +425,6 @@
       }
     }
 
-    // Bootstrap
     const initEmail = getEmailFromUrl()
     if (initEmail) {
       loadStatus(initEmail)
@@ -351,6 +432,5 @@
       renderAccessForm()
     }
   </script>
-
 </body>
 </html>
