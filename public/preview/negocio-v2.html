@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>[V3 — Conversão + Brasil sutil] Negócios — BrasilConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ════════════════════════════════════════════════════════════════
+       NEGÓCIOS — utilitário, focado em conversão
+       Coerente com sistema (mesma paleta, nav, footer) mas mais
+       legível, com cor, fotos, e CTAs visíveis.
+       ════════════════════════════════════════════════════════════════ */
+
+    :root {
+      --paper: #FAF7F0;
+      --paper-elevated: #FFFFFF;
+      --paper-deep: #F5F1E5;
+      --ink: #1A1F1C;
+      --ink-soft: #4B4F4D;
+      --ink-muted: #8B8E89;
+      --accent: #B8943B;
+      --accent-deep: #8C6D3D;
+      --accent-soft: rgba(184, 148, 59, 0.10);
+      --green-deep: #1F4D3F;
+      --green-deep-hover: #143527;
+      --green-soft: #E8F0E9;
+      --gold-soft: #F5EFE0;
+      --line: rgba(26, 31, 28, 0.10);
+      --line-strong: rgba(26, 31, 28, 0.18);
+      --shadow-sm: 0 1px 3px rgba(15, 81, 50, 0.06);
+      --shadow-md: 0 4px 16px rgba(15, 81, 50, 0.08);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.6;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      padding-top: 67px; /* 64 nav + 3 flag stripe */
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ── FLAG STRIPE — sutil hairline brasileiro === */
+    .flag-stripe {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      z-index: 101;
+      background: linear-gradient(
+        90deg,
+        #009C3B 0%,
+        #009C3B 33%,
+        #FFD700 33%,
+        #FFD700 67%,
+        #009C3B 67%,
+        #009C3B 100%
+      );
+    }
+
+    /* ── NAV (idêntico ao sistema) === */
+    nav.bc-nav {
+      position: fixed; top: 3px; left: 0; right: 0; z-index: 100;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px;
+      background: rgba(250, 247, 240, 0.92);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--line);
+    }
+    .bc-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 19px; font-weight: 500;
+      color: var(--ink); letter-spacing: -0.01em;
+    }
+    .bc-logo em { font-style: italic; font-weight: 400; color: var(--accent); }
+    .bc-nav-r { display: flex; align-items: center; gap: 32px; }
+    .bc-nl {
+      font-size: 13px; font-weight: 400;
+      color: var(--ink-muted);
+      transition: color .15s; letter-spacing: 0.01em;
+    }
+    .bc-nl:hover { color: var(--ink); }
+    .bc-nl.active { color: var(--green-deep); font-weight: 500; }
+    @media (max-width: 720px) {
+      nav.bc-nav { padding: 0 20px; }
+      .bc-nav-r { gap: 18px; }
+      .bc-nl:nth-child(1) { display: none; }
+    }
+
+    /* ── Containers === */
+    .container { max-width: 1180px; margin: 0 auto; padding: 0 40px; }
+    .container-narrow { max-width: 720px; margin: 0 auto; padding: 0 40px; }
+    @media (max-width: 720px) {
+      .container, .container-narrow { padding: 0 20px; }
+    }
+
+    /* ── HERO compacto e funcional === */
+    .hero {
+      padding: 56px 0 36px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(32px, 4vw, 44px);
+      font-weight: 500;
+      line-height: 1.15;
+      letter-spacing: -0.015em;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+    .hero h1 em { font-style: italic; color: #009C3B; font-weight: 600; }
+    .hero .lede {
+      font-size: 16px; color: var(--ink-soft);
+      max-width: 540px; margin: 0 auto 36px;
+      line-height: 1.55;
+    }
+
+    /* Search bar grande e óbvia === */
+    .search-row {
+      max-width: 760px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 200px auto;
+      gap: 8px;
+      background: var(--paper-elevated);
+      border: 1px solid var(--line-strong);
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: var(--shadow-sm);
+    }
+    .search-row input,
+    .search-row select {
+      padding: 14px 18px;
+      font-family: 'Sora', sans-serif;
+      font-size: 15px;
+      color: var(--ink);
+      background: transparent;
+      border: none;
+      outline: none;
+      border-radius: 10px;
+    }
+    .search-row input:focus,
+    .search-row select:focus { background: var(--paper); }
+    .search-row input::placeholder { color: var(--ink-muted); }
+    .search-row .search-btn {
+      padding: 14px 28px;
+      background: var(--green-deep);
+      color: var(--paper);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+      letter-spacing: 0.02em;
+    }
+    .search-row .search-btn:hover { background: var(--green-deep-hover); }
+    @media (max-width: 720px) {
+      .search-row { grid-template-columns: 1fr; gap: 4px; }
+    }
+
+    /* Trust strip === */
+    .trust-strip {
+      max-width: 760px;
+      margin: 18px auto 0;
+      display: flex; justify-content: center;
+      gap: 32px;
+      font-size: 13px; color: var(--ink-muted);
+    }
+    .trust-strip span strong { color: var(--ink); font-weight: 600; }
+    @media (max-width: 720px) {
+      .trust-strip { gap: 16px; flex-wrap: wrap; }
+    }
+
+    /* ── Section divider === */
+    .section {
+      padding: 48px 0 64px;
+    }
+    .section-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 24px; gap: 16px;
+      flex-wrap: wrap;
+    }
+    .section-head h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 24px; font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+    .section-head .results-count {
+      font-size: 13px; color: var(--ink-muted);
+    }
+    .section-head .results-count strong { color: var(--ink); font-weight: 600; }
+
+    /* ── CAT PILLS — coloridas e amigáveis === */
+    .cat-pills {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .cat-pill {
+      padding: 9px 18px;
+      font-family: 'Sora', sans-serif;
+      font-size: 14px; font-weight: 500;
+      color: var(--ink-soft);
+      background: var(--paper-elevated);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .cat-pill:hover { border-color: var(--green-deep); color: var(--ink); }
+    .cat-pill.active {
+      color: #fff;
+      background: var(--green-deep);
+      border-color: var(--green-deep);
+    }
+    .cat-pill .count {
+      margin-left: 6px;
+      font-size: 11px;
+      opacity: 0.6;
+      font-weight: 400;
+    }
+
+    /* ── BUSINESS CARDS === */
+    .biz-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .biz-card {
+      background: var(--paper-elevated);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform .15s, box-shadow .15s, border-color .15s;
+      display: flex; flex-direction: column;
+      cursor: pointer;
+    }
+    .biz-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--line-strong);
+    }
+    .biz-card.premium {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .biz-card.premium:hover {
+      border-color: var(--accent-deep);
+      box-shadow: 0 0 0 1px var(--accent-deep), var(--shadow-md);
+    }
+
+    /* Photo / logo placeholder === */
+    .biz-photo {
+      width: 100%; height: 140px;
+      background: linear-gradient(135deg, var(--paper-deep), var(--gold-soft));
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .biz-photo .biz-initials {
+      font-family: 'Fraunces', serif;
+      font-size: 36px;
+      font-weight: 500;
+      color: rgba(26, 31, 28, 0.25);
+      letter-spacing: -0.02em;
+    }
+    .biz-photo .verified-flag {
+      position: absolute;
+      top: 12px; right: 12px;
+      padding: 4px 10px;
+      background: var(--accent);
+      color: var(--ink);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border-radius: 6px;
+    }
+
+    /* Card body === */
+    .biz-body {
+      padding: 18px 20px 16px;
+      flex: 1;
+      display: flex; flex-direction: column;
+    }
+    .biz-cat {
+      display: inline-flex; align-items: center;
+      padding: 3px 10px;
+      background: var(--green-soft);
+      color: var(--green-deep);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      align-self: flex-start;
+    }
+    .biz-card.premium .biz-cat {
+      background: var(--gold-soft);
+      color: var(--accent-deep);
+    }
+    .biz-name {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+    .biz-loc {
+      font-size: 13px;
+      color: var(--ink-muted);
+      margin-bottom: 12px;
+    }
+    .biz-rating {
+      display: flex; align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .biz-rating .star { color: #E5A53D; font-size: 14px; }
+    .biz-rating strong { color: var(--ink); font-weight: 600; }
+    .biz-rating .reviews { color: var(--ink-muted); font-weight: 400; }
+    .biz-desc {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.55;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+    .biz-actions {
+      display: flex; gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+    }
+    .biz-actions a {
+      flex: 1;
+      padding: 9px 12px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      transition: all .15s;
+    }
+    .biz-actions a:hover {
+      background: var(--green-deep);
+      color: #fff;
+      border-color: var(--green-deep);
+    }
+    .biz-actions a.wa:hover {
+      background: #25D366;
+      border-color: #25D366;
+    }
+
+    /* ── CTA "Cadastrar" — verde-bandeira vivo === */
+    .cadastro-banner {
+      background: #009C3B;
+      background-image: radial-gradient(ellipse 70% 80% at 90% 50%, rgba(255, 215, 0, 0.18) 0%, transparent 60%);
+      border-radius: 14px;
+      padding: 48px 40px;
+      margin: 64px 0;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 32px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cadastro-banner h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 28px;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: -0.01em;
+      margin-bottom: 8px;
+    }
+    .cadastro-banner p {
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 15px;
+      max-width: 480px;
+    }
+    .cadastro-banner .btn-cta {
+      padding: 14px 28px;
+      background: #FFD700;
+      color: #1A1F1C;
+      border-radius: 10px;
+      font-family: 'Sora', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      transition: background .15s, transform .15s;
+      white-space: nowrap;
+      box-shadow: 0 2px 0 rgba(0, 0, 0, 0.08);
+    }
+    .cadastro-banner .btn-cta:hover { background: #ffdf00; transform: translateY(-1px); }
+    @media (max-width: 720px) {
+      .cadastro-banner { grid-template-columns: 1fr; padding: 32px 24px; text-align: center; }
+    }
+
+    /* ── PLANS — cards horizontais funcionais === */
+    .plans-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 28px;
+    }
+    .plan-card {
+      background: var(--paper-elevated);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 28px 24px;
+    }
+    .plan-card.featured {
+      background: var(--ink);
+      color: rgba(250, 247, 240, 0.7);
+      border-color: var(--ink);
+    }
+    .plan-card .plan-name {
+      font-family: 'Fraunces', serif;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+    .plan-card.featured .plan-name { color: #fff; }
+    .plan-card .plan-price {
+      font-family: 'Fraunces', serif;
+      font-size: 32px; font-weight: 400;
+      color: var(--ink);
+      margin: 14px 0 4px;
+      letter-spacing: -0.02em;
+    }
+    .plan-card.featured .plan-price { color: #fff; }
+    .plan-card .plan-price small {
+      font-family: 'Sora', sans-serif;
+      font-size: 13px; color: var(--ink-muted);
+      font-weight: 400;
+    }
+    .plan-card.featured .plan-price small { color: rgba(250, 247, 240, 0.5); }
+    .plan-card .plan-desc {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      margin-top: 16px;
+    }
+    .plan-card.featured .plan-desc { color: rgba(250, 247, 240, 0.7); }
+    @media (max-width: 720px) {
+      .plans-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── Footer (idêntico ao sistema) === */
+    footer.bc-footer {
+      background: #1A1F1C;
+      padding: 96px 0 48px;
+      margin-top: 80px;
+      color: rgba(250, 247, 240, 0.6);
+    }
+    footer.bc-footer .bc-logo { color: #fff; }
+    footer.bc-footer .bc-logo em { color: var(--accent); }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 64px;
+    }
+    .footer-grid h4 {
+      font-family: 'Sora', sans-serif;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 20px;
+    }
+    .footer-grid a {
+      display: block;
+      font-size: 13px;
+      color: rgba(250, 247, 240, 0.55);
+      padding: 5px 0;
+      transition: color .15s;
+    }
+    .footer-grid a:hover { color: #fff; }
+    .footer-tagline {
+      font-size: 13px;
+      color: rgba(250, 247, 240, 0.45);
+      max-width: 300px;
+      margin-top: 18px;
+      line-height: 1.7;
+    }
+    .footer-bottom {
+      padding-top: 32px;
+      border-top: 1px solid rgba(250, 247, 240, 0.08);
+      font-size: 12px;
+      color: rgba(250, 247, 240, 0.35);
+      letter-spacing: 0.04em;
+    }
+    @media (max-width: 720px) {
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="flag-stripe" aria-hidden="true"></div>
+
+  <nav class="bc-nav">
+    <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+    <div class="bc-nav-r">
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/agenda/" class="bc-nl">Agenda</a>
+      <a href="/negocio/" class="bc-nl active">Negócios</a>
+      <a href="/?preview=brasil2026" class="bc-nl">App</a>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ── HERO compacto + busca ── -->
+    <section class="hero">
+      <div class="container">
+        <h1>Encontre o <em>Brasil</em> perto de você.</h1>
+        <p class="lede">Restaurantes, mercados, advogados, salões, contadores — toda a comunidade brasileira nos Estados Unidos, em um só lugar. Da gente, pra gente.</p>
+
+        <div class="search-row">
+          <input type="text" placeholder="Buscar por nome, categoria, cidade..." />
+          <select>
+            <option value="">Todos os estados</option>
+            <option>Texas</option><option>Flórida</option>
+            <option>Massachusetts</option><option>Nova York</option>
+            <option>Califórnia</option><option>Geórgia</option>
+            <option>Nova Jersey</option><option>Illinois</option>
+          </select>
+          <button class="search-btn">Buscar</button>
+        </div>
+
+        <div class="trust-strip">
+          <span><strong>Brasileiros nos EUA</strong> · 347 negócios</span>
+          <span><strong>2.1k+</strong> avaliações reais</span>
+          <span><strong>32</strong> estados cobertos</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FILTROS + RESULTADOS ── -->
+    <section class="section">
+      <div class="container">
+
+        <div class="cat-pills">
+          <button class="cat-pill active">Todos <span class="count">347</span></button>
+          <button class="cat-pill">Restaurantes <span class="count">82</span></button>
+          <button class="cat-pill">Mercados <span class="count">31</span></button>
+          <button class="cat-pill">Beleza <span class="count">64</span></button>
+          <button class="cat-pill">Jurídico <span class="count">45</span></button>
+          <button class="cat-pill">Contabilidade <span class="count">28</span></button>
+          <button class="cat-pill">Saúde <span class="count">39</span></button>
+          <button class="cat-pill">Igreja <span class="count">12</span></button>
+          <button class="cat-pill">Imóveis <span class="count">22</span></button>
+          <button class="cat-pill">Educação <span class="count">15</span></button>
+          <button class="cat-pill">Transporte <span class="count">9</span></button>
+        </div>
+
+        <div class="section-head">
+          <h2>Negócios em destaque</h2>
+          <span class="results-count">Mostrando <strong>347 negócios</strong></span>
+        </div>
+
+        <div class="biz-grid">
+
+          <article class="biz-card premium">
+            <div class="biz-photo">
+              <div class="biz-initials">PB</div>
+              <span class="verified-flag">Verificado</span>
+            </div>
+            <div class="biz-body">
+              <span class="biz-cat">Restaurante</span>
+              <h3 class="biz-name">Padaria Brasileira Austin</h3>
+              <div class="biz-loc">Austin, TX</div>
+              <div class="biz-rating">
+                <span class="star">★</span>
+                <strong>4.8</strong>
+                <span class="reviews">(127 avaliações)</span>
+              </div>
+              <p class="biz-desc">Pão francês, pão de queijo, brigadeiro, salgadinhos. Café da manhã e almoço durante a semana.</p>
+              <div class="biz-actions">
+                <a href="#" class="wa">WhatsApp</a>
+                <a href="#">Ligar</a>
+                <a href="#">Site</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <div class="biz-photo"><div class="biz-initials">SM</div></div>
+            <div class="biz-body">
+              <span class="biz-cat">Beleza</span>
+              <h3 class="biz-name">Salão da Mariana</h3>
+              <div class="biz-loc">Orlando, FL</div>
+              <div class="biz-rating">
+                <span class="star">★</span>
+                <strong>4.9</strong>
+                <span class="reviews">(43 avaliações)</span>
+              </div>
+              <p class="biz-desc">Cabelo, manicure, design de sobrancelha. Atendimento em português e inglês.</p>
+              <div class="biz-actions">
+                <a href="#" class="wa">WhatsApp</a>
+                <a href="#">Ligar</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="biz-card premium">
+            <div class="biz-photo">
+              <div class="biz-initials">SP</div>
+              <span class="verified-flag">Verificado</span>
+            </div>
+            <div class="biz-body">
+              <span class="biz-cat">Jurídico</span>
+              <h3 class="biz-name">Silva &amp; Pereira Imigração</h3>
+              <div class="biz-loc">Boston, MA</div>
+              <div class="biz-rating">
+                <span class="star">★</span>
+                <strong>5.0</strong>
+                <span class="reviews">(89 avaliações)</span>
+              </div>
+              <p class="biz-desc">Visto de trabalho, green card, asilo, naturalização. Consulta inicial gratuita pra brasileiros.</p>
+              <div class="biz-actions">
+                <a href="#" class="wa">WhatsApp</a>
+                <a href="#">Site</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <div class="biz-photo"><div class="biz-initials">MB</div></div>
+            <div class="biz-body">
+              <span class="biz-cat">Mercado</span>
+              <h3 class="biz-name">Mercadinho Brasil</h3>
+              <div class="biz-loc">Newark, NJ</div>
+              <div class="biz-rating">
+                <span class="star">★</span>
+                <strong>4.6</strong>
+                <span class="reviews">(62 avaliações)</span>
+              </div>
+              <p class="biz-desc">Tudo do Brasil — feijão, farinha, queijo coalho, açaí, refrigerantes. Encomendas por WhatsApp.</p>
+              <div class="biz-actions">
+                <a href="#" class="wa">WhatsApp</a>
+                <a href="#">Ligar</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="biz-card">
+            <div class="biz-photo"><div class="biz-initials">CT</div></div>
+            <div class="biz-body">
+              <span class="biz-cat">Contabilidade</span>
+              <h3 class="biz-name">Carlos Tax &amp; Accounting</h3>
+              <div class="biz-loc">San Diego, CA</div>
+              <div class="biz-rating">
+                <span class="star">★</span>
+                <strong>4.7</strong>
+                <span class="reviews">(31 avaliações)</span>
+              </div>
+              <p class="biz-desc">Imposto de renda americano e brasileiro, ITIN, abertura de LLC. Atendimento remoto pelos EUA.</p>
+              <div class="biz-actions">
+                <a href="#" class="wa">WhatsApp</a>
+                <a href="#">Site</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="biz-card premium">
+            <div class="biz-photo">
+              <div class="biz-initials">AC</div>
+              <span class="verified-flag">Verificado</span>
+            </div>
+            <div class="biz-body">
+              <span class="biz-cat">Saúde</span>
+              <h3 class="biz-name">Dra. Ana Costa — Cardiologista</h3>
+              <div class="biz-loc">Atlanta, GA</div>
+              <div class="biz-rating">
+                <span class="star">★</span>
+                <strong>4.9</strong>
+                <span class="reviews">(54 avaliações)</span>
+              </div>
+              <p class="biz-desc">Consultas em português. Aceita maioria dos planos de saúde americanos. Telemedicina disponível.</p>
+              <div class="biz-actions">
+                <a href="#" class="wa">WhatsApp</a>
+                <a href="#">Site</a>
+              </div>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- ── CTA Cadastrar ── -->
+        <div class="cadastro-banner">
+          <div>
+            <h2>Tem um negócio? Cadastre grátis.</h2>
+            <p>Apareça pra brasileiros nos EUA buscando o que você oferece. Aprovação em 48h. Plano gratuito inclui nome, categoria, cidade e telefone.</p>
+          </div>
+          <a href="#planos" class="btn-cta">Cadastrar negócio →</a>
+        </div>
+
+        <!-- ── PLANOS ── -->
+        <div class="section-head" style="margin-top:32px;">
+          <h2>Planos do diretório</h2>
+        </div>
+        <div class="plans-grid">
+          <div class="plan-card">
+            <div class="plan-name">Free</div>
+            <div class="plan-price">$0</div>
+            <p class="plan-desc">Nome, categoria, cidade e telefone. Aprovação em 48h.</p>
+          </div>
+          <div class="plan-card featured">
+            <div class="plan-name">Pro</div>
+            <div class="plan-price">$29<small> / mês</small></div>
+            <p class="plan-desc">Logo, fotos, WhatsApp no card, descrição completa, destaque em busca.</p>
+          </div>
+          <div class="plan-card">
+            <div class="plan-name">Premium</div>
+            <div class="plan-price">$59<small> / mês</small></div>
+            <p class="plan-desc">Badge verificado, topo da categoria, painel de analytics, prioridade SEO.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bc-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
+          <p class="footer-tagline">A plataforma para brasileiros nos EUA — feita por brasileiros, para brasileiros.</p>
+        </div>
+        <div>
+          <h4>Diretório</h4>
+          <a href="#">Cadastrar negócio</a>
+          <a href="#">Planos</a>
+          <a href="/negocio/">Buscar</a>
+        </div>
+        <div>
+          <h4>Produtos</h4>
+          <a href="/agenda/">AgendaPro</a>
+          <a href="/grupos/">Grupos</a>
+          <a href="/viagem/">Viagem</a>
+        </div>
+        <div>
+          <h4>Sobre</h4>
+          <a href="/">Início</a>
+          <a href="/custo-de-vida/">Cidades</a>
+          <a href="/guias/">Guias</a>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 BrasilConnect USA</div>
+    </div>
+  </footer>
+</body>
+</html>
