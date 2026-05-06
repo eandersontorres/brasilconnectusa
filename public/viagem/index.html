@@ -7,62 +7,272 @@
   <link rel="canonical" href="https://brasilconnectusa.com/viagem/">
   <title>Viagem nos EUA — Hotéis, Parques e Simulador | BrasilConnect</title>
   <meta name="description" content="Planeje sua viagem turística nos EUA: compare hotéis, ingressos de parques (Disney, Universal, SeaWorld) e use nosso simulador de roteiro completo.">
-  <meta name="theme-color" content="#009c3b">
+  <meta name="theme-color" content="#1F4D3F">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/premium.css">
+
   <style>
-    .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
-    .tab { padding: 12px 20px; border: none; background: transparent; cursor: pointer; font-family: inherit; font-size: 14px; color: var(--ink-muted); border-bottom: 2px solid transparent; }
-    .tab.active { color: var(--ink); font-weight: 600; border-bottom-color: var(--brand-green); }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
-    .card-item { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-md); padding: 18px; }
-    .card-item .name { font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
-    .card-item .meta { font-size: 12px; color: var(--ink-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
-    .card-item .price { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: var(--ink); margin-top: 8px; }
-    .card-item a.cta { display: block; margin-top: 12px; padding: 10px; background: var(--ink); color: var(--paper); text-decoration: none; text-align: center; border-radius: 8px; font-weight: 600; font-size: 13px; }
-    .field { margin-bottom: 14px; }
-    .field label { display: block; font-size: 12px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; margin-bottom: 6px; }
-    .field select, .field input { width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md); font-family: inherit; font-size: 14px; box-sizing: border-box; }
-    .park-check { display: flex; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line-soft); cursor: pointer; }
-    .park-check input { width: 18px; height: 18px; }
-    .totals { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px; margin-top: 18px; }
-    .totals .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--line-soft); }
-    .totals .row.total { border-top: 2px solid var(--ink); border-bottom: none; padding-top: 14px; margin-top: 8px; font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; }
+    /* Tabs editoriais */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 32px;
+    }
+    .tab {
+      padding: 14px 22px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--ink-muted);
+      border-bottom: 2px solid transparent;
+      transition: all .15s;
+      letter-spacing: 0.01em;
+      margin-bottom: -1px;
+    }
+    .tab:hover { color: var(--ink); }
+    .tab.active {
+      color: var(--ink);
+      font-weight: 600;
+      border-bottom-color: var(--accent);
+    }
+
+    /* Cards de viagem */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .card-item {
+      background: var(--paper-elevated);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px 20px;
+      display: flex; flex-direction: column;
+      transition: transform .15s, box-shadow .15s, border-color .15s;
+    }
+    .card-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--line-strong);
+    }
+    .card-item .meta {
+      font-family: var(--font-sans);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .card-item .name {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--ink);
+      margin: 0 0 6px;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    .card-item .stars {
+      color: #E5A53D;
+      font-size: 14px;
+      margin: 4px 0 8px;
+    }
+    .card-item .price {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--ink);
+      margin: 8px 0 4px;
+      letter-spacing: -0.01em;
+    }
+    .card-item .tip {
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.5;
+      margin: 8px 0 14px;
+      flex: 1;
+    }
+    .card-item a.cta {
+      display: block;
+      margin-top: auto;
+      padding: 11px 14px;
+      background: var(--green-deep);
+      color: var(--paper);
+      text-decoration: none;
+      text-align: center;
+      border-radius: 10px;
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      transition: background .15s;
+    }
+    .card-item a.cta:hover { background: var(--green-deep-hover); }
+
+    /* City headline */
+    .city-headline {
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      font-weight: 400;
+      color: var(--ink);
+      margin: 48px 0 16px;
+      letter-spacing: -0.015em;
+      padding-top: 32px;
+      border-top: 1px solid var(--line);
+    }
+    .city-headline:first-of-type { border-top: none; padding-top: 0; }
+
+    /* Form fields (simulador) */
+    .field { margin-bottom: 18px; }
+    .field label {
+      display: block;
+      font-family: var(--font-sans);
+      font-size: 11px;
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    .field select,
+    .field input[type="number"] {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--r-md);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      color: var(--ink);
+      background: var(--paper-elevated);
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color .15s;
+    }
+    .field select:focus,
+    .field input[type="number"]:focus { border-color: var(--green-deep); }
+
+    /* Park checkbox row */
+    .park-check {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+    }
+    .park-check input { width: 18px; height: 18px; accent-color: var(--green-deep); }
+
+    /* Totals box */
+    .totals {
+      background: var(--paper-elevated);
+      border: 1px solid var(--line);
+      border-radius: var(--r-lg);
+      padding: 32px;
+      margin-top: 24px;
+    }
+    .totals h3 {
+      margin: 0 0 16px;
+      font-size: 1.3rem;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    .totals .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--ink-soft);
+    }
+    .totals .row span:last-child {
+      font-family: var(--font-display);
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .totals .row.total {
+      border-top: 2px solid var(--ink);
+      border-bottom: none;
+      padding-top: 18px;
+      margin-top: 12px;
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      font-weight: 400;
+      color: var(--ink);
+    }
+    .totals .row.total span { font-weight: 400; }
   </style>
 </head>
-<body>
-  <header class="site-header">
-    <div class="container">
-      <a class="logo" href="/"><img src="/img/logo.svg" alt="BrasilConnect" /></a>
-      <nav class="site-nav"><a href="/custo-de-vida/">Cidades</a><a href="/guias/">Guias</a><a href="/agenda/">Agenda</a><a href="/viagem/" style="color:var(--brand-green);font-weight:600;">Viagem</a></nav>
+<body class="has-flag-stripe">
+
+  <div class="flag-stripe" aria-hidden="true"></div>
+
+  <nav class="bc-nav">
+    <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+    <div class="bc-nav-r">
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/agenda/" class="bc-nl">Agenda</a>
+      <a href="/negocio/" class="bc-nl">Negócios</a>
+      <a href="/viagem/" class="bc-nl active">Viagem</a>
     </div>
-  </header>
+  </nav>
 
   <main>
+    <!-- ── HERO ── -->
     <section class="hero">
       <div class="container-narrow">
-        <div class="eyebrow">Viagem · Brasileiros nos EUA</div>
-        <h1>Planeje sua viagem turística nos Estados Unidos</h1>
-        <p class="lede">Hotéis, parques e roteiro completo. Tudo com afiliados confiáveis (Booking, Expedia, Undercover Tourist) — você economiza, a gente recebe uma comissão.</p>
+        <div class="eyebrow">Viagem · BrasilConnect</div>
+        <h1>Sua <em>viagem</em> pelos Estados Unidos.</h1>
+        <p class="lede">Hotéis, parques e roteiro completo — feito pra brasileiro vendo o que o brasileiro busca. Tudo via parceiros confiáveis (Booking, Expedia, Undercover Tourist, Viator) — você economiza, a gente recebe uma comissão.</p>
       </div>
     </section>
 
-    <section>
+    <!-- ── TABS + CONTEÚDO ── -->
+    <section class="section">
       <div class="container">
         <div class="tabs">
           <button class="tab active" data-tab="hoteis">Hotéis</button>
           <button class="tab" data-tab="parques">Parques</button>
-          <button class="tab" data-tab="sim">Simulador</button>
+          <button class="tab" data-tab="sim">Simulador de roteiro</button>
         </div>
         <div id="content"></div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer">
+  <footer class="bc-footer">
     <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
+          <p class="footer-tagline">A plataforma para brasileiros nos EUA — feita por brasileiros, para brasileiros.</p>
+        </div>
+        <div>
+          <h4>Viagem</h4>
+          <a href="/viagem/">Hotéis</a>
+          <a href="/viagem/#parques">Parques</a>
+          <a href="/viagem/#sim">Simulador</a>
+        </div>
+        <div>
+          <h4>Produtos</h4>
+          <a href="/agenda/">AgendaPro</a>
+          <a href="/negocio/">Negócios</a>
+          <a href="/grupos/">Grupos</a>
+        </div>
+        <div>
+          <h4>Sobre</h4>
+          <a href="/">Início</a>
+          <a href="/custo-de-vida/">Cidades</a>
+          <a href="/guias/">Guias</a>
+        </div>
+      </div>
       <div class="footer-bottom">© 2026 BrasilConnect USA · Links afiliados — sem custo extra para você</div>
     </div>
   </footer>
@@ -70,7 +280,6 @@
   <script>
     // Hotéis por cidade — links afiliados via /go/[partner]
     const HOTELS = [
-      // Orlando — capital dos parques pra brasileiros
       { city:'Orlando, FL', name:'Orlando — Hotéis perto da Disney', stars:'★★★★', priceRange:'$120-280/noite', partner:'booking', category:'Família' },
       { city:'Orlando, FL', name:'Orlando — Resorts oficiais Disney', stars:'★★★★★', priceRange:'$280-600/noite', partner:'expedia', category:'Família' },
       { city:'Miami, FL', name:'Miami Beach', stars:'★★★★', priceRange:'$200-450/noite', partner:'booking', category:'Praia' },
@@ -82,7 +291,6 @@
       { city:'Recém-chegado', name:'Extended Stay (semanas/meses)', stars:'★★★', priceRange:'$80-150/noite', partner:'booking', category:'Hospedagem temporária' },
     ]
 
-    // Parques por cidade
     const PARKS = {
       orlando: [
         { name:'Magic Kingdom (Disney)', adult:139, child:134, partner:'undercover', tip:'Chegue 30min antes da abertura' },
@@ -120,6 +328,8 @@
       ],
     }
 
+    const PARTNER_LABEL = { booking:'Booking', expedia:'Expedia', undercover:'Undercover Tourist', klook:'Klook', viator:'Viator', getyourguide:'GetYourGuide' }
+
     const $ = id => document.getElementById(id)
     const escapeHtml = s => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
 
@@ -137,16 +347,18 @@
 
     function renderHoteis() {
       $('content').innerHTML = `
-        <h2 style="font-family:var(--font-display);">Hotéis nas cidades top do turismo brasileiro</h2>
-        <p class="muted">Reserve via parceiros oficiais. Comissão de afiliado já incluída no preço — você não paga nada a mais.</p>
-        <div class="grid" style="margin-top:18px;">
+        <div class="section-head" style="margin-top:0;">
+          <h2>Hotéis nas cidades top do turismo brasileiro</h2>
+        </div>
+        <p class="muted" style="margin-bottom:8px;">Reserve via parceiros oficiais. Comissão de afiliado já incluída no preço — você não paga nada a mais.</p>
+        <div class="grid">
           ${HOTELS.map(h => `
             <div class="card-item">
               <div class="meta">${escapeHtml(h.city)} · ${escapeHtml(h.category)}</div>
               <div class="name">${escapeHtml(h.name)}</div>
-              <div style="color:var(--brand-gold-dark);font-size:14px;margin:6px 0;">${h.stars}</div>
+              <div class="stars">${h.stars}</div>
               <div class="price">${escapeHtml(h.priceRange)}</div>
-              <a class="cta" href="/go/${h.partner}?campaign=viagem_hotel" target="_blank" rel="noopener nofollow sponsored">Reservar via ${h.partner === 'booking' ? 'Booking' : 'Expedia'}</a>
+              <a class="cta" href="/go/${h.partner}?campaign=viagem_hotel" target="_blank" rel="noopener nofollow sponsored">Reservar via ${PARTNER_LABEL[h.partner] || h.partner}</a>
             </div>
           `).join('')}
         </div>
@@ -156,16 +368,18 @@
     function renderParques() {
       const cities = [['orlando','Orlando, FL'],['losangeles','Los Angeles, CA'],['newyork','New York, NY'],['miami','Miami, FL'],['lasvegas','Las Vegas, NV'],['sanfrancisco','San Francisco, CA']]
       $('content').innerHTML = `
-        <h2 style="font-family:var(--font-display);">Parques e atrações por cidade</h2>
-        <p class="muted">Ingressos com desconto via Undercover Tourist (Disney/Universal), Klook (vários) e Viator (TripAdvisor) e GetYourGuide.</p>
+        <div class="section-head" style="margin-top:0;">
+          <h2>Parques e atrações por cidade</h2>
+        </div>
+        <p class="muted" style="margin-bottom:8px;">Ingressos com desconto via Undercover Tourist (Disney/Universal), Klook, Viator e GetYourGuide.</p>
         ${cities.map(([key,name]) => `
-          <h3 style="font-family:var(--font-display);margin-top:32px;">${escapeHtml(name)}</h3>
-          <div class="grid">
+          <h3 class="city-headline">${escapeHtml(name)}</h3>
+          <div class="grid" style="margin-top:0;">
             ${(PARKS[key] || []).map(p => `
               <div class="card-item">
                 <div class="name">${escapeHtml(p.name)}</div>
-                <div class="meta">Adulto $${p.adult} · Criança $${p.child}</div>
-                <p style="font-size:13px;color:var(--ink-soft);margin:8px 0;">💡 ${escapeHtml(p.tip)}</p>
+                <div class="meta" style="margin-top:8px;">Adulto $${p.adult} · Criança $${p.child}</div>
+                <p class="tip">${escapeHtml(p.tip)}</p>
                 <a class="cta" href="/go/${p.partner}?campaign=viagem_parque_${escapeHtml(key)}" target="_blank" rel="noopener nofollow sponsored">Comprar ingresso</a>
               </div>
             `).join('')}
@@ -176,9 +390,11 @@
 
     function renderSimulador() {
       $('content').innerHTML = `
-        <h2 style="font-family:var(--font-display);">Simulador de viagem</h2>
-        <p class="muted">Monte seu roteiro e veja quanto vai gastar.</p>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:600px;">
+        <div class="section-head" style="margin-top:0;">
+          <h2>Simulador de viagem</h2>
+        </div>
+        <p class="muted" style="margin-bottom:24px;">Monte seu roteiro e veja quanto vai gastar.</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:640px;">
           <div class="field">
             <label>Destino</label>
             <select id="simCity">
@@ -193,7 +409,7 @@
           <div class="field"><label>Adultos</label><input id="simAdults" type="number" min="1" value="2" /></div>
           <div class="field"><label>Crianças</label><input id="simKids" type="number" min="0" value="2" /></div>
           <div class="field"><label>Dias</label><input id="simDays" type="number" min="1" value="5" /></div>
-          <div class="field"><label>Categoria do hotel</label>
+          <div class="field" style="grid-column:1/-1;"><label>Categoria do hotel</label>
             <select id="simHotel">
               <option value="120">3★ ($120/noite)</option>
               <option value="220" selected>4★ ($220/noite)</option>
@@ -202,10 +418,10 @@
           </div>
         </div>
 
-        <h3 style="font-family:var(--font-display);margin-top:18px;">Parques desejados</h3>
+        <h3 style="font-family:var(--font-display);font-weight:500;margin:32px 0 12px;font-size:1.1rem;">Parques desejados</h3>
         <div id="simParks"></div>
 
-        <button onclick="calcSim()" class="btn btn-primary" style="margin-top:18px;">Calcular meu roteiro →</button>
+        <button onclick="calcSim()" class="btn btn-primary" style="margin-top:24px;">Calcular meu roteiro</button>
         <div id="simResult"></div>
       `
       renderSimParks()
@@ -218,8 +434,8 @@
         <label class="park-check">
           <input type="checkbox" data-park='${JSON.stringify(p).replace(/'/g, "&#39;")}' />
           <div style="flex:1;">
-            <div style="font-weight:600;">${escapeHtml(p.name)}</div>
-            <div style="font-size:13px;color:var(--ink-muted);">$${p.adult} adulto · $${p.child} criança</div>
+            <div style="font-weight:500;color:var(--ink);">${escapeHtml(p.name)}</div>
+            <div style="font-size:13px;color:var(--ink-muted);margin-top:2px;">$${p.adult} adulto · $${p.child} criança</div>
           </div>
         </label>
       `).join('')
@@ -238,15 +454,15 @@
       const parksTotal = selectedParks.reduce((sum, p) => sum + (p.adult * adults + p.child * kids), 0)
       const foodPerDay = 60 * adults + 30 * kids
       const foodTotal = foodPerDay * days
-      const transportTotal = days * 50  // estimativa carro/uber
-      const extras = days * 30 * (adults + kids) // souvenirs, lanches
+      const transportTotal = days * 50
+      const extras = days * 30 * (adults + kids)
 
       const total = hotelTotal + parksTotal + foodTotal + transportTotal + extras
       const perPerson = total / (adults + kids)
 
       $('simResult').innerHTML = `
         <div class="totals">
-          <h3 style="font-family:var(--font-display);margin-top:0;">Seu roteiro: ${days} dias em ${escapeHtml(cityName)}</h3>
+          <h3>Seu roteiro: ${days} dias em ${escapeHtml(cityName)}</h3>
           <div class="row"><span>Hospedagem (${days} noites)</span><span>$${hotelTotal.toLocaleString()}</span></div>
           <div class="row"><span>Parques (${selectedParks.length} ingressos × ${adults+kids} pessoas)</span><span>$${parksTotal.toLocaleString()}</span></div>
           <div class="row"><span>Alimentação (estimativa)</span><span>$${foodTotal.toLocaleString()}</span></div>
