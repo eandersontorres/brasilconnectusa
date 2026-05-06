@@ -33,12 +33,41 @@
 
     /* ── Header / Hero ──────────────────────────────────────── */
     .hero-strip {
-      background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%);
-      color: #FAF7F0; padding: 28px 32px; border-radius: var(--r-lg); margin-bottom: 22px;
+      background: var(--ink);
+      background-image: radial-gradient(ellipse 60% 80% at 90% 50%, rgba(184, 148, 59, 0.12) 0%, transparent 60%);
+      color: #FAF7F0;
+      padding: 36px 36px;
+      border-radius: var(--r-lg);
+      margin-bottom: 22px;
+      position: relative;
+      overflow: hidden;
     }
-    .hero-strip .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 10px; font-weight: 600; opacity: 0.75; margin-bottom: 8px; }
-    .hero-strip h1 { font-family: var(--font-display); font-size: 1.8rem; margin: 0 0 6px 0; color: #FAF7F0; font-weight: 600; }
-    .hero-strip p { color: #FAF7F0; opacity: 0.85; font-size: 14px; margin: 0; max-width: 720px; }
+    .hero-strip .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 12px;
+      opacity: 1;
+    }
+    .hero-strip h1 {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 2.4vw, 2rem);
+      margin: 0 0 8px 0;
+      color: #fff;
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    .hero-strip p {
+      color: rgba(250, 247, 240, 0.7);
+      font-size: 14px;
+      margin: 0;
+      max-width: 720px;
+      line-height: 1.6;
+      opacity: 1;
+    }
 
     /* ── Resumo / Stats ─────────────────────────────────────── */
     .summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 22px; }
@@ -300,18 +329,19 @@
         icon: '👤',
         title: 'Perfil de Usuário',
         category: 'Conta',
-        status: 'warn',
+        status: 'ok',
         items: [
-          { type: 'done',    text: 'Schema bc_profiles: nome, avatar, bio, cidade, estado, whatsapp, instagram' },
+          { type: 'done',    text: 'Schema bc_profiles: nome, avatar, bio, cidade, estado, lat/lng, whatsapp, instagram, radius_miles' },
           { type: 'done',    text: 'Privacidade em 4 níveis: public / community / group / private (bc_privacy_settings)' },
-          { type: 'done',    text: 'API /api/profile/update' },
-          { type: 'missing', text: 'Tela de criação/edição de perfil no app (componente ProfileApp.jsx existe mas não está nas TABS de App.jsx)' },
-          { type: 'missing', text: 'Auth de usuário (Supabase Auth) — hoje é só email anônimo' },
-          { type: 'missing', text: 'Upload de avatar (Supabase Storage)' },
+          { type: 'done',    text: 'Auth via Supabase magic link (AuthModal.jsx + useAuth())' },
+          { type: 'done',    text: 'OnboardingFlow 5 steps + auto-geocode da cidade' },
+          { type: 'done',    text: 'Upload de avatar via Supabase Storage (bucket "uploads", compressão client-side)' },
+          { type: 'done',    text: 'API /api/profile com 6 actions (get, update, onboarding-step, my-communities, etc)' },
+          { type: 'partial', text: 'ProfileApp.jsx existe como componente mas não está nas TABS principais do AppShell' },
         ],
-        api: ['/api/profile/update'],
-        sql: ['supabase/bc_profiles_schema.sql'],
-        ui: ['src/ProfileApp.jsx (não plugado em App.jsx)'],
+        api: ['/api/profile (6 actions)', '/api/upload'],
+        sql: ['bc_profiles_onboarding.sql', 'bc_profiles_radius.sql'],
+        ui: ['src/AuthModal.jsx', 'src/OnboardingFlow.jsx', 'src/ProfileApp.jsx'],
       },
       {
         id: 'negocios',
@@ -346,21 +376,6 @@
         api: ['/api/interests/signup'],
         sql: ['supabase/bc_interests_schema.sql'],
         ui: ['public/grupos/index.html'],
-      },
-      {
-        id: 'grupo-maes',
-        icon: '👶',
-        title: 'Grupo de Mães',
-        category: 'Comunidade',
-        status: 'miss',
-        items: [
-          { type: 'missing', text: 'Não existe ainda — pode ser implementado como sub-grupo de "Grupos de Interesse"' },
-          { type: 'note',    text: 'Sugestão: criar interesse "Mães Brasileiras" + features extras (creche, pediatra, escolas)' },
-          { type: 'note',    text: 'Pode integrar com guias existentes (escola, plano-de-saude)' },
-        ],
-        api: [],
-        sql: [],
-        ui: [],
       },
       {
         id: 'admin',
@@ -494,6 +509,7 @@
           { type: 'done',    text: 'Sidebar direita: câmbio ao vivo + eventos + convide amigos' },
           { type: 'done',    text: 'Hook useIsMobile com breakpoint 768px' },
           { type: 'done',    text: 'Paleta minimalista (branco, navy, verde, dourado)' },
+          { type: 'done',    text: 'NotificationBell.jsx plugado em mobile + desktop topbars (sino + badge unread)' },
         ],
         api: [],
         sql: [],
@@ -618,7 +634,8 @@
           { type: 'done',    text: 'Status flow: confirmed → preparing → ready → delivered (1 clique)' },
           { type: 'done',    text: 'Email pro cliente em cada mudanca de status via Resend' },
           { type: 'done',    text: 'Tracker /pedido/:id com auto-refresh 15s' },
-          { type: 'note',    text: 'Pre-requisitos: STRIPE_PUBLISHABLE_KEY no Vercel + webhook events account.updated + payment_intent.* + bc_restaurant_schema.sql rodado' },
+          { type: 'done',    text: 'STRIPE_PUBLISHABLE_KEY configurado em prod + webhook eventos account.updated, payment_intent.succeeded, payment_intent.payment_failed adicionados' },
+          { type: 'done',    text: 'bc_restaurant_schema.sql rodado em prod (todas as tabelas e relações ativas)' },
         ],
         api: ['/api/restaurant/onboard', '/api/restaurant/status', '/api/restaurant/menu (8 actions)', '/api/restaurant/order', '/api/restaurant/orders'],
         sql: ['bc_restaurant_schema.sql'],
@@ -656,8 +673,11 @@
           { type: 'done',    text: 'Componente PushPrompt React: botao flutuante 🔕/🔔 + modal subscribe/unsubscribe' },
           { type: 'done',    text: 'API /api/push/subscribe (POST + DELETE) e /api/push/notify (envio)' },
           { type: 'done',    text: 'API /api/push/vapid expoe VAPID public key seguro pro client' },
-          { type: 'note',    text: 'Pre-requisitos: gerar VAPID keys com `npx web-push generate-vapid-keys` + setar VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT no Vercel' },
-          { type: 'partial', text: 'Hooks de push reais (pedido novo, mensagem, evento) — falta integrar' },
+          { type: 'done',    text: 'VAPID keys configuradas em prod (Production env vars)' },
+          { type: 'done',    text: 'Tópicos por usuário (orders, community, events, bolao, cambio, restaurant_status) via bc_push_topics.sql' },
+          { type: 'done',    text: 'Targeting por user_email (não só user_id) via bc_push_email.sql' },
+          { type: 'done',    text: 'Hooks reais: payment_intent.succeeded → push pro dono, restaurant order status → push pro cliente' },
+          { type: 'done',    text: 'UI de subscribe/unsubscribe: PushPrompt.jsx com 6 checkboxes de tópicos' },
         ],
         api: ['/api/push/subscribe', '/api/push/vapid', '/api/push/notify'],
         sql: ['bc_push_subscriptions.sql'],
@@ -718,18 +738,130 @@
       {
         id: 'cidade_raio',
         icon: '📍',
-        title: 'Cidade + raio nos interesses',
+        title: 'Cidade + raio com geocoding real',
         category: 'Discovery',
-        status: 'warn',
+        status: 'ok',
         items: [
           { type: 'done',    text: 'Campos radius_miles, latitude, longitude em bc_profiles' },
           { type: 'done',    text: 'Step 2 do Onboarding com select de raio (10/25/50/100/Estado/Nacional)' },
-          { type: 'done',    text: 'API /api/profile aceita radius_miles via spread' },
-          { type: 'partial', text: 'Filtro real por raio precisa geocoding (Mapbox ou Google) pra calcular distancia haversine' },
+          { type: 'done',    text: 'Geocoding via Nominatim (OpenStreetMap) com cache em bc_geocode_cache' },
+          { type: 'done',    text: 'Filtro real por raio via Haversine no /api/social feed e /api/businesses/list' },
+          { type: 'done',    text: '50+ cidades classificadas em api/_lib/cityPresets.js — onBlur sugere raio (small=10mi, big=25mi)' },
+          { type: 'done',    text: 'Backfill em prod: 11 comunidades-cidade geocodadas' },
         ],
-        api: ['/api/profile?action=onboarding-step'],
-        sql: ['bc_profiles_radius.sql'],
+        api: ['/api/profile', '/api/geocode', '/api/suggest-radius', '/api/admin/geocode-backfill'],
+        sql: ['bc_profiles_radius.sql', 'bc_geocode_cache.sql'],
         ui: ['src/OnboardingFlow.jsx (step 2)'],
+      },
+      {
+        id: 'notif_inapp',
+        icon: '🔔',
+        title: 'Notificações in-app (sino + badge)',
+        category: 'Engajamento',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Schema bc_notifications com user_id/email, type, title, body, url, icon, metadata, read_at' },
+          { type: 'done',    text: 'API /api/notifications: GET listagem, POST mark-read (ids ou all=true), POST create (admin)' },
+          { type: 'done',    text: 'Helper api/_lib/notify.js: createNotification + auto-trigger push se also_push=true' },
+          { type: 'done',    text: 'NotificationBell.jsx: sino com badge unread + dropdown de últimas 20, marca lido ao clicar' },
+          { type: 'done',    text: 'Plugado no AppShell.jsx (mobile + desktop topbars) — só renderiza se user logado' },
+          { type: 'done',    text: 'Polling a cada 60s + refresh ao abrir dropdown' },
+        ],
+        api: ['/api/notifications'],
+        sql: ['bc_notifications.sql'],
+        ui: ['src/NotificationBell.jsx', 'src/AppShell.jsx'],
+      },
+      {
+        id: 'mentions',
+        icon: '@',
+        title: 'Menções @username em comentários',
+        category: 'Comunidade',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'Helper src/lib/mentions.js: extractMentions + renderTextWithMentions (client)' },
+          { type: 'done',    text: 'Server-side em api/social.js: extractMentionUsernames(text) com regex /(?:^|\\s)@([a-zA-Z0-9_]{3,30})/g' },
+          { type: 'done',    text: 'Hook em create-comment: notifica autor do post + autor do parent comment + todos mentioned users' },
+          { type: 'done',    text: 'Cada notificação dispara push junto via createNotification(also_push: true)' },
+          { type: 'done',    text: 'Best-effort com try/catch — falha em notif não bloqueia a criação do comment' },
+        ],
+        api: ['/api/social?action=create-comment'],
+        sql: [],
+        ui: ['src/lib/mentions.js'],
+      },
+      {
+        id: 'moderation',
+        icon: '🛡️',
+        title: 'Moderação de denúncias',
+        category: 'Gestão',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'bc_reports estendido: status (pending/reviewed/dismissed/actioned), reviewed_by, action_taken, admin_notes' },
+          { type: 'done',    text: 'Tabela bc_banned_users (user_id PK, email, reason, banned_by, expires_at)' },
+          { type: 'done',    text: 'API /api/admin/reports: GET com filtro de status, POST resolve com option de delete_target (post/comment is_deleted=true)' },
+          { type: 'done',    text: 'Tab "Moderação" no /admin/manage com inputs inline e botões Dispensar/Marcar revisado/Apagar' },
+          { type: 'done',    text: 'Auth via x-admin-secret' },
+        ],
+        api: ['/api/admin/reports'],
+        sql: ['bc_moderation.sql'],
+        ui: ['public/admin/manage.html (tab Moderação)'],
+      },
+      {
+        id: 'compliance',
+        icon: '🔐',
+        title: 'Compliance & Security Headers',
+        category: 'Infra',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: 'CSP completa em vercel.json (Stripe, Supabase, Nominatim, Resend, Clearbit whitelisted)' },
+          { type: 'done',    text: 'HSTS (max-age=31536000; includeSubDomains)' },
+          { type: 'done',    text: 'X-Frame-Options: SAMEORIGIN, X-Content-Type-Options: nosniff, Referrer-Policy: strict-origin-when-cross-origin' },
+          { type: 'done',    text: 'Permissions-Policy: geolocation=(self), camera=(self), microphone=()' },
+          { type: 'done',    text: 'Rate limit in-memory em /api/contact (5/min), /api/waitlist (5/min), /api/enterprise-lead (3/min), /api/geocode (30/min), /api/notifications (60/min)' },
+          { type: 'done',    text: 'Helper api/_lib/rateLimit.js — IP+path bucket com windowMs configurável' },
+          { type: 'partial', text: 'Pra escalar (10k req/s) precisa Upstash Redis em vez de in-memory por serverless instance' },
+        ],
+        api: ['api/_lib/rateLimit.js'],
+        sql: [],
+        ui: ['vercel.json (headers section)'],
+      },
+      {
+        id: 'legal_docs',
+        icon: '📜',
+        title: 'Termos de Uso + Política de Privacidade',
+        category: 'Legal',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: '/termos com 10 seções: usuários, conta, conteúdo, pagamentos (AgendaPro/Restaurant/afiliados), conduta, garantias, responsabilidade, cancelamento, mudanças, lei aplicável (Flórida)' },
+          { type: 'done',    text: '/privacidade LGPD-ready (Brasil) + CCPA/CPRA (Califórnia): 10 seções incluindo dados coletados, processadores (Supabase, Vercel, Stripe, Resend, Nominatim, Travelpayouts), cookies, direitos, retenção (7 anos fiscal)' },
+          { type: 'done',    text: 'Rewrite no vercel.json: /termos → /termos.html, /privacidade → /privacidade.html' },
+          { type: 'done',    text: 'Reescritos com novo template editorial (premium minimal, h2 Fraunces 500, links com underline champagne)' },
+        ],
+        api: [],
+        sql: [],
+        ui: ['public/termos.html', 'public/privacidade.html'],
+      },
+      {
+        id: 'redesign_premium',
+        icon: '🎨',
+        title: 'Redesign Premium — Sistema editorial',
+        category: 'Design System',
+        status: 'ok',
+        items: [
+          { type: 'done',    text: '/css/premium.css reescrito como sistema unificado (~1000 linhas)' },
+          { type: 'done',    text: 'Paleta: champagne #B8943B (accent), verde-deep #1F4D3F (CTAs), verde-bandeira #009C3B (flag stripe + cadastro-banner), cream #FAF7F0 (paper), ink #1A1F1C (text+footer)' },
+          { type: 'done',    text: 'Tipografia: Fraunces 200-500 (display) + Sora 400-500 (body). Wordmark padrão: Brasil*Connect*, Agenda*Pro*' },
+          { type: 'done',    text: '2 templates: page-product (premium minimal) + page-conversion (Yelp-style com cards arredondados, search bar, CTA verde-bandeira)' },
+          { type: 'done',    text: 'Aplicado em /agenda (premium), /negocio (conversion+brasilidade), /grupos, /viagem, /indique, /assinante (login area), /termos, /privacidade' },
+          { type: 'done',    text: 'Flag stripe 3px verde-amarelo no topo das páginas conversion (brasilidade sutil)' },
+          { type: 'done',    text: 'Footer dark editorial unificado (#1A1F1C, h4 champagne, links cream 55%) — herda automaticamente nas subpáginas' },
+          { type: 'done',    text: 'Subpáginas legacy (/agenda/profile, /agenda/review, /agenda/planos, /negocio/cardapio, /negocio/pedido) herdam novo design via classes legacy preservadas' },
+          { type: 'done',    text: 'PWA cache (sw.js) bumpado pra bc-v2-redesign — invalida CSS antigo automaticamente' },
+          { type: 'done',    text: 'Mobile nav responsivo: esconde links não-ativos abaixo de 880px, breakpoint extra em 380px' },
+          { type: 'note',    text: 'Landing.html (/) NÃO foi redesenhada — decisão consciente de manter como porta-de-entrada com identidade própria' },
+        ],
+        api: [],
+        sql: [],
+        ui: ['public/css/premium.css', '8 páginas redesenhadas + 5 subpáginas com herança'],
       },
     ];
 
@@ -744,9 +876,10 @@
     //   MIND MAP SVG (gerado dinamicamente)
     // ════════════════════════════════════════════════════════════════
     function buildMindMap() {
-      // Layout em 2 colunas (esquerda / direita do nó central) — radial-ish
-      const leftCol  = ['cambio', 'voos', 'guias', 'email-drip', 'pwa', 'referral'];
-      const rightCol = ['bolao', 'agenda', 'profile', 'negocios', 'grupos-interesse', 'grupo-maes'];
+      // Layout em 2 colunas (esquerda / direita do nó central)
+      // Features mais relevantes/recentes em destaque visual
+      const leftCol  = ['cambio', 'voos', 'restaurant', 'guias', 'compliance', 'redesign_premium'];
+      const rightCol = ['bolao', 'agenda', 'negocios', 'feed-social', 'notif_inapp', 'moderation'];
 
       const W = 1280, H = 720;
       const cx = W / 2, cy = H / 2;
