@@ -187,7 +187,7 @@ body.has-flag-stripe .bc-nav { top: 3px; }
   font-family: var(--font-sans);
   font-size: 13px; font-weight: 400;
   color: var(--ink-muted);
-  text-decoration: none;
+  text-decoration: none !important;
   letter-spacing: 0.01em;
   transition: color .15s;
 }
@@ -236,12 +236,22 @@ body.has-flag-stripe .site-header { top: 3px; }
 body { padding-top: 64px; }
 body.has-flag-stripe { padding-top: 67px; }
 
-@media (max-width: 720px) {
-  .bc-nav, .site-header { padding: 0 20px; }
-  .bc-nav .container, .site-header .container { padding: 0 20px; }
-  .bc-nav-r { gap: 18px; }
-  .site-nav { gap: 18px; }
-  .bc-nl:nth-child(1) { display: none; }
+@media (max-width: 880px) {
+  .bc-nav, .site-header { padding: 0 16px; }
+  .bc-nav .container, .site-header .container { padding: 0 16px; }
+  .bc-nav-r { gap: 14px; flex-wrap: nowrap; }
+  .site-nav { gap: 14px; flex-wrap: nowrap; }
+  .bc-nl, .site-nav a { white-space: nowrap; }
+  /* Em telas menores, esconder gradualmente nav links extras */
+  .bc-nl:not(.active):not(:last-child) { display: none; }
+  .bc-nl.active, .bc-nl:last-child { display: inline-block; }
+  /* Underline nunca em links de nav (override do `a` global) */
+  .bc-nl, .site-nav a { text-decoration: none !important; }
+}
+@media (max-width: 380px) {
+  .bc-nav { padding: 0 12px; }
+  .bc-logo { font-size: 17px; }
+  .bc-nav-r { gap: 10px; }
 }
 
 /* ════════════════════════════════════════════════════════════════

@@ -4,7 +4,7 @@
    - Cache First   → fontes, imagens, ícones
    - Stale While Revalidate → HTML, JS, CSS (rápido, atualiza em background)
 */
-const CACHE_NAME = 'bc-v1';
+const CACHE_NAME = 'bc-v2-redesign';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE = ['/', '/offline.html', '/css/premium.css', '/js/site.js', '/img/logo.svg', '/img/logo-mark.svg', '/favicon.svg'];
 
