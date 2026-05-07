@@ -97,6 +97,10 @@ function invitePageHtml({ group, memberCount }) {
 <meta name="twitter:description" content="${escapeHtml(ogDesc)}" />
 <meta name="twitter:image" content="${ogImage}" />
 
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Event","name":${JSON.stringify('Bolão Copa 2026 — ' + group.name)},"description":${JSON.stringify(ogDesc)},"startDate":"2026-06-11","endDate":"2026-07-19","eventStatus":"https://schema.org/EventScheduled","eventAttendanceMode":"https://schema.org/OnlineEventAttendanceMode","location":{"@type":"VirtualLocation","url":${JSON.stringify(url)}},"organizer":{"@type":"Organization","name":"BrasilConnect USA","url":"https://brasilconnectusa.com"},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD","url":${JSON.stringify(url)},"availability":"https://schema.org/InStock"},"image":${JSON.stringify(ogImage)}}
+</script>
+
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

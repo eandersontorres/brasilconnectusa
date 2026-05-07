@@ -2,6 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import ComingSoon from './ComingSoon'
+import ErrorBoundary from './ErrorBoundary'
 import { initPWA } from './pwa'
 import './index.css'
 
@@ -34,6 +35,8 @@ const showApp = isDeepLink() || isPreviewMode()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {showApp ? <App /> : <ComingSoon />}
+    <ErrorBoundary>
+      {showApp ? <App /> : <ComingSoon />}
+    </ErrorBoundary>
   </React.StrictMode>
 )
