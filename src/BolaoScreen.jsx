@@ -839,6 +839,53 @@ function PrizeEditor({ group, onClose, onSaved, setToast, adminEmail }) {
 //   View: GroupDashboard
 // ════════════════════════════════════════════════════════════════════════════
 // ════════════════════════════════════════════════════════════════════════════
+//   CrossSellPanel — atalhos sutis pra outras features (câmbio, voos)
+// ════════════════════════════════════════════════════════════════════════════
+function CrossSellPanel() {
+  const [rate, setRate] = useState(null)
+
+  useEffect(() => {
+    fetch('/api/rates').then(r => r.json()).then(d => {
+      if (d?.success && d.mid_rate) setRate(d.mid_rate)
+    }).catch(() => {})
+  }, [])
+
+  const utm = '?utm_source=app&utm_medium=bolao_dashboard'
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>
+        BrasilConnect também tem
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <a href={'/go/wise' + utm + '&utm_campaign=cross_sell'} target="_blank" rel="noopener noreferrer" style={{
+          display: 'block', padding: '12px 14px', background: '#fff',
+          border: '1px solid #e5e7eb', borderRadius: 12, textDecoration: 'none',
+        }}>
+          <div style={{ fontSize: 18, marginBottom: 2 }}>💱</div>
+          <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: GREEN, lineHeight: 1, marginBottom: 2 }}>
+            {rate ? 'R$' + rate.toFixed(2) : '...'}
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>Mandar dinheiro</div>
+          <div style={{ fontSize: 10, color: '#9ca3af' }}>USD → BRL · Wise, Remitly</div>
+        </a>
+        <a href={'/app/voos' + utm} style={{
+          display: 'block', padding: '12px 14px', background: '#fff',
+          border: '1px solid #e5e7eb', borderRadius: 12, textDecoration: 'none',
+        }}>
+          <div style={{ fontSize: 18, marginBottom: 2 }}>✈️</div>
+          <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: BLUE, lineHeight: 1, marginBottom: 2 }}>
+            Pra Copa
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>Voos EUA → Brasil</div>
+          <div style={{ fontSize: 10, color: '#9ca3af' }}>Skyscanner, KAYAK</div>
+        </a>
+      </div>
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 //   InviteModal — WhatsApp share + QR + copiar link
 // ════════════════════════════════════════════════════════════════════════════
 function InviteModal({ group, inviteUrl, whatsappUrl, memberCount, onClose, onCopy, onNativeShare }) {
@@ -1051,6 +1098,8 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, setToa
           <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Grupo · Estado · Nacional (USA)</div>
         </button>
       </div>
+
+      <CrossSellPanel />
 
       {members.length > 0 && (
         <div style={{ marginBottom: 16 }}>
