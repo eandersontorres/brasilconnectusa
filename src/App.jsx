@@ -450,16 +450,14 @@ function RemessasScreen({ affiliateLinks }) {
 
   const midRate = rateData?.mid_rate || 0
 
-  async function handleSend(provider) {
-    try {
-      await fetch('/api/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: provider.id, amount_usd: isUSD ? amount : calcSendAmount(amount, provider, midRate) }),
-      })
-    } catch (_) {}
-    const link = affiliateLinks[provider.envKey] || provider.fallback
-    window.open(link, '_blank', 'noopener')
+  function handleSend(provider) {
+    // /go/<id> faz tracking server-side + redirect 302 com UTMs
+    const params = new URLSearchParams({
+      utm_source: 'app',
+      utm_medium: 'remessas',
+      utm_campaign: isUSD ? `usd_${amount}` : `brl_${amount}`,
+    })
+    window.open(`/go/${provider.id}?${params}`, '_blank', 'noopener')
   }
 
   // Ordena por melhor valor recebido (ou menor valor a enviar no modo BRL)

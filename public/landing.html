@@ -989,7 +989,7 @@ function renderRes(amt) {
 
   document.getElementById('resList').innerHTML = ranked.map((p, i) => `
     <div class="res-row ${i === 0 ? 'best' : ''}"
-         onclick="window.open('/api/track?provider=${p.id}&amount=${amt}&ref=landing','_blank','noopener')">
+         onclick="window.open('/go/${p.id}?utm_source=landing&utm_medium=comparador&utm_campaign=ranked_${i+1}','_blank','noopener')">
       <div class="rnk r${i+1}">${i+1}</div>
       <div class="plogo" style="background:${p.c};color:${p.tc}">${p.n.slice(0,2).toUpperCase()}</div>
       <div class="pinfo">
@@ -1002,7 +1002,7 @@ function renderRes(amt) {
   const diff = ranked[0].val - ranked[ranked.length - 1].val
   document.getElementById('svAmt').textContent = 'R$ ' + fmt(diff)
   document.getElementById('svBtn').onclick = () =>
-    window.open('/api/track?provider=' + ranked[0].id + '&amount=' + amt + '&ref=landing', '_blank', 'noopener')
+    window.open('/go/' + ranked[0].id + '?utm_source=landing&utm_medium=comparador&utm_campaign=savings_cta', '_blank', 'noopener')
 }
 
 // ── UPDATE RATE (defensivo) ───────────────────────────────────────────────────
@@ -1077,7 +1077,8 @@ function doSwap() {
 function goFlight() {
   const o = document.getElementById('fOrig').value
   const d = document.getElementById('fDest').value
-  window.open('/api/track?provider=flight_skyscanner&ref=landing_flights&origin=' + o + '&destination=' + d, '_blank', 'noopener')
+  // Skyscanner deep link (nao temos /go/skyscanner ainda; vai direto)
+  window.open('https://www.skyscanner.com/transport/flights/' + o + '/' + d + '/', '_blank', 'noopener')
 }
 
 // ── ALERT FORM ────────────────────────────────────────────────────────────────
