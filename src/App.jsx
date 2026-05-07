@@ -1101,9 +1101,57 @@ function VoosScreen({ affiliateLinks }) {
 
 // ─── App Principal (usa AppShell responsivo) ──────────────────────────────
 
+const VALID_TABS = ['feed', 'discover', 'remessas', 'voos', 'agenda', 'negocios', 'bolao']
+const TAB_ALIASES = { cambio: 'remessas', comparador: 'remessas', negocio: 'negocios' }
+
+function readTabFromUrl() {
+  if (typeof window === 'undefined') return 'feed'
+  try {
+    // 1) /app/<tab> (via Vercel rewrite preserva o pathname original)
+    const m = window.location.pathname.match(/^\/app(?:\/([^\/?#]+))?\/?$/)
+    if (m && m[1]) {
+      const slug = decodeURIComponent(m[1]).toLowerCase()
+      const resolved = TAB_ALIASES[slug] || slug
+      if (VALID_TABS.includes(resolved)) return resolved
+    }
+    // 2) ?tab=<tab>
+    const params = new URLSearchParams(window.location.search)
+    const q = (params.get('tab') || '').toLowerCase()
+    if (q) {
+      const resolved = TAB_ALIASES[q] || q
+      if (VALID_TABS.includes(resolved)) return resolved
+    }
+    // 3) #tab
+    const h = (window.location.hash || '').replace(/^#/, '').toLowerCase()
+    if (h) {
+      const resolved = TAB_ALIASES[h] || h
+      if (VALID_TABS.includes(resolved)) return resolved
+    }
+  } catch (_) {}
+  return 'feed'
+}
+
 export default function App() {
-  const [tab, setTab] = useState('feed')
+  const [tab, setTabState] = useState(() => readTabFromUrl())
   const [affiliateLinks, setAffiliateLinks] = useState({})
+
+  // Sincroniza URL ↔ aba: sempre que a aba muda, atualiza /app/<tab> sem recarregar
+  const setTab = useCallback((next) => {
+    setTabState(next)
+    try {
+      const newPath = '/app/' + next
+      if (window.location.pathname !== newPath) {
+        window.history.pushState({ tab: next }, '', newPath)
+      }
+    } catch (_) {}
+  }, [])
+
+  // Back/Forward do navegador
+  useEffect(() => {
+    function onPop() { setTabState(readTabFromUrl()) }
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
   useEffect(() => {
     fetch('/api/rates')
