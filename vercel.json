@@ -19,6 +19,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/bolao/:code",
+      "destination": "/api/bolao-invite?code=:code"
+    },
+    {
       "source": "/go/:partner",
       "destination": "/api/go?partner=:partner"
     },
