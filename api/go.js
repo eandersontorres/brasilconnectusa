@@ -25,10 +25,17 @@ const PARTNERS = {
   zenbusiness: { env: 'AFFILIATE_ZENBUSINESS_LINK', fallback: 'https://www.zenbusiness.com/' },
   capitalone:  { env: 'AFFILIATE_CAPITALONE_LINK',  fallback: 'https://www.capitalone.com/' },
 
-  // Já no projeto
+  // Remessas
   wise:           { env: 'AFFILIATE_WISE_LINK',        fallback: 'https://wise.com/send' },
   remitly:        { env: 'AFFILIATE_REMITLY_LINK',     fallback: 'https://www.remitly.com/us/en/brazil' },
   western_union:  { env: 'AFFILIATE_WU_LINK',          fallback: 'https://www.westernunion.com/us/en/send-money/app/start' },
+  wu:             { env: 'AFFILIATE_WU_LINK',          fallback: 'https://www.westernunion.com/us/en/send-money/app/start' },
+  moneygram:      { env: 'AFFILIATE_MONEYGRAM_LINK',   fallback: 'https://www.moneygram.com/mgo/us/en/send-money/send-to/brazil/' },
+  paysend:        { env: 'AFFILIATE_PAYSEND_LINK',     fallback: 'https://paysend.com/en-us/send-money/to/brazil' },
+  nomad:          { env: 'AFFILIATE_NOMAD_LINK',       fallback: 'https://www.nomadglobal.com/' },
+  xoom:           { env: 'AFFILIATE_XOOM_LINK',        fallback: 'https://www.xoom.com/brazil/send-money' },
+
+  // Voos
   kayak:          { env: 'AFFILIATE_KAYAK_LINK',       fallback: 'https://www.kayak.com/' },
 
   // Viagem (Fase 2 módulo 11)

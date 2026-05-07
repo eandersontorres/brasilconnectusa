@@ -14,7 +14,8 @@ const PROVIDERS = [
     id: 'wise',
     name: 'Wise',
     logoDomain: 'wise.com',
-    color: '#00b9a5',
+    color: '#9FE870',
+    textColor: '#1A2E0A',
     fee_pct: 0.0067,
     fee_fixed: 0,       // taxa fixa em USD
     spread_pct: 0.005,
@@ -30,7 +31,8 @@ const PROVIDERS = [
     id: 'remitly',
     name: 'Remitly',
     logoDomain: 'remitly.com',
-    color: '#1565c0',
+    color: '#FF6B35',
+    textColor: '#fff',
     fee_pct: 0.0,
     fee_fixed: 0,
     spread_pct: 0.025,
@@ -46,7 +48,8 @@ const PROVIDERS = [
     id: 'western_union',
     name: 'Western Union',
     logoDomain: 'westernunion.com',
-    color: '#f5a623',
+    color: '#FFCB05',
+    textColor: '#333',
     fee_pct: 0.0,
     fee_fixed: 0,
     spread_pct: 0.03,
@@ -62,7 +65,8 @@ const PROVIDERS = [
     id: 'moneygram',
     name: 'MoneyGram',
     logoDomain: 'moneygram.com',
-    color: '#d62b2b',
+    color: '#D62B2B',
+    textColor: '#fff',
     fee_pct: 0.0,
     fee_fixed: 1.99,    // taxa fixa típica
     spread_pct: 0.02,
@@ -78,7 +82,8 @@ const PROVIDERS = [
     id: 'paysend',
     name: 'PaySend',
     logoDomain: 'paysend.com',
-    color: '#6d28d9',
+    color: '#6C5CE7',
+    textColor: '#fff',
     fee_pct: 0.0,
     fee_fixed: 2.0,     // taxa fixa ~$2
     spread_pct: 0.015,
@@ -197,6 +202,26 @@ function resolveAirport(input, list) {
 }
 
 // ─── Logo do parceiro (Clearbit + fallback) ────────────────────────────────────
+
+function BrandPill({ provider, size = 32 }) {
+  const initials = provider.name
+    .replace(/[^A-Za-z ]/g, '')
+    .split(' ')
+    .map(w => w[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+  return (
+    <span style={{
+      width: size, height: size, display: 'inline-flex',
+      alignItems: 'center', justifyContent: 'center',
+      background: provider.color, color: provider.textColor || '#fff',
+      fontWeight: 800, fontSize: size * 0.38,
+      borderRadius: size * 0.25, flexShrink: 0,
+      letterSpacing: '0.02em',
+    }}>{initials}</span>
+  )
+}
 
 function ProviderLogo({ provider, size = 28 }) {
   const [errored, setErrored] = useState(false)
@@ -425,16 +450,14 @@ function RemessasScreen({ affiliateLinks }) {
 
   const midRate = rateData?.mid_rate || 0
 
-  async function handleSend(provider) {
-    try {
-      await fetch('/api/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: provider.id, amount_usd: isUSD ? amount : calcSendAmount(amount, provider, midRate) }),
-      })
-    } catch (_) {}
-    const link = affiliateLinks[provider.envKey] || provider.fallback
-    window.open(link, '_blank', 'noopener')
+  function handleSend(provider) {
+    // /go/<id> faz tracking server-side + redirect 302 com UTMs
+    const params = new URLSearchParams({
+      utm_source: 'app',
+      utm_medium: 'remessas',
+      utm_campaign: isUSD ? `usd_${amount}` : `brl_${amount}`,
+    })
+    window.open(`/go/${provider.id}?${params}`, '_blank', 'noopener')
   }
 
   // Ordena por melhor valor recebido (ou menor valor a enviar no modo BRL)
@@ -577,117 +600,130 @@ function RemessasScreen({ affiliateLinks }) {
         }
       </div>
 
-      {/* Cards provedores */}
-      {loading ? <Spinner /> : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {sorted.map((p, idx) => {
-            const received = isUSD
-              ? calcReceived(amount, p, midRate)
-              : amount
-            const sendUsd = isUSD
-              ? amount
-              : calcSendAmount(amount, p, midRate)
+      {/* Lista compacta — estilo landing */}
+      {loading ? <Spinner /> : (() => {
+        const rows = sorted.map((p, idx) => {
+          const received = isUSD ? calcReceived(amount, p, midRate) : amount
+          const sendUsd  = isUSD ? amount : calcSendAmount(amount, p, midRate)
+          const isInvalid = received <= 0 || sendUsd < p.minAmount
+          return { p, idx, received, sendUsd, isInvalid }
+        })
+        const validRows = rows.filter(r => !r.isInvalid)
+        const best = validRows[0]
+        const worst = validRows[validRows.length - 1]
+        const savings = isUSD
+          ? Math.max(0, (best?.received || 0) - (worst?.received || 0))
+          : Math.max(0, (worst?.sendUsd || 0) - (best?.sendUsd || 0))
 
-            const isBest = idx === 0
-            const isInvalid = received <= 0 || sendUsd < p.minAmount
+        return (
+          <div style={{
+            background: '#fff', border: '1px solid #E5E1D6', borderRadius: 14,
+            overflow: 'hidden',
+          }}>
+            <div style={{ padding: '4px 16px' }}>
+              {rows.map(({ p, idx, received, sendUsd, isInvalid }) => {
+                const isBest = idx === 0 && !isInvalid
+                const effectiveRate = midRate * (1 - p.spread_pct)
+                return (
+                  <div
+                    key={p.id}
+                    onClick={() => !isInvalid && setExpandedId(p.id)}
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 12,
+                      padding: '12px 0',
+                      borderBottom: idx < rows.length - 1 ? '1px solid #E5E1D6' : 'none',
+                      cursor: isInvalid ? 'default' : 'pointer',
+                      opacity: isInvalid ? 0.45 : 1,
+                    }}
+                  >
+                    {/* Rank badge */}
+                    <div style={{
+                      width: 22, height: 22, borderRadius: '50%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 11, fontWeight: 700, flexShrink: 0,
+                      background: isBest ? '#009c3b' : 'rgba(0,0,0,.06)',
+                      color: isBest ? '#fff' : '#6B6E68',
+                    }}>{idx + 1}</div>
 
-            return (
-              <div
-                key={p.id}
-                style={{
-                  background: '#FFFFFF',
-                  border: isBest ? '1.5px solid #B89968' : '1px solid #E5E1D6',
-                  borderRadius: 14, padding: '14px 16px',
-                  position: 'relative',
-                  opacity: isInvalid ? 0.5 : 1,
-                }}
-              >
-                {isBest && !isInvalid && (
-                  <div style={{
-                    position: 'absolute', top: -10, left: 14,
-                    background: '#1A1F1C', color: '#FAF7F0',
-                    fontSize: 9, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
-                    textTransform: 'uppercase', letterSpacing: '0.1em',
-                  }}>
-                    Melhor opção
-                  </div>
-                )}
+                    {/* Brand pill */}
+                    <BrandPill provider={p} size={36} />
 
-                {/* Promo badge */}
-                {p.promo && (
-                  <div style={{
-                    position: 'absolute', top: -10, right: 14,
-                    background: '#F5EFE0', color: '#8C6D3D',
-                    fontSize: 9, fontWeight: 600, padding: '3px 10px', borderRadius: 20,
-                    border: '1px solid #B89968',
-                    textTransform: 'uppercase', letterSpacing: '0.05em',
-                  }}>
-                    {p.promo}
-                  </div>
-                )}
+                    {/* Info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1F1C', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                        <span>{p.name}</span>
+                        {isBest && (
+                          <span style={{
+                            fontSize: 10, fontWeight: 700,
+                            background: '#EDFAF3', color: '#009c3b',
+                            padding: '2px 7px', borderRadius: 6,
+                            letterSpacing: '0.02em',
+                          }}>melhor hoje</span>
+                        )}
+                        {p.promo && !isBest && (
+                          <span style={{
+                            fontSize: 9, fontWeight: 700,
+                            background: '#F5EFE0', color: '#8C6D3D',
+                            padding: '2px 7px', borderRadius: 6,
+                            textTransform: 'uppercase', letterSpacing: '0.04em',
+                          }}>{p.promo}</span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 11, color: '#6B6E68', marginTop: 2 }}>
+                        R${effectiveRate.toFixed(4)} · {p.fee_fixed > 0 ? `taxa $${p.fee_fixed}` : (p.fee_pct > 0 ? `${(p.fee_pct*100).toFixed(2)}%` : 'sem taxa fixa')}
+                      </div>
+                    </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-                  <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                    <ProviderLogo provider={p} size={36} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 15, fontWeight: 600, color: '#1A1F1C', marginBottom: 2 }}>{p.name}</div>
-                      <div style={{ fontSize: 11, color: '#6B6E68', marginBottom: 4 }}>{p.label_fee}</div>
-                      <div style={{ fontSize: 11, color: '#8C8E89' }}>{p.speed}</div>
+                    {/* Valor */}
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{
+                        fontFamily: "'Cormorant Garamond', Georgia, serif",
+                        fontSize: 19, fontWeight: 700,
+                        color: isBest ? '#009c3b' : '#1A1F1C',
+                        lineHeight: 1.1,
+                      }}>
+                        {isInvalid ? '—' : (isUSD ? fmtBRL(received) : fmtUSD(sendUsd))}
+                      </div>
+                      <div style={{ fontSize: 10, color: '#8C8E89', marginTop: 2 }}>
+                        {isUSD ? 'BRL' : 'USD'}
+                      </div>
                     </div>
                   </div>
+                )
+              })}
+            </div>
 
-                  <div style={{ textAlign: 'right' }}>
-                    {isUSD ? (
-                      <>
-                        <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#1A1F1C' }}>
-                          {isInvalid ? '—' : fmtBRL(received)}
-                        </div>
-                        <div style={{ fontSize: 10, color: '#8C8E89', textTransform: 'uppercase', letterSpacing: '0.06em' }}>recebido no Brasil</div>
-                      </>
-                    ) : (
-                      <>
-                        <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 22, fontWeight: 700, color: '#1A1F1C' }}>
-                          {isInvalid ? '—' : fmtUSD(sendUsd)}
-                        </div>
-                        <div style={{ fontSize: 10, color: '#8C8E89', textTransform: 'uppercase', letterSpacing: '0.06em' }}>você envia</div>
-                      </>
-                    )}
-                  </div>
+            {/* Savings bar */}
+            {best && savings > 0 && (
+              <div style={{
+                margin: '0 16px 16px',
+                background: 'linear-gradient(135deg, rgba(0,156,59,.07), rgba(0,156,59,.03))',
+                border: '1px solid rgba(0,156,59,.18)',
+                borderRadius: 12, padding: '12px 14px',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+              }}>
+                <div style={{ fontSize: 12, color: '#009c3b', lineHeight: 1.5 }}>
+                  <strong style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 16, fontWeight: 700, display: 'block' }}>
+                    {isUSD ? fmtBRL(savings) : fmtUSD(savings)}
+                  </strong>
+                  economizados com {best.p.name}
                 </div>
-
-                <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-                  {/* Detalhes */}
-                  <button
-                    onClick={() => setExpandedId(p.id)}
-                    style={{
-                      padding: '9px 16px', borderRadius: 8,
-                      background: 'transparent', color: '#1A1F1C',
-                      fontSize: 12, fontWeight: 500, border: '1px solid #E5E1D6',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Ver detalhes
-                  </button>
-                  {/* Enviar */}
-                  <button
-                    onClick={() => handleSend(p)}
-                    disabled={isInvalid}
-                    style={{
-                      flex: 1, padding: '9px 0', borderRadius: 8,
-                      background: isInvalid ? '#E5E1D6' : '#1A1F1C',
-                      color: isInvalid ? '#8C8E89' : '#FAF7F0',
-                      fontSize: 13, fontWeight: 600, border: 'none', cursor: isInvalid ? 'default' : 'pointer',
-                      letterSpacing: '0.01em',
-                    }}
-                  >
-                    Enviar com {p.name} →
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleSend(best.p)}
+                  style={{
+                    background: '#009c3b', color: '#fff', border: 'none',
+                    borderRadius: 10, padding: '10px 16px',
+                    fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Enviar agora →
+                </button>
               </div>
-            )
-          })}
-        </div>
-      )}
+            )}
+          </div>
+        )
+      })()}
 
       {/* Disclaimer */}
       <div style={{
