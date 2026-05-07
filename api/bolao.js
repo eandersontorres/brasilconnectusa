@@ -13,6 +13,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { captureLead } from './_lib/leadCapture.js'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
@@ -275,6 +276,17 @@ export default async function handler(req, res) {
         .single()
       if (mErr) throw mErr
 
+      // ── Captura lead na waitlist (não bloqueia o response) ─────────
+      captureLead({
+        email: admin_email,
+        city: String(admin_state).toUpperCase(),
+        source: 'bolao_create',
+        ip: (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || null,
+        userAgent: req.headers['user-agent'] || null,
+        referer: req.headers['referer'] || null,
+        supabase,
+      }).catch(e => console.error('captureLead create error:', e.message))
+
       return res.status(201).json({ success: true, group, member })
     } catch (e) {
       console.error('bolao/create-group error:', e.message)
@@ -323,6 +335,17 @@ export default async function handler(req, res) {
         .select()
         .single()
       if (mErr) throw mErr
+
+      // ── Captura lead na waitlist (não bloqueia o response) ─────────
+      captureLead({
+        email,
+        city: String(state).toUpperCase(),
+        source: 'bolao_join',
+        ip: (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || null,
+        userAgent: req.headers['user-agent'] || null,
+        referer: req.headers['referer'] || null,
+        supabase,
+      }).catch(e => console.error('captureLead join error:', e.message))
 
       return res.status(201).json({ success: true, group, member })
     } catch (e) {
