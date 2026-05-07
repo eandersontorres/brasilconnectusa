@@ -698,6 +698,29 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
   const [state, setState]       = useState('')
   const [whatsapp, setWhatsapp] = useState('')
   const [loading, setLoading]   = useState(false)
+  const [groupPreview, setGroupPreview] = useState(null) // { name, member_count } se code válido
+
+  // Quando vem com código pré-preenchido (deep-link /bolao/<code>), busca dados do grupo
+  useEffect(() => {
+    if (!prefilledCode) return
+    let alive = true
+    fetch('/api/bolao?action=group&code=' + prefilledCode)
+      .then(r => r.json())
+      .then(d => {
+        if (!alive) return
+        if (d.group) {
+          setGroupPreview({
+            name: d.group.name,
+            memberCount: (d.members || []).length,
+            prize: d.group.prize_title || d.group.prize_first || null,
+          })
+        } else {
+          setGroupPreview({ error: 'Código de grupo não encontrado.' })
+        }
+      })
+      .catch(() => { if (alive) setGroupPreview({ error: 'Não consegui buscar o grupo. Confira o código.' }) })
+    return () => { alive = false }
+  }, [prefilledCode])
 
   async function handleJoin(e) {
     e.preventDefault()
@@ -729,41 +752,75 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
   }
 
   const valid = code && nickname && email && fullName && state
+  const isInvited = !!(prefilledCode && groupPreview && !groupPreview.error)
 
   return (
     <div style={{ padding: '0 0 16px' }}>
       <button onClick={onBack} style={{ background: 'none', border: 'none', fontSize: 13, color: '#6b7280', marginBottom: 16, cursor: 'pointer' }}>
         ← Voltar
       </button>
-      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Entrar no bolão 🔗</div>
-      <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
-        Digite o código e seus dados completos.
-      </div>
-      <form onSubmit={handleJoin} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <div>
-          <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
-            Código de convite <span style={{ color: '#ef4444' }}>*</span>
-          </label>
-          <input
-            type="text" value={code}
-            onChange={e => setCode(e.target.value.toUpperCase())}
-            placeholder="XXXXXX" maxLength={6} required
-            style={{
-              width: '100%', padding: '14px', borderRadius: 10,
-              border: '1.5px solid #e5e7eb', fontSize: 24, fontWeight: 800,
-              letterSpacing: 6, textAlign: 'center', outline: 'none',
-              background: '#fff', boxSizing: 'border-box',
-            }}
-          />
+
+      {isInvited ? (
+        <div style={{
+          background: 'linear-gradient(135deg, ' + GREEN + ' 0%, #006428 100%)',
+          borderRadius: 14, padding: '20px 18px', marginBottom: 18, color: '#fff',
+        }}>
+          <div style={{ fontSize: 11, opacity: 0.85, marginBottom: 4, letterSpacing: 1, textTransform: 'uppercase' }}>🎉 Você foi convidado!</div>
+          <div style={{ fontSize: 22, fontWeight: 800, lineHeight: 1.2, marginBottom: 6 }}>{groupPreview.name}</div>
+          <div style={{ fontSize: 13, opacity: 0.9 }}>
+            {groupPreview.memberCount} {groupPreview.memberCount === 1 ? 'pessoa já entrou' : 'pessoas já entraram'} · Bolão Copa 2026
+          </div>
+          {groupPreview.prize && (
+            <div style={{ marginTop: 10, fontSize: 12, background: 'rgba(255,255,255,0.18)', padding: '6px 10px', borderRadius: 8, display: 'inline-block' }}>
+              🏆 {groupPreview.prize}
+            </div>
+          )}
         </div>
+      ) : (
+        <>
+          <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Entrar no bolão 🔗</div>
+          <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
+            Digite o código que seu amigo te passou e seus dados.
+          </div>
+        </>
+      )}
+
+      {prefilledCode && groupPreview?.error && (
+        <div style={{ background: '#FEE2E2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#991B1B', marginBottom: 14 }}>
+          ⚠️ {groupPreview.error}
+        </div>
+      )}
+
+      <form onSubmit={handleJoin} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {!isInvited && (
+          <div>
+            <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>
+              Código de convite <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <input
+              type="text" value={code}
+              onChange={e => setCode(e.target.value.toUpperCase())}
+              placeholder="XXXXXX" maxLength={6} required
+              style={{
+                width: '100%', padding: '14px', borderRadius: 10,
+                border: '1.5px solid #e5e7eb', fontSize: 24, fontWeight: 800,
+                letterSpacing: 6, textAlign: 'center', outline: 'none',
+                background: '#fff', boxSizing: 'border-box',
+              }}
+            />
+          </div>
+        )}
         <Input label="Seu nome completo" type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="João Silva" required />
-        <Input label="Apelido no ranking" type="text" value={nickname} onChange={e => setNickname(e.target.value)} placeholder="Ex: João" required hint="Como vai aparecer pros outros" />
-        <Input label="Seu e-mail" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" required />
+        <Input label="Apelido no ranking" type="text" value={nickname} onChange={e => setNickname(e.target.value)} placeholder="Ex: João" required hint="Como vai aparecer pros outros do grupo" />
+        <Input label="Seu e-mail" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" required hint="Pra avisar quando palpites estiverem prestes a fechar" />
         <StateSelect value={state} onChange={setState} required />
         <Input label="WhatsApp (opcional)" type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+1 (555) 555-5555" />
         <Btn type="submit" disabled={loading || !valid}>
-          {loading ? 'Entrando…' : 'Entrar no grupo →'}
+          {loading ? 'Entrando…' : (isInvited ? `Entrar em ${groupPreview.name} →` : 'Entrar no grupo →')}
         </Btn>
+        <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', lineHeight: 1.5, marginTop: 4 }}>
+          Gratuito · Sem cobrança · Cancela quando quiser
+        </div>
       </form>
     </div>
   )
@@ -838,6 +895,125 @@ function PrizeEditor({ group, onClose, onSaved, setToast, adminEmail }) {
 // ════════════════════════════════════════════════════════════════════════════
 //   View: GroupDashboard
 // ════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════
+//   CreatedSuccessView — celebração + share imediato após criar grupo
+// ════════════════════════════════════════════════════════════════════════════
+function CreatedSuccessView({ group, onContinue, setToast }) {
+  const inviteUrl = 'https://brasilconnectusa.com/bolao/' + group.join_code
+  const whatsappText = '🏆 Criei nosso Bolão Copa 2026!\n\n' +
+    '⚽ Grupo: *' + group.name + '*\n' +
+    '🔑 Código: *' + group.join_code + '*\n\n' +
+    'Entra aqui: ' + inviteUrl
+  const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(whatsappText)
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteUrl)
+      setToast({ msg: 'Link copiado!', type: 'success' })
+    } catch (_) {}
+  }
+
+  return (
+    <div style={{ padding: '0 0 16px', textAlign: 'center' }}>
+      <div style={{ fontSize: 56, marginTop: 24, marginBottom: 8 }}>🎉</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: GREEN, textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+        Bolão criado
+      </div>
+      <h1 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 30, fontWeight: 700, color: BLUE, lineHeight: 1.2, margin: '0 16px 12px', letterSpacing: -0.3 }}>
+        {group.name} <span style={{ color: GOLD }}>tá no ar!</span>
+      </h1>
+      <p style={{ fontSize: 14, color: '#6b7280', lineHeight: 1.55, maxWidth: 360, margin: '0 auto 24px' }}>
+        Agora chama a galera. Quanto mais brasileiros palpitarem, mais divertido (e mais alto o ranking nacional).
+      </p>
+
+      {/* Código grande */}
+      <div style={{
+        background: '#fff', border: '2px dashed #B89968', borderRadius: 14,
+        padding: '18px 16px', maxWidth: 360, margin: '0 auto 18px',
+      }}>
+        <div style={{ fontSize: 10, fontWeight: 700, color: '#8C6D3D', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>
+          Código de convite
+        </div>
+        <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: 8, color: BLUE, fontFamily: 'monospace' }}>
+          {group.join_code}
+        </div>
+      </div>
+
+      {/* CTAs */}
+      <div style={{ maxWidth: 360, margin: '0 auto', padding: '0 4px' }}>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          background: '#25D366', color: '#fff', borderRadius: 12, padding: '15px',
+          fontSize: 15, fontWeight: 800, textDecoration: 'none', marginBottom: 10,
+        }}>
+          <span style={{ fontSize: 20 }}>💬</span> Chamar amigos no WhatsApp
+        </a>
+
+        <button onClick={handleCopy} style={{
+          width: '100%', background: '#fff', color: BLUE, border: '1.5px solid ' + BLUE,
+          borderRadius: 12, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 18,
+        }}>
+          📋 Copiar link de convite
+        </button>
+
+        <button onClick={onContinue} style={{
+          width: '100%', background: 'none', color: '#6b7280', border: 'none',
+          padding: 12, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+        }}>
+          Continuar pro painel do bolão →
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//   CrossSellPanel — atalhos sutis pra outras features (câmbio, voos)
+// ════════════════════════════════════════════════════════════════════════════
+function CrossSellPanel() {
+  const [rate, setRate] = useState(null)
+
+  useEffect(() => {
+    fetch('/api/rates').then(r => r.json()).then(d => {
+      if (d?.success && d.mid_rate) setRate(d.mid_rate)
+    }).catch(() => {})
+  }, [])
+
+  const utm = '?utm_source=app&utm_medium=bolao_dashboard'
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>
+        BrasilConnect também tem
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <a href={'/go/wise' + utm + '&utm_campaign=cross_sell'} target="_blank" rel="noopener noreferrer" style={{
+          display: 'block', padding: '12px 14px', background: '#fff',
+          border: '1px solid #e5e7eb', borderRadius: 12, textDecoration: 'none',
+        }}>
+          <div style={{ fontSize: 18, marginBottom: 2 }}>💱</div>
+          <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: GREEN, lineHeight: 1, marginBottom: 2 }}>
+            {rate ? 'R$' + rate.toFixed(2) : '...'}
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>Mandar dinheiro</div>
+          <div style={{ fontSize: 10, color: '#9ca3af' }}>USD → BRL · Wise, Remitly</div>
+        </a>
+        <a href={'/app/voos' + utm} style={{
+          display: 'block', padding: '12px 14px', background: '#fff',
+          border: '1px solid #e5e7eb', borderRadius: 12, textDecoration: 'none',
+        }}>
+          <div style={{ fontSize: 18, marginBottom: 2 }}>✈️</div>
+          <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: BLUE, lineHeight: 1, marginBottom: 2 }}>
+            Pra Copa
+          </div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>Voos EUA → Brasil</div>
+          <div style={{ fontSize: 10, color: '#9ca3af' }}>Skyscanner, KAYAK</div>
+        </a>
+      </div>
+    </div>
+  )
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 //   InviteModal — WhatsApp share + QR + copiar link
 // ════════════════════════════════════════════════════════════════════════════
@@ -1051,6 +1227,8 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, setToa
           <div style={{ fontSize: 12, color: '#6b7280', marginTop: 2 }}>Grupo · Estado · Nacional (USA)</div>
         </button>
       </div>
+
+      <CrossSellPanel />
 
       {members.length > 0 && (
         <div style={{ marginBottom: 16 }}>
@@ -1353,7 +1531,7 @@ export default function BolaoScreen() {
     localStorage.setItem('bolao_member_id', m.id)
     localStorage.setItem('bolao_admin_email', m.email || '')
     localStorage.setItem('bolao_member_state', m.state || '')
-    setGroup(g); setMember(m); setView('group')
+    setGroup(g); setMember(m); setView('created-success')
   }
 
   function handleJoined(g, m) {
@@ -1374,6 +1552,7 @@ export default function BolaoScreen() {
       {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
       {view === 'home'      && <HomeView onCreateClick={() => setView('create')} onJoinClick={() => setView('join')} config={config} setToast={setToast} />}
       {view === 'create'    && <CreateGroupView onBack={() => setView('home')} onCreated={handleCreated} setToast={setToast} />}
+      {view === 'created-success' && <CreatedSuccessView group={group} onContinue={() => setView('group')} setToast={setToast} />}
       {view === 'join'      && <JoinGroupView onBack={() => setView('home')} onJoined={handleJoined} setToast={setToast} prefilledCode={joinCode} />}
       {view === 'group'     && <GroupDashboard group={group} member={member} onPredict={() => setView('predict')} onStandings={() => setView('standings')} onLeave={handleLeave} setToast={setToast} refreshGroup={refreshGroup} deadline={config?.predictions_deadline} />}
       {view === 'predict'   && <PredictionsView member={member} onBack={() => setView('group')} setToast={setToast} deadline={config?.predictions_deadline} />}
