@@ -838,9 +838,102 @@ function PrizeEditor({ group, onClose, onSaved, setToast, adminEmail }) {
 // ════════════════════════════════════════════════════════════════════════════
 //   View: GroupDashboard
 // ════════════════════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════════════════
+//   InviteModal — WhatsApp share + QR + copiar link
+// ════════════════════════════════════════════════════════════════════════════
+function InviteModal({ group, inviteUrl, whatsappUrl, memberCount, onClose, onCopy, onNativeShare }) {
+  const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=4&data=' + encodeURIComponent(inviteUrl)
+  return (
+    <div onClick={onClose} style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+      zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: '#fff', borderRadius: '20px 20px 0 0', width: '100%', maxWidth: 480,
+        padding: '20px 22px 36px', maxHeight: '90vh', overflowY: 'auto',
+      }}>
+        <div style={{ width: 36, height: 4, background: '#e5e7eb', borderRadius: 4, margin: '0 auto 18px' }} />
+
+        <div style={{ textAlign: 'center', marginBottom: 18 }}>
+          <div style={{ fontSize: 28, marginBottom: 6 }}>📤</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: BLUE, marginBottom: 4 }}>Chama a galera!</div>
+          <div style={{ fontSize: 13, color: '#6b7280' }}>
+            {memberCount === 1 ? 'Você é o primeiro do grupo.' : `${memberCount} já no grupo.`} Quanto mais brasileiros palpitarem, mais divertido.
+          </div>
+        </div>
+
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          background: '#25D366', color: '#fff', borderRadius: 12, padding: '14px',
+          fontSize: 15, fontWeight: 800, textDecoration: 'none', marginBottom: 10,
+        }}>
+          <span style={{ fontSize: 20 }}>💬</span> Compartilhar no WhatsApp
+        </a>
+
+        <button onClick={onNativeShare} style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          width: '100%', background: '#fff', color: BLUE, border: '1.5px solid ' + BLUE,
+          borderRadius: 12, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 18,
+        }}>
+          📱 Outras opções
+        </button>
+
+        {/* Link copiável */}
+        <div style={{ marginBottom: 18 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 6 }}>
+            Ou cola o link em qualquer lugar
+          </div>
+          <div style={{ display: 'flex', gap: 6 }}>
+            <input
+              readOnly value={inviteUrl}
+              style={{
+                flex: 1, padding: '10px 12px', borderRadius: 9, border: '1.5px solid #e5e7eb',
+                background: '#f9fafb', fontSize: 12, color: '#374151', fontFamily: 'monospace',
+                outline: 'none',
+              }}
+              onFocus={e => e.target.select()}
+            />
+            <button onClick={onCopy} style={{
+              background: BLUE, color: '#fff', border: 'none', borderRadius: 9,
+              padding: '10px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+            }}>
+              Copiar
+            </button>
+          </div>
+        </div>
+
+        {/* QR code */}
+        <div style={{
+          background: '#FAF7F0', border: '1px solid #E5E1D6', borderRadius: 14,
+          padding: 18, textAlign: 'center', marginBottom: 12,
+        }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#8C6D3D', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+            QR Code do grupo
+          </div>
+          <img
+            src={qrUrl}
+            alt={'QR code para entrar no grupo ' + group.name}
+            width={200} height={200}
+            style={{ display: 'block', margin: '0 auto', borderRadius: 8, background: '#fff', padding: 6 }}
+          />
+          <div style={{ fontSize: 12, color: '#6b7280', marginTop: 10, lineHeight: 1.5 }}>
+            Imprime e cola na geladeira, no escritório, na igreja —<br/>quem fotografa entra direto.
+          </div>
+        </div>
+
+        <button onClick={onClose} style={{
+          width: '100%', background: 'none', border: 'none', fontSize: 13,
+          color: '#9ca3af', cursor: 'pointer', padding: 8,
+        }}>Fechar</button>
+      </div>
+    </div>
+  )
+}
+
 function GroupDashboard({ group, member, onPredict, onStandings, onLeave, setToast, refreshGroup, deadline }) {
   const [members, setMembers] = useState([])
   const [editPrize, setEditPrize] = useState(false)
+  const [showInvite, setShowInvite] = useState(false)
   const [adminEmailLocal] = useState(() => localStorage.getItem('bolao_admin_email') || '')
   const isAdmin = !!adminEmailLocal
 
@@ -852,11 +945,23 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, setToa
       .catch(() => {})
   }, [group])
 
-  const shareText = '🏆 Participe do nosso bolão da Copa 2026!\nGrupo: ' + group.name + '\nCódigo: *' + group.join_code + '*\n\nEntra aqui: https://brasilconnectusa.com'
+  const inviteUrl = 'https://brasilconnectusa.com/bolao/' + group.join_code
+  const whatsappText = '🏆 Entrei no Bolão Copa 2026 do BrasilConnect — cole na gente!\n\n' +
+    '⚽ Grupo: *' + group.name + '*\n' +
+    '🔑 Código: *' + group.join_code + '*\n\n' +
+    'Entra aqui: ' + inviteUrl
+  const whatsappUrl = 'https://wa.me/?text=' + encodeURIComponent(whatsappText)
 
   const handleShare = async () => {
-    const r = await shareNative({ title: 'Bolão Copa 2026', text: shareText })
+    const r = await shareNative({ title: 'Bolão Copa 2026 — ' + group.name, text: whatsappText, url: inviteUrl })
     if (r === 'copied') setToast({ msg: 'Link copiado!', type: 'success' })
+  }
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteUrl)
+      setToast({ msg: 'Link copiado!', type: 'success' })
+    } catch (_) {}
   }
 
   const deadlineDate = deadline ? new Date(deadline) : null
@@ -866,13 +971,24 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, setToa
   return (
     <div style={{ padding: '0 0 16px' }}>
       {editPrize && <PrizeEditor group={group} onClose={() => setEditPrize(false)} onSaved={() => refreshGroup()} setToast={setToast} adminEmail={adminEmailLocal} />}
+      {showInvite && (
+        <InviteModal
+          group={group}
+          inviteUrl={inviteUrl}
+          whatsappUrl={whatsappUrl}
+          memberCount={members.length}
+          onClose={() => setShowInvite(false)}
+          onCopy={handleCopyLink}
+          onNativeShare={handleShare}
+        />
+      )}
 
       <div style={{ background: 'linear-gradient(135deg, ' + GREEN + ' 0%, #006428 100%)', borderRadius: 14, padding: '18px 16px', marginBottom: 14, color: '#fff' }}>
         <div style={{ fontSize: 11, opacity: 0.85, marginBottom: 4, letterSpacing: 1, textTransform: 'uppercase' }}>⚽ Seu bolão</div>
         <div style={{ fontSize: 22, fontWeight: 800 }}>{group.name}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
           <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 8, padding: '6px 14px', fontSize: 18, fontWeight: 800, letterSpacing: 4 }}>{group.join_code}</div>
-          <button onClick={handleShare} style={{ background: 'rgba(255,255,255,0.18)', border: 'none', borderRadius: 8, padding: '8px 14px', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>📤 Convidar</button>
+          <button onClick={() => setShowInvite(true)} style={{ background: 'rgba(255,255,255,0.22)', border: 'none', borderRadius: 8, padding: '8px 14px', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>📤 Convidar amigos</button>
         </div>
         <div style={{ fontSize: 12, opacity: 0.85, marginTop: 8 }}>
           {member.nickname} {isAdmin && '· 👑 Admin'} · {members.length} participante{members.length !== 1 ? 's' : ''}
@@ -1188,7 +1304,17 @@ function StandingsView({ group, member, onBack, setToast }) {
 //   APP PRINCIPAL
 // ════════════════════════════════════════════════════════════════════════════
 export default function BolaoScreen() {
-  const [view,    setView]    = useState('home')
+  // Lê ?join=ABC123 da URL — convite via /bolao/<código> joga aqui
+  const initialJoinCode = (() => {
+    if (typeof window === 'undefined') return ''
+    try {
+      const c = new URLSearchParams(window.location.search).get('join') || ''
+      return c.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8)
+    } catch (_) { return '' }
+  })()
+
+  const [view,    setView]    = useState(initialJoinCode ? 'join' : 'home')
+  const [joinCode]            = useState(initialJoinCode)
   const [group,   setGroup]   = useState(null)
   const [member,  setMember]  = useState(null)
   const [toast,   setToast]   = useState(null)
@@ -1199,6 +1325,8 @@ export default function BolaoScreen() {
   }, [])
 
   useEffect(() => {
+    // Se tem deep-link de convite, ignora sessão antiga e força tela de join
+    if (initialJoinCode) return
     const mid  = localStorage.getItem('bolao_member_id')
     const code = localStorage.getItem('bolao_join_code')
     if (!mid || !code) return
@@ -1213,7 +1341,7 @@ export default function BolaoScreen() {
         }
       }
     }).catch(() => {})
-  }, [])
+  }, [initialJoinCode])
 
   function refreshGroup() {
     if (!group) return
@@ -1246,7 +1374,7 @@ export default function BolaoScreen() {
       {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
       {view === 'home'      && <HomeView onCreateClick={() => setView('create')} onJoinClick={() => setView('join')} config={config} setToast={setToast} />}
       {view === 'create'    && <CreateGroupView onBack={() => setView('home')} onCreated={handleCreated} setToast={setToast} />}
-      {view === 'join'      && <JoinGroupView onBack={() => setView('home')} onJoined={handleJoined} setToast={setToast} />}
+      {view === 'join'      && <JoinGroupView onBack={() => setView('home')} onJoined={handleJoined} setToast={setToast} prefilledCode={joinCode} />}
       {view === 'group'     && <GroupDashboard group={group} member={member} onPredict={() => setView('predict')} onStandings={() => setView('standings')} onLeave={handleLeave} setToast={setToast} refreshGroup={refreshGroup} deadline={config?.predictions_deadline} />}
       {view === 'predict'   && <PredictionsView member={member} onBack={() => setView('group')} setToast={setToast} deadline={config?.predictions_deadline} />}
       {view === 'standings' && <StandingsView group={group} member={member} onBack={() => setView('group')} setToast={setToast} />}

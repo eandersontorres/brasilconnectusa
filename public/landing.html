@@ -313,96 +313,73 @@ footer{background:var(--navy);padding:48px 28px 32px;border-top:1px solid rgba(2
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-in">
+<!-- HERO — BOLÃO DOMINANTE -->
+<section class="hero" style="padding:80px 24px 56px;">
+  <div class="hero-in" style="display:block;text-align:center;max-width:900px;">
 
-    <!-- left: mensagem principal -->
-    <div style="padding-top:12px">
-      <div class="eyebrow">Para brasileiros nos Estados Unidos</div>
-      <h1 class="hero-q">
-        A casa dos<br/>brasileiros nos<br/><em>Estados Unidos.</em>
+    <div style="position:relative;z-index:1;">
+      <div class="eyebrow" style="margin-bottom:14px;color:var(--goldl);">⚽ Bolão Copa 2026 · 100% gratuito</div>
+      <h1 class="hero-q" style="font-size:clamp(40px,5.2vw,68px);max-width:780px;margin:0 auto 18px;">
+        A Copa é <em>aqui nos EUA.</em><br/>
+        Bora <strong>montar nosso bolão?</strong>
       </h1>
-      <p class="hero-sub">
-        Estamos aqui pra <strong>dar suporte</strong> à comunidade brasileira nos EUA.
-        Câmbio, voos, agenda de serviços, indicações de negócios e a comunidade
-        — tudo num lugar só, em português.
+      <p class="hero-sub" style="max-width:580px;margin:0 auto 28px;font-size:17px;">
+        Crie um grupo com seus amigos, faça palpites em todos os jogos, dispute o ranking
+        <strong>do seu estado</strong> e o ranking <strong>nacional dos brasileiros nos EUA</strong>.
+        Sem mensalidade, sem taxa.
       </p>
 
-      <!-- Lista de espera -->
-      <div class="live-box" style="background:rgba(255,255,255,.06);">
-        <div style="font-size:13px;color:rgba(255,255,255,.85);font-weight:500;margin-bottom:10px;">
-          Estamos finalizando o lançamento. Entre na lista pra ser avisado(a).
-        </div>
-        <form id="wlHeroForm" style="display:flex;gap:8px;flex-wrap:wrap;">
-          <input id="wlHeroEmail" type="email" required placeholder="seu@email.com"
-            style="flex:1;min-width:180px;padding:11px 14px;border-radius:10px;border:1.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-family:'Sora',sans-serif;font-size:14px;outline:none;" />
-          <button type="submit"
-            style="background:var(--green);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;white-space:nowrap;">
-            Entrar na lista
-          </button>
-        </form>
-        <div id="wlHeroOk" style="display:none;margin-top:10px;font-size:13px;color:#5FE89A;font-weight:600;">
-          Anotado! Vamos avisar quando lançar.
-        </div>
-        <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:10px;">
-          Sem spam. Só o aviso de lançamento e novidades importantes.
-        </div>
+      <!-- Countdown -->
+      <div id="copaCountdown" style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-bottom:30px;">
+        <div class="cd-cell"><div class="cd-num" id="cdDays">--</div><div class="cd-lbl">dias</div></div>
+        <div class="cd-cell"><div class="cd-num" id="cdHrs">--</div><div class="cd-lbl">horas</div></div>
+        <div class="cd-cell"><div class="cd-num" id="cdMin">--</div><div class="cd-lbl">min</div></div>
+        <div class="cd-cell"><div class="cd-num" id="cdSec">--</div><div class="cd-lbl">seg</div></div>
+      </div>
+      <div style="font-size:12px;color:rgba(255,255,255,.42);margin-bottom:34px;letter-spacing:.04em;">
+        até <strong style="color:#fff;">Brasil × adversário</strong> · primeiro jogo do Brasil 🇧🇷 13/jun
       </div>
 
-      <div class="scroll-hint">
-        <span class="bounce">↓</span> Veja o que está vindo
+      <!-- CTAs -->
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:18px;">
+        <a href="/app/bolao" style="background:var(--green);color:#fff;border-radius:14px;padding:18px 32px;font-size:16px;font-weight:800;text-decoration:none;font-family:'Sora',sans-serif;display:inline-block;box-shadow:0 10px 28px rgba(0,156,59,.25);">
+          ⚽ Criar meu bolão →
+        </a>
+        <a href="/app/bolao" style="background:rgba(255,255,255,.08);color:#fff;border:1.5px solid rgba(255,255,255,.18);border-radius:14px;padding:18px 28px;font-size:15px;font-weight:700;text-decoration:none;font-family:'Sora',sans-serif;display:inline-block;">
+          Entrar com código
+        </a>
       </div>
-    </div>
+      <div style="font-size:12px;color:rgba(255,255,255,.35);margin-bottom:38px;">
+        Em 30 segundos você cria seu grupo e começa a chamar os amigos.
+      </div>
 
-    <!-- right: destaque do Bolão -->
-    <div>
-      <div class="tc">
-        <div class="tc-hdr">
-          <span class="tc-ttl">Estreia: Bolão Copa 2026</span>
-          <span class="tc-badge">Grátis</span>
+      <!-- Faixa "também temos" pra outras telas -->
+      <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:24px;max-width:680px;margin:0 auto;">
+        <div style="font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.32);margin-bottom:14px;">
+          BrasilConnect também tem
         </div>
-
-        <div style="padding:24px 22px 20px;text-align:center;">
-          <div style="font-family:'Fraunces',serif;font-size:42px;font-weight:600;color:var(--navy);line-height:1;letter-spacing:-1px;">⚽</div>
-          <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:600;color:var(--navy);margin-top:10px;line-height:1.2;letter-spacing:-.3px;">
-            A Copa é <em style="color:var(--green);">aqui nos EUA</em><br/>
-            Bora montar nosso bolão?
-          </div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-top:12px;">
-            Crie um grupo com seus amigos, dispute o ranking <strong style="color:var(--text);">do seu estado</strong>
-            e o ranking <strong style="color:var(--text);">nacional (USA)</strong>. Premiação a critério do organizador.
-          </div>
-        </div>
-
-        <div style="padding:0 22px 16px;display:flex;flex-direction:column;gap:8px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--cream);border-radius:10px;border:1px solid var(--border);">
-            <span style="font-size:12px;color:var(--muted);font-weight:600;">Ranking por grupo</span>
-            <span style="font-size:13px;font-weight:700;color:var(--green);">incluso</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--cream);border-radius:10px;border:1px solid var(--border);">
-            <span style="font-size:12px;color:var(--muted);font-weight:600;">Ranking por estado</span>
-            <span style="font-size:13px;font-weight:700;color:var(--green);">incluso</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--cream);border-radius:10px;border:1px solid var(--border);">
-            <span style="font-size:12px;color:var(--muted);font-weight:600;">Ranking nacional</span>
-            <span style="font-size:13px;font-weight:700;color:var(--green);">incluso</span>
-          </div>
-        </div>
-
-        <div class="sv-bar">
-          <div class="sv-txt">
-            <strong>Bora montar seu bolão</strong>
-            grupo, estado e ranking nacional
-          </div>
-          <a class="sv-btn" href="/app/bolao" style="display:inline-block;text-decoration:none;text-align:center;">Entrar no bolão →</a>
+        <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;">
+          <a href="#comparador" class="hero-feat">💱 <span>Câmbio</span></a>
+          <a href="/app/voos" class="hero-feat">✈️ <span>Voos</span></a>
+          <a href="/negocio" class="hero-feat">🏪 <span>Negócios</span></a>
+          <a href="#alertas" class="hero-feat">🔔 <span>Alertas</span></a>
+          <a href="/guias/" class="hero-feat">📖 <span>Guias</span></a>
         </div>
       </div>
-      <div class="aff-note">Sem mensalidade · sem taxa · 100% gratuito pra brasileiros nos EUA</div>
     </div>
 
   </div>
 </section>
+
+<style>
+.cd-cell{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:14px 18px;min-width:78px;}
+.cd-num{font-family:'Fraunces',serif;font-size:34px;font-weight:600;color:#fff;line-height:1;letter-spacing:-1px;}
+.cd-lbl{font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1.2px;font-weight:600;margin-top:6px;}
+.hero-feat{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:8px 14px;font-size:13px;color:rgba(255,255,255,.65);text-decoration:none;transition:all .15s;}
+.hero-feat:hover{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.15);}
+.hero-feat span{font-weight:600;}
+@media(max-width:560px){.cd-cell{min-width:62px;padding:10px 12px;}.cd-num{font-size:26px;}}
+</style>
 
 <!-- COMPARADOR DE REMESSAS -->
 <section class="cmp" id="comparador">
@@ -1121,27 +1098,30 @@ const obs = new IntersectionObserver(es => {
 }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' })
 document.querySelectorAll('.rv').forEach(el => obs.observe(el))
 
-// HERO WAITLIST FORM (lista de espera no topo)
-const wlHeroForm = document.getElementById('wlHeroForm')
-if (wlHeroForm) {
-  wlHeroForm.addEventListener('submit', async function(e) {
-    e.preventDefault()
-    const emailEl = document.getElementById('wlHeroEmail')
-    const email = emailEl.value.trim()
-    if (!email || !email.includes('@')) { emailEl.style.borderColor = '#E07065'; return }
-    emailEl.style.borderColor = 'rgba(255,255,255,.15)'
-    const btn = wlHeroForm.querySelector('button[type="submit"]')
-    if (btn) { btn.disabled = true; btn.textContent = 'Enviando...' }
-    try {
-      await fetch('/api/alerts', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, target_rate: 0, direction: 'waitlist' })
-      })
-    } catch (_) {}
-    wlHeroForm.style.display = 'none'
-    document.getElementById('wlHeroOk').style.display = 'block'
-  })
+// COUNTDOWN — Brasil estreia 13/jun/2026 22:00 UTC
+const COPA_TARGET = new Date('2026-06-13T22:00:00Z').getTime()
+function updateCountdown() {
+  const cdDays = document.getElementById('cdDays')
+  if (!cdDays) return
+  const diff = COPA_TARGET - Date.now()
+  if (diff <= 0) {
+    cdDays.textContent = '0'
+    document.getElementById('cdHrs').textContent = '0'
+    document.getElementById('cdMin').textContent = '0'
+    document.getElementById('cdSec').textContent = '0'
+    return
+  }
+  const d = Math.floor(diff / 86400000)
+  const h = Math.floor(diff / 3600000) % 24
+  const m = Math.floor(diff / 60000) % 60
+  const s = Math.floor(diff / 1000) % 60
+  cdDays.textContent = d
+  document.getElementById('cdHrs').textContent = String(h).padStart(2,'0')
+  document.getElementById('cdMin').textContent = String(m).padStart(2,'0')
+  document.getElementById('cdSec').textContent = String(s).padStart(2,'0')
 }
+updateCountdown()
+setInterval(updateCountdown, 1000)
 
 // INIT (defensivo: so chama se elementos existirem)
 const hasResList = !!document.getElementById('resList')
