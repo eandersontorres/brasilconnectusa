@@ -1,11 +1,26 @@
-import { useState, useEffect, useCallback } from 'react'
-import BolaoScreen from './BolaoScreen'
-import NegociosScreen from './NegociosScreen'
-import AgendaApp from './AgendaApp'
+import { useState, useEffect, useCallback, Suspense, lazy } from 'react'
 import AppShell from './AppShell'
 import PushPrompt from './PushPrompt'
 import FeedScreen from './FeedScreen'
 import DiscoverScreen from './DiscoverScreen'
+
+// Lazy-loaded — só baixa quando o usuário troca pra essas abas
+const BolaoScreen    = lazy(() => import('./BolaoScreen'))
+const NegociosScreen = lazy(() => import('./NegociosScreen'))
+const AgendaApp      = lazy(() => import('./AgendaApp'))
+
+function TabFallback() {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
+      <div style={{
+        width: 32, height: 32, border: '3px solid #e5e7eb',
+        borderTopColor: '#009c3b', borderRadius: '50%',
+        animation: 'spin 0.7s linear infinite',
+      }} />
+      <style>{'@keyframes spin { to { transform: rotate(360deg) } }'}</style>
+    </div>
+  )
+}
 
 // ─── Constantes ────────────────────────────────────────────────────────────────
 
@@ -1203,9 +1218,9 @@ export default function App() {
         {tab === 'discover' && <DiscoverScreen onNavigate={setTab} />}
         {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
         {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
-        {tab === 'agenda'   && <AgendaApp />}
-        {tab === 'negocios' && <NegociosScreen />}
-        {tab === 'bolao'    && <BolaoScreen />}
+        {tab === 'agenda'   && <Suspense fallback={<TabFallback />}><AgendaApp /></Suspense>}
+        {tab === 'negocios' && <Suspense fallback={<TabFallback />}><NegociosScreen /></Suspense>}
+        {tab === 'bolao'    && <Suspense fallback={<TabFallback />}><BolaoScreen /></Suspense>}
       </AppShell>
       <PushPrompt />
     </>
