@@ -18,12 +18,22 @@ function isPreviewMode() {
   } catch (e) { return false }
 }
 
+// Deep-link explícito (/app/<tab> ou ?tab=...) destrava o app — features prontas
+function isDeepLink() {
+  try {
+    if (/^\/app(\/|$)/.test(window.location.pathname)) return true
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('tab')) return true
+  } catch (_) {}
+  return false
+}
+
 initPWA()
 
-const isPreview = isPreviewMode()
+const showApp = isDeepLink() || isPreviewMode()
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    {isPreview ? <App /> : <ComingSoon />}
+    {showApp ? <App /> : <ComingSoon />}
   </React.StrictMode>
 )
