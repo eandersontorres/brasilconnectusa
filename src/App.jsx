@@ -5,8 +5,9 @@ import FeedScreen from './FeedScreen'
 import DiscoverScreen from './DiscoverScreen'
 
 // Lazy-loaded — só baixa quando o usuário troca pra essas abas
-const BolaoScreen    = lazy(() => import('./BolaoScreen'))
-const AgendaApp      = lazy(() => import('./AgendaApp'))
+const BolaoScreen        = lazy(() => import('./BolaoScreen'))
+const AgendaApp          = lazy(() => import('./AgendaApp'))
+const MarketplaceScreen  = lazy(() => import('./MarketplaceScreen'))
 
 function TabFallback() {
   return (
@@ -1151,8 +1152,8 @@ function VoosScreen({ affiliateLinks }) {
 
 // ─── App Principal (usa AppShell responsivo) ──────────────────────────────
 
-const VALID_TABS = ['feed', 'discover', 'remessas', 'voos', 'agenda', 'bolao']
-const TAB_ALIASES = { cambio: 'remessas', comparador: 'remessas' }
+const VALID_TABS = ['feed', 'discover', 'remessas', 'voos', 'agenda', 'bolao', 'marketplace']
+const TAB_ALIASES = { cambio: 'remessas', comparador: 'remessas', 'venda-troca': 'marketplace', classifieds: 'marketplace' }
 // Slugs antigos que agora redirecionam pra páginas estáticas (1 source of truth)
 const REDIRECT_SLUGS = { negocios: '/negocio', negocio: '/negocio' }
 
@@ -1227,6 +1228,7 @@ export default function App() {
         {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
         {tab === 'agenda'   && <Suspense fallback={<TabFallback />}><AgendaApp /></Suspense>}
         {tab === 'bolao'    && <Suspense fallback={<TabFallback />}><BolaoScreen /></Suspense>}
+        {tab === 'marketplace' && <Suspense fallback={<TabFallback />}><MarketplaceScreen /></Suspense>}
       </AppShell>
       <PushPrompt />
     </>

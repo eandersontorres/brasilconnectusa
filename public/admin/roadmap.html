@@ -176,6 +176,40 @@
         <h3>Error Boundary global</h3>
         <p>Bug de runtime em uma feature não derruba mais o app — fallback "Algo travou aqui" com botão de recuperação.</p>
       </div>
+
+      <div class="panel">
+        <h3>Push opt-in contextual no Bolão</h3>
+        <p>Após criar grupo, banner sutil "Avisar dos jogos pelo celular?" pede permissão e assina o tópico <code>bolao</code>. Helper <code>subscribePushTopic()</code> reaproveitável.</p>
+        <div class="why"><strong>Why:</strong> momento de pico de entusiasmo é onde mais converte permissão de push.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Magic link redirect modernizado</h3>
+        <p><code>emailRedirectTo</code> trocado de <code>/?preview=brasil2026</code> (legacy) pra <code>/app/feed</code>. Doc completo em <code>docs/supabase-auth-setup.md</code> + template HTML branded em <code>docs/email-magic-link.html</code> pra colar no dashboard.</p>
+      </div>
+
+      <div class="panel">
+        <h3>Marketplace MVP (Venda &amp; Troca)</h3>
+        <p>Reaproveita post type <code>classified</code> existente. Chip "🏷️ Vende/Compra" no feed filtra por tipo. Form ganha campos extras (preço, kind, contato). Card mostra badge VENDIDO + pill verde "💬 Contato" (wa.me) + botão "✓ Vendido" pro autor.</p>
+        <div class="why"><strong>Why:</strong> infra já tinha 90% pronta. Caminho A do roadmap — chip leve em cima do feed.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Marketplace caminho B — aba <code>/app/marketplace</code></h3>
+        <p>Grid visual estilo Mercado Livre: cards 2x ou 3x cols com foto/preço/título, filtros por tipo (Vendendo/Procurando/Doação/Aluguel), toggle esconde-vendidos, modal detalhe com botão "💬 Falar com vendedor" (WhatsApp). Item "🏷️ Marketplace" novo na sidebar do app.</p>
+        <div class="why"><strong>Why agora:</strong> mesma data layer do A — só uma "lente" diferente. Quem prefere navegar como Mercado Livre tem essa, quem quer ver tudo misturado vê no feed.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Imigração &amp; direito</h3>
+        <p>Página única <code>/guias/imigracao/</code> com 5 caminhos legais (Green Card, vistos de trabalho, asilo, naturalização, direitos do trabalhador) + diretório AILA. Disclaimer claro de "não é assessoria jurídica" + links pra fontes oficiais (USCIS, DOL).</p>
+        <div class="why"><strong>Why uma página só:</strong> assunto sensível pede prudência. Melhor um overview honesto que aponta pra fontes oficiais do que 5 sub-guias rasos. Aprofunda quando tiver pesquisa real.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Ponte estática↔app no menu</h3>
+        <p>Sidebar do app ganhou seção "Conteúdo" com 3 links pra páginas estáticas: <code>/guias/</code>, <code>/custo-de-vida/</code>, <code>/guia-chegada/</code>. Usuário autenticado deixa de ficar isolado do conteúdo SEO.</p>
+      </div>
     </div>
   </div>
 
@@ -199,9 +233,26 @@
     </div>
 
     <div class="panel">
-      <h3>Push notifications (VAPID keys)</h3>
-      <p>Todo o código de push (subscribe, send, tópicos) já está pronto em <code>api/push/</code>. Falta só a chave VAPID.</p>
-      <div class="how"><strong>How to apply:</strong> rodar <code>npx web-push generate-vapid-keys</code> e setar <code>VAPID_PUBLIC_KEY</code> + <code>VAPID_PRIVATE_KEY</code> na Vercel.</div>
+      <h3>Push notifications — VAPID</h3>
+      <p>✅ <strong>Já configurado em produção</strong> (<code>VAPID_PUBLIC_KEY</code>, <code>VAPID_PRIVATE_KEY</code>, <code>VAPID_SUBJECT</code> setados). <code>/api/push/vapid</code> retorna <code>configured: true</code>. PushPrompt e opt-in contextual funcionando.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Magic link customizado (Supabase + Resend)</h3>
+      <p>Hoje o magic link sai do remetente padrão Supabase com template em inglês. Pra trocar por algo branded de <code>oi@brasilconnectusa.com</code>, faz 3 coisas no dashboard.</p>
+      <div class="how"><strong>How to apply:</strong> seguir <code>docs/supabase-auth-setup.md</code> (Custom SMTP via Resend + colar template <code>docs/email-magic-link.html</code> + whitelistar Redirect URLs).</div>
+    </div>
+
+    <div class="panel">
+      <h3>Migration <code>bc_classified_status</code></h3>
+      <p>Marketplace MVP precisa da coluna nova em <code>bc_posts</code>. Sem isso, criar post tipo classified vai falhar.</p>
+      <div class="how"><strong>How to apply:</strong> rodar <code>supabase/bc_classified_status.sql</code> no SQL Editor do Supabase Dashboard antes de mergear o PR do marketplace.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Resend domain verification</h3>
+      <p>Sem <code>brasilconnectusa.com</code> verificado no Resend (SPF + DKIM verde), os emails de boas-vindas + magic link caem em spam ou não saem.</p>
+      <div class="how"><strong>How to apply:</strong> resend.com/domains → adicionar domínio + colar registros DNS.</div>
     </div>
   </div>
 
@@ -234,7 +285,13 @@
 
     <div class="panel">
       <h3>Push: cobrança de palpites</h3>
-      <p>Cron diário que dispara push pra membros que ainda não palpitaram, lembrando do prazo. Tópico <code>bolao</code> já existe no <code>PushPrompt.jsx</code>.</p>
+      <p>Cron diário que dispara push pra membros que ainda não palpitaram, lembrando do prazo. Tópico <code>bolao</code> já existe e usuário já pode optar in via banner pós-criação de grupo.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Sub-guias específicos de imigração</h3>
+      <p>A página atual é overview. Quando tiver volume e validação jurídica, expandir cada caminho em sub-páginas estilo <code>/guias/cnh/</code>: Green Card detalhado (4 caminhos), H-1B, L-1, EB-2 NIW, asilo passo-a-passo, N-400 (naturalização), wage theft (DOL).</p>
+      <div class="why"><strong>Why:</strong> trabalho é ~60% conteúdo (pesquisa + revisão jurídica) e 40% código. Página overview já cobre o essencial pra captar tráfego SEO.</div>
     </div>
   </div>
 
