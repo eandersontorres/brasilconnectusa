@@ -81,10 +81,13 @@ export default async function handler(req, res) {
       if (ce || !community) return err(res, 404, 'Comunidade não encontrada')
 
       let pq = supabase.from('bc_posts')
-        .select('id, type, title, body, image_urls, event_date, event_location, event_rsvp_count, classified_price, classified_kind, job_category, job_pay, upvotes, downvotes, comment_count, view_count, is_pinned, author_id, created_at')
+        .select('id, type, title, body, image_urls, event_date, event_location, event_rsvp_count, classified_price, classified_kind, classified_status, classified_contact, job_category, job_pay, upvotes, downvotes, comment_count, view_count, is_pinned, author_id, created_at')
         .eq('community_id', community.id)
         .eq('is_deleted', false)
         .limit(Number(limit))
+
+      // Filtro opcional: ?type=classified pra "modo marketplace"
+      if (req.query.type) pq = pq.eq('type', String(req.query.type))
 
       if (sort === 'top') {
         // ordenar por (upvotes - downvotes) desc — usando ordem na query manualmente
@@ -129,13 +132,16 @@ export default async function handler(req, res) {
         if (general) communityIds.push(general.id)
       }
 
-      const { data: posts, error } = await supabase
+      let feedQ = supabase
         .from('bc_posts')
-        .select('id, community_id, type, title, body, image_urls, event_date, event_location, classified_price, classified_kind, job_category, upvotes, downvotes, comment_count, author_id, created_at')
+        .select('id, community_id, type, title, body, image_urls, event_date, event_location, classified_price, classified_kind, classified_status, classified_contact, job_category, upvotes, downvotes, comment_count, author_id, created_at')
         .in('community_id', communityIds)
         .eq('is_deleted', false)
         .order('created_at', { ascending: false })
         .limit(Number(limit))
+      // Filtro opcional: ?type=classified pra modo marketplace no feed agregado
+      if (req.query.type) feedQ = feedQ.eq('type', String(req.query.type))
+      const { data: posts, error } = await feedQ
       if (error) throw error
 
       // Junta dados das comunidades incluindo lat/lng + type
@@ -402,6 +408,8 @@ export default async function handler(req, res) {
         insert.classified_currency = b.classified_currency || 'USD'
         insert.classified_kind     = b.classified_kind || 'sell'
         insert.classified_contact  = b.classified_contact || null
+        insert.classified_status   = ['available', 'sold', 'reserved'].includes(b.classified_status)
+          ? b.classified_status : 'available'
       }
       if (b.type === 'job') {
         insert.job_category = b.job_category || null
@@ -600,6 +608,25 @@ export default async function handler(req, res) {
       }
 
       return res.status(201).json({ success: true, report: data })
+    }
+
+    // ══════════ POST: classified-status (apenas autor pode marcar) ═════════
+    if (req.method === 'POST' && action === 'classified-status') {
+      const { post_id, user_id, status } = req.body || {}
+      if (!post_id || !user_id || !status) return err(res, 400, 'post_id, user_id e status obrigatórios')
+      if (!['available', 'sold', 'reserved'].includes(status)) return err(res, 400, 'status inválido')
+
+      const { data: post } = await supabase.from('bc_posts').select('author_id, type').eq('id', post_id).single()
+      if (!post) return err(res, 404, 'Post não encontrado')
+      if (post.type !== 'classified') return err(res, 400, 'Post não é classified')
+      if (post.author_id !== user_id) return err(res, 403, 'Só o autor pode mudar o status')
+
+      const { error: ue } = await supabase
+        .from('bc_posts')
+        .update({ classified_status: status, updated_at: new Date().toISOString() })
+        .eq('id', post_id)
+      if (ue) throw ue
+      return res.status(200).json({ success: true, status })
     }
 
     // ══════════ DELETE: post (soft, só autor) ══════════════════════════════

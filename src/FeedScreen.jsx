@@ -45,13 +45,52 @@ function Avatar({ name, size = 28 }) {
   )
 }
 
+function classifiedKindLabel(kind) {
+  return ({ sell: 'Vendo', buy: 'Procuro', donate: 'Doo', rent: 'Alugo' })[kind] || 'Vende'
+}
+
+function whatsappLink(contact, postTitle) {
+  if (!contact) return '#'
+  const digits = String(contact).replace(/\D/g, '')
+  // Se já tem 10+ dígitos, assume que é número de telefone
+  if (digits.length >= 10) {
+    const text = encodeURIComponent(`Oi! Vi seu anúncio "${postTitle || 'no BrasilConnect'}" e tenho interesse.`)
+    return `https://wa.me/${digits}?text=${text}`
+  }
+  // Senão, trata como mailto se tem @
+  if (String(contact).includes('@')) return 'mailto:' + contact
+  return '#'
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 //   PostCard
 // ────────────────────────────────────────────────────────────────────────────
-function PostCard({ post, currentUser, onClick, onVote }) {
+function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold }) {
   const t = POST_TYPES[post.type] || POST_TYPES.question
   const score = (post.upvotes || 0) - (post.downvotes || 0)
   const [voted, setVoted] = useState(0)
+  const [marking, setMarking] = useState(false)
+  const [localStatus, setLocalStatus] = useState(post.classified_status || 'available')
+
+  const isAuthor = currentUser && currentUser.id === post.author_id
+  const isSold = post.type === 'classified' && localStatus === 'sold'
+
+  async function handleMarkSold(e) {
+    e.stopPropagation()
+    if (!currentUser || !isAuthor || marking) return
+    setMarking(true)
+    try {
+      const res = await fetch('/api/social?action=classified-status', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_id: post.id, user_id: currentUser.id, status: 'sold' }),
+      })
+      if (res.ok) {
+        setLocalStatus('sold')
+        onClassifiedSold && onClassifiedSold(post.id)
+      }
+    } catch (_) {}
+    setMarking(false)
+  }
 
   async function handleVote(e, value) {
     e.stopPropagation()
@@ -112,9 +151,50 @@ function PostCard({ post, currentUser, onClick, onVote }) {
           {post.event_rsvp_count > 0 && ` · ${post.event_rsvp_count} confirmados`}
         </div>
       )}
-      {post.type === 'classified' && post.classified_price && (
-        <div style={{ fontSize: 13, color: '#6D28D9', background: '#EDE9FE', padding: '6px 10px', borderRadius: 6, marginBottom: 8, fontWeight: 600 }}>
-          ${Number(post.classified_price).toLocaleString('en-US')}
+      {post.type === 'classified' && (
+        <div style={{
+          background: isSold ? '#F3F4F6' : '#F5F3FF',
+          border: '1px solid ' + (isSold ? '#D1D5DB' : '#DDD6FE'),
+          borderRadius: 10, padding: '10px 12px', marginBottom: 8,
+          display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap',
+        }}>
+          {isSold && (
+            <span style={{
+              background: '#1F2937', color: '#fff', fontSize: 10, fontWeight: 800,
+              padding: '3px 10px', borderRadius: 4, letterSpacing: 0.8,
+            }}>VENDIDO</span>
+          )}
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#6D28D9', textTransform: 'uppercase', letterSpacing: 0.6, opacity: isSold ? 0.5 : 1 }}>
+            {classifiedKindLabel(post.classified_kind)}
+          </span>
+          {post.classified_price && (
+            <span style={{
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontSize: 19, fontWeight: 700, color: isSold ? '#9CA3AF' : '#1F2937',
+              textDecoration: isSold ? 'line-through' : 'none', lineHeight: 1,
+            }}>
+              ${Number(post.classified_price).toLocaleString('en-US')}
+            </span>
+          )}
+          <div style={{ flex: 1 }} />
+          {!isSold && post.classified_contact && (
+            <a
+              onClick={e => e.stopPropagation()}
+              href={whatsappLink(post.classified_contact, post.title)}
+              target="_blank" rel="noopener noreferrer"
+              style={{
+                background: '#25D366', color: '#fff', textDecoration: 'none',
+                borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700,
+              }}
+            >💬 Contato</a>
+          )}
+          {!isSold && isAuthor && (
+            <button onClick={handleMarkSold} disabled={marking} style={{
+              background: '#fff', color: '#6D28D9', border: '1px solid #DDD6FE',
+              borderRadius: 8, padding: '6px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+              fontFamily: FONT.sans,
+            }}>{marking ? '…' : '✓ Vendido'}</button>
+          )}
         </div>
       )}
       {post.type === 'job' && (post.job_pay || post.job_category) && (
@@ -151,12 +231,16 @@ function PostCard({ post, currentUser, onClick, onVote }) {
 // ────────────────────────────────────────────────────────────────────────────
 //   CreatePostModal
 // ────────────────────────────────────────────────────────────────────────────
-function CreatePostModal({ user, onClose, onCreated }) {
+function CreatePostModal({ user, onClose, onCreated, defaultType = 'question' }) {
   const [communities, setCommunities] = useState([])
   const [communityId, setCommunityId] = useState('')
-  const [type, setType] = useState('question')
+  const [type, setType] = useState(defaultType)
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  // Campos específicos de classified
+  const [classifiedPrice, setClassifiedPrice] = useState('')
+  const [classifiedKind, setClassifiedKind]   = useState('sell')
+  const [classifiedContact, setClassifiedContact] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
@@ -182,11 +266,21 @@ function CreatePostModal({ user, onClose, onCreated }) {
   async function handleSubmit(e) {
     e.preventDefault()
     if (!title || !communityId) { setError('Comunidade e título obrigatórios'); return }
+    if (type === 'classified' && classifiedKind === 'sell' && !classifiedPrice) {
+      setError('Pra vender informe o preço'); return
+    }
     setSubmitting(true); setError(null)
     try {
+      const payload = { user_id: user.id, community_id: communityId, type, title, body }
+      if (type === 'classified') {
+        payload.classified_price = classifiedPrice ? Number(classifiedPrice) : null
+        payload.classified_kind = classifiedKind
+        payload.classified_contact = classifiedContact.trim() || null
+        payload.classified_status = 'available'
+      }
       const res = await fetch('/api/social?action=create-post', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: user.id, community_id: communityId, type, title, body }),
+        body: JSON.stringify(payload),
       })
       const d = await res.json()
       if (!res.ok) throw new Error(d.error)
@@ -269,6 +363,53 @@ function CreatePostModal({ user, onClose, onCreated }) {
               style={{ ...inputStyle, resize: 'vertical' }} />
           </div>
 
+          {/* Campos específicos de Vende/Compra */}
+          {type === 'classified' && (
+            <div style={{ background: '#F5F3FF', border: '1px solid #DDD6FE', borderRadius: 10, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#6D28D9', textTransform: 'uppercase', letterSpacing: 1 }}>
+                $ Vende/Compra — detalhes
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.inkSoft, display: 'block', marginBottom: 4 }}>O que é</label>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {[['sell','Vendo'],['buy','Procuro'],['donate','Doo'],['rent','Alugo']].map(([v,l]) => (
+                    <button key={v} type="button" onClick={() => setClassifiedKind(v)} style={{
+                      padding: '6px 12px', borderRadius: 14,
+                      background: classifiedKind === v ? '#6D28D9' : '#fff',
+                      color: classifiedKind === v ? '#fff' : '#6D28D9',
+                      border: '1px solid #DDD6FE', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                      fontFamily: FONT.sans,
+                    }}>{l}</button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.inkSoft, display: 'block', marginBottom: 4 }}>
+                  Preço (USD) {classifiedKind === 'donate' ? '— opcional' : ''}
+                </label>
+                <input
+                  type="number" min={0} step="0.01"
+                  value={classifiedPrice}
+                  onChange={e => setClassifiedPrice(e.target.value)}
+                  placeholder={classifiedKind === 'sell' ? 'Ex: 200' : 'Ex: até 500'}
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.inkSoft, display: 'block', marginBottom: 4 }}>
+                  WhatsApp ou outro contato (opcional)
+                </label>
+                <input
+                  type="text" maxLength={120}
+                  value={classifiedContact}
+                  onChange={e => setClassifiedContact(e.target.value)}
+                  placeholder="+1 (555) 555-5555"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+          )}
+
           {error && (
             <div style={{ padding: '8px 12px', borderRadius: 6, background: '#FEE2E2', color: '#991B1B', fontSize: 12 }}>
               {error}
@@ -297,20 +438,29 @@ export default function FeedScreen({ onNavigate }) {
   const [posts, setPosts] = useState([])
   const [loading, setLoading] = useState(true)
   const [showCreate, setShowCreate] = useState(false)
+  const [createDefaultType, setCreateDefaultType] = useState('question')
   const [needAuthMsg, setNeedAuthMsg] = useState(false)
+  const [filterType, setFilterType] = useState(() => {
+    if (typeof window === 'undefined') return 'all'
+    try {
+      const f = new URLSearchParams(window.location.search).get('filter')
+      return f === 'classified' ? 'classified' : 'all'
+    } catch (_) { return 'all' }
+  }) // 'all' | 'classified'
 
   const loadFeed = useCallback(async () => {
     setLoading(true)
     try {
-      const url = user
+      const base = user
         ? `/api/social?action=feed&user_id=${user.id}`
         : '/api/social?action=feed-public'
+      const url = filterType === 'classified' ? `${base}&type=classified` : base
       const res = await fetch(url)
       const data = await res.json()
       setPosts(data.posts || [])
     } catch (_) { setPosts([]) }
     finally { setLoading(false) }
-  }, [user])
+  }, [user, filterType])
 
   useEffect(() => { loadFeed() }, [loadFeed])
 
@@ -353,13 +503,27 @@ export default function FeedScreen({ onNavigate }) {
         marginBottom: 10,
       }}>
         {user && <Avatar name={user.email} />}
-        <button onClick={() => user ? setShowCreate(true) : setNeedAuthMsg(true)} style={{
+        <button onClick={() => {
+          if (!user) { setNeedAuthMsg(true); return }
+          setCreateDefaultType(filterType === 'classified' ? 'classified' : 'question')
+          setShowCreate(true)
+        }} style={{
           flex: 1, padding: '10px 14px', borderRadius: 24,
           border: '1px solid ' + C.line, background: C.paper,
           color: C.inkMuted, fontSize: 13, cursor: 'pointer',
           textAlign: 'left', fontFamily: FONT.sans,
         }}>
-          Pergunte algo, indique, ou compartilhe…
+          {filterType === 'classified' ? 'Vendendo, comprando ou doando algo?' : 'Pergunte algo, indique, ou compartilhe…'}
+        </button>
+      </div>
+
+      {/* Filtros — chips */}
+      <div style={{ display: 'flex', gap: 6, marginBottom: 10, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+        <button onClick={() => setFilterType('all')} style={chipStyle(filterType === 'all', C)}>
+          Tudo
+        </button>
+        <button onClick={() => setFilterType('classified')} style={chipStyle(filterType === 'classified', C, '#6D28D9')}>
+          🏷️ Vende/Compra
         </button>
       </div>
 
@@ -402,10 +566,28 @@ export default function FeedScreen({ onNavigate }) {
       {showCreate && user && (
         <CreatePostModal
           user={user}
+          defaultType={createDefaultType}
           onClose={() => setShowCreate(false)}
           onCreated={() => { setShowCreate(false); loadFeed() }}
         />
       )}
     </div>
   )
+}
+
+function chipStyle(active, C, accent) {
+  const color = accent || C.green
+  return {
+    flexShrink: 0,
+    padding: '7px 14px',
+    borderRadius: 20,
+    background: active ? color : C.white,
+    color: active ? '#fff' : C.inkSoft,
+    border: '1px solid ' + (active ? color : C.line),
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: 'pointer',
+    fontFamily: FONT.sans,
+    whiteSpace: 'nowrap',
+  }
 }
