@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import PushOptInBanner from './PushOptInBanner'
 
 // ── Paleta editorial ──────────────────────────────────────────────────────
 const GREEN  = '#009c3b'   // Verde floresta
@@ -951,10 +952,18 @@ function CreatedSuccessView({ group, onContinue, setToast }) {
 
         <button onClick={handleCopy} style={{
           width: '100%', background: '#fff', color: BLUE, border: '1.5px solid ' + BLUE,
-          borderRadius: 12, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 18,
+          borderRadius: 12, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 14,
         }}>
           📋 Copiar link de convite
         </button>
+
+        <div style={{ marginBottom: 14 }}>
+          <PushOptInBanner
+            topic="bolao"
+            title="Avisar dos jogos pelo celular?"
+            description="A gente cobra os palpites quando faltar 1 dia pro prazo e avisa dos resultados ao vivo."
+          />
+        </div>
 
         <button onClick={onContinue} style={{
           width: '100%', background: 'none', color: '#6b7280', border: 'none',
