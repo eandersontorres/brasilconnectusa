@@ -190,8 +190,25 @@
 
       <div class="panel">
         <h3>Marketplace MVP (Venda &amp; Troca)</h3>
-        <p>Reaproveita post type <code>classified</code> existente. Chip "🏷️ Vende/Compra" no feed filtra por tipo. Form ganha campos extras (preço, kind, contato). Card mostra badge VENDIDO + pill verde "💬 Contato" (wa.me) + botão "✓ Vendido" pro autor. Card da landing virou link real <code>/app/feed?filter=classified</code>.</p>
-        <div class="why"><strong>Why:</strong> infra já tinha 90% pronta. Caminho A do roadmap — chip leve em cima do feed pra validar demanda antes de tab dedicada.</div>
+        <p>Reaproveita post type <code>classified</code> existente. Chip "🏷️ Vende/Compra" no feed filtra por tipo. Form ganha campos extras (preço, kind, contato). Card mostra badge VENDIDO + pill verde "💬 Contato" (wa.me) + botão "✓ Vendido" pro autor.</p>
+        <div class="why"><strong>Why:</strong> infra já tinha 90% pronta. Caminho A do roadmap — chip leve em cima do feed.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Marketplace caminho B — aba <code>/app/marketplace</code></h3>
+        <p>Grid visual estilo Mercado Livre: cards 2x ou 3x cols com foto/preço/título, filtros por tipo (Vendendo/Procurando/Doação/Aluguel), toggle esconde-vendidos, modal detalhe com botão "💬 Falar com vendedor" (WhatsApp). Item "🏷️ Marketplace" novo na sidebar do app.</p>
+        <div class="why"><strong>Why agora:</strong> mesma data layer do A — só uma "lente" diferente. Quem prefere navegar como Mercado Livre tem essa, quem quer ver tudo misturado vê no feed.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Imigração &amp; direito</h3>
+        <p>Página única <code>/guias/imigracao/</code> com 5 caminhos legais (Green Card, vistos de trabalho, asilo, naturalização, direitos do trabalhador) + diretório AILA. Disclaimer claro de "não é assessoria jurídica" + links pra fontes oficiais (USCIS, DOL).</p>
+        <div class="why"><strong>Why uma página só:</strong> assunto sensível pede prudência. Melhor um overview honesto que aponta pra fontes oficiais do que 5 sub-guias rasos. Aprofunda quando tiver pesquisa real.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Ponte estática↔app no menu</h3>
+        <p>Sidebar do app ganhou seção "Conteúdo" com 3 links pra páginas estáticas: <code>/guias/</code>, <code>/custo-de-vida/</code>, <code>/guia-chegada/</code>. Usuário autenticado deixa de ficar isolado do conteúdo SEO.</p>
       </div>
     </div>
   </div>
@@ -272,20 +289,9 @@
     </div>
 
     <div class="panel">
-      <h3>Marketplace — caminho B (aba dedicada)</h3>
-      <p>Se o chip "🏷️ Vende/Compra" do feed gerar volume relevante (~20+ posts/semana), criar <code>/app/marketplace</code> com grid visual estilo Mercado Livre: cards com foto + preço + cidade, filtros por preço/categoria, mesmo backend.</p>
-      <div class="why"><strong>Why agora não:</strong> antes de saber se a categoria pega, tab dedicada divide atenção. Validar primeiro.</div>
-    </div>
-
-    <div class="panel">
-      <h3>Imigração &amp; Direito</h3>
-      <p>Último "Em breve" da landing. Estrutura: index <code>/guias/imigracao/</code> com cards pra Green Card · Vistos de trabalho (H1B/L1/EB) · Asilo · Naturalização · Direitos do trabalhador. Cada um vira página própria estilo <code>/guias/cnh/</code>.</p>
-      <div class="why"><strong>Why:</strong> trabalho é ~60% conteúdo (precisa pesquisa + revisão jurídica) e 40% código. Estrutura HTML é fácil; preencher com conteúdo correto demanda atenção.</div>
-    </div>
-
-    <div class="panel">
-      <h3>Tab "Guias" no app</h3>
-      <p>Hoje a navegação do app não linka pra <code>/guias/</code> nem <code>/custo-de-vida/</code>. Usuário autenticado fica isolado do conteúdo SEO. Adicionar item no LeftSidebar/menu apontando pras estáticas.</p>
+      <h3>Sub-guias específicos de imigração</h3>
+      <p>A página atual é overview. Quando tiver volume e validação jurídica, expandir cada caminho em sub-páginas estilo <code>/guias/cnh/</code>: Green Card detalhado (4 caminhos), H-1B, L-1, EB-2 NIW, asilo passo-a-passo, N-400 (naturalização), wage theft (DOL).</p>
+      <div class="why"><strong>Why:</strong> trabalho é ~60% conteúdo (pesquisa + revisão jurídica) e 40% código. Página overview já cobre o essencial pra captar tráfego SEO.</div>
     </div>
   </div>
 

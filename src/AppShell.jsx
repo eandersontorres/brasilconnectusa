@@ -192,10 +192,16 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
       )}
 
       {sectionTitle('Ferramentas')}
-      {item(tab === 'remessas', '$',  'Câmbio',   () => setTab('remessas'))}
-      {item(tab === 'voos',     '✈',  'Voos',     () => setTab('voos'))}
+      {item(tab === 'remessas', '$',  'Câmbio',     () => setTab('remessas'))}
+      {item(tab === 'voos',     '✈',  'Voos',       () => setTab('voos'))}
       {item(false, '◫',  'Negócios', () => { window.location.href = '/negocio' })}
-      {item(tab === 'bolao',    '⚽', 'Bolão',    () => setTab('bolao'))}
+      {item(tab === 'bolao',    '⚽', 'Bolão',      () => setTab('bolao'))}
+      {item(tab === 'marketplace','🏷️','Marketplace',() => setTab('marketplace'))}
+
+      {sectionTitle('Conteúdo')}
+      {item(false, '📖', 'Guias',          () => { window.location.href = '/guias/' })}
+      {item(false, '🏠', 'Custo de vida',  () => { window.location.href = '/custo-de-vida/' })}
+      {item(false, '🛬', 'Guia de chegada',() => { window.location.href = '/guia-chegada/' })}
     </div>
   )
 }
