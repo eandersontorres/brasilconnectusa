@@ -12,8 +12,8 @@ const TABS = [
   { id: 'feed',      icon: '⌂',  label: 'Feed' },
   { id: 'discover',  icon: '⌕',  label: 'Buscar' },
   { id: 'remessas',  icon: '$',  label: 'Câmbio' },
-  { id: 'negocios',  icon: '◫',  label: 'Negócios' },
   { id: 'bolao',     icon: '⚽', label: 'Bolão' },
+  { id: 'voos',      icon: '✈',  label: 'Voos' },
 ]
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -194,7 +194,7 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
       {sectionTitle('Ferramentas')}
       {item(tab === 'remessas', '$',  'Câmbio',   () => setTab('remessas'))}
       {item(tab === 'voos',     '✈',  'Voos',     () => setTab('voos'))}
-      {item(tab === 'negocios', '◫',  'Negócios', () => setTab('negocios'))}
+      {item(false, '◫',  'Negócios', () => { window.location.href = '/negocio' })}
       {item(tab === 'bolao',    '⚽', 'Bolão',    () => setTab('bolao'))}
     </div>
   )

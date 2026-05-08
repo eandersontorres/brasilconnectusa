@@ -99,6 +99,10 @@
       "destination": "/admin/utm-builder.html"
     },
     {
+      "source": "/admin/roadmap",
+      "destination": "/admin/roadmap.html"
+    },
+    {
       "source": "/assinante",
       "destination": "/assinante/index.html"
     },
