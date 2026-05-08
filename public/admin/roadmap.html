@@ -176,6 +176,23 @@
         <h3>Error Boundary global</h3>
         <p>Bug de runtime em uma feature não derruba mais o app — fallback "Algo travou aqui" com botão de recuperação.</p>
       </div>
+
+      <div class="panel">
+        <h3>Push opt-in contextual no Bolão</h3>
+        <p>Após criar grupo, banner sutil "Avisar dos jogos pelo celular?" pede permissão e assina o tópico <code>bolao</code>. Helper <code>subscribePushTopic()</code> reaproveitável.</p>
+        <div class="why"><strong>Why:</strong> momento de pico de entusiasmo é onde mais converte permissão de push.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Magic link redirect modernizado</h3>
+        <p><code>emailRedirectTo</code> trocado de <code>/?preview=brasil2026</code> (legacy) pra <code>/app/feed</code>. Doc completo em <code>docs/supabase-auth-setup.md</code> + template HTML branded em <code>docs/email-magic-link.html</code> pra colar no dashboard.</p>
+      </div>
+
+      <div class="panel">
+        <h3>Marketplace MVP (Venda &amp; Troca)</h3>
+        <p>Reaproveita post type <code>classified</code> existente. Chip "🏷️ Vende/Compra" no feed filtra por tipo. Form ganha campos extras (preço, kind, contato). Card mostra badge VENDIDO + pill verde "💬 Contato" (wa.me) + botão "✓ Vendido" pro autor. Card da landing virou link real <code>/app/feed?filter=classified</code>.</p>
+        <div class="why"><strong>Why:</strong> infra já tinha 90% pronta. Caminho A do roadmap — chip leve em cima do feed pra validar demanda antes de tab dedicada.</div>
+      </div>
     </div>
   </div>
 
@@ -199,9 +216,26 @@
     </div>
 
     <div class="panel">
-      <h3>Push notifications (VAPID keys)</h3>
-      <p>Todo o código de push (subscribe, send, tópicos) já está pronto em <code>api/push/</code>. Falta só a chave VAPID.</p>
-      <div class="how"><strong>How to apply:</strong> rodar <code>npx web-push generate-vapid-keys</code> e setar <code>VAPID_PUBLIC_KEY</code> + <code>VAPID_PRIVATE_KEY</code> na Vercel.</div>
+      <h3>Push notifications — VAPID</h3>
+      <p>✅ <strong>Já configurado em produção</strong> (<code>VAPID_PUBLIC_KEY</code>, <code>VAPID_PRIVATE_KEY</code>, <code>VAPID_SUBJECT</code> setados). <code>/api/push/vapid</code> retorna <code>configured: true</code>. PushPrompt e opt-in contextual funcionando.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Magic link customizado (Supabase + Resend)</h3>
+      <p>Hoje o magic link sai do remetente padrão Supabase com template em inglês. Pra trocar por algo branded de <code>oi@brasilconnectusa.com</code>, faz 3 coisas no dashboard.</p>
+      <div class="how"><strong>How to apply:</strong> seguir <code>docs/supabase-auth-setup.md</code> (Custom SMTP via Resend + colar template <code>docs/email-magic-link.html</code> + whitelistar Redirect URLs).</div>
+    </div>
+
+    <div class="panel">
+      <h3>Migration <code>bc_classified_status</code></h3>
+      <p>Marketplace MVP precisa da coluna nova em <code>bc_posts</code>. Sem isso, criar post tipo classified vai falhar.</p>
+      <div class="how"><strong>How to apply:</strong> rodar <code>supabase/bc_classified_status.sql</code> no SQL Editor do Supabase Dashboard antes de mergear o PR do marketplace.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Resend domain verification</h3>
+      <p>Sem <code>brasilconnectusa.com</code> verificado no Resend (SPF + DKIM verde), os emails de boas-vindas + magic link caem em spam ou não saem.</p>
+      <div class="how"><strong>How to apply:</strong> resend.com/domains → adicionar domínio + colar registros DNS.</div>
     </div>
   </div>
 
@@ -234,7 +268,24 @@
 
     <div class="panel">
       <h3>Push: cobrança de palpites</h3>
-      <p>Cron diário que dispara push pra membros que ainda não palpitaram, lembrando do prazo. Tópico <code>bolao</code> já existe no <code>PushPrompt.jsx</code>.</p>
+      <p>Cron diário que dispara push pra membros que ainda não palpitaram, lembrando do prazo. Tópico <code>bolao</code> já existe e usuário já pode optar in via banner pós-criação de grupo.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Marketplace — caminho B (aba dedicada)</h3>
+      <p>Se o chip "🏷️ Vende/Compra" do feed gerar volume relevante (~20+ posts/semana), criar <code>/app/marketplace</code> com grid visual estilo Mercado Livre: cards com foto + preço + cidade, filtros por preço/categoria, mesmo backend.</p>
+      <div class="why"><strong>Why agora não:</strong> antes de saber se a categoria pega, tab dedicada divide atenção. Validar primeiro.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Imigração &amp; Direito</h3>
+      <p>Último "Em breve" da landing. Estrutura: index <code>/guias/imigracao/</code> com cards pra Green Card · Vistos de trabalho (H1B/L1/EB) · Asilo · Naturalização · Direitos do trabalhador. Cada um vira página própria estilo <code>/guias/cnh/</code>.</p>
+      <div class="why"><strong>Why:</strong> trabalho é ~60% conteúdo (precisa pesquisa + revisão jurídica) e 40% código. Estrutura HTML é fácil; preencher com conteúdo correto demanda atenção.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Tab "Guias" no app</h3>
+      <p>Hoje a navegação do app não linka pra <code>/guias/</code> nem <code>/custo-de-vida/</code>. Usuário autenticado fica isolado do conteúdo SEO. Adicionar item no LeftSidebar/menu apontando pras estáticas.</p>
     </div>
   </div>
 
