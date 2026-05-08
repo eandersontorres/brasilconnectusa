@@ -67,7 +67,7 @@ function invitePageHtml({ group, memberCount }) {
   const ogDesc = memberCount > 1
     ? `${memberCount} brasileiros já estão palpitando. Entre no grupo e dispute o ranking estadual e nacional dos EUA.`
     : `Bolão da Copa 2026 — entre, palpite e dispute o ranking estadual e nacional dos EUA.`
-  const ogImage = 'https://brasilconnectusa.com/og-image.png'
+  const ogImage = 'https://brasilconnectusa.com/og-image.svg'
   const url = `https://brasilconnectusa.com/bolao/${code}`
   const prizeLine = group.prize_title || group.prize_first
     ? `<div class="prize">🏆 ${escapeHtml(group.prize_title || group.prize_first)}</div>`
