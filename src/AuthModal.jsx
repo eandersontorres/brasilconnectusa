@@ -29,7 +29,7 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
       const { error } = await supabase.auth.signInWithOtp({
         email: email.trim().toLowerCase(),
         options: {
-          emailRedirectTo: window.location.origin + '/?preview=brasil2026',
+          emailRedirectTo: window.location.origin + '/app/feed',
         },
       })
       if (error) throw error
