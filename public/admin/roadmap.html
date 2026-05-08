@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin · Roadmap · BrasilConnect USA</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    body { background: var(--paper); }
+
+    .admin-topbar { background: var(--paper-elevated); border-bottom: 1px solid var(--line); padding: 18px 24px; }
+    .admin-topbar .brand { display: flex; align-items: center; gap: 14px; max-width: 1400px; margin: 0 auto; flex-wrap: wrap; }
+    .admin-topbar .nav-links { display: flex; gap: 14px; margin-left: 8px; flex-wrap: wrap; }
+    .admin-topbar .nav-links a { font-size: 13px; color: var(--ink-soft); text-decoration: none; }
+    .admin-topbar .nav-links a.active { color: var(--brand-green); font-weight: 600; }
+    .admin-topbar .meta { margin-left: auto; font-size: 13px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; }
+
+    .admin-container { max-width: 980px; margin: 32px auto 80px; padding: 0 24px; }
+
+    .hero { margin-bottom: 32px; }
+    .hero .eyebrow { text-transform: uppercase; letter-spacing: 0.2em; font-size: 11px; font-weight: 600; color: var(--brand-gold-dark); margin-bottom: 10px; }
+    .hero h1 { font-family: var(--font-display); font-size: 2.2rem; font-weight: 600; margin: 0 0 8px; color: var(--ink); letter-spacing: -0.02em; line-height: 1.15; }
+    .hero p { color: var(--ink-soft); font-size: 15px; line-height: 1.6; max-width: 720px; margin: 0; }
+    .hero-meta { font-size: 12px; color: var(--ink-muted); margin-top: 14px; font-style: italic; }
+
+    .section { margin-bottom: 36px; }
+    .section-h { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+    .section-h h2 { font-family: var(--font-display); font-size: 1.4rem; font-weight: 600; margin: 0; color: var(--ink); letter-spacing: -0.01em; }
+    .section-h .badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; padding: 3px 10px; border-radius: 12px; }
+    .badge-done { background: #DCFCE7; color: #166534; }
+    .badge-now  { background: #FEF3C7; color: #92400E; }
+    .badge-next { background: #DBEAFE; color: #1E40AF; }
+    .badge-later{ background: #F3E8FF; color: #6B21A8; }
+
+    .panel { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px 24px; margin-bottom: 12px; }
+    .panel h3 { font-family: var(--font-display); margin: 0 0 4px; color: var(--ink); font-size: 1.05rem; font-weight: 600; }
+    .panel p { color: var(--ink-soft); font-size: 13.5px; line-height: 1.6; margin: 0 0 8px; }
+    .panel .why, .panel .how { font-size: 12px; color: var(--ink-muted); line-height: 1.55; margin-top: 6px; }
+    .panel .why strong, .panel .how strong { color: var(--ink-soft); font-weight: 600; }
+    .panel code { background: var(--paper-soft); padding: 1px 6px; border-radius: 4px; font-size: 0.88em; color: var(--brand-navy); }
+    .panel ul { margin: 8px 0 0; padding-left: 18px; }
+    .panel ul li { font-size: 13px; color: var(--ink-soft); line-height: 1.7; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 760px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    table.surfaces { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+    table.surfaces th, table.surfaces td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+    table.surfaces th { background: var(--paper-soft); font-weight: 600; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+    table.surfaces tr:last-child td { border-bottom: none; }
+    table.surfaces td.yes { color: #166534; font-weight: 600; }
+    table.surfaces td.no  { color: var(--ink-muted); }
+
+    .ts { font-size: 11px; color: var(--ink-muted); margin-top: 32px; text-align: center; }
+  </style>
+</head>
+<body>
+
+<div class="admin-topbar">
+  <div class="brand">
+    <a href="/admin" style="text-decoration:none;font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:600;color:var(--brand-navy);letter-spacing:-0.01em;"><span>Brasil</span><em style="color:var(--brand-gold);font-style:normal;font-weight:600;">Connect</em></a>
+    <div class="nav-links">
+      <a href="/admin/mindmap">Mind Map</a>
+      <a href="/admin/manage">Gerenciar</a>
+      <a href="/admin/waitlist">Lista de espera</a>
+      <a href="/admin/analytics">Analytics</a>
+      <a href="/admin/utm-builder">UTM Builder</a>
+      <a href="/admin/roadmap" class="active">Roadmap</a>
+    </div>
+    <div class="meta">Admin Console</div>
+  </div>
+</div>
+
+<div class="admin-container">
+
+  <div class="hero">
+    <div class="eyebrow">Roadmap & Decisões arquiteturais</div>
+    <h1>Pra onde a plataforma está indo</h1>
+    <p>Resumo das decisões de produto e arquitetura — o que já entregamos, o que vem agora, e o que provavelmente vamos abordar depois da Copa. Documento vivo: editar quando uma decisão mudar.</p>
+    <div class="hero-meta">Atualizado em 2026-05-07 · Em foco: lançamento do Bolão Copa 2026 (11/jun)</div>
+  </div>
+
+  <!-- ESTADO ATUAL -->
+  <div class="section">
+    <div class="section-h">
+      <h2>Estado atual da arquitetura</h2>
+    </div>
+
+    <div class="panel">
+      <p>Hoje convivem dois "mundos" no mesmo domínio. A regra que estamos firmando: <strong>HTML estático = SEO + leitura · App React = interação + auth</strong>. Padrão usado por Stripe, Linear, qualquer SaaS sério.</p>
+
+      <table class="surfaces" style="margin-top:12px;">
+        <thead>
+          <tr><th>Surface</th><th>Estática (<code>/foo</code>)</th><th>App React (<code>/app/foo</code>)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Bolão</td><td class="no">—</td><td class="yes">✓ interativo (auth + state)</td></tr>
+          <tr><td>Câmbio (remessas)</td><td class="no">—</td><td class="yes">✓ taxa ao vivo</td></tr>
+          <tr><td>Voos</td><td class="no">—</td><td class="yes">✓ busca dinâmica</td></tr>
+          <tr><td>Feed social</td><td class="no">—</td><td class="yes">✓ posts + comunidades</td></tr>
+          <tr><td>Negócios</td><td class="yes">✓ diretório SEO</td><td class="no">redireciona pra estática</td></tr>
+          <tr><td>Agenda</td><td class="yes">✓ marketing + booking público</td><td class="yes">✓ dashboard da profissional</td></tr>
+          <tr><td>Guias / Custo de vida</td><td class="yes">✓ conteúdo SEO</td><td class="no">—</td></tr>
+          <tr><td>Convite de Bolão</td><td class="yes">✓ <code>/bolao/&lt;código&gt;</code> com OG dinâmico</td><td class="no">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- AGORA -->
+  <div class="section">
+    <div class="section-h">
+      <h2>Já entregue</h2>
+      <span class="badge badge-done">DONE</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <h3>Captura de leads unificada</h3>
+        <p>Quem entra no Bolão agora cai em <code>bc_waitlist</code> + recebe email de boas-vindas customizado + entra no funil de drip.</p>
+        <div class="why"><strong>Why:</strong> emails do Bolão ficavam isolados e fora do drip — perdíamos retenção.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Página de convite com OG dinâmico</h3>
+        <p><code>/bolao/&lt;código&gt;</code> renderiza HTML com nome do grupo, contador de membros e prêmio — preview rico no WhatsApp/Telegram.</p>
+        <div class="why"><strong>Why:</strong> link puro pro <code>/app/bolao</code> não vendia o convite.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Hero do landing focado no Bolão</h3>
+        <p>Countdown ao vivo até o primeiro jogo do Brasil (13/jun) + 2 CTAs grandes. Outras features ficam numa faixa secundária.</p>
+        <div class="why"><strong>Why:</strong> Bolão é o gancho de leads — precisava dominar visualmente até a Copa começar.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Code split (515kB → 96kB)</h3>
+        <p>Bolão/Negócios/Agenda agora lazy-load. Vendors (React + Supabase) em chunks separados, cacheados entre deploys.</p>
+        <div class="why"><strong>Why:</strong> 80%+ do tráfego do Bolão vem do WhatsApp em mobile 4G.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Cross-sell sutil no dashboard do Bolão</h3>
+        <p>Card "Mandar dinheiro" com câmbio ao vivo + card "Voos pra Copa" — UTMs pra medir.</p>
+        <div class="why"><strong>Why:</strong> quem tá no Bolão é alta intenção pra remessas e voos.</div>
+      </div>
+
+      <div class="panel">
+        <h3>Tela de sucesso pós-criar grupo</h3>
+        <p>Antes de cair no dashboard, mostra "&lt;Nome&gt; tá no ar!" com código gigante + WhatsApp share imediato.</p>
+        <div class="why"><strong>Why:</strong> capturar o entusiasmo no momento de pico pra maximizar viralização.</div>
+      </div>
+
+      <div class="panel">
+        <h3>JoinView contextual</h3>
+        <p>Quem clica em <code>/bolao/&lt;código&gt;</code> vê "Você foi convidado pra &lt;Grupo&gt;" com membros e prêmio. CTA diz "Entrar em &lt;Nome&gt; →".</p>
+      </div>
+
+      <div class="panel">
+        <h3>Negócios consolidado</h3>
+        <p><code>/app/negocios</code> foi removido do app. Tudo passa pelo diretório estático <code>/negocio</code> — 1 source of truth.</p>
+        <div class="why"><strong>Why:</strong> dados duplicados em hardcoded vs Supabase = bug futuro.</div>
+      </div>
+
+      <div class="panel">
+        <h3>SEO + OG image + Schema.org</h3>
+        <p>JSON-LD <code>SportsEvent</code> na home + <code>Event</code> em cada convite. og-image.svg novo (preview WhatsApp).</p>
+      </div>
+
+      <div class="panel">
+        <h3>Error Boundary global</h3>
+        <p>Bug de runtime em uma feature não derruba mais o app — fallback "Algo travou aqui" com botão de recuperação.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- BLOQUEADO -->
+  <div class="section">
+    <div class="section-h">
+      <h2>Bloqueado em config (precisam ser cadastrados na Vercel)</h2>
+      <span class="badge badge-now">PENDÊNCIA</span>
+    </div>
+
+    <div class="panel">
+      <h3>Afiliados de remessa com link real</h3>
+      <p>Hoje em produção: <code>AFFILIATE_WISE_LINK</code>, <code>REMITLY</code>, <code>WU</code> e <code>KAYAK</code> têm env vars setadas mas o conteúdo é literal <code>https://wise.com/invite/placeholder</code> — alguém colou placeholder e nunca trocou.</p>
+      <div class="how"><strong>How to apply:</strong> cadastrar nos programas (Wise Partnerize, Remitly Impact, etc.), pegar o link real e atualizar na Vercel → Settings → Environment Variables. Detalhes em <code>AUDITORIA_PARCERIAS.md</code>.</div>
+    </div>
+
+    <div class="panel">
+      <h3>GA4 + Meta Pixel</h3>
+      <p>Tracking de eventos e retargeting estão prontos pra plugar. Faltam só os IDs.</p>
+      <div class="how"><strong>How to apply:</strong> criar property em <code>analytics.google.com</code> e Pixel em <code>business.facebook.com</code>, passar os IDs e a gente seta as env vars <code>VITE_GA4_MEASUREMENT_ID</code> e <code>VITE_META_PIXEL_ID</code>.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Push notifications (VAPID keys)</h3>
+      <p>Todo o código de push (subscribe, send, tópicos) já está pronto em <code>api/push/</code>. Falta só a chave VAPID.</p>
+      <div class="how"><strong>How to apply:</strong> rodar <code>npx web-push generate-vapid-keys</code> e setar <code>VAPID_PUBLIC_KEY</code> + <code>VAPID_PRIVATE_KEY</code> na Vercel.</div>
+    </div>
+  </div>
+
+  <!-- PRÓXIMO -->
+  <div class="section">
+    <div class="section-h">
+      <h2>Próximo (pós-lançamento do Bolão)</h2>
+      <span class="badge badge-next">NEXT</span>
+    </div>
+
+    <div class="panel">
+      <h3>Ponte entre estática e app</h3>
+      <p>Hoje quem entra em <code>/guias/cnh/</code> não vê o app. Quem está em <code>/app/feed</code> não vê os guias. Cada lado fica isolado.</p>
+      <ul>
+        <li>Adicionar header consistente com link "App" nas páginas estáticas</li>
+        <li>Adicionar item "Guias" no menu do app linkando pra <code>/guias/</code></li>
+        <li>Considerar uma "topbar global" idêntica em ambos os mundos</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>OG image dinâmico (PNG)</h3>
+      <p>Hoje usamos SVG estático. Alguns scrapers (FB/IG mais antigos) preferem PNG. Soluções: converter manualmente o SVG existente pra PNG, ou adicionar <code>@vercel/og</code> pra gerar imagem dinâmica per-grupo (com nome do grupo, contador de membros, etc).</p>
+    </div>
+
+    <div class="panel">
+      <h3>Tracking de eventos no app</h3>
+      <p>Quando GA4 + Pixel estiverem ativos, instrumentar eventos chave: <code>bolao_grupo_criado</code>, <code>bolao_palpitou</code>, <code>bolao_convite_enviado</code>, <code>remessa_clique</code>, <code>voos_buscou</code>. Permite medir conversão real do funil.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Push: cobrança de palpites</h3>
+      <p>Cron diário que dispara push pra membros que ainda não palpitaram, lembrando do prazo. Tópico <code>bolao</code> já existe no <code>PushPrompt.jsx</code>.</p>
+    </div>
+  </div>
+
+  <!-- LATER / ESTRATÉGICO -->
+  <div class="section">
+    <div class="section-h">
+      <h2>Estratégico (decisão grande, depois da Copa)</h2>
+      <span class="badge badge-later">LATER</span>
+    </div>
+
+    <div class="panel">
+      <h3>Migrar pra Next.js (ou Astro)</h3>
+      <p>Hoje a stack é <strong>3 paradigmas</strong>: Vite SPA (React app), HTML estático (landing/guias) e serverless functions (api/). Funciona, mas duplica configuração e complica navegação entre os mundos.</p>
+      <p>Next.js consolidaria tudo: SSR para SEO, React Server Components para páginas estáticas, e App Router para o app interativo — uma stack só. Astro é uma alternativa mais leve focada em conteúdo.</p>
+      <div class="why"><strong>Why considerar:</strong> à medida que adiciona features, a duplicação de "header/footer/auth/menu" entre estática e app cresce. Em algum momento a manutenção vai pesar.</div>
+      <div class="how"><strong>How to apply:</strong> não fazer durante crescimento intenso (Copa). Avaliar em julho/agosto, quando o pico passar.</div>
+    </div>
+
+    <div class="panel">
+      <h3>Auth federada (Google / Apple) no app</h3>
+      <p>Hoje o app usa email + Supabase auth quando o user faz onboarding. Pra reduzir friction, considerar OAuth com Google e Apple — especialmente útil pro Feed e Bolão (onde a barreira de criar conta hoje é alta).</p>
+    </div>
+
+    <div class="panel">
+      <h3>Dashboard de comunidade por cidade</h3>
+      <p>Hoje as comunidades existem mas não têm página dedicada com ranking de membros, posts pinados, eventos próximos. Pode virar a "praça pública" de cada cidade brasileira nos EUA.</p>
+    </div>
+
+    <div class="panel">
+      <h3>App nativo (iOS/Android via Capacitor ou Expo)</h3>
+      <p>O PWA atual já permite "Add to Home Screen". Pra ter ícone na App Store + push iOS confiável, considerar wrapper nativo. Apenas se métricas mostrarem que o PWA tá perdendo retenção vs apps nativos concorrentes.</p>
+    </div>
+  </div>
+
+  <div class="ts">Documento mantido em <code>public/admin/roadmap.html</code> · Atualizar a cada decisão arquitetural relevante.</div>
+
+</div>
+
+</body>
+</html>

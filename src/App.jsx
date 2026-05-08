@@ -6,7 +6,6 @@ import DiscoverScreen from './DiscoverScreen'
 
 // Lazy-loaded — só baixa quando o usuário troca pra essas abas
 const BolaoScreen    = lazy(() => import('./BolaoScreen'))
-const NegociosScreen = lazy(() => import('./NegociosScreen'))
 const AgendaApp      = lazy(() => import('./AgendaApp'))
 
 function TabFallback() {
@@ -1152,29 +1151,37 @@ function VoosScreen({ affiliateLinks }) {
 
 // ─── App Principal (usa AppShell responsivo) ──────────────────────────────
 
-const VALID_TABS = ['feed', 'discover', 'remessas', 'voos', 'agenda', 'negocios', 'bolao']
-const TAB_ALIASES = { cambio: 'remessas', comparador: 'remessas', negocio: 'negocios' }
+const VALID_TABS = ['feed', 'discover', 'remessas', 'voos', 'agenda', 'bolao']
+const TAB_ALIASES = { cambio: 'remessas', comparador: 'remessas' }
+// Slugs antigos que agora redirecionam pra páginas estáticas (1 source of truth)
+const REDIRECT_SLUGS = { negocios: '/negocio', negocio: '/negocio' }
 
 function readTabFromUrl() {
   if (typeof window === 'undefined') return 'feed'
   try {
-    // 1) /app/<tab> (via Vercel rewrite preserva o pathname original)
+    // Slug que virou redirect — manda pra página estática antes de montar o app
     const m = window.location.pathname.match(/^\/app(?:\/([^\/?#]+))?\/?$/)
     if (m && m[1]) {
       const slug = decodeURIComponent(m[1]).toLowerCase()
+      if (REDIRECT_SLUGS[slug]) {
+        window.location.replace(REDIRECT_SLUGS[slug])
+        return 'feed'
+      }
       const resolved = TAB_ALIASES[slug] || slug
       if (VALID_TABS.includes(resolved)) return resolved
     }
-    // 2) ?tab=<tab>
+    // ?tab=<tab>
     const params = new URLSearchParams(window.location.search)
     const q = (params.get('tab') || '').toLowerCase()
     if (q) {
+      if (REDIRECT_SLUGS[q]) { window.location.replace(REDIRECT_SLUGS[q]); return 'feed' }
       const resolved = TAB_ALIASES[q] || q
       if (VALID_TABS.includes(resolved)) return resolved
     }
-    // 3) #tab
+    // #tab
     const h = (window.location.hash || '').replace(/^#/, '').toLowerCase()
     if (h) {
+      if (REDIRECT_SLUGS[h]) { window.location.replace(REDIRECT_SLUGS[h]); return 'feed' }
       const resolved = TAB_ALIASES[h] || h
       if (VALID_TABS.includes(resolved)) return resolved
     }
@@ -1219,7 +1226,6 @@ export default function App() {
         {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
         {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
         {tab === 'agenda'   && <Suspense fallback={<TabFallback />}><AgendaApp /></Suspense>}
-        {tab === 'negocios' && <Suspense fallback={<TabFallback />}><NegociosScreen /></Suspense>}
         {tab === 'bolao'    && <Suspense fallback={<TabFallback />}><BolaoScreen /></Suspense>}
       </AppShell>
       <PushPrompt />
