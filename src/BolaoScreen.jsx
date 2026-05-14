@@ -9,6 +9,73 @@ const GOLD   = '#FFD700'   // Dourado quente (acentos)
 const NAVY_LIGHT = '#1e3a5f'
 const CREAM  = '#FAF7F0'
 
+// ── Memberships (multi-grupo via localStorage) ────────────────────────────
+const MEMBERSHIPS_KEY = 'bolao_memberships'
+const ACTIVE_KEY      = 'bolao_active_member_id'
+
+function loadMemberships() {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = localStorage.getItem(MEMBERSHIPS_KEY)
+    if (raw) return JSON.parse(raw) || []
+    // Migração silenciosa: chaves antigas (single membership) → array
+    const oldId   = localStorage.getItem('bolao_member_id')
+    const oldCode = localStorage.getItem('bolao_join_code')
+    if (oldId && oldCode) {
+      const item = {
+        member_id:   oldId,
+        join_code:   oldCode,
+        state:       localStorage.getItem('bolao_member_state') || '',
+        admin_email: localStorage.getItem('bolao_admin_email') || '',
+        nickname:    '',
+        group_name:  '',
+        joined_at:   new Date().toISOString(),
+      }
+      localStorage.setItem(MEMBERSHIPS_KEY, JSON.stringify([item]))
+      localStorage.setItem(ACTIVE_KEY, oldId)
+      return [item]
+    }
+    return []
+  } catch (_) { return [] }
+}
+
+function saveMembership({ group, member, isAdmin = false }) {
+  if (typeof window === 'undefined') return
+  try {
+    const list = loadMemberships().filter(x => x.member_id !== member.id)
+    list.unshift({
+      member_id:   member.id,
+      join_code:   group.join_code,
+      group_id:    group.id,
+      group_name:  group.name || '',
+      nickname:    member.nickname || '',
+      state:       member.state || '',
+      admin_email: isAdmin ? (member.email || '') : '',
+      joined_at:   new Date().toISOString(),
+    })
+    localStorage.setItem(MEMBERSHIPS_KEY, JSON.stringify(list.slice(0, 10)))
+    localStorage.setItem(ACTIVE_KEY, member.id)
+  } catch (_) {}
+}
+
+function removeMembership(memberId) {
+  if (typeof window === 'undefined') return
+  try {
+    const list = loadMemberships().filter(x => x.member_id !== memberId)
+    localStorage.setItem(MEMBERSHIPS_KEY, JSON.stringify(list))
+    if (localStorage.getItem(ACTIVE_KEY) === memberId) localStorage.removeItem(ACTIVE_KEY)
+  } catch (_) {}
+}
+
+function getActiveMembership() {
+  if (typeof window === 'undefined') return null
+  try {
+    const id = localStorage.getItem(ACTIVE_KEY)
+    if (!id) return null
+    return loadMemberships().find(x => x.member_id === id) || null
+  } catch (_) { return null }
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 //   Constantes — Estados USA, Bandeiras, Curiosidades, Histórico do Brasil
 // ════════════════════════════════════════════════════════════════════════════
@@ -507,7 +574,7 @@ function ScrollTabs({ keys, active, onSelect, color = BLUE }) {
 // ════════════════════════════════════════════════════════════════════════════
 //   View: Home (com TODAS as features interativas)
 // ════════════════════════════════════════════════════════════════════════════
-function HomeView({ onCreateClick, onJoinClick, config, setToast }) {
+function HomeView({ onCreateClick, onJoinClick, config, setToast, memberships, onPickMembership }) {
   const copaStart = config?.copa_start_date || '2026-06-11T19:00:00Z'
   const brasilFirst = config?.brasil_first_match || '2026-06-13T22:00:00Z'
 
@@ -522,6 +589,34 @@ function HomeView({ onCreateClick, onJoinClick, config, setToast }) {
 
   return (
     <div style={{ padding: '0 0 16px' }}>
+      {/* Meus bolões — mostrado quando user já participa de algum */}
+      {memberships && memberships.length > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+            Meus bolões ({memberships.length})
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {memberships.map(m => (
+              <button key={m.member_id} onClick={() => onPickMembership(m)} style={{
+                background: '#fff', border: '1.5px solid ' + GREEN, borderRadius: 12,
+                padding: '12px 14px', textAlign: 'left', cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
+              }}>
+                <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: BLUE, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {m.group_name || 'Bolão'}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>
+                    {m.nickname ? `como ${m.nickname}` : 'membro'}{m.state ? ` · ${m.state}` : ''} · código {m.join_code}
+                  </div>
+                </div>
+                <span style={{ fontSize: 18, color: GREEN, flexShrink: 0 }}>→</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Hero */}
       <div style={{
         background: 'linear-gradient(135deg, ' + BLUE + ' 0%, #1e3a5f 100%)',
@@ -648,8 +743,7 @@ function CreateGroupView({ onBack, onCreated, setToast }) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      localStorage.setItem('bolao_member_id', data.member.id)
-      localStorage.setItem('bolao_group_id', data.group.id)
+      saveMembership({ group: data.group, member: data.member, isAdmin: true })
       onCreated(data.group, data.member)
     } catch (err) {
       setToast({ msg: err.message, type: 'error' })
@@ -742,8 +836,7 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      localStorage.setItem('bolao_member_id', data.member.id)
-      localStorage.setItem('bolao_group_id', data.group.id)
+      saveMembership({ group: data.group, member: data.member })
       onJoined(data.group, data.member)
     } catch (err) {
       setToast({ msg: err.message, type: 'error' })
@@ -1115,11 +1208,15 @@ function InviteModal({ group, inviteUrl, whatsappUrl, memberCount, onClose, onCo
   )
 }
 
-function GroupDashboard({ group, member, onPredict, onStandings, onLeave, setToast, refreshGroup, deadline }) {
+function GroupDashboard({ group, member, onPredict, onStandings, onLeave, onSwitch, setToast, refreshGroup, deadline }) {
   const [members, setMembers] = useState([])
   const [editPrize, setEditPrize] = useState(false)
   const [showInvite, setShowInvite] = useState(false)
-  const [adminEmailLocal] = useState(() => localStorage.getItem('bolao_admin_email') || '')
+  // Admin do grupo ativo: derivado da membership salva (não global)
+  const activeMembership = getActiveMembership()
+  const adminEmailLocal = activeMembership && activeMembership.member_id === member?.id
+    ? (activeMembership.admin_email || '')
+    : ''
   const isAdmin = !!adminEmailLocal
 
   useEffect(() => {
@@ -1254,8 +1351,11 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, setToa
         </div>
       )}
 
-      <button onClick={onLeave} style={{ background: 'none', border: 'none', fontSize: 12, color: '#9ca3af', cursor: 'pointer', display: 'block', width: '100%', textAlign: 'center', padding: 8 }}>
-        Sair do grupo / trocar de bolão
+      <button onClick={onSwitch} style={{ background: 'none', border: '1px solid #e5e7eb', borderRadius: 8, fontSize: 13, color: BLUE, cursor: 'pointer', display: 'block', width: '100%', textAlign: 'center', padding: 10, marginBottom: 6, fontWeight: 600 }}>
+        ↩ Voltar / ver meus bolões
+      </button>
+      <button onClick={onLeave} style={{ background: 'none', border: 'none', fontSize: 11, color: '#9ca3af', cursor: 'pointer', display: 'block', width: '100%', textAlign: 'center', padding: 6 }}>
+        Sair desse bolão
       </button>
     </div>
   )
@@ -1506,28 +1606,35 @@ export default function BolaoScreen() {
   const [member,  setMember]  = useState(null)
   const [toast,   setToast]   = useState(null)
   const [config,  setConfig]  = useState(null)
+  const [memberships, setMemberships] = useState(() => loadMemberships())
 
   useEffect(() => {
     fetch('/api/bolao?action=config').then(r => r.json()).then(d => setConfig(d.config || {})).catch(() => setConfig({}))
   }, [])
 
-  useEffect(() => {
-    // Se tem deep-link de convite, ignora sessão antiga e força tela de join
-    if (initialJoinCode) return
-    const mid  = localStorage.getItem('bolao_member_id')
-    const code = localStorage.getItem('bolao_join_code')
-    if (!mid || !code) return
-    fetch('/api/bolao?action=group&code=' + code).then(r => r.json()).then(d => {
+  function loadGroupForMembership(m, { silent = false } = {}) {
+    fetch('/api/bolao?action=group&code=' + m.join_code).then(r => r.json()).then(d => {
       if (d.group) {
         setGroup(d.group)
-        const me = (d.members || []).find(m => m.id === mid)
+        const me = (d.members || []).find(x => x.id === m.member_id)
         if (me) {
-          const fullMe = { ...me, state: localStorage.getItem('bolao_member_state') || me.state }
+          const fullMe = { ...me, state: m.state || me.state }
           setMember(fullMe)
           setView('group')
+        } else if (!silent) {
+          setToast({ msg: 'Você não consta mais como membro desse bolão.', type: 'error' })
+          removeMembership(m.member_id)
+          setMemberships(loadMemberships())
         }
       }
-    }).catch(() => {})
+    }).catch(() => { if (!silent) setToast({ msg: 'Erro ao carregar grupo.', type: 'error' }) })
+  }
+
+  useEffect(() => {
+    // Se tem deep-link de convite, ignora sessão e força tela de join
+    if (initialJoinCode) return
+    const active = getActiveMembership()
+    if (active) loadGroupForMembership(active, { silent: true })
   }, [initialJoinCode])
 
   function refreshGroup() {
@@ -1536,34 +1643,41 @@ export default function BolaoScreen() {
   }
 
   function handleCreated(g, m) {
-    localStorage.setItem('bolao_join_code', g.join_code)
-    localStorage.setItem('bolao_member_id', m.id)
-    localStorage.setItem('bolao_admin_email', m.email || '')
-    localStorage.setItem('bolao_member_state', m.state || '')
+    setMemberships(loadMemberships())
     setGroup(g); setMember(m); setView('created-success')
   }
 
   function handleJoined(g, m) {
-    localStorage.setItem('bolao_join_code', g.join_code)
-    localStorage.setItem('bolao_member_id', m.id)
-    localStorage.setItem('bolao_member_state', m.state || '')
-    localStorage.removeItem('bolao_admin_email')
+    setMemberships(loadMemberships())
     setGroup(g); setMember(m); setView('group')
   }
 
+  function handlePickMembership(m) {
+    localStorage.setItem(ACTIVE_KEY, m.member_id)
+    loadGroupForMembership(m)
+  }
+
+  function handleSwitch() {
+    // Mantém a membership salva, só sai da view ativa
+    setGroup(null); setMember(null); setView('home')
+  }
+
   function handleLeave() {
-    ['bolao_member_id','bolao_group_id','bolao_join_code','bolao_admin_email','bolao_member_state'].forEach(k => localStorage.removeItem(k))
+    if (member?.id) {
+      removeMembership(member.id)
+      setMemberships(loadMemberships())
+    }
     setGroup(null); setMember(null); setView('home')
   }
 
   return (
     <div style={{ padding: '0 0 16px' }}>
       {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
-      {view === 'home'      && <HomeView onCreateClick={() => setView('create')} onJoinClick={() => setView('join')} config={config} setToast={setToast} />}
+      {view === 'home'      && <HomeView onCreateClick={() => setView('create')} onJoinClick={() => setView('join')} config={config} setToast={setToast} memberships={memberships} onPickMembership={handlePickMembership} />}
       {view === 'create'    && <CreateGroupView onBack={() => setView('home')} onCreated={handleCreated} setToast={setToast} />}
       {view === 'created-success' && <CreatedSuccessView group={group} onContinue={() => setView('group')} setToast={setToast} />}
       {view === 'join'      && <JoinGroupView onBack={() => setView('home')} onJoined={handleJoined} setToast={setToast} prefilledCode={joinCode} />}
-      {view === 'group'     && <GroupDashboard group={group} member={member} onPredict={() => setView('predict')} onStandings={() => setView('standings')} onLeave={handleLeave} setToast={setToast} refreshGroup={refreshGroup} deadline={config?.predictions_deadline} />}
+      {view === 'group'     && <GroupDashboard group={group} member={member} onPredict={() => setView('predict')} onStandings={() => setView('standings')} onLeave={handleLeave} onSwitch={handleSwitch} setToast={setToast} refreshGroup={refreshGroup} deadline={config?.predictions_deadline} />}
       {view === 'predict'   && <PredictionsView member={member} onBack={() => setView('group')} setToast={setToast} deadline={config?.predictions_deadline} />}
       {view === 'standings' && <StandingsView group={group} member={member} onBack={() => setView('group')} setToast={setToast} />}
     </div>
