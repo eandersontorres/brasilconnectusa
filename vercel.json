@@ -1,22 +1,19 @@
 {
+  "redirects": [
+    {
+      "source": "/landing.html",
+      "destination": "/",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
-      "source": "/",
-      "destination": "/landing.html",
-      "missing": [
-        {
-          "type": "query",
-          "key": "preview"
-        }
-      ]
-    },
-    {
       "source": "/app",
-      "destination": "/index.html"
+      "destination": "/app.html"
     },
     {
       "source": "/app/:tab",
-      "destination": "/index.html"
+      "destination": "/app.html"
     },
     {
       "source": "/bolao/:code",
