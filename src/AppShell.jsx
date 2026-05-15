@@ -341,8 +341,8 @@ export default function AppShell({ tab, setTab, children }) {
       />
 
       <div style={{
-        maxWidth: 1280, margin: '0 auto', padding: '20px 24px',
-        display: 'grid', gridTemplateColumns: '240px minmax(0, 1fr) 280px', gap: 16,
+        maxWidth: 1400, margin: '0 auto', padding: '20px 24px',
+        display: 'grid', gridTemplateColumns: '260px minmax(0, 1fr) 360px', gap: 20,
         alignItems: 'start',
       }}>
         <LeftSidebar tab={tab} setTab={setTab} user={user} myCommunities={myCommunities} />
