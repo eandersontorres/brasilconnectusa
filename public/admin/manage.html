@@ -493,16 +493,115 @@
                 <button class="btn-mini btn-approve" onclick="bizAction('${b.id}', 'approve')" id="appr-${b.id}">✓ Aprovar</button>
                 <button class="btn-mini" onclick="bizAction('${b.id}', 'reject')" id="rej-${b.id}"
                   style="background:transparent;border:1px solid #DC2626;color:#DC2626;">✗ Rejeitar</button>
-                <a href="mailto:${escapeHtml(b.submitted_email || '')}?subject=Sobre seu cadastro no BrasilConnect"
-                  class="btn-mini" style="text-decoration:none;background:transparent;border:1px solid var(--line);color:var(--ink-soft);">
-                  📧 Falar com dono
-                </a>
+                <button class="btn-mini" onclick="toggleBizMsg('${b.id}')"
+                  style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);">
+                  💬 Falar com dono
+                </button>
                 <span id="msg-biz-${b.id}" style="font-size:12px;color:var(--ink-muted);margin-left:auto;"></span>
+              </div>
+
+              <!-- Form de mensagem inline (escondido até clicar "Falar com dono") -->
+              <div id="bizmsg-${b.id}" style="display:none;margin-top:12px;padding:14px;background:#FAFAFA;border:1px solid var(--line);border-radius:8px;">
+                <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Template (opcional)</label>
+                <select id="bmtpl-${b.id}" onchange="applyBizTemplate('${b.id}', this.value)"
+                  style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:#fff;font-size:13px;margin-bottom:10px;">
+                  <option value="">Escolher template…</option>
+                  <option value="confirm_address">Pedir confirmação de endereço</option>
+                  <option value="ask_photo">Pedir foto do estabelecimento</option>
+                  <option value="ask_doc">Pedir comprovante (LLC/registro)</option>
+                  <option value="ask_phone">Pedir telefone que atende</option>
+                  <option value="duplicate">Aviso de cadastro duplicado</option>
+                  <option value="blank">Em branco</option>
+                </select>
+
+                <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Mensagem</label>
+                <textarea id="bmtxt-${b.id}" rows="5" maxlength="10000"
+                  placeholder="Olá! Antes de aprovar, precisava confirmar..."
+                  style="width:100%;padding:10px 12px;border-radius:6px;border:1.5px solid var(--line);background:#fff;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;line-height:1.55;"></textarea>
+                <div id="bmcnt-${b.id}" style="text-align:right;font-size:11px;color:#9ca3af;margin-top:4px;">0 / 10.000</div>
+
+                <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
+                  <button class="btn-mini btn-approve" onclick="sendBizMsg('${b.id}', '${escapeHtml(b.submitted_email || b.owner_email || '')}')" id="bmsnd-${b.id}">Enviar mensagem →</button>
+                  <button class="btn-mini" onclick="toggleBizMsg('${b.id}')" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);">Cancelar</button>
+                  <span id="bmsta-${b.id}" style="font-size:12px;color:var(--ink-muted);margin-left:auto;"></span>
+                </div>
               </div>
             </div>
           `).join('') + '</div>'
+
+        // Templates pré-definidos
+        window.__BIZ_TEMPLATES__ = {
+          confirm_address: 'Olá! Antes de aprovar o cadastro do seu negócio, precisava confirmar o endereço cadastrado. Você consegue mandar um print/foto da fachada com o endereço visível, ou uma conta de luz/água no nome do estabelecimento? Obrigado!',
+          ask_photo:       'Olá! Pra completar o perfil do seu negócio no BrasilConnect, precisamos de pelo menos 1 foto da fachada/interior. Você consegue mandar nessa resposta? Quanto mais fotos melhor (até 5 no plano gratuito).',
+          ask_doc:         'Olá! Pra validar que você é o dono do negócio, precisamos de um comprovante simples: print da LLC/EIN, foto do alvará, ou contrato social. Pode mandar respondendo este email. Tudo confidencial — só usado pra confirmar identidade.',
+          ask_phone:       'Olá! Tentamos ligar no telefone cadastrado mas não conseguimos falar. Você consegue confirmar o número correto, ou nos passar um horário de melhor disponibilidade pra contato?',
+          duplicate:       'Olá! Identificamos um cadastro já existente pro seu negócio no nosso diretório (mesma empresa/endereço). Pra evitar duplicação, você pode confirmar se este é um cadastro NOVO de uma unidade diferente, ou se quer assumir o controle do perfil existente? Me responde aqui pra a gente alinhar.',
+          blank:           '',
+        }
+
+        // Wire counters
+        list.forEach(b => {
+          const txt = document.getElementById('bmtxt-' + b.id)
+          const cnt = document.getElementById('bmcnt-' + b.id)
+          if (txt && cnt) {
+            txt.addEventListener('input', () => {
+              const len = txt.value.length
+              const ratio = len / 10000
+              cnt.style.color = ratio >= 1 ? '#ef4444' : ratio >= 0.9 ? '#f59e0b' : '#9ca3af'
+              cnt.textContent = len.toLocaleString('pt-BR') + ' / 10.000'
+            })
+          }
+        })
       } catch (e) {
         c.innerHTML = '<div class="empty">Erro ao carregar: ' + escapeHtml(e.message) + '</div>'
+      }
+    }
+
+    // ─── Mensagem livre pro dono do negócio (com template + Resend) ──────
+    function toggleBizMsg(id) {
+      const box = document.getElementById('bizmsg-' + id)
+      if (!box) return
+      const isOpen = box.style.display !== 'none'
+      box.style.display = isOpen ? 'none' : 'block'
+      if (!isOpen) setTimeout(() => document.getElementById('bmtxt-' + id)?.focus(), 50)
+    }
+
+    function applyBizTemplate(id, key) {
+      if (!key) return
+      const body = window.__BIZ_TEMPLATES__?.[key] ?? ''
+      const txt = document.getElementById('bmtxt-' + id)
+      if (!txt) return
+      txt.value = body
+      txt.dispatchEvent(new Event('input'))
+      txt.focus()
+    }
+
+    async function sendBizMsg(id, email) {
+      const txt = document.getElementById('bmtxt-' + id)
+      const btn = document.getElementById('bmsnd-' + id)
+      const sta = document.getElementById('bmsta-' + id)
+      if (!txt || !btn || !sta) return
+
+      const msg = txt.value.trim()
+      if (msg.length < 5) { sta.style.color = '#ef4444'; sta.textContent = 'Mensagem muito curta'; return }
+
+      btn.disabled = true; btn.textContent = 'Enviando…'
+      sta.style.color = 'var(--ink-muted)'; sta.textContent = ''
+
+      try {
+        const r = await fetch('/api/admin/business-message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+          body: JSON.stringify({ business_id: id, message: msg }),
+        })
+        const d = await r.json().catch(() => ({}))
+        if (!r.ok) throw new Error(d.error || 'Falha')
+
+        sta.style.color = '#166534'; sta.textContent = '✓ Enviado pra ' + (d.sent_to || email)
+        btn.textContent = 'Enviado ✓'
+      } catch (e) {
+        sta.style.color = '#ef4444'; sta.textContent = '⚠️ ' + e.message
+        btn.disabled = false; btn.textContent = 'Enviar mensagem →'
       }
     }
 
