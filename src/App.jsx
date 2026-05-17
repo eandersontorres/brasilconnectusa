@@ -445,6 +445,8 @@ function RemessasScreen({ affiliateLinks }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [expandedId, setExpandedId] = useState(null) // provider detail modal
+  // Cotações ao vivo do /api/remittance/quote — mapa partner_id → { brl_received, source, fee_usd, ... }
+  const [liveQuotes, setLiveQuotes] = useState({})
 
   const fetchRate = useCallback(async () => {
     setLoading(true)
@@ -460,6 +462,24 @@ function RemessasScreen({ affiliateLinks }) {
       setLoading(false)
     }
   }, [])
+
+  // Busca cotações reais do agregador (Wise via API + outros estimados server-side).
+  // Roda em paralelo ao /api/rates, debounced quando o valor muda.
+  useEffect(() => {
+    if (!isUSD) return  // o endpoint opera em USD
+    const controller = new AbortController()
+    const t = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/remittance/quote?amount_usd=${amount}`, { signal: controller.signal })
+        if (!res.ok) return
+        const data = await res.json()
+        const map = {}
+        ;(data.quotes || []).forEach(q => { map[q.partner_id] = q })
+        setLiveQuotes(map)
+      } catch (_) { /* silencioso — fallback é o cálculo client-side */ }
+    }, 250)
+    return () => { controller.abort(); clearTimeout(t) }
+  }, [amount, isUSD])
 
   useEffect(() => { fetchRate() }, [fetchRate])
 
@@ -675,6 +695,15 @@ function RemessasScreen({ affiliateLinks }) {
                             letterSpacing: '0.02em',
                           }}>melhor hoje</span>
                         )}
+                        {liveQuotes[p.id]?.source === 'live' && (
+                          <span title="Cotação retornada pela API do parceiro" style={{
+                            fontSize: 9, fontWeight: 700,
+                            background: '#FEE2E2', color: '#B91C1C',
+                            padding: '2px 7px', borderRadius: 6,
+                            textTransform: 'uppercase', letterSpacing: '0.04em',
+                            display: 'inline-flex', alignItems: 'center', gap: 4,
+                          }}>● ao vivo</span>
+                        )}
                         {p.promo && !isBest && (
                           <span style={{
                             fontSize: 9, fontWeight: 700,
@@ -745,8 +774,7 @@ function RemessasScreen({ affiliateLinks }) {
         marginTop: 16, fontSize: 11, color: '#9ca3af',
         lineHeight: 1.5, textAlign: 'center', padding: '0 8px',
       }}>
-        ⓘ Links são de afiliados. Recebemos comissão quando você completa uma transferência —
-        sem custo adicional para você. Taxas são estimativas e podem variar.
+        ⓘ Taxas são estimativas baseadas em dados públicos e podem variar. Confirme sempre no site oficial do parceiro antes de enviar.
       </div>
     </div>
   )
@@ -944,10 +972,24 @@ function VoosScreen({ affiliateLinks }) {
     try {
       const params = new URLSearchParams({ origin, destination, depart_date: departDate })
       if (returnDate) params.append('return_date', returnDate)
-      const res = await fetch(`/api/flights?${params}`)
+      // Novo endpoint multi-fonte (Amadeus → Travelpayouts → deeplinks).
+      // Fallback: se /api/flights/search ainda não estiver no rewrite, tenta /api/flights legado.
+      let res = await fetch(`/api/flights/search?${params}`)
+      if (res.status === 404) res = await fetch(`/api/flights?${params}`)
       if (!res.ok) throw new Error('Erro ao buscar voos')
-      const data = await res.json()
-      setFlights(data)
+      const raw = await res.json()
+      // Normaliza shape do v2 → v1 (que o JSX já espera).
+      const results = (raw.results || []).map(f => ({
+        airline: f.airline_name || f.airline,
+        airline_logo: f.airline_logo || null,
+        airline_iata: f.airline_iata || null,
+        price: f.price_usd != null ? f.price_usd : f.price,
+        stops: f.stops,
+        depart_date: f.depart_at || f.depart_date,
+        arrive_date: f.arrive_at || null,
+        links: f.deep_links || f.links || [],
+      }))
+      setFlights({ ...raw, results })
     } catch (err) {
       setToast({ msg: 'Erro ao buscar voos. Tente novamente.', type: 'error' })
     } finally {

@@ -387,6 +387,14 @@ function PlansSection() {
 
 // ─── Tela Principal ────────────────────────────────────────────────────────────
 
+// ─── MODO PRE-LAUNCH ──────────────────────────────────────────────────────────
+// Durante o pre-launch, /app/negocio mostra teaser de cadastro em vez do
+// diretório operacional. Quando o produto subir oficialmente:
+//   1. Trocar PRELAUNCH_MODE pra false
+//   2. Listings, filtros, busca e planos voltam a aparecer
+//   3. PlansSection volta a ser acessível via "showPlans"
+const PRELAUNCH_MODE = true
+
 export default function NegociosScreen() {
   const [selectedBiz, setSelectedBiz] = useState(null)
   const [activeCategory, setActiveCategory] = useState('Todos')
@@ -396,6 +404,63 @@ export default function NegociosScreen() {
     return <BusinessProfile biz={selectedBiz} onBack={() => setSelectedBiz(null)} />
   }
 
+  // ── Pre-launch teaser ──────────────────────────────────────────────────
+  if (PRELAUNCH_MODE) {
+    return (
+      <div style={{ paddingBottom: 16 }}>
+        {/* Header */}
+        <div style={{
+          background: 'linear-gradient(135deg, #002776 0%, #1e40af 100%)',
+          borderRadius: 14, padding: '24px 18px', marginBottom: 16, color: '#fff',
+        }}>
+          <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>🏪 Negócios Brasileiros</div>
+          <div style={{ fontSize: 13, opacity: 0.88, lineHeight: 1.5 }}>
+            O diretório oficial dos negócios brasileiros nos EUA — em breve.
+          </div>
+        </div>
+
+        {/* Teaser de cadastro antecipado */}
+        <div style={{
+          background: '#f0fdf4', border: '1.5px solid #86efac',
+          borderRadius: 14, padding: '20px 18px', marginBottom: 16,
+        }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+            🚀 Cadastro antecipado
+          </div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: '#14532d', marginBottom: 10, lineHeight: 1.3 }}>
+            Seja um dos primeiros negócios listados
+          </div>
+          <div style={{ fontSize: 14, color: '#374151', marginBottom: 16, lineHeight: 1.6 }}>
+            Estamos abrindo o diretório aos poucos. Os primeiros cadastrados vão receber:
+          </div>
+          <ul style={{ margin: 0, padding: '0 0 16px 18px', fontSize: 13.5, color: '#374151', lineHeight: 1.8 }}>
+            <li><strong>Destaque gratuito</strong> no lançamento oficial</li>
+            <li><strong>Prioridade na busca</strong> dentro da categoria</li>
+            <li><strong>Acesso antecipado</strong> aos planos pagos quando lançarem</li>
+            <li><strong>Selo "Pioneiro"</strong> permanente no perfil</li>
+          </ul>
+          <a
+            href="mailto:oi@brasilconnectusa.com?subject=Quero%20cadastrar%20meu%20negócio&body=Olá!%20Quero%20cadastrar%20meu%20negócio%20no%20BrasilConnect.%0A%0ANome%20do%20negócio%3A%20%0ACategoria%3A%20%0ACidade%2FEstado%3A%20%0AWhatsApp%3A%20%0A"
+            style={{
+              display: 'block', textAlign: 'center', textDecoration: 'none',
+              padding: '13px 0', borderRadius: 10,
+              background: '#009c3b', color: '#fff',
+              fontSize: 14, fontWeight: 700,
+            }}
+          >
+            🚀 Cadastrar meu negócio →
+          </a>
+        </div>
+
+        {/* Sub-texto fino */}
+        <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', lineHeight: 1.6, padding: '8px 12px' }}>
+          Após análise, enviamos por email o link pro seu perfil + instruções de gestão.
+        </div>
+      </div>
+    )
+  }
+
+  // ── Modo operacional (pós-launch) ──────────────────────────────────────
   if (showPlans) {
     return (
       <div>

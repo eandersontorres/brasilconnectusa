@@ -71,6 +71,7 @@
       <a href="/admin/analytics">Analytics</a>
       <a href="/admin/utm-builder">UTM Builder</a>
       <a href="/admin/roadmap" class="active">Roadmap</a>
+      <a href="/admin/parceiros">Parceiros</a>
     </div>
     <div class="meta">Admin Console</div>
   </div>
@@ -303,11 +304,17 @@
     </div>
 
     <div class="panel">
-      <h3>Migrar pra Next.js (ou Astro)</h3>
-      <p>Hoje a stack é <strong>3 paradigmas</strong>: Vite SPA (React app), HTML estático (landing/guias) e serverless functions (api/). Funciona, mas duplica configuração e complica navegação entre os mundos.</p>
-      <p>Next.js consolidaria tudo: SSR para SEO, React Server Components para páginas estáticas, e App Router para o app interativo — uma stack só. Astro é uma alternativa mais leve focada em conteúdo.</p>
-      <div class="why"><strong>Why considerar:</strong> à medida que adiciona features, a duplicação de "header/footer/auth/menu" entre estática e app cresce. Em algum momento a manutenção vai pesar.</div>
-      <div class="how"><strong>How to apply:</strong> não fazer durante crescimento intenso (Copa). Avaliar em julho/agosto, quando o pico passar.</div>
+      <h3>Migrar pra Next.js (ou Astro) — em 3 fases</h3>
+      <p>Hoje a stack é <strong>3 paradigmas</strong>: Vite SPA (<code>/app/*</code>), HTML estático (<code>landing</code>, <code>/guias</code>, <code>/negocio</code>) e serverless functions (<code>api/*</code>). Funciona, mas duplica conteúdo entre estática e React (o caso mais visível: <code>/negocio</code> e <code>/app/negocio</code> mostram coisas diferentes).</p>
+      <p><strong>Validação externa:</strong> Nextdoor passou pelo mesmo dilema e migrou pra Next.js exatamente pra resolver SEO de páginas de negócios + manter SPA pra experiência logada. SSR + SPA híbrido é a arquitetura final pra esse tipo de produto.</p>
+      <p><strong>Fases propostas:</strong></p>
+      <ul>
+        <li><strong>D+15 (logo após launch):</strong> plugin SSG no Vite (vite-plugin-ssr ou react-snap) — gera HTML estático do React no build com dados do Supabase. Resolve 80% do SEO sem trocar framework. <em>~2-3 dias.</em></li>
+        <li><strong>D+60 (se SEO virar prioridade real):</strong> migra <code>/negocio</code> + <code>/guias</code> pra <strong>Astro</strong> (mantém Vite no resto). Astro foi feito pra esse caso. <em>~5-7 dias.</em></li>
+        <li><strong>D+90+ (se virar produto multi-cliente ou precisar de middleware):</strong> migração full Next.js (App Router + Server Components). <em>~2-4 semanas.</em></li>
+      </ul>
+      <div class="why"><strong>Why considerar:</strong> conforme o catálogo de negócios e guias cresce, SEO orgânico vira fonte primária de tráfego frio. SPAs são quase invisíveis pro Google. Duplicar header/footer/auth entre estática e React também pesa na manutenção.</div>
+      <div class="how"><strong>How to apply:</strong> NÃO fazer durante Copa 2026 nem nas primeiras 4 semanas pós-launch. Avaliar fase 1 (Vite-SSG) em julho/agosto quando o pico passar.</div>
     </div>
 
     <div class="panel">
