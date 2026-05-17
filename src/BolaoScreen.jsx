@@ -1277,6 +1277,49 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, onSwit
         </div>
       </div>
 
+      {/* ── Admin do grupo (mostra só pra quem NÃO é o admin) ──────── */}
+      {!isAdmin && group.admin && (() => {
+        const adminName = group.admin.full_name || group.admin.nickname || 'Admin'
+        const waDigits = (group.admin.whatsapp || '').replace(/[^\d]/g, '')
+        const hasWa = waDigits.length >= 10
+        return (
+          <div style={{
+            background: '#F0FDF4', border: '1.5px solid #86EFAC',
+            borderRadius: 12, padding: '12px 14px', marginBottom: 12,
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <div style={{
+              width: 38, height: 38, borderRadius: '50%',
+              background: GREEN, color: '#fff',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 18, flexShrink: 0,
+            }}>👑</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 2 }}>
+                Admin do grupo
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#14532D', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {adminName}{group.admin.state ? ` · ${group.admin.state}` : ''}
+              </div>
+            </div>
+            {hasWa && (
+              <a
+                href={`https://wa.me/${waDigits}?text=${encodeURIComponent('Oi! Te vi como admin do bolão "' + group.name + '" no BrasilConnect.')}`}
+                target="_blank" rel="noopener noreferrer"
+                style={{
+                  background: '#25D366', color: '#fff', textDecoration: 'none',
+                  padding: '7px 12px', borderRadius: 8,
+                  fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}
+              >
+                💬 WhatsApp
+              </a>
+            )}
+          </div>
+        )
+      })()}
+
       {deadlineDate && (
         <div style={{ background: expired ? '#FEE2E2' : '#FEF3C7', border: '1px solid ' + (expired ? '#FCA5A5' : '#FCD34D'), borderRadius: 10, padding: '10px 14px', fontSize: 12, color: expired ? '#991B1B' : '#92400E', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
           {expired ? '🔒' : '⏰'}
