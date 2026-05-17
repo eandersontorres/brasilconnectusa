@@ -1003,31 +1003,28 @@
       }
       cardapioBiz = biz
 
-      // Busca status Stripe
+      // Busca status Stripe (nao bloqueia — so usado pra mostrar banner contextual
+      // + decidir se botao "Aceitar pedidos" pode ser ligado)
       const sr = await window.bcFetch('/api/restaurant/status?business_id=' + biz.id)
       const sd = await sr.json().catch(() => ({}))
       const ready = sd.business?.ready_for_orders
 
-      if (!ready) {
-        root.innerHTML = `
-          <div class="panel">
-            <h2>🍽️ Cardápio</h2>
-            <p class="sub">Disponível depois que você ativar pedidos online.</p>
-            <div class="help-box">
-              <strong>Antes de criar o cardápio</strong> — vai na aba <strong>Meu Negócio</strong> e clica em <strong>"Ativar pedidos →"</strong>. Você precisa terminar o setup do Stripe (LLC, conta bancária) pra começar a receber pedidos.
-            </div>
-          </div>
-        `
-        return
-      }
-
-      // Carrega menu
+      // Carrega menu (sempre — user pode preparar cardapio antes do Stripe)
       const mr = await window.bcFetch('/api/restaurant/menu?action=list&business_id=' + biz.id)
       const md = await mr.json().catch(() => ({}))
       cardapioCats = md.categories || []
       cardapioItems = md.items || []
 
-      const ordersToggle = biz.accepts_orders
+      // Banner se Stripe nao esta pronto — informa mas nao bloqueia edicao
+      const stripeBanner = !ready ? `
+        <div class="help-box" style="background:#FEF3C7;border-left-color:#F59E0B;color:#92400E;">
+          <strong>💡 Cardápio em rascunho</strong> — você pode criar os itens agora, mas pra receber pedidos online precisa ativar o Stripe na aba <strong>Meu Negócio</strong> → "Ativar pedidos →". Os itens cadastrados aqui ficam prontos pra quando o Stripe estiver ativo.
+        </div>
+      ` : ''
+
+      const ordersToggle = !ready
+        ? '<button disabled title="Configure Stripe primeiro" style="background:#F3F4F6;color:#9CA3AF;border:1px solid #E5E7EB;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:not-allowed;">🔒 Stripe inativo</button>'
+        : biz.accepts_orders
         ? '<button onclick="toggleAcceptsOrders(false)" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">⏸️ Pausar pedidos</button>'
         : '<button onclick="toggleAcceptsOrders(true)" style="background:#dcfce7;color:#166534;border:1px solid #86efac;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">▶️ Aceitar pedidos</button>'
 
@@ -1041,9 +1038,13 @@
             ${ordersToggle}
           </div>
 
-          <div class="help-box" style="background:#FEF3C7;color:#78350f;border-color:#fbbf24;">
-            <strong>${biz.accepts_orders ? '✅ Aceitando pedidos' : '⏸️ Pedidos pausados'}</strong> — público vê o cardápio em <a href="/negocio/${biz.slug}/cardapio" target="_blank" style="color:#92400e;text-decoration:underline;">brasilconnectusa.com/negocio/${biz.slug}/cardapio</a>
-          </div>
+          ${stripeBanner}
+
+          ${ready ? `
+            <div class="help-box" style="background:#FEF3C7;color:#78350f;border-color:#fbbf24;">
+              <strong>${biz.accepts_orders ? '✅ Aceitando pedidos' : '⏸️ Pedidos pausados'}</strong> — público vê o cardápio em <a href="/negocio/${biz.slug}/cardapio" target="_blank" style="color:#92400e;text-decoration:underline;">brasilconnectusa.com/negocio/${biz.slug}/cardapio</a>
+            </div>
+          ` : ''}
 
           <div style="display:flex;gap:8px;margin:18px 0;">
             <button class="btn-primary" onclick="editCategory(null)">+ Categoria</button>
