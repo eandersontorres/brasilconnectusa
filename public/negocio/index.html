@@ -34,9 +34,10 @@
     <section class="hero hero-compact">
       <div class="container">
         <h1>Encontre o <em>Brasil</em> perto de você.</h1>
-        <p class="lede">Restaurantes, mercados, advogados, salões, contadores — toda a comunidade brasileira nos Estados Unidos, em um só lugar. Da gente, pra gente.</p>
+        <p class="lede">Restaurantes, mercados, advogados, salões, contadores — toda a comunidade brasileira nos Estados Unidos, em um só lugar. <strong>O diretório oficial está chegando — cadastre seu negócio cedo e ganhe destaque no lançamento.</strong></p>
 
-        <div class="search-row">
+        <!-- PRELAUNCH HIDE: busca e filtros voltam quando ativarmos listagens publicas -->
+        <div class="search-row" style="display:none;">
           <input id="searchInput" type="text" placeholder="Buscar por nome, categoria, cidade..." />
           <select id="stateSelect">
             <option value="">Todos os estados</option>
@@ -48,16 +49,22 @@
           <button class="search-btn" type="button">Buscar</button>
         </div>
 
-        <div class="trust-strip">
+        <!-- PRELAUNCH HIDE: trust-strip volta com contadores reais -->
+        <div class="trust-strip" style="display:none;">
           <span><strong>Brasileiros nos EUA</strong> · <span id="countTotal">—</span> negócios</span>
           <span><strong id="countReviews">—</strong> avaliações reais</span>
           <span><strong id="countStates">32</strong> estados cobertos</span>
         </div>
+
+        <!-- CTA forte pre-launch -->
+        <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;">
+          <a href="#cadastro" class="btn btn-primary" style="padding:14px 28px;font-size:15px;font-weight:700;">🚀 Cadastrar meu negócio →</a>
+        </div>
       </div>
     </section>
 
-    <!-- ── FILTROS + RESULTADOS ── -->
-    <section class="section">
+    <!-- ── FILTROS + RESULTADOS — PRELAUNCH HIDE ── -->
+    <section class="section" style="display:none;">
       <div class="container">
 
         <div class="cat-pills" id="catPills">
@@ -94,12 +101,27 @@
       </div>
     </section>
 
+    <!-- ── BENEFÍCIOS DO CADASTRO ANTECIPADO (visível só no pre-launch) ── -->
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">🚀 Cadastro antecipado</div>
+        <h2>Seja um dos primeiros listados.</h2>
+        <p class="lede" style="margin-top:14px;">Estamos abrindo o diretório aos poucos. Os primeiros negócios cadastrados vão receber:</p>
+        <ul style="margin:20px 0 0;padding:0 0 0 20px;font-size:15px;line-height:1.9;color:var(--ink-soft);">
+          <li><strong>Destaque gratuito</strong> no lançamento oficial</li>
+          <li><strong>Prioridade na busca</strong> dentro da categoria</li>
+          <li><strong>Acesso antecipado</strong> aos planos pagos quando lançarem</li>
+          <li><strong>Selo "Pioneiro"</strong> permanente no perfil</li>
+        </ul>
+      </div>
+    </section>
+
     <!-- ── CADASTRAR ── -->
     <section class="section" id="cadastro">
       <div class="container-narrow">
         <div class="eyebrow">Cadastro</div>
         <h2>Liste seu negócio.</h2>
-        <p class="lede" style="margin-top:14px;">Plano <strong>Free</strong> inclui nome, categoria, cidade e telefone. Aprovação em 48h. <a href="#planos">Ver planos pagos</a>.</p>
+        <p class="lede" style="margin-top:14px;">Cadastro <strong>100% gratuito</strong> durante o lançamento. Você recebe um email assim que o perfil estiver no ar — geralmente em até 48h.</p>
 
         <div class="form-card">
           <form id="submitForm">
@@ -166,8 +188,8 @@
       </div>
     </section>
 
-    <!-- ── PLANOS ── -->
-    <section class="section" id="planos">
+    <!-- ── PLANOS — PRELAUNCH HIDE: ativar quando precificar negocios verificados ── -->
+    <section class="section" id="planos" style="display:none;">
       <div class="container-narrow">
         <div class="eyebrow">Planos</div>
         <h2>Free, Pro e Premium.</h2>
@@ -212,8 +234,6 @@
         <div>
           <h4>Diretório</h4>
           <a href="#cadastro">Cadastrar negócio</a>
-          <a href="#planos">Planos</a>
-          <a href="/negocio/">Buscar</a>
         </div>
         <div>
           <h4>Produtos</h4>
