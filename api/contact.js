@@ -9,7 +9,7 @@ import { createClient } from '@supabase/supabase-js'
 import { rateLimit } from './_lib/rateLimit.js'
 
 const VALID_REASONS = new Set([
-  'sugestao', 'parceria', 'bug', 'negocio', 'agendapro', 'imprensa', 'outro',
+  'sugestao', 'parceria', 'investidor', 'bug', 'negocio', 'agendapro', 'imprensa', 'outro',
 ])
 
 function getSupabase() {
