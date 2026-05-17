@@ -1,5 +1,18 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import PushOptInBanner from './PushOptInBanner'
+import { supabase } from './lib/supabase'
+import { useAuth } from './AuthModal'
+
+// Header Authorization Bearer com o token da sessao atual do Supabase.
+// Backend (api/bolao.js) usa pra setar bc_bolao_members.user_id.
+// Sem sessao, retorna {} e a request fica "anonima" (user_id NULL).
+async function getAuthHeader() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (session?.access_token) return { Authorization: 'Bearer ' + session.access_token }
+  } catch (_) {}
+  return {}
+}
 
 // ── Paleta editorial ──────────────────────────────────────────────────────
 const GREEN  = '#009c3b'   // Verde floresta
@@ -74,6 +87,33 @@ function getActiveMembership() {
     if (!id) return null
     return loadMemberships().find(x => x.member_id === id) || null
   } catch (_) { return null }
+}
+
+// Limpa todas memberships locais — usado no logout do Supabase pra evitar
+// que outra pessoa no mesmo navegador veja os boloes do usuario anterior.
+function clearAllMemberships() {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.removeItem(MEMBERSHIPS_KEY)
+    localStorage.removeItem(ACTIVE_KEY)
+  } catch (_) {}
+}
+
+// Substitui as memberships locais pelas vindas do servidor (login Supabase).
+// Mantem como ativa quem ja estava ativo (se ainda existir), senao primeira.
+function replaceMemberships(serverList) {
+  if (typeof window === 'undefined') return
+  try {
+    const list = (serverList || []).slice(0, 10)
+    localStorage.setItem(MEMBERSHIPS_KEY, JSON.stringify(list))
+    const currentActive = localStorage.getItem(ACTIVE_KEY)
+    const stillExists = list.find(m => m.member_id === currentActive)
+    if (!stillExists && list.length > 0) {
+      localStorage.setItem(ACTIVE_KEY, list[0].member_id)
+    } else if (list.length === 0) {
+      localStorage.removeItem(ACTIVE_KEY)
+    }
+  } catch (_) {}
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -731,7 +771,7 @@ function CreateGroupView({ onBack, onCreated, setToast }) {
     try {
       const res = await fetch('/api/bolao?action=create-group', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
         body: JSON.stringify({
           name: name.trim(),
           admin_email: email.trim(),
@@ -824,7 +864,7 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
     try {
       const res = await fetch('/api/bolao?action=join', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
         body: JSON.stringify({
           code: code.toUpperCase().trim(),
           nickname: nickname.trim(),
@@ -1650,10 +1690,50 @@ export default function BolaoScreen() {
   const [toast,   setToast]   = useState(null)
   const [config,  setConfig]  = useState(null)
   const [memberships, setMemberships] = useState(() => loadMemberships())
+  const { user: authUser } = useAuth()
+  const [lastSyncedUserId, setLastSyncedUserId] = useState(null)
 
   useEffect(() => {
     fetch('/api/bolao?action=config').then(r => r.json()).then(d => setConfig(d.config || {})).catch(() => setConfig({}))
   }, [])
+
+  // ─── Sync com Supabase auth ────────────────────────────────────────────
+  // Login:  busca memberships do servidor (auto-link de antigos anonimos por
+  //         email) e substitui o localStorage. Faz cross-device funcionar.
+  // Logout: limpa o localStorage pra outra pessoa no mesmo navegador nao
+  //         ver os boloes do user anterior.
+  useEffect(() => {
+    if (authUser?.id) {
+      if (authUser.id === lastSyncedUserId) return  // ja sincronizado
+      ;(async () => {
+        try {
+          const res = await fetch('/api/bolao?action=my-memberships', {
+            headers: { ...(await getAuthHeader()) },
+          })
+          if (!res.ok) return
+          const data = await res.json()
+          replaceMemberships(data.memberships || [])
+          setMemberships(loadMemberships())
+          setLastSyncedUserId(authUser.id)
+          // Se ja estamos numa view de grupo mas o member nao esta mais na
+          // lista (ex: trocou de conta), volta pra home
+          const active = getActiveMembership()
+          if (view === 'group' && member && !active) {
+            setGroup(null); setMember(null); setView('home')
+          }
+        } catch (e) {
+          console.error('bolao sync error:', e.message)
+        }
+      })()
+    } else if (lastSyncedUserId) {
+      // Logout — limpa tudo. lastSyncedUserId teve valor antes, agora user e null
+      clearAllMemberships()
+      setMemberships([])
+      setGroup(null); setMember(null); setView('home')
+      setLastSyncedUserId(null)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authUser?.id])
 
   function loadGroupForMembership(m, { silent = false } = {}) {
     fetch('/api/bolao?action=group&code=' + m.join_code).then(r => r.json()).then(d => {

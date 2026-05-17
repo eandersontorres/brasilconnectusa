@@ -57,6 +57,25 @@ function isValidEmail(s) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim())
 }
 
+// Extrai o user do Supabase auth a partir do header Authorization: Bearer <jwt>.
+// Retorna null se nao tem token ou se token e invalido — operacao sem auth
+// continua funcionando (membro fica anonimo com user_id = NULL).
+async function getUserFromAuth(req) {
+  const authHeader = req.headers?.authorization || req.headers?.Authorization
+  if (!authHeader?.startsWith('Bearer ')) return null
+  const token = authHeader.slice(7).trim()
+  if (!token) return null
+  try {
+    const supabase = getSupabase()
+    const { data: { user }, error } = await supabase.auth.getUser(token)
+    if (error || !user) return null
+    return user
+  } catch (e) {
+    console.error('getUserFromAuth error:', e.message)
+    return null
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   const action = req.query?.action
@@ -233,6 +252,64 @@ export default async function handler(req, res) {
     }
   }
 
+  // ══ GET: my-memberships ════════════════════════════════════════════════════
+  // Retorna grupos onde o usuario logado e membro. Match por user_id (preferido)
+  // OU por email (cobre membros antigos criados anonimos que ainda nao foram
+  // backfilled). Tambem faz auto-link: se achar por email mas user_id e NULL,
+  // atualiza user_id na mesma chamada (auto-migracao).
+  if (req.method === 'GET' && action === 'my-memberships') {
+    const authUser = await getUserFromAuth(req)
+    if (!authUser) return res.status(401).json({ error: 'not_authenticated' })
+
+    try {
+      const supabase = getSupabase()
+      const userEmail = String(authUser.email || '').toLowerCase().trim()
+
+      // Auto-link: pega membros desse email sem user_id e seta user_id
+      if (userEmail) {
+        await supabase
+          .from('bc_bolao_members')
+          .update({ user_id: authUser.id })
+          .is('user_id', null)
+          .eq('email', userEmail)
+      }
+
+      // Busca todos os membros desse user (depois do link, todos devem ter user_id)
+      const { data: members, error } = await supabase
+        .from('bc_bolao_members')
+        .select(`
+          id, nickname, email, state, full_name, whatsapp, joined_at,
+          bc_bolao_groups!inner(id, name, join_code, admin_email, created_at)
+        `)
+        .eq('user_id', authUser.id)
+        .order('joined_at', { ascending: false })
+
+      if (error) throw error
+
+      // Shape em formato compativel com o localStorage memberships
+      const memberships = (members || []).map(m => ({
+        member_id:    m.id,
+        group_id:     m.bc_bolao_groups.id,
+        group_name:   m.bc_bolao_groups.name,
+        join_code:    m.bc_bolao_groups.join_code,
+        nickname:     m.nickname,
+        email:        m.email,
+        state:        m.state,
+        full_name:    m.full_name,
+        whatsapp:     m.whatsapp,
+        admin_email:  String(m.bc_bolao_groups.admin_email || '').toLowerCase() === userEmail
+          ? m.bc_bolao_groups.admin_email
+          : '',
+        joined_at:    m.joined_at,
+      }))
+
+      return res.status(200).json({ success: true, memberships })
+    } catch (e) {
+      console.error('bolao/my-memberships error:', e.message)
+      return res.status(500).json({ error: 'Erro ao buscar suas participacoes' })
+    }
+  }
+
   // ══ GET: my-predictions ═════════════════════════════════════════════════════
   if (req.method === 'GET' && action === 'my-predictions') {
     const { member_id } = req.query
@@ -264,6 +341,10 @@ export default async function handler(req, res) {
     try {
       const supabase = getSupabase()
 
+      // Se houver Bearer token, linka esse membro ao user_id do Supabase.
+      // Sem token, fica anonimo (user_id = NULL) — comportamento antigo.
+      const authUser = await getUserFromAuth(req)
+
       let join_code, attempts = 0
       do {
         join_code = genJoinCode()
@@ -294,6 +375,7 @@ export default async function handler(req, res) {
           state: String(admin_state).toUpperCase(),
           country: 'USA',
           whatsapp: admin_whatsapp ? String(admin_whatsapp).trim() : null,
+          user_id: authUser?.id || null,
         })
         .select()
         .single()
@@ -329,6 +411,10 @@ export default async function handler(req, res) {
 
     try {
       const supabase = getSupabase()
+
+      // Mesma logica do create-group: linka user_id se ha auth, senao anonimo
+      const authUser = await getUserFromAuth(req)
+
       const { data: group, error: gErr } = await supabase
         .from('bc_bolao_groups')
         .select('id, name, join_code')
@@ -354,6 +440,7 @@ export default async function handler(req, res) {
           state: String(state).toUpperCase(),
           country: 'USA',
           whatsapp: whatsapp ? String(whatsapp).trim() : null,
+          user_id: authUser?.id || null,
         })
         .select()
         .single()
