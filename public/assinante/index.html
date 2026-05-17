@@ -604,7 +604,7 @@
 
             <div>
               <label>Website</label>
-              <input name="website" type="url" value="${esc(biz?.website)}" />
+              <input name="website" type="text" value="${esc(biz?.website)}" />
             </div>
 
             <div class="row-2">
@@ -624,19 +624,19 @@
 
             <div>
               <label>Logo</label>
-              <input name="logo_url" type="url" placeholder="https://... ou faça upload abaixo" value="${esc(biz?.logo_url)}" />
+              <input name="logo_url" type="text" placeholder="https://... ou faça upload abaixo" value="${esc(biz?.logo_url)}" />
               <input type="file" accept="image/*" onchange="uploadFile(this, 'logo_url', 'businesses')" style="margin-top:6px;font-size:12px;" />
               <span id="status-logo_url" style="font-size:11px;color:var(--ink-muted);margin-left:8px;"></span>
             </div>
             <div>
               <label>Foto de capa</label>
-              <input name="cover_url" type="url" placeholder="https://... ou faça upload abaixo" value="${esc(biz?.cover_url)}" />
+              <input name="cover_url" type="text" placeholder="https://... ou faça upload abaixo" value="${esc(biz?.cover_url)}" />
               <input type="file" accept="image/*" onchange="uploadFile(this, 'cover_url', 'businesses')" style="margin-top:6px;font-size:12px;" />
               <span id="status-cover_url" style="font-size:11px;color:var(--ink-muted);margin-left:8px;"></span>
             </div>
             <div>
               <label>Vídeo (YouTube ou Vimeo)</label>
-              <input name="video_url" type="url" placeholder="https://youtube.com/watch?v=..." value="${esc(biz?.video_url)}" />
+              <input name="video_url" type="text" placeholder="https://youtube.com/watch?v=..." value="${esc(biz?.video_url)}" />
             </div>
             <div>
               <label>Galeria (até 10 fotos)</label>
@@ -766,15 +766,15 @@
 
             <div>
               <label>Avatar / Foto de perfil (URL)</label>
-              <input name="avatar_url" type="url" value="${esc(prov?.avatar_url)}" />
+              <input name="avatar_url" type="text" value="${esc(prov?.avatar_url)}" />
             </div>
             <div>
               <label>Foto de capa (URL)</label>
-              <input name="cover_url" type="url" value="${esc(prov?.cover_url)}" />
+              <input name="cover_url" type="text" value="${esc(prov?.cover_url)}" />
             </div>
             <div>
               <label>Vídeo de apresentação (YouTube/Vimeo)</label>
-              <input name="video_url" type="url" value="${esc(prov?.video_url)}" />
+              <input name="video_url" type="text" value="${esc(prov?.video_url)}" />
             </div>
             <div>
               <label>Galeria do portfólio (URLs separadas por vírgula)</label>
@@ -1172,7 +1172,7 @@
               </div>
               <div style="margin-bottom:10px;">
                 <label>Foto</label>
-                <input name="photo_url" type="url" placeholder="https://... ou upload abaixo" value="${esc(item.photo_url)}" />
+                <input name="photo_url" type="text" placeholder="https://... ou upload abaixo" value="${esc(item.photo_url)}" />
                 <input type="file" accept="image/*" onchange="uploadFile(this, 'photo_url', 'menu')" style="margin-top:6px;font-size:12px;" />
                 <span id="status-photo_url" style="font-size:11px;color:var(--ink-muted);"></span>
               </div>
