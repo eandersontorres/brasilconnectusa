@@ -457,22 +457,87 @@
         const r = await fetch('/api/businesses/list?status=pending')
         const data = await r.json().catch(() => ({}))
         const list = data.businesses || []
-        if (list.length === 0) { c.innerHTML = '<div class="panel"><div class="empty">Nenhum negocio pendente de aprovacao.</div></div>'; return }
+        if (list.length === 0) { c.innerHTML = '<div class="panel"><div class="empty">✅ Nenhum negocio pendente de aprovacao.</div></div>'; return }
+
+        // Função pra montar linha de detalhe (label + valor) — só mostra se tem valor
+        const detail = (label, val) => val ? `<div style="font-size:12px;color:var(--ink-soft);margin:3px 0;"><strong style="color:var(--ink-muted);font-weight:600;">${label}:</strong> ${escapeHtml(String(val))}</div>` : ''
 
         c.innerHTML = '<div class="panel"><div class="panel-eyebrow">NEGOCIOS PENDENTES</div><h3>' + list.length + ' submissoes</h3>' +
           list.map(b => `
-            <div class="item">
+            <div class="item" id="biz-${b.id}">
               <div class="head">
-                <div>
-                  <div class="name">${escapeHtml(b.name)} <span style="font-weight:400;color:var(--ink-muted)">· ${escapeHtml(b.category)}</span></div>
-                  <div class="meta">${escapeHtml(b.city)}, ${escapeHtml(b.state)} · ${escapeHtml(b.submitted_email || '')}</div>
+                <div style="flex:1;">
+                  <div class="name">${escapeHtml(b.name || '(sem nome)')} <span style="font-weight:400;color:var(--ink-muted)">· ${escapeHtml(b.category || '—')}</span></div>
+                  <div class="meta">📍 ${escapeHtml(b.city || '—')}, ${escapeHtml(b.state || '—')} · ✉️ ${escapeHtml(b.submitted_email || '')}</div>
                 </div>
               </div>
-              <div class="answer">${escapeHtml(b.description || '')}</div>
+
+              <div class="answer">${escapeHtml(b.description || '(sem descrição)')}</div>
+
+              <!-- Detalhes (expand) -->
+              <details style="margin-top:10px;">
+                <summary style="cursor:pointer;font-size:12px;color:var(--brand-green);font-weight:600;padding:4px 0;">Ver todos os campos ▾</summary>
+                <div style="margin-top:8px;padding:10px 12px;background:var(--paper-soft);border-radius:6px;">
+                  ${detail('Endereço', b.address)}
+                  ${detail('Telefone', b.phone)}
+                  ${detail('WhatsApp', b.whatsapp)}
+                  ${detail('Website', b.website)}
+                  ${detail('Cadastrado em', b.created_at ? new Date(b.created_at).toLocaleString('pt-BR') : '')}
+                  ${detail('Slug gerado', b.slug)}
+                  ${detail('ID', b.id)}
+                </div>
+              </details>
+
+              <!-- Ações -->
+              <div class="actions" style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <button class="btn-mini btn-approve" onclick="bizAction('${b.id}', 'approve')" id="appr-${b.id}">✓ Aprovar</button>
+                <button class="btn-mini" onclick="bizAction('${b.id}', 'reject')" id="rej-${b.id}"
+                  style="background:transparent;border:1px solid #DC2626;color:#DC2626;">✗ Rejeitar</button>
+                <a href="mailto:${escapeHtml(b.submitted_email || '')}?subject=Sobre seu cadastro no BrasilConnect"
+                  class="btn-mini" style="text-decoration:none;background:transparent;border:1px solid var(--line);color:var(--ink-soft);">
+                  📧 Falar com dono
+                </a>
+                <span id="msg-biz-${b.id}" style="font-size:12px;color:var(--ink-muted);margin-left:auto;"></span>
+              </div>
             </div>
           `).join('') + '</div>'
       } catch (e) {
-        c.innerHTML = '<div class="empty">Erro ao carregar.</div>'
+        c.innerHTML = '<div class="empty">Erro ao carregar: ' + escapeHtml(e.message) + '</div>'
+      }
+    }
+
+    // Aprovar / rejeitar negócio
+    async function bizAction(id, action) {
+      const label = action === 'approve' ? 'aprovar' : 'rejeitar'
+      if (!confirm('Tem certeza que quer ' + label + ' esse negócio?')) return
+
+      const msg = document.getElementById('msg-biz-' + id)
+      const aBtn = document.getElementById('appr-' + id)
+      const rBtn = document.getElementById('rej-' + id)
+      aBtn.disabled = true; rBtn.disabled = true
+      msg.style.color = 'var(--ink-muted)'
+      msg.textContent = action === 'approve' ? 'Aprovando…' : 'Rejeitando…'
+
+      try {
+        const r = await fetch('/api/admin/business-action', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+          body: JSON.stringify({ business_id: id, action }),
+        })
+        const d = await r.json().catch(() => ({}))
+        if (!r.ok) throw new Error(d.error || 'Erro')
+
+        msg.style.color = action === 'approve' ? '#166534' : '#DC2626'
+        msg.textContent = action === 'approve' ? '✓ Aprovado' : '✗ Rejeitado'
+        // Some o item da lista em 1.5s
+        setTimeout(() => {
+          const el = document.getElementById('biz-' + id)
+          if (el) { el.style.transition = 'opacity 0.3s'; el.style.opacity = '0'; setTimeout(() => loadTab('businesses'), 350) }
+        }, 1200)
+      } catch (e) {
+        msg.style.color = '#DC2626'
+        msg.textContent = '⚠️ ' + e.message
+        aBtn.disabled = false; rBtn.disabled = false
       }
     }
 
