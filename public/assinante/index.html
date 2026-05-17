@@ -278,83 +278,109 @@
        Supabase Auth (OTP) — substitui o "login só com email" que era
        trivialmente falsificável. Agora valida JWT em CADA request /api/*.
        ──────────────────────────────────────────────────────────────────── -->
+  <!-- Fallback stubs: definidos SINCRONICAMENTE pra evitar "is not a function"
+       caso o modulo abaixo falhe ao carregar (rede / CSP / browser). Vao ser
+       substituidos pelos reais quando o modulo terminar de inicializar. -->
+  <script>
+    window.__bcReady__ = false
+    window.__bcLastError__ = null
+    const _notReady = (name) => () => {
+      throw new Error('Auth ainda carregando (ou falhou). Erro: ' + (window.__bcLastError__ || 'sem detalhe') + '. Verifica console + tenta de novo em 3s.')
+    }
+    window.bcGetEmail  = window.bcGetEmail  || (() => null)
+    window.bcGetUserId = window.bcGetUserId || (() => null)
+    window.bcFetch     = window.bcFetch     || (async (url, opts = {}) => fetch(url, opts))
+    window.bcSendOtp   = window.bcSendOtp   || _notReady('bcSendOtp')
+    window.bcVerifyOtp = window.bcVerifyOtp || _notReady('bcVerifyOtp')
+    window.bcLogout    = window.bcLogout    || _notReady('bcLogout')
+  </script>
+
   <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+    // Wrap tudo num try/catch — se Supabase falhar, ao menos errors viram visiveis
+    try {
+      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
 
-    // Mesmas envs do app principal — Supabase só precisa do anon key (público)
-    const SUPA_URL  = 'https://ggwppcbdnemjuddnzbdw.supabase.co'
-    const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdnd3BwY2JkbmVtanVkZG56YmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MzI3MDgsImV4cCI6MjA5MzAwODcwOH0.-oeVAtpfqUJiHSUMErBEnfvGX_waABpNgaIh-UPJdlY'
+      // Mesmas envs do app principal — Supabase só precisa do anon key (público).
+      // Se essas estiverem erradas, magic link / bolão também não funcionariam.
+      const SUPA_URL  = 'https://ggwppcbdnemjuddnzbdw.supabase.co'
+      const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdnd3BwY2JkbmVtanVkZG56YmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MzI3MDgsImV4cCI6MjA5MzAwODcwOH0.-oeVAtpfqUJiHSUMErBEnfvGX_waABpNgaIh-UPJdlY'
 
-    const supabase = createClient(SUPA_URL, SUPA_ANON, {
-      auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
-        storage: window.localStorage,
-      },
-    })
+      const supabase = createClient(SUPA_URL, SUPA_ANON, {
+        auth: {
+          persistSession: true,
+          autoRefreshToken: true,
+          detectSessionInUrl: true,
+          storage: window.localStorage,
+        },
+      })
 
-    // ─── Helpers expostos globalmente pro script <script> tradicional ──
-    window.bcSupabase = supabase
+      // ─── Substitui stubs pelos reais ────────────────────────────────
+      window.bcSupabase = supabase
 
-    window.bcGetEmail = () => {
+      window.bcGetEmail = () => {
+        try { return window.__bcSession__?.user?.email || null } catch (_) { return null }
+      }
+
+      window.bcGetUserId = () => {
+        try { return window.__bcSession__?.user?.id || null } catch (_) { return null }
+      }
+
+      window.bcFetch = async (url, opts = {}) => {
+        const headers = { ...(opts.headers || {}) }
+        const session = window.__bcSession__
+        if (session?.access_token) headers['Authorization'] = 'Bearer ' + session.access_token
+        return fetch(url, { ...opts, headers })
+      }
+
+      window.bcLogout = async () => {
+        await supabase.auth.signOut()
+        window.__bcSession__ = null
+        try { sessionStorage.removeItem('bc_assinante_email') } catch (_) {}
+        if (typeof render === 'function') render()
+      }
+
+      window.bcSendOtp = async (email) => {
+        const { error } = await supabase.auth.signInWithOtp({
+          email: email.trim().toLowerCase(),
+          options: { emailRedirectTo: window.location.origin + '/assinante' },
+        })
+        if (error) throw error
+      }
+
+      window.bcVerifyOtp = async (email, code) => {
+        const digits = String(code).replace(/\D/g, '')
+        const { data, error } = await supabase.auth.verifyOtp({
+          email: email.trim().toLowerCase(),
+          token: digits,
+          type: 'email',
+        })
+        if (error) throw error
+        window.__bcSession__ = data.session
+        return data
+      }
+
+      // ─── Hydrate session no load + reage a mudanças ────────────────
       try {
-        const cached = window.__bcSession__
-        return cached?.user?.email || null
-      } catch (_) { return null }
-    }
+        const { data: { session } } = await supabase.auth.getSession()
+        window.__bcSession__ = session
+      } catch (e) {
+        console.error('[bc-auth] getSession falhou:', e)
+        window.__bcSession__ = null
+      }
 
-    window.bcGetUserId = () => {
-      try { return window.__bcSession__?.user?.id || null } catch (_) { return null }
-    }
-
-    // Faz fetch e adiciona Authorization: Bearer <access_token> se logado
-    window.bcFetch = async (url, opts = {}) => {
-      const headers = { ...(opts.headers || {}) }
-      const session = window.__bcSession__
-      if (session?.access_token) headers['Authorization'] = 'Bearer ' + session.access_token
-      return fetch(url, { ...opts, headers })
-    }
-
-    window.bcLogout = async () => {
-      await supabase.auth.signOut()
-      window.__bcSession__ = null
-      // sessionStorage antigo (legacy) — limpa pra evitar confusão
-      try { sessionStorage.removeItem('bc_assinante_email') } catch (_) {}
-      if (typeof render === 'function') render()
-    }
-
-    // ─── Fluxo de OTP (2 telas: email → código) ──────────────────────
-    window.bcSendOtp = async (email) => {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: email.trim().toLowerCase(),
-        options: { emailRedirectTo: window.location.origin + '/assinante' },
+      supabase.auth.onAuthStateChange((_event, sess) => {
+        window.__bcSession__ = sess
+        if (typeof render === 'function') render()
       })
-      if (error) throw error
+
+      window.__bcReady__ = true
+      window.dispatchEvent(new Event('bc-auth-ready'))
+    } catch (e) {
+      console.error('[bc-auth] FALHA AO INICIALIZAR:', e)
+      window.__bcLastError__ = e.message || String(e)
+      // Dispara evento mesmo no erro pra UI saber que pode tentar render
+      window.dispatchEvent(new Event('bc-auth-ready'))
     }
-
-    window.bcVerifyOtp = async (email, code) => {
-      const digits = String(code).replace(/\D/g, '')
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: email.trim().toLowerCase(),
-        token: digits,
-        type: 'email',
-      })
-      if (error) throw error
-      window.__bcSession__ = data.session
-      return data
-    }
-
-    // ─── Hydrate session no load + reage a mudanças ───────────────────
-    const { data: { session } } = await supabase.auth.getSession()
-    window.__bcSession__ = session
-    supabase.auth.onAuthStateChange((_event, sess) => {
-      window.__bcSession__ = sess
-      if (typeof render === 'function') render()
-    })
-
-    // Dispara evento pra script tradicional saber que auth carregou
-    window.dispatchEvent(new Event('bc-auth-ready'))
   </script>
 
   <script>
