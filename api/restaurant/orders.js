@@ -1,30 +1,19 @@
 /**
  * /api/restaurant/orders
  *
- * GET  ?action=list&business_id=UUID&owner_email=X         -> lista pedidos do dono
- * POST ?action=update-status                               -> { business_id, owner_email, order_id, status }
+ * GET  ?action=list&business_id=UUID  (Bearer JWT)         -> lista pedidos do dono
+ * POST ?action=update-status  (Bearer JWT)                 -> { business_id, order_id, status }
  *      Atualiza status + dispara email pro cliente
  */
 import { createClient } from '@supabase/supabase-js'
+import { requireBusinessAuth } from '../_lib/businessAuth.js'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
 }
 
-async function checkOwnership(supabase, business_id, owner_email) {
-  const { data: biz } = await supabase
-    .from('bc_businesses')
-    .select('id, name, slug, owner_email, prep_time_min')
-    .eq('id', business_id)
-    .single()
-  if (!biz) return { error: 'Negocio nao encontrado', status: 404 }
-  const ownerOnRecord = (biz.owner_email || '').toLowerCase().trim()
-  const requested = String(owner_email || '').toLowerCase().trim()
-  if (!ownerOnRecord || ownerOnRecord !== requested) {
-    return { error: 'Email nao bate', status: 403 }
-  }
-  return { biz }
-}
+// checkOwnership removida — substituida por requireBusinessAuth (Bearer JWT)
+// importado de ../_lib/businessAuth.js
 
 const STATUS_LABELS_PT = {
   pending:    { emoji: '⏳', subject: 'Pedido recebido',          msg: 'Recebemos seu pedido e estamos confirmando.' },
@@ -85,11 +74,11 @@ export default async function handler(req, res) {
 
     // GET list
     if (req.method === 'GET' && action === 'list') {
-      const { business_id, owner_email, status, limit = 50 } = req.query
-      if (!business_id || !owner_email) return res.status(400).json({ error: 'business_id e owner_email obrigatorios' })
+      const { business_id, status, limit = 50 } = req.query
+      if (!business_id) return res.status(400).json({ error: 'business_id obrigatorio' })
 
-      const auth = await checkOwnership(supabase, business_id, owner_email)
-      if (auth.error) return res.status(auth.status).json({ error: auth.error })
+      const auth = await requireBusinessAuth(req, supabase, business_id)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
 
       let q = supabase
         .from('bc_orders')
@@ -127,15 +116,15 @@ export default async function handler(req, res) {
 
     // POST update-status
     if (req.method === 'POST' && action === 'update-status') {
-      const { business_id, owner_email, order_id, status: newStatus, cancel_reason } = req.body || {}
-      if (!business_id || !owner_email || !order_id || !newStatus) {
+      const { business_id, order_id, status: newStatus, cancel_reason } = req.body || {}
+      if (!business_id || !order_id || !newStatus) {
         return res.status(400).json({ error: 'campos obrigatorios faltando' })
       }
       const validStatus = ['confirmed', 'preparing', 'ready', 'delivered', 'canceled']
       if (!validStatus.includes(newStatus)) return res.status(400).json({ error: 'status invalido' })
 
-      const auth = await checkOwnership(supabase, business_id, owner_email)
-      if (auth.error) return res.status(auth.status).json({ error: auth.error })
+      const auth = await requireBusinessAuth(req, supabase, business_id)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
 
       const tsField = {
         confirmed: 'confirmed_at',
@@ -160,7 +149,7 @@ export default async function handler(req, res) {
       if (!order) return res.status(404).json({ error: 'Pedido nao encontrado' })
 
       // Email pro cliente (best effort)
-      sendStatusEmail(order, auth.biz, newStatus)
+      sendStatusEmail(order, auth.business, newStatus)
 
       // Push pro cliente (best effort)
       try {
@@ -178,7 +167,7 @@ export default async function handler(req, res) {
             user_email: order.customer_email,
             topic: 'restaurant_status',
             title: lbl.title,
-            body: '#' + order.order_number + ' em ' + auth.biz.name + (lbl.body ? ' · ' + lbl.body : ''),
+            body: '#' + order.order_number + ' em ' + auth.business.name + (lbl.body ? ' · ' + lbl.body : ''),
             url: '/pedido/' + order.id,
             type: 'restaurant_order_status',
             data: { order_id: order.id, status: newStatus },

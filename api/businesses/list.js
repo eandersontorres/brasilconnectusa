@@ -6,6 +6,7 @@
  *   limit (default 100)
  */
 import { createClient } from '@supabase/supabase-js'
+import { requireAuthOnly } from '../_lib/businessAuth.js'
 
 function haversineMiles(lat1, lng1, lat2, lng2) {
   const R = 3958.8
@@ -28,16 +29,32 @@ export default async function handler(req, res) {
       { auth: { persistSession: false } }
     )
 
+    // SECURITY: filtro por owner_email requer JWT do usuário cujo email
+    // bate com o filtro (impede que alguém liste negócios de outro só sabendo
+    // o email dele). Se passar owner_email sem token, ou com token de outro
+    // email, retorna 403.
+    let effectiveOwnerEmail = null
+    if (owner_email) {
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
+      const tokenEmail = String(auth.user.email || '').toLowerCase().trim()
+      const requestedEmail = String(owner_email).toLowerCase().trim()
+      if (tokenEmail !== requestedEmail) {
+        return res.status(403).json({ error: 'Token nao corresponde ao owner_email solicitado' })
+      }
+      effectiveOwnerEmail = tokenEmail
+    }
+
     // Se for filtro pra dono ver os proprios negocios (admin/painel), usa tabela direta
-    const useTable = owner_email || status ? 'bc_businesses' : 'bc_businesses_public'
+    const useTable = effectiveOwnerEmail || status ? 'bc_businesses' : 'bc_businesses_public'
     let query = supabase.from(useTable).select('*')
 
-    if (category)    query = query.eq('category', category)
-    if (state)       query = query.eq('state', state)
-    if (city)        query = query.ilike('city', `%${city}%`)
-    if (q)           query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%`)
-    if (owner_email) query = query.eq('owner_email', String(owner_email).toLowerCase().trim())
-    if (status)      query = query.eq('status', status)
+    if (category)             query = query.eq('category', category)
+    if (state)                query = query.eq('state', state)
+    if (city)                 query = query.ilike('city', `%${city}%`)
+    if (q)                    query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%`)
+    if (effectiveOwnerEmail)  query = query.eq('owner_email', effectiveOwnerEmail)
+    if (status)               query = query.eq('status', status)
 
     if (sort === 'rating')      query = query.order('rating_avg', { ascending: false, nullsFirst: false })
     else if (sort === 'newest') query = query.order('created_at', { ascending: false })
