@@ -679,7 +679,10 @@
         const data = await r.json()
         if (!r.ok) throw new Error(data.error || 'Erro ao salvar')
         showToast('Salvo!')
+        // Preserva scroll: re-render reseta innerHTML do container, perdendo posicao
+        const _scrollY = window.scrollY
         await renderNegocio(getEmail())
+        requestAnimationFrame(() => window.scrollTo({ top: _scrollY, behavior: 'instant' }))
       } catch (err) {
         showToast(err.message, true)
         btn.disabled = false; btn.textContent = 'Salvar alterações'
@@ -806,7 +809,10 @@
         const data = await r.json()
         if (!r.ok) throw new Error(data.error || 'Erro ao salvar')
         showToast('Salvo!')
+        // Preserva scroll: re-render reseta innerHTML do container
+        const _scrollY = window.scrollY
         await renderProfissional(getEmail())
+        requestAnimationFrame(() => window.scrollTo({ top: _scrollY, behavior: 'instant' }))
       } catch (err) {
         showToast(err.message, true)
         btn.disabled = false; btn.textContent = 'Salvar alterações'
