@@ -121,6 +121,7 @@
             <button class="tab-btn ${currentTab==='enterprise'?'active':''}" onclick="switchTab('enterprise')">Leads Enterprise</button>
             <button class="tab-btn ${currentTab==='reports'?'active':''}" onclick="switchTab('reports')">Moderação</button>
             <button class="tab-btn ${currentTab==='businesses'?'active':''}" onclick="switchTab('businesses')">Negócios pendentes</button>
+            <button class="tab-btn ${currentTab==='restaurant-orders'?'active':''}" onclick="switchTab('restaurant-orders')">Pedidos Restaurante</button>
             <button class="tab-btn ${currentTab==='bolao'?'active':''}" onclick="switchTab('bolao')">Bolão Copa</button>
           </div>
           <div id="tab-content"><p class="muted">Carregando…</p></div>
@@ -138,6 +139,7 @@
         else if (tab === 'enterprise') await loadEnterprise(c)
         else if (tab === 'reports')    await loadReports(c)
         else if (tab === 'businesses') await loadBusinesses(c)
+        else if (tab === 'restaurant-orders') await loadRestaurantOrders(c)
         else if (tab === 'bolao')      await loadBolao(c)
       } catch (e) {
         c.innerHTML = '<div class="err-banner">' + escapeHtml(e.message) + '</div>'
@@ -527,6 +529,165 @@
       } catch (e) {
         msg.style.color = '#dc2626'; msg.textContent = e.message
       }
+    }
+
+    // ─── Pedidos Restaurante (global, todos os negócios) ──────────────────
+    async function loadRestaurantOrders(c) {
+      const days = c.dataset.days || '30'
+      const statusFilter = c.dataset.status || ''
+      const url = '/api/admin/restaurant-orders?days=' + days + (statusFilter ? '&status=' + statusFilter : '')
+
+      let r
+      try { r = await fetch(url, { headers: { 'x-admin-secret': getSecret() } }) }
+      catch (e) { c.innerHTML = '<div class="panel"><div class="empty">⚠️ Erro de rede: ' + escapeHtml(e.message) + '</div></div>'; return }
+
+      if (!r.ok) {
+        const d = await r.json().catch(() => ({}))
+        c.innerHTML = '<div class="panel"><div class="empty">Erro: ' + escapeHtml(d.error || ('HTTP ' + r.status)) + '</div></div>'
+        return
+      }
+
+      const data = await r.json().catch(() => ({}))
+      const orders = data.orders || []
+      const s = data.summary || {}
+
+      const fmtMoney = (cents) => 'US$ ' + ((cents || 0) / 100).toFixed(2)
+      const fmtDate  = (iso) => new Date(iso).toLocaleString('pt-BR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })
+
+      const statusBadge = (st) => {
+        const map = {
+          pending:   { bg: '#FEF3C7', fg: '#92400E', label: 'Pendente' },
+          confirmed: { bg: '#DBEAFE', fg: '#1E40AF', label: 'Confirmado' },
+          preparing: { bg: '#FED7AA', fg: '#9A3412', label: 'Preparando' },
+          ready:     { bg: '#A7F3D0', fg: '#065F46', label: 'Pronto' },
+          delivered: { bg: '#DCFCE7', fg: '#166534', label: 'Entregue' },
+          canceled:  { bg: '#FEE2E2', fg: '#991B1B', label: 'Cancelado' },
+        }
+        const m = map[st] || { bg: '#F3F4F6', fg: '#6B7280', label: st || '—' }
+        return `<span style="background:${m.bg};color:${m.fg};font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:0.05em;">${m.label}</span>`
+      }
+
+      const payBadge = (ps) => {
+        if (ps === 'paid')     return `<span style="color:#166534;font-size:11px;font-weight:600;">✓ Pago</span>`
+        if (ps === 'refunded') return `<span style="color:#9A3412;font-size:11px;font-weight:600;">↩ Reembolsado</span>`
+        if (ps === 'failed')   return `<span style="color:#991B1B;font-size:11px;font-weight:600;">✗ Falhou</span>`
+        return `<span style="color:#9CA3AF;font-size:11px;">Não pago</span>`
+      }
+
+      c.innerHTML = `
+        <!-- Métricas summary -->
+        <div class="panel" style="padding:20px;">
+          <div class="panel-eyebrow">RESUMO · últimos ${s.window_days || days} dias</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:14px;">
+            <div style="background:var(--paper-soft);border-radius:10px;padding:14px;">
+              <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">Hoje</div>
+              <div style="font-size:24px;font-weight:800;color:var(--ink);margin-top:4px;">${s.orders_today || 0}</div>
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">pedidos</div>
+            </div>
+            <div style="background:var(--paper-soft);border-radius:10px;padding:14px;">
+              <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">7 dias</div>
+              <div style="font-size:24px;font-weight:800;color:var(--ink);margin-top:4px;">${s.orders_week || 0}</div>
+              <div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">pedidos</div>
+            </div>
+            <div style="background:#F0FDF4;border-radius:10px;padding:14px;border:1px solid #86EFAC;">
+              <div style="font-size:11px;color:#166534;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">GMV (pagos)</div>
+              <div style="font-size:24px;font-weight:800;color:#14532D;margin-top:4px;">${fmtMoney(s.total_gmv_cents)}</div>
+              <div style="font-size:11px;color:#166534;margin-top:2px;">volume bruto</div>
+            </div>
+            <div style="background:#FEFCE8;border-radius:10px;padding:14px;border:1px solid #FDE047;">
+              <div style="font-size:11px;color:#854D0E;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">💰 Nossa parte</div>
+              <div style="font-size:24px;font-weight:800;color:#713F12;margin-top:4px;">${fmtMoney(s.platform_revenue_cents)}</div>
+              <div style="font-size:11px;color:#854D0E;margin-top:2px;">platform fee</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;margin-top:14px;font-size:12px;color:var(--ink-soft);flex-wrap:wrap;">
+            <span>📋 Pendentes: <strong>${s.pending_count || 0}</strong></span>
+            <span>🔥 Preparando: <strong>${s.preparing_count || 0}</strong></span>
+            <span>✅ Entregues: <strong>${s.delivered_count || 0}</strong></span>
+            <span>❌ Cancelados: <strong>${s.canceled_count || 0}</strong></span>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div style="display:flex;gap:8px;align-items:center;margin:14px 0;flex-wrap:wrap;">
+          <label style="font-size:12px;color:var(--ink-muted);">Janela:</label>
+          <select onchange="setRestaurantFilter('days', this.value)" style="padding:6px 10px;border-radius:6px;border:1px solid var(--line);font-size:13px;background:#fff;">
+            <option value="1"   ${days==='1' ?'selected':''}>Hoje</option>
+            <option value="7"   ${days==='7' ?'selected':''}>7 dias</option>
+            <option value="30"  ${days==='30'?'selected':''}>30 dias</option>
+            <option value="90"  ${days==='90'?'selected':''}>90 dias</option>
+            <option value="365" ${days==='365'?'selected':''}>1 ano</option>
+          </select>
+          <label style="font-size:12px;color:var(--ink-muted);margin-left:8px;">Status:</label>
+          <select onchange="setRestaurantFilter('status', this.value)" style="padding:6px 10px;border-radius:6px;border:1px solid var(--line);font-size:13px;background:#fff;">
+            <option value=""           ${statusFilter===''         ?'selected':''}>Todos</option>
+            <option value="pending"    ${statusFilter==='pending'  ?'selected':''}>Pendentes</option>
+            <option value="confirmed"  ${statusFilter==='confirmed'?'selected':''}>Confirmados</option>
+            <option value="preparing"  ${statusFilter==='preparing'?'selected':''}>Preparando</option>
+            <option value="ready"      ${statusFilter==='ready'    ?'selected':''}>Prontos</option>
+            <option value="delivered"  ${statusFilter==='delivered'?'selected':''}>Entregues</option>
+            <option value="canceled"   ${statusFilter==='canceled' ?'selected':''}>Cancelados</option>
+          </select>
+          <span style="margin-left:auto;font-size:12px;color:var(--ink-muted);">${orders.length} pedidos</span>
+        </div>
+
+        <!-- Lista -->
+        <div class="panel" style="padding:0;">
+          ${orders.length === 0 ? `
+            <div class="empty" style="padding:40px;text-align:center;">
+              📭 Nenhum pedido nesse período.<br><br>
+              Quando algum negócio com Stripe Connect ativo receber pedido via <code>/negocio/&lt;slug&gt;/cardapio</code>, aparece aqui.
+            </div>
+          ` : `
+            <table style="width:100%;border-collapse:collapse;font-size:13px;">
+              <thead>
+                <tr style="background:var(--paper-soft);border-bottom:1px solid var(--line);">
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);font-weight:700;">#</th>
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);font-weight:700;">Restaurante</th>
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);font-weight:700;">Cliente</th>
+                  <th style="text-align:right;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);font-weight:700;">Total</th>
+                  <th style="text-align:right;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);font-weight:700;">Nossa</th>
+                  <th style="text-align:center;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);font-weight:700;">Status</th>
+                  <th style="text-align:left;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--ink-muted);font-weight:700;">Quando</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                ${orders.map(o => `
+                  <tr style="border-bottom:1px solid var(--line);">
+                    <td style="padding:10px 14px;font-weight:700;color:var(--ink);">#${o.order_number}</td>
+                    <td style="padding:10px 14px;">
+                      <div style="font-weight:600;">${escapeHtml(o.bc_businesses?.name || '—')}</div>
+                      <div style="font-size:11px;color:var(--ink-muted);">${escapeHtml(o.bc_businesses?.city || '')}, ${escapeHtml(o.bc_businesses?.state || '')}</div>
+                    </td>
+                    <td style="padding:10px 14px;">
+                      <div>${escapeHtml(o.customer_name || '—')}</div>
+                      <div style="font-size:11px;color:var(--ink-muted);">${escapeHtml(o.customer_email)}</div>
+                    </td>
+                    <td style="padding:10px 14px;text-align:right;font-weight:600;">${fmtMoney(o.total_cents)}</td>
+                    <td style="padding:10px 14px;text-align:right;color:#854D0E;font-weight:600;">${fmtMoney(o.platform_fee_cents)}</td>
+                    <td style="padding:10px 14px;text-align:center;">
+                      ${statusBadge(o.status)}<br>
+                      <div style="margin-top:3px;">${payBadge(o.payment_status)}</div>
+                    </td>
+                    <td style="padding:10px 14px;font-size:12px;color:var(--ink-muted);">${fmtDate(o.created_at)}</td>
+                    <td style="padding:10px 14px;">
+                      <a href="/pedido/${o.id}" target="_blank" class="btn-mini" style="text-decoration:none;font-size:11px;padding:4px 8px;">Ver →</a>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `}
+        </div>
+      `
+    }
+
+    function setRestaurantFilter(key, value) {
+      const c = document.getElementById('tab-content')
+      if (value) c.dataset[key] = value
+      else delete c.dataset[key]
+      loadRestaurantOrders(c)
     }
 
     if (getSecret()) renderDashboard()
