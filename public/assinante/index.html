@@ -553,6 +553,7 @@
           ` : ''}
 
           <form id="bizForm" class="form-grid" onsubmit="saveBiz(event)">
+            ${biz?.id ? `<input type="hidden" name="id" value="${esc(biz.id)}" />` : ''}
             <div class="row-2">
               <div>
                 <label>Nome do negócio *</label>
@@ -658,7 +659,6 @@
       const form = e.target
       const fd = new FormData(form)
       const body = Object.fromEntries(fd.entries())
-      body.owner_email = getEmail()
 
       // Galeria → array
       if (body.gallery_urls) {
@@ -671,14 +671,20 @@
       const btn = form.querySelector('button[type="submit"]')
       btn.disabled = true; btn.textContent = 'Salvando…'
 
+      // Branch: se tem body.id, vai pro UPDATE; senao, CREATE
+      const isUpdate = !!body.id
+      const url = isUpdate ? '/api/businesses/update' : '/api/businesses/submit'
+      // CREATE precisa de submitted_email; UPDATE nao usa (auth via JWT)
+      if (!isUpdate) body.submitted_email = getEmail()
+
       try {
-        const r = await window.bcFetch('/api/businesses/submit', {
+        const r = await window.bcFetch(url, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         })
         const data = await r.json()
         if (!r.ok) throw new Error(data.error || 'Erro ao salvar')
-        showToast('Salvo!')
+        showToast(isUpdate ? 'Alterações salvas!' : 'Negócio cadastrado!')
         // Preserva scroll: re-render reseta innerHTML do container, perdendo posicao
         const _scrollY = window.scrollY
         await renderNegocio(getEmail())
