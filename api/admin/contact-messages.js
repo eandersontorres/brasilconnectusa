@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     const { status = 'new', limit = 100 } = req.query
 
     let q = supabase.from('bc_contact_messages')
-      .select('id, name, email, reason, message, status, created_at')
+      .select('id, name, email, reason, message, status, reply_notes, replied_at, created_at')
       .order('created_at', { ascending: false })
       .limit(Number(limit))
 
