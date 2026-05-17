@@ -274,6 +274,89 @@
 
   <div id="toast" style="display: none;" class="toast"></div>
 
+  <!-- ────────────────────────────────────────────────────────────────────
+       Supabase Auth (OTP) — substitui o "login só com email" que era
+       trivialmente falsificável. Agora valida JWT em CADA request /api/*.
+       ──────────────────────────────────────────────────────────────────── -->
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+    // Mesmas envs do app principal — Supabase só precisa do anon key (público)
+    const SUPA_URL  = 'https://ggwppcbdnemjuddnzbdw.supabase.co'
+    const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdnd3BwY2JkbmVtanVkZG56YmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MzI3MDgsImV4cCI6MjA5MzAwODcwOH0.-oeVAtpfqUJiHSUMErBEnfvGX_waABpNgaIh-UPJdlY'
+
+    const supabase = createClient(SUPA_URL, SUPA_ANON, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storage: window.localStorage,
+      },
+    })
+
+    // ─── Helpers expostos globalmente pro script <script> tradicional ──
+    window.bcSupabase = supabase
+
+    window.bcGetEmail = () => {
+      try {
+        const cached = window.__bcSession__
+        return cached?.user?.email || null
+      } catch (_) { return null }
+    }
+
+    window.bcGetUserId = () => {
+      try { return window.__bcSession__?.user?.id || null } catch (_) { return null }
+    }
+
+    // Faz fetch e adiciona Authorization: Bearer <access_token> se logado
+    window.bcFetch = async (url, opts = {}) => {
+      const headers = { ...(opts.headers || {}) }
+      const session = window.__bcSession__
+      if (session?.access_token) headers['Authorization'] = 'Bearer ' + session.access_token
+      return fetch(url, { ...opts, headers })
+    }
+
+    window.bcLogout = async () => {
+      await supabase.auth.signOut()
+      window.__bcSession__ = null
+      // sessionStorage antigo (legacy) — limpa pra evitar confusão
+      try { sessionStorage.removeItem('bc_assinante_email') } catch (_) {}
+      if (typeof render === 'function') render()
+    }
+
+    // ─── Fluxo de OTP (2 telas: email → código) ──────────────────────
+    window.bcSendOtp = async (email) => {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.trim().toLowerCase(),
+        options: { emailRedirectTo: window.location.origin + '/assinante' },
+      })
+      if (error) throw error
+    }
+
+    window.bcVerifyOtp = async (email, code) => {
+      const digits = String(code).replace(/\D/g, '')
+      const { data, error } = await supabase.auth.verifyOtp({
+        email: email.trim().toLowerCase(),
+        token: digits,
+        type: 'email',
+      })
+      if (error) throw error
+      window.__bcSession__ = data.session
+      return data
+    }
+
+    // ─── Hydrate session no load + reage a mudanças ───────────────────
+    const { data: { session } } = await supabase.auth.getSession()
+    window.__bcSession__ = session
+    supabase.auth.onAuthStateChange((_event, sess) => {
+      window.__bcSession__ = sess
+      if (typeof render === 'function') render()
+    })
+
+    // Dispara evento pra script tradicional saber que auth carregou
+    window.dispatchEvent(new Event('bc-auth-ready'))
+  </script>
+
   <script>
     const STORAGE_KEY = 'bc_assinante_email'
     const root = document.getElementById('content')
@@ -301,35 +384,99 @@
       }
     })
 
-    function getEmail() { try { return sessionStorage.getItem(STORAGE_KEY) } catch (e) { return null } }
-    function setEmail(e) { try { sessionStorage.setItem(STORAGE_KEY, e) } catch (_) {} }
-    function clearEmail() { try { sessionStorage.removeItem(STORAGE_KEY) } catch (_) {} }
+    // Auth agora via Supabase OTP — bcGetEmail() lê da sessão JWT, não mais sessionStorage
+    function getEmail() { return (typeof window.bcGetEmail === 'function') ? window.bcGetEmail() : null }
+    function setEmail() { /* no-op: Supabase gerencia */ }
+    function clearEmail() { /* no-op: bcLogout() faz signOut */ }
+
+    // Estado do flow de login (2 telas: email → código)
+    let _loginEmail = ''
 
     function renderLogin() {
       root.innerHTML = `
         <div class="login-card">
           <h2>Acesse seu painel</h2>
-          <p>Entre com o email cadastrado no seu negócio ou perfil de profissional.</p>
-          <input id="loginEmail" type="email" placeholder="seu@email.com" style="margin-bottom: 12px;" />
-          <button class="btn-primary" onclick="doLogin()" style="width: 100%;">Entrar →</button>
+          <p>Digite o email cadastrado no seu negócio. Mandamos um código de 6 dígitos pra confirmar.</p>
+          <input id="loginEmail" type="email" placeholder="seu@email.com" autocomplete="email" inputmode="email" style="margin-bottom: 12px;" />
+          <button class="btn-primary" id="loginBtn" onclick="doSendOtp()" style="width: 100%;">Receber código →</button>
+          <p id="loginErr" style="font-size:12px;color:#dc2626;margin-top:10px;display:none;"></p>
           <p style="font-size: 11px; margin-top: 14px; color: var(--ink-muted);">
-            Ainda não tem cadastro? <a href="/?preview=brasil2026" style="color: var(--green);">Crie seu negócio aqui</a>
+            Ainda não tem cadastro? <a href="/negocio" style="color: var(--green);">Crie seu negócio aqui</a>
           </p>
         </div>
       `
       setTimeout(() => document.getElementById('loginEmail').focus(), 80)
     }
 
-    async function doLogin() {
-      const email = document.getElementById('loginEmail').value.trim().toLowerCase()
-      if (!email || !email.includes('@')) { showToast('Email inválido', true); return }
-      setEmail(email)
-      render()
+    function renderOtpStep() {
+      root.innerHTML = `
+        <div class="login-card">
+          <h2>Digite o código</h2>
+          <p>Mandamos um código pra <strong>${_loginEmail}</strong>. Cola ou digita aqui:</p>
+          <input id="otpCode" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,10}" maxlength="10"
+            placeholder="00000000"
+            style="margin-bottom:12px;font-size:24px;font-family:monospace;letter-spacing:6px;text-align:center;font-weight:600;" />
+          <button class="btn-primary" id="verifyBtn" onclick="doVerifyOtp()" style="width:100%;">Entrar →</button>
+          <p id="otpErr" style="font-size:12px;color:#dc2626;margin-top:10px;display:none;"></p>
+          <div style="display:flex;justify-content:space-between;margin-top:14px;font-size:12px;">
+            <button onclick="renderLogin()" style="background:none;border:none;color:var(--ink-muted);cursor:pointer;padding:0;">← Trocar email</button>
+            <button onclick="doSendOtp(true)" style="background:none;border:none;color:var(--green);cursor:pointer;padding:0;font-weight:600;">Reenviar código</button>
+          </div>
+          <div style="margin-top:14px;padding:8px 10px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:6px;font-size:11px;color:#075985;line-height:1.5;">
+            💡 Se demorar, confere o spam. Ou clica direto no link mágico que vem no mesmo email.
+          </div>
+        </div>
+      `
+      setTimeout(() => document.getElementById('otpCode').focus(), 80)
+    }
+
+    async function doSendOtp(isResend) {
+      const errEl = document.getElementById('loginErr') || document.getElementById('otpErr')
+      const btn   = document.getElementById('loginBtn') || document.getElementById('verifyBtn')
+      if (errEl) { errEl.style.display = 'none'; errEl.textContent = '' }
+
+      const email = isResend
+        ? _loginEmail
+        : (document.getElementById('loginEmail').value.trim().toLowerCase())
+
+      if (!email || !email.includes('@')) {
+        if (errEl) { errEl.textContent = 'Email inválido'; errEl.style.display = 'block' }
+        return
+      }
+
+      if (btn) { btn.disabled = true; btn.textContent = 'Enviando…' }
+      try {
+        await window.bcSendOtp(email)
+        _loginEmail = email
+        if (!isResend) renderOtpStep()
+        else showToast('Código reenviado pra ' + email)
+      } catch (e) {
+        if (errEl) { errEl.textContent = e.message || 'Erro ao enviar'; errEl.style.display = 'block' }
+        if (btn)   { btn.disabled = false; btn.textContent = isResend ? 'Entrar →' : 'Receber código →' }
+      }
+    }
+
+    async function doVerifyOtp() {
+      const errEl = document.getElementById('otpErr')
+      const btn   = document.getElementById('verifyBtn')
+      const code  = document.getElementById('otpCode').value.replace(/\D/g, '')
+      errEl.style.display = 'none'; errEl.textContent = ''
+      if (code.length < 6) { errEl.textContent = 'Código incompleto'; errEl.style.display = 'block'; return }
+
+      btn.disabled = true; btn.textContent = 'Verificando…'
+      try {
+        await window.bcVerifyOtp(_loginEmail, code)
+        // bcVerifyOtp já dispara onAuthStateChange → render() automático
+      } catch (e) {
+        errEl.textContent = e.message?.includes('expired') ? 'Código expirou. Peça um novo abaixo.' : (e.message || 'Código inválido')
+        errEl.style.display = 'block'
+        btn.disabled = false; btn.textContent = 'Entrar →'
+      }
     }
 
     function logout() {
-      clearEmail()
-      render()
+      if (typeof window.bcLogout === 'function') window.bcLogout()
+      else { try { sessionStorage.removeItem(STORAGE_KEY) } catch (_) {} ; render() }
     }
 
     async function render() {
@@ -350,7 +497,7 @@
 
     async function renderNegocio(email) {
       // Busca negócio do email
-      const r = await fetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
+      const r = await window.bcFetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
       const data = await r.json().catch(() => ({}))
       const list = data.businesses || []
       const biz = list[0] || null
@@ -499,7 +646,7 @@
       btn.disabled = true; btn.textContent = 'Salvando…'
 
       try {
-        const r = await fetch('/api/businesses/submit', {
+        const r = await window.bcFetch('/api/businesses/submit', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         })
@@ -514,7 +661,7 @@
     }
 
     async function renderProfissional(email) {
-      const r = await fetch('/api/agenda/provider?email=' + encodeURIComponent(email)).catch(() => null)
+      const r = await window.bcFetch('/api/agenda/provider?email=' + encodeURIComponent(email)).catch(() => null)
       const data = r ? await r.json().catch(() => ({})) : {}
       const prov = data.provider || null
 
@@ -626,7 +773,7 @@
       btn.disabled = true; btn.textContent = 'Salvando…'
 
       try {
-        const r = await fetch('/api/agenda/provider', {
+        const r = await window.bcFetch('/api/agenda/provider', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
         })
@@ -651,7 +798,7 @@
     let lastNewCount = 0
 
     async function renderPedidos(email) {
-      const r = await fetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
+      const r = await window.bcFetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
       const data = await r.json().catch(() => ({}))
       const biz = (data.businesses || [])[0]
       if (!biz) {
@@ -669,7 +816,7 @@
     async function refreshPedidos(initial) {
       if (!pedidosBiz) return
       try {
-        const r = await fetch('/api/restaurant/orders?action=list&business_id=' + pedidosBiz.id + '&owner_email=' + encodeURIComponent(getEmail()))
+        const r = await window.bcFetch('/api/restaurant/orders?action=list&business_id=' + pedidosBiz.id + '&owner_email=' + encodeURIComponent(getEmail()))
         const d = await r.json()
         if (!r.ok) throw new Error(d.error || 'Erro')
 
@@ -759,7 +906,7 @@
 
     async function updateOrderStatus(orderId, status) {
       try {
-        const r = await fetch('/api/restaurant/orders?action=update-status', {
+        const r = await window.bcFetch('/api/restaurant/orders?action=update-status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ business_id: pedidosBiz.id, owner_email: getEmail(), order_id: orderId, status }),
@@ -775,7 +922,7 @@
       const reason = prompt('Motivo do cancelamento (cliente vai ver):', '')
       if (reason === null) return
       try {
-        const r = await fetch('/api/restaurant/orders?action=update-status', {
+        const r = await window.bcFetch('/api/restaurant/orders?action=update-status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ business_id: pedidosBiz.id, owner_email: getEmail(), order_id: orderId, status: 'canceled', cancel_reason: reason }),
@@ -808,7 +955,7 @@
 
     async function renderCardapio(email) {
       // Busca o negocio pelo email
-      const r = await fetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
+      const r = await window.bcFetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
       const data = await r.json().catch(() => ({}))
       const biz = (data.businesses || [])[0]
 
@@ -819,7 +966,7 @@
       cardapioBiz = biz
 
       // Busca status Stripe
-      const sr = await fetch('/api/restaurant/status?business_id=' + biz.id)
+      const sr = await window.bcFetch('/api/restaurant/status?business_id=' + biz.id)
       const sd = await sr.json().catch(() => ({}))
       const ready = sd.business?.ready_for_orders
 
@@ -837,7 +984,7 @@
       }
 
       // Carrega menu
-      const mr = await fetch('/api/restaurant/menu?action=list&business_id=' + biz.id)
+      const mr = await window.bcFetch('/api/restaurant/menu?action=list&business_id=' + biz.id)
       const md = await mr.json().catch(() => ({}))
       cardapioCats = md.categories || []
       cardapioItems = md.items || []
@@ -910,7 +1057,7 @@
 
     async function toggleAcceptsOrders(on) {
       try {
-        const r = await fetch('/api/restaurant/menu?action=activate-orders', {
+        const r = await window.bcFetch('/api/restaurant/menu?action=activate-orders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), accepts_orders: on }),
@@ -925,7 +1072,7 @@
 
     async function toggleItemAvailable(itemId, available) {
       try {
-        await fetch('/api/restaurant/menu?action=toggle-available', {
+        await window.bcFetch('/api/restaurant/menu?action=toggle-available', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), item_id: itemId, available }),
@@ -942,7 +1089,7 @@
 
     async function saveCategory(category) {
       try {
-        const r = await fetch('/api/restaurant/menu?action=save-category', {
+        const r = await window.bcFetch('/api/restaurant/menu?action=save-category', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), category }),
@@ -957,7 +1104,7 @@
     async function deleteCategory(id, name) {
       if (!confirm('Excluir categoria "' + name + '"? Items dentro ficam sem categoria.')) return
       try {
-        await fetch('/api/restaurant/menu?action=delete-category', {
+        await window.bcFetch('/api/restaurant/menu?action=delete-category', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), category_id: id }),
@@ -1027,7 +1174,7 @@
         is_spicy: fd.get('is_spicy') === 'on',
       }
       try {
-        const r = await fetch('/api/restaurant/menu?action=save-item', {
+        const r = await window.bcFetch('/api/restaurant/menu?action=save-item', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), item }),
@@ -1043,7 +1190,7 @@
     async function deleteItem(id, name) {
       if (!confirm('Excluir "' + name + '"?')) return
       try {
-        await fetch('/api/restaurant/menu?action=delete-item', {
+        await window.bcFetch('/api/restaurant/menu?action=delete-item', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ business_id: cardapioBiz.id, owner_email: getEmail(), item_id: id }),
@@ -1059,7 +1206,7 @@
       const status = document.getElementById('restaurant-status')
       status.textContent = 'Conectando com Stripe...'
       try {
-        const r = await fetch('/api/restaurant/onboard', {
+        const r = await window.bcFetch('/api/restaurant/onboard', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ business_id: businessId, owner_email: getEmail() }),
@@ -1076,7 +1223,7 @@
 
     async function checkRestaurantStatus(businessId) {
       try {
-        const r = await fetch('/api/restaurant/status?business_id=' + businessId)
+        const r = await window.bcFetch('/api/restaurant/status?business_id=' + businessId)
         const d = await r.json()
         if (!r.ok || !d.business) return
         const status = document.getElementById('restaurant-status')
@@ -1114,7 +1261,7 @@
     async function uploadOne(file, folder) {
       const email = getEmail() || 'anon'
       const dataUrl = await compressImage(file)
-      const r = await fetch('/api/upload', {
+      const r = await window.bcFetch('/api/upload', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ file_data: dataUrl, folder, email }),
@@ -1161,7 +1308,15 @@
       if (status) { status.style.color = '#16a34a'; status.textContent = '✓ ' + urls.length + ' enviadas' }
     }
 
-    render()
+    // Aguarda Supabase auth carregar antes do primeiro render — evita flash
+    // do login screen quando user já tem sessão valida no localStorage.
+    if (window.__bcSession__ !== undefined) {
+      render()
+    } else {
+      window.addEventListener('bc-auth-ready', () => render(), { once: true })
+      // Fallback se evento nunca disparar (módulo falhou)
+      setTimeout(() => { if (!root.innerHTML) render() }, 1500)
+    }
   </script>
 </body>
 </html>

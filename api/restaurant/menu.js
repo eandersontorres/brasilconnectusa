@@ -1,35 +1,26 @@
 /**
  * /api/restaurant/menu
  *
- * GET  ?action=list&business_id=UUID                              -> categorias + items (dono)
- * GET  ?action=public&business_slug=SLUG                          -> menu publico (cliente)
+ * AUTH: endpoints de DONO (list + todos os POSTs) exigem
+ *   Authorization: Bearer <JWT do Supabase>
+ * Backend valida JWT -> verifica que user.email == bc_businesses.owner_email
+ * (substitui o "email-only lookup" que era trivialmente falsificavel).
  *
- * POST ?action=save-category   { business_id, owner_email, category }
- * POST ?action=delete-category { business_id, owner_email, category_id }
- * POST ?action=save-item       { business_id, owner_email, item }
- * POST ?action=delete-item     { business_id, owner_email, item_id }
- * POST ?action=toggle-available{ business_id, owner_email, item_id, available }
- * POST ?action=reorder-items   { business_id, owner_email, item_ids: [UUID,...] }
+ * GET  ?action=list&business_id=UUID            -> categorias + items (DONO, requer JWT)
+ * GET  ?action=public&business_slug=SLUG        -> menu publico (cliente, sem auth)
+ *
+ * POST ?action=save-category   { business_id, category }       (requer JWT)
+ * POST ?action=delete-category { business_id, category_id }    (requer JWT)
+ * POST ?action=save-item       { business_id, item }           (requer JWT)
+ * POST ?action=delete-item     { business_id, item_id }        (requer JWT)
+ * POST ?action=toggle-available{ business_id, item_id, available } (requer JWT)
+ * POST ?action=reorder-items   { business_id, item_ids: [...] }    (requer JWT)
  */
 import { createClient } from '@supabase/supabase-js'
+import { requireBusinessAuth } from '../_lib/businessAuth.js'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
-}
-
-async function checkOwnership(supabase, business_id, owner_email) {
-  const { data: biz, error } = await supabase
-    .from('bc_businesses')
-    .select('id, owner_email, slug, name')
-    .eq('id', business_id)
-    .single()
-  if (error || !biz) return { error: 'Negocio nao encontrado', status: 404 }
-  const ownerOnRecord = (biz.owner_email || '').toLowerCase().trim()
-  const requested = String(owner_email || '').toLowerCase().trim()
-  if (!ownerOnRecord || ownerOnRecord !== requested) {
-    return { error: 'Email nao bate com o dono cadastrado', status: 403 }
-  }
-  return { biz }
 }
 
 export default async function handler(req, res) {
@@ -38,10 +29,13 @@ export default async function handler(req, res) {
   const supabase = getSupabase()
 
   try {
-    // GET list (dono)
+    // GET list (dono — requer JWT)
     if (req.method === 'GET' && action === 'list') {
       const { business_id } = req.query
       if (!business_id) return res.status(400).json({ error: 'business_id obrigatorio' })
+
+      const auth = await requireBusinessAuth(req, supabase, business_id)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
 
       const { data: categories } = await supabase
         .from('bc_menu_categories')
@@ -100,10 +94,10 @@ export default async function handler(req, res) {
 
     // POST save-category (create + update)
     if (req.method === 'POST' && action === 'save-category') {
-      const { business_id, owner_email, category } = req.body || {}
-      if (!business_id || !owner_email || !category) return res.status(400).json({ error: 'business_id, owner_email, category obrigatorios' })
-      const auth = await checkOwnership(supabase, business_id, owner_email)
-      if (auth.error) return res.status(auth.status).json({ error: auth.error })
+      const { business_id, category } = req.body || {}
+      if (!business_id || !category) return res.status(400).json({ error: 'business_id, category obrigatorios' })
+      const auth = await requireBusinessAuth(req, supabase, business_id)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
 
       const payload = {
         business_id,
@@ -127,10 +121,10 @@ export default async function handler(req, res) {
 
     // POST delete-category
     if (req.method === 'POST' && action === 'delete-category') {
-      const { business_id, owner_email, category_id } = req.body || {}
-      if (!business_id || !owner_email || !category_id) return res.status(400).json({ error: 'campos obrigatorios' })
-      const auth = await checkOwnership(supabase, business_id, owner_email)
-      if (auth.error) return res.status(auth.status).json({ error: auth.error })
+      const { business_id, category_id } = req.body || {}
+      if (!business_id || !category_id) return res.status(400).json({ error: 'campos obrigatorios' })
+      const auth = await requireBusinessAuth(req, supabase, business_id)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
 
       const { error } = await supabase.from('bc_menu_categories').delete().eq('id', category_id).eq('business_id', business_id)
       if (error) throw error
@@ -139,10 +133,10 @@ export default async function handler(req, res) {
 
     // POST save-item (create + update)
     if (req.method === 'POST' && action === 'save-item') {
-      const { business_id, owner_email, item } = req.body || {}
-      if (!business_id || !owner_email || !item) return res.status(400).json({ error: 'campos obrigatorios' })
-      const auth = await checkOwnership(supabase, business_id, owner_email)
-      if (auth.error) return res.status(auth.status).json({ error: auth.error })
+      const { business_id, item } = req.body || {}
+      if (!business_id || !item) return res.status(400).json({ error: 'campos obrigatorios' })
+      const auth = await requireBusinessAuth(req, supabase, business_id)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
 
       const payload = {
         business_id,
@@ -177,10 +171,10 @@ export default async function handler(req, res) {
 
     // POST delete-item
     if (req.method === 'POST' && action === 'delete-item') {
-      const { business_id, owner_email, item_id } = req.body || {}
-      if (!business_id || !owner_email || !item_id) return res.status(400).json({ error: 'campos obrigatorios' })
-      const auth = await checkOwnership(supabase, business_id, owner_email)
-      if (auth.error) return res.status(auth.status).json({ error: auth.error })
+      const { business_id, item_id } = req.body || {}
+      if (!business_id || !item_id) return res.status(400).json({ error: 'campos obrigatorios' })
+      const auth = await requireBusinessAuth(req, supabase, business_id)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
 
       const { error } = await supabase.from('bc_menu_items').delete().eq('id', item_id).eq('business_id', business_id)
       if (error) throw error
@@ -189,10 +183,10 @@ export default async function handler(req, res) {
 
     // POST toggle-available (rapido, sem reload)
     if (req.method === 'POST' && action === 'toggle-available') {
-      const { business_id, owner_email, item_id, available } = req.body || {}
-      if (!business_id || !owner_email || !item_id) return res.status(400).json({ error: 'campos obrigatorios' })
-      const auth = await checkOwnership(supabase, business_id, owner_email)
-      if (auth.error) return res.status(auth.status).json({ error: auth.error })
+      const { business_id, item_id, available } = req.body || {}
+      if (!business_id || !item_id) return res.status(400).json({ error: 'campos obrigatorios' })
+      const auth = await requireBusinessAuth(req, supabase, business_id)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
 
       const { data, error } = await supabase
         .from('bc_menu_items')
@@ -207,10 +201,10 @@ export default async function handler(req, res) {
 
     // POST activate-orders (so libera quando Stripe esta pronto)
     if (req.method === 'POST' && action === 'activate-orders') {
-      const { business_id, owner_email, accepts_orders } = req.body || {}
-      if (!business_id || !owner_email) return res.status(400).json({ error: 'campos obrigatorios' })
-      const auth = await checkOwnership(supabase, business_id, owner_email)
-      if (auth.error) return res.status(auth.status).json({ error: auth.error })
+      const { business_id, accepts_orders } = req.body || {}
+      if (!business_id) return res.status(400).json({ error: 'campos obrigatorios' })
+      const auth = await requireBusinessAuth(req, supabase, business_id)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
 
       const { data: biz } = await supabase
         .from('bc_businesses')
