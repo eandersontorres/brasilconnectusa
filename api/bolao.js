@@ -110,8 +110,31 @@ export default async function handler(req, res) {
         .eq('group_id', group.id)
         .order('joined_at', { ascending: true })
 
+      // ── Busca o admin como member completo (nome + whatsapp) ─────
+      // Privado: NÃO retornamos o email do admin, só o necessário pra
+      // membros saberem com quem estão lidando e poderem chamar no
+      // WhatsApp se ele tiver disponibilizado.
+      let admin = null
+      if (group.admin_email) {
+        const { data: adminRow } = await supabase
+          .from('bc_bolao_members')
+          .select('id, nickname, full_name, whatsapp, state')
+          .eq('group_id', group.id)
+          .eq('email', String(group.admin_email).toLowerCase().trim())
+          .maybeSingle()
+        if (adminRow) {
+          admin = {
+            member_id: adminRow.id,
+            nickname: adminRow.nickname,
+            full_name: adminRow.full_name || null,
+            whatsapp: adminRow.whatsapp || null,
+            state: adminRow.state || null,
+          }
+        }
+      }
+
       // não vazar admin_email para o cliente
-      const safeGroup = { ...group, admin_email: undefined, has_admin: !!group.admin_email }
+      const safeGroup = { ...group, admin_email: undefined, has_admin: !!group.admin_email, admin }
       return res.status(200).json({ success: true, group: safeGroup, members: members || [] })
     } catch (e) {
       console.error('bolao/group error:', e.message)
