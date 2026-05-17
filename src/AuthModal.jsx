@@ -11,31 +11,85 @@ const GOLD  = '#FFD700'
 const NAVY  = '#0B1928'
 
 export default function AuthModal({ onClose, onAuthenticated, initialMode = 'signin' }) {
-  const [mode, setMode]       = useState(initialMode)            // 'signin' | 'check-email'
+  const [mode, setMode]       = useState(initialMode)            // 'signin' | 'verify-code'
   const [email, setEmail]     = useState('')
+  const [code, setCode]       = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState(null)
+  const [resendIn, setResendIn] = useState(0)                    // segundos até poder reenviar
 
-  async function handleSubmit(e) {
+  // Contador regressivo do "Reenviar código"
+  useEffect(() => {
+    if (resendIn <= 0) return
+    const t = setTimeout(() => setResendIn(s => s - 1), 1000)
+    return () => clearTimeout(t)
+  }, [resendIn])
+
+  async function sendCode(emailToUse) {
+    const { error } = await supabase.auth.signInWithOtp({
+      email: emailToUse.trim().toLowerCase(),
+      options: {
+        // emailRedirectTo continua válido — magic link no email funciona como
+        // fallback pra quem preferir clicar em vez de digitar o código
+        emailRedirectTo: window.location.origin + '/app/feed',
+        shouldCreateUser: true,
+      },
+    })
+    if (error) throw error
+  }
+
+  async function handleSubmitEmail(e) {
     e.preventDefault()
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('Email inválido')
       return
     }
-    setLoading(true)
-    setError(null)
-
+    setLoading(true); setError(null)
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      await sendCode(email)
+      setMode('verify-code')
+      setResendIn(45)
+    } catch (err) {
+      setError(err.message || 'Erro ao enviar código')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleSubmitCode(e) {
+    e.preventDefault()
+    const digits = code.replace(/\D/g, '')
+    if (digits.length !== 6) {
+      setError('O código tem 6 dígitos')
+      return
+    }
+    setLoading(true); setError(null)
+    try {
+      const { data, error } = await supabase.auth.verifyOtp({
         email: email.trim().toLowerCase(),
-        options: {
-          emailRedirectTo: window.location.origin + '/app/feed',
-        },
+        token: digits,
+        type: 'email',
       })
       if (error) throw error
-      setMode('check-email')
+      // Sessão criada — Supabase persiste no localStorage automaticamente
+      if (onAuthenticated) onAuthenticated(data?.user)
+      onClose()
     } catch (err) {
-      setError(err.message || 'Erro ao enviar link')
+      setError(err.message?.includes('expired') ? 'Código expirou. Peça um novo abaixo.' : (err.message || 'Código inválido'))
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleResend() {
+    if (resendIn > 0 || !email) return
+    setLoading(true); setError(null)
+    try {
+      await sendCode(email)
+      setResendIn(45)
+      setCode('')
+    } catch (err) {
+      setError(err.message || 'Erro ao reenviar')
     } finally {
       setLoading(false)
     }
@@ -76,14 +130,14 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
           <>
             <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Entrar ou criar conta</div>
             <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16, lineHeight: 1.5 }}>
-              Sem senha. Mandamos um link mágico no seu email — clica e tá dentro.
+              Sem senha. Mandamos um <strong>código de 6 dígitos</strong> no seu email — você cola aqui e entra na hora.
             </div>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmitEmail}>
               <input
                 type="email" value={email}
                 onChange={e => setEmail(e.target.value)}
                 placeholder="seu@email.com"
-                autoFocus required
+                autoFocus required inputMode="email" autoComplete="email"
                 style={{
                   width: '100%', padding: '12px 14px', borderRadius: 10,
                   border: '1.5px solid #e5e7eb', fontSize: 15, outline: 'none',
@@ -104,7 +158,7 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
                 background: loading ? '#9ca3af' : GREEN, color: '#fff',
                 fontSize: 15, fontWeight: 600, border: 'none', cursor: loading ? 'default' : 'pointer',
               }}>
-                {loading ? 'Enviando link…' : 'Enviar link mágico →'}
+                {loading ? 'Enviando código…' : 'Receber código por email →'}
               </button>
             </form>
             <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 12, lineHeight: 1.6 }}>
@@ -113,24 +167,70 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
           </>
         )}
 
-        {mode === 'check-email' && (
-          <div style={{ textAlign: 'center', padding: '20px 0' }}>
-            <div style={{ fontSize: 48, marginBottom: 12 }}>📧</div>
-            <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 8 }}>Confere seu email!</div>
-            <div style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.6, marginBottom: 16 }}>
-              Mandamos um link mágico pra <strong>{email}</strong>.
-              Clica nele pra entrar — sem precisar digitar senha.
+        {mode === 'verify-code' && (
+          <>
+            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Digite o código</div>
+            <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16, lineHeight: 1.5 }}>
+              Mandamos um código de 6 dígitos pra <strong>{email}</strong>. Cola ou digita aqui:
             </div>
-            <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 16 }}>
-              Se não chegar em 1 minuto, confere o spam.
+            <form onSubmit={handleSubmitCode}>
+              <input
+                type="text" value={code}
+                onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="000000"
+                autoFocus required
+                inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}"
+                maxLength={6}
+                style={{
+                  width: '100%', padding: '14px', borderRadius: 10,
+                  border: '1.5px solid #e5e7eb', fontSize: 28, outline: 'none',
+                  background: '#f9fafb', boxSizing: 'border-box',
+                  fontFamily: 'monospace', fontWeight: 600,
+                  textAlign: 'center', letterSpacing: 8,
+                }}
+              />
+              {error && (
+                <div style={{
+                  marginTop: 10, padding: '8px 12px', borderRadius: 8,
+                  background: '#FEE2E2', color: '#991B1B', fontSize: 12,
+                }}>
+                  {error}
+                </div>
+              )}
+              <button type="submit" disabled={loading || code.length !== 6} style={{
+                width: '100%', marginTop: 12, padding: '12px 0', borderRadius: 10,
+                background: (loading || code.length !== 6) ? '#9ca3af' : GREEN, color: '#fff',
+                fontSize: 15, fontWeight: 600, border: 'none',
+                cursor: (loading || code.length !== 6) ? 'default' : 'pointer',
+              }}>
+                {loading ? 'Verificando…' : 'Entrar →'}
+              </button>
+            </form>
+
+            <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12 }}>
+              <button onClick={() => { setMode('signin'); setCode(''); setError(null) }}
+                style={{ background: 'none', border: 'none', color: '#6b7280', cursor: 'pointer', padding: 0, fontSize: 12 }}>
+                ← Trocar email
+              </button>
+              <button onClick={handleResend} disabled={resendIn > 0 || loading}
+                style={{
+                  background: 'none', border: 'none',
+                  color: resendIn > 0 ? '#9ca3af' : GREEN,
+                  cursor: resendIn > 0 ? 'default' : 'pointer',
+                  padding: 0, fontSize: 12, fontWeight: 600,
+                }}>
+                {resendIn > 0 ? `Reenviar em ${resendIn}s` : 'Reenviar código'}
+              </button>
             </div>
-            <button onClick={() => { setMode('signin'); setEmail('') }} style={{
-              background: 'transparent', border: '1px solid #e5e7eb', borderRadius: 8,
-              padding: '8px 14px', fontSize: 12, color: '#6b7280', cursor: 'pointer',
+
+            <div style={{
+              marginTop: 18, padding: '10px 12px', borderRadius: 8,
+              background: '#F0F9FF', border: '1px solid #BAE6FD',
+              fontSize: 11, color: '#075985', lineHeight: 1.5,
             }}>
-              Voltar
-            </button>
-          </div>
+              💡 <strong>Dica:</strong> se o código demorar, confere o spam. Ou clica direto no link mágico que vem no mesmo email.
+            </div>
+          </>
         )}
       </div>
     </div>

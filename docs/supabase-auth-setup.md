@@ -20,15 +20,18 @@ Você já tem `RESEND_API_KEY` configurada na Vercel. Reaproveita:
 
 **Pré-requisito**: domínio `brasilconnectusa.com` precisa estar **verificado** no Resend (resend.com/domains com SPF + DKIM verde). Se não tá, configura primeiro lá.
 
-## 2. Template HTML do Magic Link
+## 2. Template HTML do Magic Link (+ código OTP)
+
+> **IMPORTANTE — atualização 2026-05-17:** o app agora pede **código de 6 dígitos** como fluxo principal de login (menos fricção em mobile que clicar link). O magic link continua como **fallback** dentro do mesmo email. Precisa republicar o template.
 
 1. Supabase Dashboard → **Authentication** → **Email Templates** → **Magic Link**
-2. **Subject**: `Seu link de acesso ao BrasilConnect USA`
-3. **Body**: cola o conteúdo de [`email-magic-link.html`](./email-magic-link.html) (próximo arquivo)
+2. **Subject**: `Seu código de acesso ao BrasilConnect USA`
+3. **Body**: cola o conteúdo atualizado de [`email-magic-link.html`](./email-magic-link.html)
 4. Salva
 
 O Supabase substitui automaticamente:
-- `{{ .ConfirmationURL }}` — link mágico que faz login + redireciona pro `emailRedirectTo` (que agora aponta pra `/app/feed`)
+- `{{ .Token }}` — **código OTP de 6 dígitos** (NOVO — é o destaque visual agora)
+- `{{ .ConfirmationURL }}` — link mágico (fallback, ainda funciona)
 - `{{ .Email }}` — email do destinatário
 
 ## 3. Site URL e Redirect URLs
