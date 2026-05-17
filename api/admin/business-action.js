@@ -182,11 +182,18 @@ export default async function handler(req, res) {
 
     if (!before) return res.status(404).json({ error: 'Negocio nao encontrado' })
 
+    // Defense-in-depth: ao aprovar, garante que owner_email esta setado
+    // (= submitted_email). Cobre rows antigos onde owner_email ficou NULL.
+    const safeUpdate = { ...update, updated_at: new Date().toISOString() }
+    if (action === 'approve' && !before.owner_email && before.submitted_email) {
+      safeUpdate.owner_email = String(before.submitted_email).toLowerCase().trim()
+    }
+
     const { data, error } = await supabase
       .from('bc_businesses')
-      .update({ ...update, updated_at: new Date().toISOString() })
+      .update(safeUpdate)
       .eq('id', business_id)
-      .select('id, name, slug, status, active')
+      .select('id, name, slug, status, active, owner_email')
       .single()
 
     if (error || !data) throw new Error(error?.message || 'Update falhou')

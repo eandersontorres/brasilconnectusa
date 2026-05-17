@@ -17,9 +17,15 @@ export default async function handler(req, res) {
       i++; slug = `${baseSlug}-${i}`
       if (i > 20) break
     }
+    // owner_email = submitted_email no cadastro (mesma pessoa). Sem isso,
+    // /assinante nao acha o negocio depois de aprovado (procura por
+    // owner_email enquanto submit so preenchia submitted_email).
+    const emailLower = String(submitted_email).toLowerCase().trim()
     const { data, error } = await supabase.from('bc_businesses').insert({
       slug, name, category, city, state, phone, whatsapp, website, description, address, hours,
-      submitted_email, listing_plan: listing_plan || 'free', status: 'pending', active: false
+      submitted_email: emailLower,
+      owner_email: emailLower,
+      listing_plan: listing_plan || 'free', status: 'pending', active: false
     }).select().single()
     if (error) return res.status(500).json({ error: error.message })
     await supabase.from('bc_business_leads').insert({ business_id: data.id, source_email: submitted_email, type: 'submission' })
