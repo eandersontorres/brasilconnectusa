@@ -1180,6 +1180,63 @@ fetch('/api/rates')
 setInterval(() => {
   fetch('/api/rates').then(r => r.ok ? r.json() : null).then(d => { if (d && d.success) updateRate(d.mid_rate) }).catch(() => {})
 }, 300000)
+
+// ── Contato (Fale com a gente) ────────────────────────────────────────────
+async function doContact() {
+  const $ = id => document.getElementById(id)
+  const btn = $('fcBtn'), ok = $('fcOk')
+  const name = ($('fcName').value || '').trim()
+  const email = ($('fcEmail').value || '').trim()
+  const reason = ($('fcReason').value || '').trim()
+  const message = ($('fcMsg').value || '').trim()
+
+  // Limpa estado de feedback anterior
+  ok.style.display = 'none'
+  ok.style.color = ''
+  ok.textContent = '✅ Mensagem enviada! Vamos responder em até 48h.'
+
+  // Validação client-side
+  if (!name) return showErr('Diz seu nome.')
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showErr('Email inválido.')
+  if (!reason) return showErr('Escolha um motivo.')
+  if (message.length < 10) return showErr('Mensagem muito curta (mínimo 10 caracteres).')
+
+  function showErr(msg) {
+    ok.textContent = '⚠️ ' + msg
+    ok.style.color = '#ff9aa2'
+    ok.style.display = 'block'
+  }
+
+  // Submit
+  const oldText = btn.textContent
+  btn.disabled = true
+  btn.textContent = 'Enviando…'
+  try {
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, reason, message }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error(data.error || 'Falha ao enviar')
+
+    ok.textContent = '✅ Mensagem enviada! Vamos responder em até 48h.'
+    ok.style.color = ''
+    ok.style.display = 'block'
+    // Limpa o form pra mostrar que foi mesmo
+    $('fcName').value = ''
+    $('fcEmail').value = ''
+    $('fcReason').value = ''
+    $('fcMsg').value = ''
+  } catch (e) {
+    showErr(e.message || 'Erro de rede. Tenta de novo.')
+  } finally {
+    btn.disabled = false
+    btn.textContent = oldText
+  }
+}
+// Expõe globalmente pra o onclick do botão
+window.doContact = doContact
 </script>
 </body>
 </html>
