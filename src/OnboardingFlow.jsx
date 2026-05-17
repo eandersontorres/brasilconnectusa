@@ -397,7 +397,7 @@ function StepGuidelines({ onBack, onAccept, loading }) {
 // ════════════════════════════════════════════════════════════════════════════
 //   OnboardingFlow — wizard principal
 // ════════════════════════════════════════════════════════════════════════════
-export default function OnboardingFlow({ user, onComplete }) {
+export default function OnboardingFlow({ user, onComplete, onDismiss }) {
   const [step, setStep] = useState(1)
   const [data, setData] = useState({})
   const [loading, setLoading] = useState(false)
@@ -514,12 +514,29 @@ export default function OnboardingFlow({ user, onComplete }) {
         background: C.white, borderRadius: 16, padding: '24px',
         maxWidth: 480, width: '100%', marginTop: 32, marginBottom: 32,
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
           <div style={{ fontFamily: FONT.serif, fontSize: 18, fontWeight: 600, color: C.navy }}>
             Brasil<em style={{ color: C.gold, fontStyle: 'normal', fontWeight: 600 }}>Connect</em>
           </div>
-          <div style={{ fontSize: 12, color: C.inkMuted }}>
-            Passo {step} de 5
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ fontSize: 12, color: C.inkMuted }}>
+              Passo {step} de 5
+            </div>
+            {onDismiss && (
+              <button
+                onClick={onDismiss}
+                aria-label="Fechar onboarding"
+                title="Fechar — você pode completar depois"
+                style={{
+                  background: 'transparent', border: 'none', cursor: 'pointer',
+                  fontSize: 22, lineHeight: 1, color: C.inkMuted, padding: 0,
+                  width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRadius: 6,
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#f3f4f6'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >×</button>
+            )}
           </div>
         </div>
 
@@ -543,6 +560,21 @@ export default function OnboardingFlow({ user, onComplete }) {
         {loading && step < 5 && (
           <div style={{ textAlign: 'center', fontSize: 12, color: C.inkMuted, marginTop: 12 }}>
             Salvando…
+          </div>
+        )}
+
+        {onDismiss && (
+          <div style={{ textAlign: 'center', marginTop: 18, paddingTop: 14, borderTop: '1px solid ' + C.line }}>
+            <button
+              onClick={onDismiss}
+              style={{
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                fontSize: 12, color: C.inkMuted, padding: '6px 12px',
+                fontFamily: FONT.sans, textDecoration: 'underline',
+              }}
+            >
+              Pular por enquanto — completar depois
+            </button>
           </div>
         )}
       </div>

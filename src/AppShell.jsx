@@ -428,10 +428,19 @@ export default function AppShell({ tab, setTab, children }) {
   useEffect(() => {
     if (!user) { setMyCommunities([]); setShowOnboarding(false); return }
 
-    fetch('/api/profile?user_id=' + user.id)
-      .then(r => r.json())
-      .then(d => { if (d.needs_onboarding) setShowOnboarding(true) })
-      .catch(() => {})
+    // Respeita snooze de 7 dias (user pulou onboarding)
+    let snoozed = false
+    try {
+      const until = localStorage.getItem('onboarding_snoozed_until')
+      if (until && Date.now() < parseInt(until, 10)) snoozed = true
+    } catch (_) {}
+
+    if (!snoozed) {
+      fetch('/api/profile?user_id=' + user.id)
+        .then(r => r.json())
+        .then(d => { if (d.needs_onboarding) setShowOnboarding(true) })
+        .catch(() => {})
+    }
 
     fetch('/api/social?action=my-communities&user_id=' + user.id)
       .then(r => r.json())
@@ -441,12 +450,22 @@ export default function AppShell({ tab, setTab, children }) {
 
   function handleOnboardingComplete() {
     setShowOnboarding(false)
+    try { localStorage.removeItem('onboarding_snoozed_until') } catch (_) {}
     if (user) {
       fetch('/api/social?action=my-communities&user_id=' + user.id)
         .then(r => r.json())
         .then(d => setMyCommunities(d.communities || []))
         .catch(() => {})
     }
+  }
+
+  function handleOnboardingDismiss() {
+    // Pula por 7 dias — modal nao aparece de novo nesse navegador ate la
+    try {
+      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000
+      localStorage.setItem('onboarding_snoozed_until', String(Date.now() + sevenDaysMs))
+    } catch (_) {}
+    setShowOnboarding(false)
   }
 
   const baseStyle = {
@@ -466,7 +485,7 @@ export default function AppShell({ tab, setTab, children }) {
         </div>
         <MobileBottomNav tab={tab} setTab={setTab} />
         {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
-        {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
+        {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} onDismiss={handleOnboardingDismiss} />}
       </div>
     )
   }
@@ -494,7 +513,7 @@ export default function AppShell({ tab, setTab, children }) {
       </div>
 
       {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
-      {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
+      {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} onDismiss={handleOnboardingDismiss} />}
     </div>
   )
 }
