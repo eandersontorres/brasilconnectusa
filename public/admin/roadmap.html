@@ -294,6 +294,28 @@
       <p>A página atual é overview. Quando tiver volume e validação jurídica, expandir cada caminho em sub-páginas estilo <code>/guias/cnh/</code>: Green Card detalhado (4 caminhos), H-1B, L-1, EB-2 NIW, asilo passo-a-passo, N-400 (naturalização), wage theft (DOL).</p>
       <div class="why"><strong>Why:</strong> trabalho é ~60% conteúdo (pesquisa + revisão jurídica) e 40% código. Página overview já cobre o essencial pra captar tráfego SEO.</div>
     </div>
+
+    <div class="panel">
+      <h3>🎟️ Eventos com ticketing pago + take rate da plataforma</h3>
+      <p>O tab "Eventos" no AppShell hoje é placeholder. <strong>Decidimos NÃO lançar versão grátis sozinha</strong> — fazer direto com monetização integrada. Modelo: organizador cria evento → vende ingresso via BrasilConnect → BC cobra % do valor (estilo Eventbrite/Sympla mas focado em comunidade BR-USA).</p>
+
+      <p><strong>Componentes da feature completa:</strong></p>
+      <ul>
+        <li><strong>Schema</strong> <code>bc_events</code> + <code>bc_event_tickets</code> + <code>bc_event_orders</code> (com Stripe Connect pro split organizador/plataforma)</li>
+        <li><strong>Eventos grátis</strong> (RSVP simples) e <strong>pagos</strong> (Stripe Checkout)</li>
+        <li><strong>Organizador onboard</strong> via Stripe Connect Express (igual já fazemos pra restaurantes em <code>api/restaurant/onboard.js</code>)</li>
+        <li><strong>Take rate</strong>: 5-10% do valor do ingresso (calibrar vs Eventbrite que cobra 3.5% + $1.79/ticket). Definir em <code>application_fee_amount</code> via Stripe Connect</li>
+        <li><strong>Lista de inscritos</strong> pro organizador (export CSV, check-in via QR code no dia)</li>
+        <li><strong>Email de confirmação</strong> com QR code do ticket</li>
+        <li><strong>Reembolso</strong> via UI (organizador aprova, Stripe processa)</li>
+        <li><strong>Política anti-spam</strong>: só negócios verificados podem criar eventos pagos (evita golpe)</li>
+      </ul>
+
+      <p><strong>Trabalho prévio que ficou no working tree (não mergeado):</strong> branch <code>claude/events-feature</code> (PR #31 fechada) tem um MVP free de eventos (schema + API list/submit + tela). Vale referência mas precisa rework pra incluir ticketing.</p>
+
+      <div class="why"><strong>Why:</strong> Eventos é catalisador de comunidade (festas BR, igrejas, encontros profissionais). Sem monetização vira só "feed de eventos" — pouco diferenciado vs Facebook Events. COM ticketing + 5-10% take rate, vira fonte de receita recorrente alinhada com o pacote "Restaurant Connect" que já temos (Stripe Connect reutilizável).</div>
+      <div class="how"><strong>How to apply:</strong> Esperar lançamento do Bolão Copa estabilizar (D+30). Daí design session com Anderson: definir take rate exato, fluxo de organizador, política de aprovação. Stack reutiliza Stripe Connect já implementado. ETA dev: 7-10 dias.</div>
+    </div>
   </div>
 
   <!-- LATER / ESTRATÉGICO -->
