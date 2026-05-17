@@ -197,14 +197,35 @@
     }
 
     async function loadContact(c) {
-      const r = await fetch('/api/admin/contact-messages', { headers: { 'x-admin-secret': getSecret() } })
-      if (r.status === 404) {
-        c.innerHTML = '<div class="panel"><div class="empty">Endpoint /api/admin/contact-messages ainda não criado.<br><br>Por enquanto, veja diretamente na tabela <strong>bc_contact_messages</strong> no Supabase.</div></div>'
+      let r
+      try {
+        r = await fetch('/api/admin/contact-messages', { headers: { 'x-admin-secret': getSecret() } })
+      } catch (e) {
+        c.innerHTML = '<div class="panel"><div class="empty">⚠️ Erro de rede: ' + escapeHtml(e.message) + '</div></div>'
         return
       }
+
+      // Erros HTTP — mensagem clara em vez de cair no fallback de "nenhuma mensagem"
+      if (!r.ok) {
+        let errMsg = 'Erro carregando mensagens (HTTP ' + r.status + ')'
+        if (r.status === 401) {
+          errMsg = '🔒 Acesso negado. Confira o admin secret.'
+        } else if (r.status === 404) {
+          errMsg = 'Endpoint não encontrado. Confirma se /api/admin/contact-messages está deployado no Vercel.'
+        } else {
+          const d = await r.json().catch(() => ({}))
+          if (d.error) errMsg = 'Erro do servidor: ' + escapeHtml(d.error)
+        }
+        c.innerHTML = '<div class="panel"><div class="empty">' + errMsg + '</div></div>'
+        return
+      }
+
       const data = await r.json().catch(() => ({}))
       const msgs = data.messages || []
-      if (msgs.length === 0) { c.innerHTML = '<div class="panel"><div class="empty">Nenhuma mensagem ainda.</div></div>'; return }
+      if (msgs.length === 0) {
+        c.innerHTML = '<div class="panel"><div class="empty">📭 Nenhuma mensagem ainda.<br><br>Quando alguém preencher o form "Manda sua mensagem" no <a href="/" style="color:var(--brand-green);">site</a>, aparece aqui.</div></div>'
+        return
+      }
 
       c.innerHTML = '<div class="panel"><div class="panel-eyebrow">FALE CONOSCO</div><h3>' + msgs.length + ' mensagens</h3>' +
         msgs.map(m => `
