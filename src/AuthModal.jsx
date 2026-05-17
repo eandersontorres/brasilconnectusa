@@ -59,8 +59,10 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
   async function handleSubmitCode(e) {
     e.preventDefault()
     const digits = code.replace(/\D/g, '')
-    if (digits.length !== 6) {
-      setError('O código tem 6 dígitos')
+    // Supabase manda OTP de 6 OU 8 digitos dependendo da configuracao do
+    // projeto (default mudou em algumas versoes). Aceitamos a faixa toda.
+    if (digits.length < 6 || digits.length > 10) {
+      setError('O código tem entre 6 e 8 dígitos')
       return
     }
     setLoading(true); setError(null)
@@ -171,22 +173,22 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
           <>
             <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Digite o código</div>
             <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16, lineHeight: 1.5 }}>
-              Mandamos um código de 6 dígitos pra <strong>{email}</strong>. Cola ou digita aqui:
+              Mandamos um código pra <strong>{email}</strong>. Cola ou digita aqui:
             </div>
             <form onSubmit={handleSubmitCode}>
               <input
                 type="text" value={code}
-                onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                placeholder="000000"
+                onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="00000000"
                 autoFocus required
-                inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}"
-                maxLength={6}
+                inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,10}"
+                maxLength={10}
                 style={{
-                  width: '100%', padding: '14px', borderRadius: 10,
-                  border: '1.5px solid #e5e7eb', fontSize: 28, outline: 'none',
+                  width: '100%', padding: '14px 10px', borderRadius: 10,
+                  border: '1.5px solid #e5e7eb', fontSize: 24, outline: 'none',
                   background: '#f9fafb', boxSizing: 'border-box',
                   fontFamily: 'monospace', fontWeight: 600,
-                  textAlign: 'center', letterSpacing: 8,
+                  textAlign: 'center', letterSpacing: 5,
                 }}
               />
               {error && (
@@ -197,11 +199,11 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
                   {error}
                 </div>
               )}
-              <button type="submit" disabled={loading || code.length !== 6} style={{
+              <button type="submit" disabled={loading || code.length < 6} style={{
                 width: '100%', marginTop: 12, padding: '12px 0', borderRadius: 10,
-                background: (loading || code.length !== 6) ? '#9ca3af' : GREEN, color: '#fff',
+                background: (loading || code.length < 6) ? '#9ca3af' : GREEN, color: '#fff',
                 fontSize: 15, fontWeight: 600, border: 'none',
-                cursor: (loading || code.length !== 6) ? 'default' : 'pointer',
+                cursor: (loading || code.length < 6) ? 'default' : 'pointer',
               }}>
                 {loading ? 'Verificando…' : 'Entrar →'}
               </button>
