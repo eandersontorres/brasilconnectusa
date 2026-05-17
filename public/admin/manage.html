@@ -47,6 +47,67 @@
     .login-card input { width: 100%; padding: 12px 14px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r-md); margin-bottom: 12px; box-sizing: border-box; font-family: inherit; outline: none; background: var(--paper); }
     .err-banner { background: #FBE9E7; color: #802020; border: 1px solid #E8C2BC; padding: 10px 14px; border-radius: var(--r-sm); font-size: 13px; margin-bottom: 14px; text-align: left; }
     .empty { padding: 32px; text-align: center; color: var(--ink-muted); font-style: italic; font-size: 13px; }
+
+    /* ─── Tab Usuários ──────────────────────────────────────────────── */
+    .users-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+    .users-toolbar input, .users-toolbar select { padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; background: var(--paper-elevated); font-family: inherit; outline: none; }
+    .users-toolbar input { min-width: 240px; }
+    .users-toolbar .filter-pill { font-size: 12px; color: var(--ink-muted); background: var(--paper-soft); padding: 6px 10px; border-radius: 12px; }
+    .users-summary { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 12px; font-size: 12px; color: var(--ink-muted); }
+    .users-summary b { color: var(--ink); font-weight: 700; }
+
+    .users-table { width: 100%; border-collapse: collapse; background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; font-size: 13px; }
+    .users-table th { text-align: left; padding: 10px 12px; background: var(--paper-soft); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); font-weight: 600; border-bottom: 1px solid var(--line); }
+    .users-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    .users-table tr:hover td { background: #FBFAF6; cursor: pointer; }
+    .users-table .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--paper-soft); display: inline-block; vertical-align: middle; margin-right: 10px; object-fit: cover; }
+    .users-table .badge { display: inline-block; padding: 1px 7px; border-radius: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-right: 4px; }
+    .b-onb { background: #DCFCE7; color: #166534; }
+    .b-noonb { background: #FEF3C7; color: #92400E; }
+    .b-ban { background: #FECACA; color: #991B1B; }
+    .b-biz { background: #DBEAFE; color: #1E40AF; }
+    .b-role { background: #E9D5FF; color: #6B21A8; }
+
+    .bulk-bar { display: none; align-items: center; gap: 10px; background: var(--brand-navy, #001a5e); color: #fff; padding: 10px 16px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
+    .bulk-bar.active { display: flex; }
+    .bulk-bar button { background: var(--brand-gold, #FFD700); color: #1a1a1a; border: none; padding: 6px 12px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px; }
+
+    /* Drawer */
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 998; display: none; }
+    .drawer-overlay.open { display: block; }
+    .drawer { position: fixed; top: 0; right: 0; height: 100vh; width: min(760px, 100vw); background: #fff; z-index: 999; box-shadow: -8px 0 32px rgba(0,0,0,0.2); overflow-y: auto; transform: translateX(100%); transition: transform 0.22s ease; }
+    .drawer.open { transform: translateX(0); }
+    .drawer-head { position: sticky; top: 0; background: #fff; padding: 18px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; z-index: 2; }
+    .drawer-head .x { background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--ink-muted); margin-left: auto; padding: 0 4px; }
+    .drawer-head .x:hover { color: var(--ink); }
+    .drawer-body { padding: 20px 24px 60px; }
+    .drawer-section { margin-bottom: 22px; padding-bottom: 18px; border-bottom: 1px dashed var(--line); }
+    .drawer-section:last-child { border-bottom: none; }
+    .drawer-section h4 { margin: 0 0 10px 0; font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--brand-gold-dark, #B8860B); font-weight: 700; }
+    .kv { display: grid; grid-template-columns: 160px 1fr; gap: 4px 14px; font-size: 13px; }
+    .kv dt { color: var(--ink-muted); }
+    .kv dd { margin: 0; color: var(--ink); word-break: break-word; }
+    .drawer-section .mini-list { font-size: 12px; color: var(--ink-soft); }
+    .drawer-section .mini-list li { padding: 4px 0; border-bottom: 1px solid var(--line); list-style: none; }
+    .drawer-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .drawer-actions button { padding: 8px 14px; border-radius: 6px; border: 1px solid var(--line); background: #fff; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; }
+    .drawer-actions .danger { background: #FEE2E2; border-color: #FCA5A5; color: #991B1B; }
+    .drawer-actions .primary { background: var(--brand-green, #009C3B); border-color: var(--brand-green, #009C3B); color: #fff; }
+    .edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; }
+    .edit-grid label { display: flex; flex-direction: column; font-size: 11px; color: var(--ink-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+    .edit-grid input, .edit-grid select, .edit-grid textarea { margin-top: 4px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; font-family: inherit; outline: none; background: #fff; }
+    .edit-grid textarea { grid-column: span 2; resize: vertical; min-height: 60px; }
+    .edit-grid .span2 { grid-column: span 2; }
+
+    /* Modal email */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1001; display: none; align-items: center; justify-content: center; padding: 20px; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: #fff; border-radius: 12px; padding: 24px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { margin: 0 0 6px 0; font-family: var(--font-display); }
+    .modal .muted { font-size: 13px; color: var(--ink-muted); margin: 0 0 14px 0; }
+    .modal input, .modal textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; font-size: 14px; font-family: inherit; box-sizing: border-box; margin-bottom: 10px; outline: none; }
+    .modal textarea { min-height: 180px; resize: vertical; line-height: 1.55; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
   </style>
 </head>
 <body>
@@ -123,6 +184,7 @@
             <button class="tab-btn ${currentTab==='businesses'?'active':''}" onclick="switchTab('businesses')">Negócios</button>
             <button class="tab-btn ${currentTab==='restaurant-orders'?'active':''}" onclick="switchTab('restaurant-orders')">Pedidos Restaurante</button>
             <button class="tab-btn ${currentTab==='bolao'?'active':''}" onclick="switchTab('bolao')">Bolão Copa</button>
+            <button class="tab-btn ${currentTab==='users'?'active':''}" onclick="switchTab('users')">Usuários</button>
           </div>
           <div id="tab-content"><p class="muted">Carregando…</p></div>
         </div>
@@ -141,6 +203,7 @@
         else if (tab === 'businesses') await loadBusinesses(c)
         else if (tab === 'restaurant-orders') await loadRestaurantOrders(c)
         else if (tab === 'bolao')      await loadBolao(c)
+        else if (tab === 'users')      await loadUsers(c)
       } catch (e) {
         c.innerHTML = '<div class="err-banner">' + escapeHtml(e.message) + '</div>'
       }
@@ -974,6 +1037,545 @@
       if (value) c.dataset[key] = value
       else delete c.dataset[key]
       loadRestaurantOrders(c)
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    // TAB USUÁRIOS — listagem, drawer 360°, edit, ban, role, email
+    // ═════════════════════════════════════════════════════════════════════
+    const _userState = {
+      list: [],
+      selected: new Set(),
+      filter: { q: '', state: '', role: '', onboarded: '', banned: '', has_business: '' },
+      summary: null,
+      current: null, // detalhe do user aberto no drawer
+    }
+
+    const _fmt = (iso) => iso ? new Date(iso).toLocaleString('pt-BR', { day:'2-digit', month:'short', year:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—'
+    const _fmtD = (iso) => iso ? new Date(iso).toLocaleDateString('pt-BR') : '—'
+
+    async function loadUsers(c) {
+      const f = _userState.filter
+      const qs = new URLSearchParams()
+      if (f.q)            qs.set('q', f.q)
+      if (f.state)        qs.set('state', f.state)
+      if (f.role)         qs.set('role', f.role)
+      if (f.onboarded)    qs.set('onboarded', f.onboarded)
+      if (f.banned)       qs.set('banned', f.banned)
+      if (f.has_business) qs.set('has_business', f.has_business)
+
+      const r = await fetch('/api/admin/users-list?' + qs.toString(), { headers: { 'x-admin-secret': getSecret() } })
+      if (!r.ok) {
+        const d = await r.json().catch(() => ({}))
+        c.innerHTML = '<div class="err-banner">Erro: ' + escapeHtml(d.error || ('HTTP ' + r.status)) + '</div>'
+        return
+      }
+      const data = await r.json()
+      _userState.list = data.users || []
+      _userState.summary = data.summary || {}
+
+      const s = _userState.summary
+      const summary = `
+        <div class="users-summary">
+          <span><b>${s.total ?? 0}</b> total</span>
+          <span><b>${s.onboarded ?? 0}</b> onboarded</span>
+          <span><b>${s.not_onboarded ?? 0}</b> sem onboarding</span>
+          <span><b>${s.banned ?? 0}</b> banidos</span>
+          <span><b>${s.created_today ?? 0}</b> hoje</span>
+          <span><b>${s.created_week ?? 0}</b> últimos 7d</span>
+        </div>
+      `
+
+      const toolbar = `
+        <div class="users-toolbar">
+          <input id="u-q" placeholder="Buscar email, nome, cidade…" value="${escapeHtml(f.q)}" />
+          <select id="u-state">
+            <option value="">Todos estados</option>
+            ${['FL','TX','MA','NJ','NY','CA','GA','PA','CT','NC','VA','MD','IL','AZ','CO','WA'].map(s2 => `<option value="${s2}" ${f.state===s2?'selected':''}>${s2}</option>`).join('')}
+          </select>
+          <select id="u-onb">
+            <option value="">Onboarding: todos</option>
+            <option value="true"  ${f.onboarded==='true'?'selected':''}>Completou</option>
+            <option value="false" ${f.onboarded==='false'?'selected':''}>Não completou</option>
+          </select>
+          <select id="u-ban">
+            <option value="">Status: todos</option>
+            <option value="false" ${f.banned==='false'?'selected':''}>Ativos</option>
+            <option value="true"  ${f.banned==='true'?'selected':''}>Banidos</option>
+          </select>
+          <select id="u-biz">
+            <option value="">Negócios: todos</option>
+            <option value="true"  ${f.has_business==='true'?'selected':''}>Tem negócio</option>
+            <option value="false" ${f.has_business==='false'?'selected':''}>Sem negócio</option>
+          </select>
+          <select id="u-role">
+            <option value="">Role: todos</option>
+            ${['user','moderator','admin','partner','business'].map(r2 => `<option value="${r2}" ${f.role===r2?'selected':''}>${r2}</option>`).join('')}
+          </select>
+          <button class="btn-mini btn-mark" onclick="applyUserFilter()">Filtrar</button>
+          <span class="filter-pill">${_userState.list.length} mostrados</span>
+        </div>
+      `
+
+      const bulk = `
+        <div class="bulk-bar ${_userState.selected.size > 0 ? 'active' : ''}" id="u-bulk-bar">
+          <span><b id="u-bulk-count">${_userState.selected.size}</b> usuário(s) selecionado(s)</span>
+          <button onclick="openEmailComposer('bulk')">✉️ Enviar email</button>
+          <button onclick="clearUserSelection()" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.3);">Limpar</button>
+        </div>
+      `
+
+      const rows = _userState.list.map(u => {
+        const checked = _userState.selected.has(u.user_id) ? 'checked' : ''
+        const av = u.avatar_url
+          ? `<img class="avatar" src="${escapeHtml(u.avatar_url)}" alt=""/>`
+          : `<span class="avatar"></span>`
+        const name = u.full_name || u.display_name || '(sem nome)'
+        const badges = [
+          u.onboarding_completed ? '<span class="badge b-onb">✓ onb</span>' : '<span class="badge b-noonb">pend</span>',
+          u.banned ? '<span class="badge b-ban">banido</span>' : '',
+          u.businesses_count > 0 ? `<span class="badge b-biz">${u.businesses_count} biz</span>` : '',
+          u.role ? `<span class="badge b-role">${escapeHtml(u.role)}</span>` : '',
+        ].join('')
+        return `
+          <tr onclick="onUserRowClick(event, '${u.user_id}')">
+            <td onclick="event.stopPropagation()" style="width:34px;">
+              <input type="checkbox" ${checked} onchange="toggleUserSel('${u.user_id}', this.checked)" />
+            </td>
+            <td>${av}<b>${escapeHtml(name)}</b><div style="font-size:11px;color:var(--ink-muted);margin-left:42px;margin-top:-2px;">${escapeHtml(u.email || '')}</div></td>
+            <td>${escapeHtml((u.city || '') + (u.state ? ' / ' + u.state : ''))}</td>
+            <td>${badges}</td>
+            <td style="font-size:11px;color:var(--ink-muted);">${_fmtD(u.created_at)}</td>
+            <td style="font-size:11px;color:var(--ink-muted);">${_fmt(u.last_sign_in_at)}</td>
+            <td><button class="btn-mini btn-mark" onclick="event.stopPropagation();openUserDetail('${u.user_id}')">Detalhes →</button></td>
+          </tr>
+        `
+      }).join('')
+
+      const table = _userState.list.length === 0
+        ? '<div class="empty">Nenhum usuário encontrado com esses filtros.</div>'
+        : `<table class="users-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" onchange="toggleAllUsers(this.checked)" ${_userState.selected.size === _userState.list.length && _userState.list.length > 0 ? 'checked' : ''} /></th>
+                <th>Usuário</th>
+                <th>Local</th>
+                <th>Status</th>
+                <th>Criado</th>
+                <th>Último login</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>`
+
+      c.innerHTML = '<div class="panel"><div class="panel-eyebrow">USUÁRIOS DA PLATAFORMA</div><h3>Gerenciar usuários</h3>' +
+        summary + toolbar + bulk + table + '</div>' +
+        renderDrawer() + renderEmailModal()
+
+      // Wire enter no search
+      document.getElementById('u-q').addEventListener('keydown', e => { if (e.key === 'Enter') applyUserFilter() })
+    }
+
+    window.applyUserFilter = function() {
+      _userState.filter = {
+        q:            document.getElementById('u-q').value.trim(),
+        state:        document.getElementById('u-state').value,
+        role:         document.getElementById('u-role').value,
+        onboarded:    document.getElementById('u-onb').value,
+        banned:       document.getElementById('u-ban').value,
+        has_business: document.getElementById('u-biz').value,
+      }
+      _userState.selected.clear()
+      loadUsers(document.getElementById('tab-content'))
+    }
+
+    window.toggleUserSel = function(id, checked) {
+      if (checked) _userState.selected.add(id)
+      else _userState.selected.delete(id)
+      const bar = document.getElementById('u-bulk-bar')
+      const cnt = document.getElementById('u-bulk-count')
+      if (cnt) cnt.textContent = _userState.selected.size
+      if (bar) bar.classList.toggle('active', _userState.selected.size > 0)
+    }
+
+    window.toggleAllUsers = function(checked) {
+      if (checked) _userState.list.forEach(u => _userState.selected.add(u.user_id))
+      else _userState.selected.clear()
+      loadUsers(document.getElementById('tab-content'))
+    }
+
+    window.clearUserSelection = function() {
+      _userState.selected.clear()
+      loadUsers(document.getElementById('tab-content'))
+    }
+
+    window.onUserRowClick = function(ev, id) {
+      // Clique na linha (fora do checkbox/botão) abre detalhe
+      openUserDetail(id)
+    }
+
+    // ───── Drawer ─────────────────────────────────────────────────────
+    function renderDrawer() {
+      return `
+        <div class="drawer-overlay" id="drawer-ov" onclick="closeDrawer()"></div>
+        <div class="drawer" id="drawer">
+          <div class="drawer-head">
+            <div>
+              <div style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.12em;">Detalhe do usuário</div>
+              <div id="dw-name" style="font-family:var(--font-display);font-size:18px;font-weight:600;margin-top:2px;">—</div>
+            </div>
+            <button class="x" onclick="closeDrawer()">×</button>
+          </div>
+          <div class="drawer-body" id="dw-body"><p class="muted">Carregando…</p></div>
+        </div>
+      `
+    }
+
+    window.closeDrawer = function() {
+      document.getElementById('drawer')?.classList.remove('open')
+      document.getElementById('drawer-ov')?.classList.remove('open')
+      _userState.current = null
+    }
+
+    window.openUserDetail = async function(user_id) {
+      const dw = document.getElementById('drawer')
+      const ov = document.getElementById('drawer-ov')
+      const body = document.getElementById('dw-body')
+      const name = document.getElementById('dw-name')
+      if (!dw || !body) return
+      dw.classList.add('open')
+      ov.classList.add('open')
+      body.innerHTML = '<p class="muted">Carregando…</p>'
+      name.textContent = 'Carregando…'
+
+      const r = await fetch('/api/admin/user-detail?user_id=' + encodeURIComponent(user_id), {
+        headers: { 'x-admin-secret': getSecret() }
+      })
+      if (!r.ok) {
+        const d = await r.json().catch(() => ({}))
+        body.innerHTML = '<div class="err-banner">' + escapeHtml(d.error || 'Erro') + '</div>'
+        return
+      }
+      const data = await r.json()
+      _userState.current = data
+      const p = data.profile || {}
+      name.textContent = p.full_name || p.display_name || p.email || user_id.slice(0, 8)
+      body.innerHTML = renderUserDetail(data)
+    }
+
+    function renderUserDetail(d) {
+      const p = d.profile || {}
+      const a = d.auth || {}
+      const ban = d.banned
+
+      const sec = (title, html) => `<div class="drawer-section"><h4>${title}</h4>${html}</div>`
+
+      // ── Ações ───────────────────────────────────────────────
+      const actions = `
+        <div class="drawer-actions">
+          <button class="primary" onclick="openEmailComposer('single')">✉️ Enviar email</button>
+          ${ban
+            ? `<button class="danger" onclick="userAction('unban')">Desbanir</button>`
+            : `<button class="danger" onclick="userAction('ban')">Banir</button>`}
+          <button onclick="userAction('reset_onboarding')">Resetar onboarding</button>
+          <button onclick="userAction('set_role')">Mudar role…</button>
+          <button onclick="userAction('update_auth_email')">Mudar email…</button>
+        </div>
+      `
+
+      // ── Perfil (form editável) ─────────────────────────────
+      const editable = `
+        <form id="dw-edit" onsubmit="saveUserProfile(event)" class="edit-grid">
+          <label>Nome completo<input name="full_name" value="${escapeHtml(p.full_name || '')}" /></label>
+          <label>Display name<input name="display_name" value="${escapeHtml(p.display_name || '')}" /></label>
+          <label>Cidade<input name="city" value="${escapeHtml(p.city || '')}" /></label>
+          <label>Estado<input name="state" value="${escapeHtml(p.state || '')}" maxlength="2" /></label>
+          <label>WhatsApp<input name="whatsapp" value="${escapeHtml(p.whatsapp || '')}" /></label>
+          <label>Instagram<input name="instagram" value="${escapeHtml(p.instagram || '')}" /></label>
+          <label>Avatar URL<input name="avatar_url" value="${escapeHtml(p.avatar_url || '')}" /></label>
+          <label>Country<input name="country" value="${escapeHtml(p.country || 'USA')}" /></label>
+          <label class="span2">Bio<textarea name="bio">${escapeHtml(p.bio || '')}</textarea></label>
+          <label>Interesses (vírgula)<input name="interests" value="${escapeHtml((p.interests || []).join(', '))}" /></label>
+          <label>Role
+            <select name="role">
+              ${['','user','moderator','admin','partner','business'].map(r2 => `<option value="${r2}" ${(p.role||'')===r2?'selected':''}>${r2 || '(sem role)'}</option>`).join('')}
+            </select>
+          </label>
+          <div class="span2" style="display:flex;gap:10px;align-items:center;margin-top:6px;">
+            <button class="primary" type="submit" style="padding:8px 14px;border:none;border-radius:6px;background:var(--brand-green,#009C3B);color:#fff;font-weight:600;cursor:pointer;">Salvar perfil</button>
+            <span id="dw-edit-status" style="font-size:12px;color:var(--ink-muted);"></span>
+          </div>
+        </form>
+      `
+
+      // ── Auth + Profile (read-only) ─────────────────────────
+      const idKv = `
+        <dl class="kv">
+          <dt>user_id</dt><dd><code>${escapeHtml(d.user_id || '')}</code></dd>
+          <dt>email</dt><dd>${escapeHtml(p.email || a.email || '—')}</dd>
+          <dt>email confirmado</dt><dd>${_fmt(a.email_confirmed_at)}</dd>
+          <dt>provider</dt><dd>${escapeHtml(a.provider || '—')} ${a.providers?.length ? '(' + a.providers.join(', ') + ')' : ''}</dd>
+          <dt>phone</dt><dd>${escapeHtml(a.phone || '—')}</dd>
+          <dt>criado em (auth)</dt><dd>${_fmt(a.created_at)}</dd>
+          <dt>último login</dt><dd>${_fmt(a.last_sign_in_at)}</dd>
+          <dt>criado em (profile)</dt><dd>${_fmt(p.created_at)}</dd>
+          <dt>atualizado em</dt><dd>${_fmt(p.updated_at)}</dd>
+          <dt>onboarding</dt><dd>${p.onboarding_completed ? '✓ completou' : '⏳ step ' + (p.onboarding_step || 0)}</dd>
+          <dt>guidelines</dt><dd>${_fmt(p.guidelines_accepted_at)}</dd>
+          <dt>boas-vindas</dt><dd>${_fmt(p.welcomed_at)}</dd>
+        </dl>
+      `
+
+      const banBlock = ban ? `
+        <div style="background:#FEE2E2;border:1px solid #FCA5A5;padding:10px 14px;border-radius:8px;font-size:13px;color:#991B1B;">
+          <b>BANIDO</b> · motivo: ${escapeHtml(ban.reason || '—')}<br/>
+          desde ${_fmt(ban.banned_at)} ${ban.expires_at ? '· até ' + _fmt(ban.expires_at) : '· permanente'}
+        </div>
+      ` : ''
+
+      const biz = (d.businesses || []).length === 0
+        ? '<div class="muted" style="font-size:12px;">Nenhum negócio.</div>'
+        : '<ul class="mini-list" style="padding-left:0;">' + d.businesses.map(b => `
+            <li><b>${escapeHtml(b.name)}</b> · ${escapeHtml(b.category || '')} · ${escapeHtml((b.city||'') + (b.state ? '/' + b.state : ''))}
+            <span class="badge ${b.status==='approved'?'b-onb':'b-noonb'}">${escapeHtml(b.status || '')}</span>
+            ${b.stripe_charges_enabled ? '<span class="badge b-biz">stripe</span>' : ''}
+            <div style="font-size:11px;color:var(--ink-muted);">${b.clicks_count||0} clicks · rating ${b.rating || '—'} · ${_fmtD(b.created_at)}</div></li>
+          `).join('') + '</ul>'
+
+      const comms = (d.communities || []).length === 0
+        ? '<div class="muted" style="font-size:12px;">Não participa de comunidades.</div>'
+        : '<ul class="mini-list" style="padding-left:0;">' + d.communities.map(m => `
+            <li><b>${escapeHtml(m.bc_communities?.name || m.community_id)}</b> · ${escapeHtml(m.role || 'member')} · entrou em ${_fmtD(m.joined_at)}</li>
+          `).join('') + '</ul>'
+
+      const posts = `
+        <div style="font-size:13px;margin-bottom:6px;">Total: <b>${d.posts.total}</b> · mostrando últimos ${d.posts.recent.length}</div>
+        ${d.posts.recent.length === 0 ? '<div class="muted" style="font-size:12px;">Sem posts.</div>' :
+          '<ul class="mini-list" style="padding-left:0;">' + d.posts.recent.map(po => `
+            <li>${po.is_deleted ? '<s>' : ''}<b>${escapeHtml(po.title || '(sem título)')}</b>${po.is_deleted ? ' [deletado]</s>' : ''}
+            <div style="font-size:11px;color:var(--ink-muted);">${_fmt(po.created_at)}</div></li>
+          `).join('') + '</ul>'}
+      `
+
+      const comments = `
+        <div style="font-size:13px;margin-bottom:6px;">Total: <b>${d.comments.total}</b></div>
+        ${d.comments.recent.length === 0 ? '<div class="muted" style="font-size:12px;">Sem comentários.</div>' :
+          '<ul class="mini-list" style="padding-left:0;">' + d.comments.recent.map(co => `
+            <li>${co.is_deleted ? '<s>' : ''}${escapeHtml((co.body || '').slice(0, 140))}${co.is_deleted ? '</s>' : ''}
+            <div style="font-size:11px;color:var(--ink-muted);">${_fmt(co.created_at)}</div></li>
+          `).join('') + '</ul>'}
+      `
+
+      const reports = (d.reports_filed || []).length === 0
+        ? '<div class="muted" style="font-size:12px;">Não fez denúncias.</div>'
+        : '<ul class="mini-list" style="padding-left:0;">' + d.reports_filed.map(r2 => `
+            <li>${escapeHtml(r2.target_type)} · <i>${escapeHtml(r2.reason || '')}</i>
+            <span class="badge b-noonb">${escapeHtml(r2.status || '')}</span>
+            <div style="font-size:11px;color:var(--ink-muted);">${_fmt(r2.created_at)}</div></li>
+          `).join('') + '</ul>'
+
+      const notif = `
+        <div style="font-size:13px;margin-bottom:6px;">Total: <b>${d.notifications.total}</b></div>
+        ${d.notifications.recent.length === 0 ? '<div class="muted" style="font-size:12px;">Sem notificações.</div>' :
+          '<ul class="mini-list" style="padding-left:0;">' + d.notifications.recent.map(n => `
+            <li>${n.read_at ? '✓' : '•'} <b>${escapeHtml(n.title || n.kind || '')}</b>
+            <div style="font-size:11px;color:var(--ink-muted);">${_fmt(n.created_at)}${n.read_at ? ' · lido ' + _fmt(n.read_at) : ''}</div></li>
+          `).join('') + '</ul>'}
+      `
+
+      const checklist = (d.checklist || []).length === 0
+        ? '<div class="muted" style="font-size:12px;">Nenhum step completo.</div>'
+        : '<ul class="mini-list" style="padding-left:0;">' + d.checklist.map(s => `
+            <li>✓ <b>${escapeHtml(s.step_key)}</b> · ${_fmt(s.completed_at)}</li>
+          `).join('') + '</ul>'
+
+      const refs = `
+        <div style="font-size:13px;margin-bottom:6px;">Códigos: <b>${d.referral_codes.length}</b> · usos: <b>${d.referral_uses.length}</b></div>
+        ${d.referral_codes.length > 0 ? '<ul class="mini-list" style="padding-left:0;">' + d.referral_codes.map(c => `
+            <li><code>${escapeHtml(c.code || c.id)}</code></li>
+          `).join('') + '</ul>' : ''}
+      `
+
+      const drip = (d.drip_log || []).length === 0
+        ? '<div class="muted" style="font-size:12px;">Sem emails enviados.</div>'
+        : '<ul class="mini-list" style="padding-left:0;">' + d.drip_log.slice(0, 10).map(e => `
+            <li><b>${escapeHtml(e.template || e.kind || 'email')}</b> · ${_fmt(e.sent_at)}</li>
+          `).join('') + '</ul>'
+
+      const wl = d.waitlist
+        ? `<dl class="kv"><dt>signup</dt><dd>${_fmt(d.waitlist.created_at)}</dd><dt>source</dt><dd>${escapeHtml(d.waitlist.source || '—')}</dd><dt>cidade</dt><dd>${escapeHtml(d.waitlist.city || '—')}</dd></dl>`
+        : '<div class="muted" style="font-size:12px;">Não estava na waitlist.</div>'
+
+      const orders = (d.orders || []).length === 0
+        ? '<div class="muted" style="font-size:12px;">Sem pedidos.</div>'
+        : '<ul class="mini-list" style="padding-left:0;">' + d.orders.map(o => `
+            <li><b>$${((o.total_cents||0)/100).toFixed(2)}</b> · ${escapeHtml(o.status || '')} · ${_fmt(o.created_at)}</li>
+          `).join('') + '</ul>'
+
+      return [
+        ban ? `<div class="drawer-section">${banBlock}</div>` : '',
+        sec('AÇÕES', actions),
+        sec('IDENTIDADE & ACESSO', idKv),
+        sec('EDITAR PERFIL', editable),
+        sec(`NEGÓCIOS (${d.businesses.length})`, biz),
+        sec(`COMUNIDADES (${d.communities.length})`, comms),
+        sec(`POSTS (${d.posts.total})`, posts),
+        sec(`COMENTÁRIOS (${d.comments.total})`, comments),
+        sec(`DENÚNCIAS FEITAS (${d.reports_filed.length})`, reports),
+        sec(`NOTIFICAÇÕES (${d.notifications.total})`, notif),
+        sec(`CHECKLIST (${d.checklist.length})`, checklist),
+        sec('INDICAÇÕES', refs),
+        sec('EMAILS (drip log)', drip),
+        sec('WAITLIST', wl),
+        sec(`PEDIDOS (${d.orders.length})`, orders),
+        sec('METADATA AUTH', `<pre style="font-size:11px;background:#FAFAFA;padding:10px;border-radius:6px;overflow:auto;max-height:200px;">${escapeHtml(JSON.stringify(a.raw_user_meta_data || {}, null, 2))}</pre>`),
+      ].join('')
+    }
+
+    // ───── Mutations ─────────────────────────────────────────────────
+    window.saveUserProfile = async function(ev) {
+      ev.preventDefault()
+      const form = ev.target
+      const fd = new FormData(form)
+      const patch = {}
+      for (const [k, v] of fd.entries()) {
+        if (k === 'interests') patch[k] = v.split(',').map(s => s.trim()).filter(Boolean)
+        else if (k === 'state') patch[k] = (v || '').toUpperCase().slice(0, 2)
+        else patch[k] = v
+      }
+      const sta = document.getElementById('dw-edit-status')
+      sta.textContent = 'Salvando…'
+      const r = await fetch('/api/admin/user-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+        body: JSON.stringify({ user_id: _userState.current.user_id, action: 'update_profile', patch })
+      })
+      const d = await r.json()
+      if (!r.ok) { sta.style.color = '#ef4444'; sta.textContent = 'Erro: ' + (d.error || ''); return }
+      sta.style.color = '#16a34a'; sta.textContent = '✓ Salvo'
+      openUserDetail(_userState.current.user_id) // recarrega drawer
+      loadUsers(document.getElementById('tab-content')) // recarrega lista
+    }
+
+    window.userAction = async function(action) {
+      const uid = _userState.current?.user_id
+      if (!uid) return
+      let payload = { user_id: uid, action }
+
+      if (action === 'ban') {
+        const reason = prompt('Motivo do ban:')
+        if (!reason) return
+        const exp = prompt('Expira em (YYYY-MM-DD, vazio = permanente):')
+        payload.reason = reason
+        payload.expires_at = exp ? new Date(exp + 'T00:00:00Z').toISOString() : null
+      } else if (action === 'unban') {
+        if (!confirm('Desbanir esse usuário?')) return
+      } else if (action === 'reset_onboarding') {
+        if (!confirm('Resetar onboarding (apaga checklist também)?')) return
+      } else if (action === 'set_role') {
+        const role = prompt('Novo role (user, moderator, admin, partner, business, vazio = nenhum):')
+        if (role === null) return
+        payload.role = role.trim()
+      } else if (action === 'update_auth_email') {
+        const new_email = prompt('Novo email (auth + profile):', _userState.current.profile?.email || '')
+        if (!new_email) return
+        payload.new_email = new_email.trim()
+      }
+
+      const r = await fetch('/api/admin/user-action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+        body: JSON.stringify(payload)
+      })
+      const d = await r.json()
+      if (!r.ok) { alert('Erro: ' + (d.error || '')); return }
+      openUserDetail(uid)
+      loadUsers(document.getElementById('tab-content'))
+    }
+
+    // ───── Modal email ───────────────────────────────────────────────
+    function renderEmailModal() {
+      return `
+        <div class="modal-overlay" id="email-ov" onclick="if(event.target===this)closeEmailModal()">
+          <div class="modal">
+            <h3 id="em-title">Enviar email</h3>
+            <p class="muted" id="em-sub">—</p>
+            <label style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Assunto</label>
+            <input id="em-subject" placeholder="Assunto do email" maxlength="200" />
+            <label style="font-size:11px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Corpo</label>
+            <textarea id="em-body" placeholder="Sua mensagem… (template branded é aplicado automaticamente)" maxlength="20000"></textarea>
+            <div id="em-status" style="font-size:12px;color:var(--ink-muted);margin-bottom:8px;"></div>
+            <div class="modal-actions">
+              <button class="btn-mini" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);" onclick="closeEmailModal()">Cancelar</button>
+              <button class="btn-mini btn-approve" id="em-send">Enviar →</button>
+            </div>
+          </div>
+        </div>
+      `
+    }
+
+    window.closeEmailModal = function() {
+      document.getElementById('email-ov')?.classList.remove('open')
+    }
+
+    window.openEmailComposer = function(mode) {
+      const ov = document.getElementById('email-ov')
+      const title = document.getElementById('em-title')
+      const sub = document.getElementById('em-sub')
+      const btn = document.getElementById('em-send')
+      if (!ov) return
+      document.getElementById('em-subject').value = ''
+      document.getElementById('em-body').value = ''
+      document.getElementById('em-status').textContent = ''
+      document.getElementById('em-status').style.color = 'var(--ink-muted)'
+
+      if (mode === 'single') {
+        const cur = _userState.current
+        if (!cur) return
+        const email = cur.profile?.email || cur.auth?.email
+        title.textContent = 'Enviar email para 1 usuário'
+        sub.textContent = email ? `→ ${email}` : '(sem email)'
+        btn.onclick = () => sendUserEmail({ user_id: cur.user_id })
+      } else {
+        const n = _userState.selected.size
+        if (n === 0) { alert('Selecione pelo menos 1 usuário na lista.'); return }
+        title.textContent = `Enviar email em massa`
+        sub.textContent = `→ ${n} usuário(s) selecionado(s)`
+        btn.onclick = () => sendUserEmail({ user_ids: [..._userState.selected] })
+      }
+      ov.classList.add('open')
+      setTimeout(() => document.getElementById('em-subject').focus(), 60)
+    }
+
+    async function sendUserEmail(target) {
+      const subject = document.getElementById('em-subject').value.trim()
+      const body    = document.getElementById('em-body').value.trim()
+      const sta     = document.getElementById('em-status')
+      const btn     = document.getElementById('em-send')
+      if (subject.length < 2) { sta.style.color = '#ef4444'; sta.textContent = 'Assunto muito curto'; return }
+      if (body.length < 5)    { sta.style.color = '#ef4444'; sta.textContent = 'Corpo muito curto'; return }
+
+      btn.disabled = true
+      btn.textContent = 'Enviando…'
+      sta.style.color = 'var(--ink-muted)'
+      sta.textContent = 'Enviando…'
+
+      try {
+        const r = await fetch('/api/admin/user-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+          body: JSON.stringify({ ...target, subject, body })
+        })
+        const d = await r.json()
+        if (!r.ok) { sta.style.color = '#ef4444'; sta.textContent = 'Erro: ' + (d.error || ''); btn.disabled = false; btn.textContent = 'Enviar →'; return }
+        sta.style.color = '#16a34a'
+        sta.textContent = `✓ ${d.sent} enviado(s)${d.failed ? ', ' + d.failed + ' falha(s)' : ''}`
+        btn.textContent = '✓ Enviado'
+        setTimeout(() => { closeEmailModal(); btn.disabled = false; btn.textContent = 'Enviar →' }, 1400)
+      } catch (e) {
+        sta.style.color = '#ef4444'; sta.textContent = 'Erro de rede: ' + e.message
+        btn.disabled = false; btn.textContent = 'Enviar →'
+      }
     }
 
     if (getSecret()) renderDashboard()
