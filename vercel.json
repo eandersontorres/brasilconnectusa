@@ -24,6 +24,22 @@
       "destination": "/api/go?partner=:partner"
     },
     {
+      "source": "/api/remittance/quote",
+      "destination": "/api/remittance/quote"
+    },
+    {
+      "source": "/api/remittance/providers",
+      "destination": "/api/remittance/providers"
+    },
+    {
+      "source": "/api/flights/search",
+      "destination": "/api/flights/search"
+    },
+    {
+      "source": "/api/flights/airlines",
+      "destination": "/api/flights/airlines"
+    },
+    {
       "source": "/r/:code",
       "destination": "/api/referral/track?code=:code"
     },
@@ -98,6 +114,10 @@
     {
       "source": "/admin/roadmap",
       "destination": "/admin/roadmap.html"
+    },
+    {
+      "source": "/admin/parceiros",
+      "destination": "/admin/parceiros.html"
     },
     {
       "source": "/assinante",

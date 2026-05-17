@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin · Parceiros · BrasilConnect USA</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    body { background: var(--paper); }
+
+    .admin-topbar { background: var(--paper-elevated); border-bottom: 1px solid var(--line); padding: 18px 24px; }
+    .admin-topbar .brand { display: flex; align-items: center; gap: 14px; max-width: 1400px; margin: 0 auto; flex-wrap: wrap; }
+    .admin-topbar .nav-links { display: flex; gap: 14px; margin-left: 8px; flex-wrap: wrap; }
+    .admin-topbar .nav-links a { font-size: 13px; color: var(--ink-soft); text-decoration: none; }
+    .admin-topbar .nav-links a.active { color: var(--brand-green); font-weight: 600; }
+    .admin-topbar .meta { margin-left: auto; font-size: 13px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; }
+
+    .admin-container { max-width: 1200px; margin: 32px auto 80px; padding: 0 24px; }
+
+    .hero { margin-bottom: 24px; }
+    .hero .eyebrow { text-transform: uppercase; letter-spacing: 0.2em; font-size: 11px; font-weight: 600; color: var(--brand-gold-dark); margin-bottom: 10px; }
+    .hero h1 { font-family: var(--font-display); font-size: 2rem; font-weight: 600; margin: 0 0 6px; color: var(--ink); letter-spacing: -0.02em; line-height: 1.15; }
+    .hero p { color: var(--ink-soft); font-size: 14.5px; line-height: 1.6; max-width: 760px; margin: 0; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-bottom: 24px; }
+    .stat-block { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-md); padding: 16px 18px; }
+    .stat-block .label { text-transform: uppercase; letter-spacing: 0.1em; font-size: 10px; color: var(--ink-muted); margin-bottom: 6px; font-weight: 600; }
+    .stat-block .value { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; color: var(--ink); line-height: 1; }
+    .stat-block .sub { font-size: 11px; color: var(--ink-muted); margin-top: 5px; }
+    .stat-block.warn .value { color: #92400E; }
+    .stat-block.ok .value { color: #166534; }
+
+    .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+    .toolbar input { flex: 1; min-width: 220px; padding: 10px 14px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r-md); font-family: inherit; background: var(--paper-elevated); color: var(--ink); outline: none; }
+    .toolbar input:focus { border-color: var(--brand-gold); }
+    .toolbar select { padding: 10px 14px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r-md); font-family: inherit; background: var(--paper-elevated); color: var(--ink); outline: none; }
+
+    table.partners { width: 100%; border-collapse: collapse; font-size: 13.5px; background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
+    table.partners th, table.partners td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+    table.partners th { background: var(--paper-soft); font-weight: 600; color: var(--ink); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+    table.partners tr:last-child td { border-bottom: none; }
+    table.partners td.id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; color: var(--brand-navy); }
+    table.partners td.env { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: var(--ink-muted); }
+    table.partners td.url { font-size: 12px; color: var(--ink-soft); word-break: break-all; max-width: 340px; }
+
+    .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; white-space: nowrap; }
+    .pill-ok { background: #DCFCE7; color: #166534; }
+    .pill-warn { background: #FEF3C7; color: #92400E; }
+    .pill-cat { background: var(--paper-soft); color: var(--ink-soft); text-transform: uppercase; font-size: 10px; }
+    .pill-cat.tier0 { background: #E0E7FF; color: #3730A3; }
+    .pill-cat.remessa { background: #DCFCE7; color: #166534; }
+    .pill-cat.voo { background: #DBEAFE; color: #1E40AF; }
+    .pill-cat.viagem { background: #F3E8FF; color: #6B21A8; }
+
+    .btn-test { display: inline-block; padding: 5px 12px; font-size: 12px; font-weight: 600; background: var(--paper-soft); color: var(--brand-navy); border: 1px solid var(--line); border-radius: var(--r-sm); text-decoration: none; cursor: pointer; }
+    .btn-test:hover { background: var(--brand-gold-soft); border-color: var(--brand-gold); }
+
+    .login-card { max-width: 380px; margin: 80px auto; background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 36px 28px; text-align: center; }
+    .login-card .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 11px; font-weight: 600; color: var(--brand-gold-dark); margin-bottom: 12px; }
+    .login-card h2 { font-family: var(--font-display); font-size: 1.6rem; font-weight: 600; margin: 0 0 8px 0; }
+    .login-card p { font-size: 14px; color: var(--ink-muted); margin: 0 0 22px 0; }
+    .login-card input { width: 100%; padding: 12px 14px; font-size: 14px; border: 1px solid var(--line); border-radius: var(--r-md); margin-bottom: 12px; box-sizing: border-box; font-family: inherit; outline: none; background: var(--paper); }
+    .err-banner { background: #FBE9E7; color: #802020; border: 1px solid #E8C2BC; padding: 10px 14px; border-radius: var(--r-sm); font-size: 13px; margin-bottom: 14px; text-align: left; }
+
+    .empty { padding: 48px; text-align: center; color: var(--ink-muted); font-style: italic; }
+    .ts { font-size: 11px; color: var(--ink-muted); margin-top: 24px; text-align: center; }
+
+    .legend { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-md); padding: 14px 18px; margin-bottom: 18px; font-size: 12.5px; color: var(--ink-soft); }
+    .legend strong { color: var(--ink); }
+    .legend code { background: var(--paper-soft); padding: 1px 6px; border-radius: 4px; font-size: 0.9em; color: var(--brand-navy); }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const STORAGE_KEY = 'bc_admin_secret';
+
+    const root = document.getElementById('app');
+    const getSecret = () => { try { return sessionStorage.getItem(STORAGE_KEY) || ''; } catch (e) { return ''; } };
+    const setSecret = s => { try { sessionStorage.setItem(STORAGE_KEY, s); } catch (e) {} };
+    const clearSecret = () => { try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {} };
+    const escapeHtml = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+    function topbar(metaLine) {
+      return `
+        <div class="admin-topbar">
+          <div class="brand">
+            <a href="/admin" style="text-decoration:none;font-family:'Fraunces',Georgia,serif;font-size:22px;font-weight:600;color:var(--brand-navy);letter-spacing:-0.01em;"><span>Brasil</span><em style="color:var(--brand-gold);font-style:normal;font-weight:600;">Connect</em></a>
+            <div class="nav-links">
+              <a href="/admin/mindmap">Mind Map</a>
+              <a href="/admin/manage">Gerenciar</a>
+              <a href="/admin/waitlist">Lista de espera</a>
+              <a href="/admin/analytics">Analytics</a>
+              <a href="/admin/utm-builder">UTM Builder</a>
+              <a href="/admin/roadmap">Roadmap</a>
+              <a href="/admin/parceiros" class="active">Parceiros</a>
+            </div>
+            <div class="meta">${escapeHtml(metaLine)}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderLogin(errMsg) {
+      root.innerHTML = topbar('Admin · Acesso Restrito') + `
+        <div class="login-card">
+          <div class="eyebrow">ACESSO RESTRITO</div>
+          <h2>Painel de Parceiros</h2>
+          <p>Use o segredo administrativo (variável <code style="font-size:0.85rem;background:var(--paper-soft);padding:1px 6px;border-radius:4px;">ADMIN_SECRET</code>) para entrar.</p>
+          ${errMsg ? `<div class="err-banner">${escapeHtml(errMsg)}</div>` : ''}
+          <input id="secret" type="password" placeholder="ADMIN_SECRET" autocomplete="off" />
+          <button class="btn btn-primary" id="loginBtn" style="width:100%;">Entrar</button>
+        </div>
+      `;
+      document.getElementById('loginBtn').onclick = doLogin;
+      document.getElementById('secret').onkeydown = e => { if (e.key === 'Enter') doLogin(); };
+      setTimeout(() => document.getElementById('secret').focus(), 100);
+    }
+
+    async function doLogin() {
+      const v = document.getElementById('secret').value.trim();
+      if (!v) return;
+      setSecret(v);
+      await loadData();
+    }
+
+    async function loadData() {
+      const secret = getSecret();
+      if (!secret) return renderLogin();
+
+      root.innerHTML = topbar('Carregando…');
+
+      try {
+        const r = await fetch('/api/admin/partners-status', { headers: { 'x-admin-secret': secret } });
+        if (r.status === 401) { clearSecret(); return renderLogin('Senha incorreta'); }
+        if (!r.ok) {
+          const data = await r.json().catch(() => ({}));
+          return renderLogin(data.error || 'Erro ao carregar');
+        }
+        const data = await r.json();
+        renderDashboard(data);
+      } catch (e) {
+        renderLogin('Erro de rede: ' + e.message);
+      }
+    }
+
+    let currentData = null;
+    let currentFilter = '';
+    let currentCategory = 'all';
+
+    function renderDashboard(data) {
+      currentData = data;
+      const summary = data.summary || { total: 0, configured: 0, using_fallback: 0, by_category: {} };
+      const partners = data.partners || [];
+      const ts = new Date(data.generated_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+
+      root.innerHTML = topbar(`Parceiros · ${summary.configured}/${summary.total} configurados`) + `
+        <div class="admin-container">
+          <div class="hero">
+            <div class="eyebrow">PARCEIROS DE AFILIADO</div>
+            <h1>Estado das envs no Vercel</h1>
+            <p>Lista ao vivo de todos os parceiros em <code>api/go.js</code> com indicação se a env var de afiliado está configurada (verde) ou usando fallback público sem ID (amarelo). Use os botões "Testar" para confirmar o redirect 302.</p>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat-block"><div class="label">TOTAL</div><div class="value">${summary.total}</div><div class="sub">parceiros registrados</div></div>
+            <div class="stat-block ok"><div class="label">CONFIGURADOS</div><div class="value">${summary.configured}</div><div class="sub">env var presente</div></div>
+            <div class="stat-block warn"><div class="label">USANDO FALLBACK</div><div class="value">${summary.using_fallback}</div><div class="sub">sem ID de afiliado</div></div>
+            <div class="stat-block"><div class="label">REMESSA</div><div class="value">${(summary.by_category.remessa || {}).configured || 0}/${(summary.by_category.remessa || {}).total || 0}</div></div>
+            <div class="stat-block"><div class="label">TIER 0</div><div class="value">${(summary.by_category.tier0 || {}).configured || 0}/${(summary.by_category.tier0 || {}).total || 0}</div></div>
+            <div class="stat-block"><div class="label">VIAGEM (F2)</div><div class="value">${(summary.by_category.viagem || {}).configured || 0}/${(summary.by_category.viagem || {}).total || 0}</div></div>
+          </div>
+
+          <div class="legend">
+            <strong>Como ler:</strong> uma linha <strong style="color:#166534;">verde "OK"</strong> significa que a env var existe no Vercel e <code>/go/&lt;id&gt;</code> redireciona pro link de afiliado real. <strong style="color:#92400E;">"Fallback"</strong> significa que a env não está configurada e o redirect vai pra URL pública sem comissão. Para wire de novos parceiros, ver <a href="/docs/cowork-prompts-partners.md">cowork-prompts-partners.md</a> e <a href="/docs/partners-audit.md">partners-audit.md</a>.
+          </div>
+
+          <div class="toolbar">
+            <input id="filter" placeholder="Filtrar por ID, nome ou env var…" />
+            <select id="catFilter">
+              <option value="all">Todas categorias</option>
+              <option value="tier0">Tier 0</option>
+              <option value="remessa">Remessa</option>
+              <option value="voo">Voo</option>
+              <option value="viagem">Viagem (Fase 2)</option>
+            </select>
+            <button class="btn btn-secondary" onclick="loadData()">Recarregar</button>
+            <button class="btn btn-secondary" onclick="logout()">Sair</button>
+          </div>
+
+          <table class="partners">
+            <thead>
+              <tr>
+                <th style="width:60px;">Status</th>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Categoria</th>
+                <th>Env var</th>
+                <th>URL atual</th>
+                <th style="width:90px;">Testar</th>
+              </tr>
+            </thead>
+            <tbody id="rows">
+              ${partners.length === 0 ? '<tr><td colspan="7" class="empty">Nenhum parceiro</td></tr>' : partners.map(rowHtml).join('')}
+            </tbody>
+          </table>
+
+          <div class="ts">Gerado em ${escapeHtml(ts)} · re-render pela página é cliente-side · <a href="javascript:loadData()">recarregar</a></div>
+        </div>
+      `;
+
+      document.getElementById('filter').oninput = e => { currentFilter = e.target.value.toLowerCase(); applyFilters(); };
+      document.getElementById('catFilter').onchange = e => { currentCategory = e.target.value; applyFilters(); };
+    }
+
+    function applyFilters() {
+      if (!currentData) return;
+      const partners = currentData.partners || [];
+      const filtered = partners.filter(p => {
+        if (currentCategory !== 'all' && p.category !== currentCategory) return false;
+        if (!currentFilter) return true;
+        const q = currentFilter;
+        return (
+          (p.id || '').toLowerCase().includes(q) ||
+          (p.name || '').toLowerCase().includes(q) ||
+          (p.env || '').toLowerCase().includes(q)
+        );
+      });
+      const tbody = document.getElementById('rows');
+      tbody.innerHTML = filtered.length === 0
+        ? '<tr><td colspan="7" class="empty">Nenhum resultado</td></tr>'
+        : filtered.map(rowHtml).join('');
+    }
+
+    function rowHtml(p) {
+      const statusPill = p.present
+        ? `<span class="pill pill-ok">OK</span>`
+        : `<span class="pill pill-warn">Fallback</span>`;
+      const catCls = 'pill-cat ' + (p.category || '');
+      const url = p.current_url || p.fallback || '';
+      return `
+        <tr>
+          <td>${statusPill}</td>
+          <td class="id">${escapeHtml(p.id)}</td>
+          <td>${escapeHtml(p.name)}</td>
+          <td><span class="${catCls}">${escapeHtml(p.category)}</span></td>
+          <td class="env">${escapeHtml(p.env)}</td>
+          <td class="url" title="${escapeHtml(url)}">${escapeHtml(url)}</td>
+          <td><a class="btn-test" href="/go/${encodeURIComponent(p.id)}?campaign=admin_test&utm_source=admin&utm_medium=partners_dashboard" target="_blank" rel="noopener">Testar →</a></td>
+        </tr>
+      `;
+    }
+
+    function logout() { clearSecret(); renderLogin(); }
+
+    if (getSecret()) loadData(); else renderLogin();
+  </script>
+</body>
+</html>
