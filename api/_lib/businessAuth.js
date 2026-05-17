@@ -67,12 +67,17 @@ export async function requireBusinessAuth(req, supabase, business_id) {
   }
 
   // 5) Auto-link user_id se faltava (one-time backfill)
+  // PostgrestBuilder nao e Promise puro — .catch() direto nao funciona.
+  // Usar try/catch.
   if (!business.owner_user_id && ownsByEmail) {
-    await supabase
-      .from('bc_businesses')
-      .update({ owner_user_id: user.id })
-      .eq('id', business_id)
-      .catch(() => {}) // nao bloqueia se falhar
+    try {
+      await supabase
+        .from('bc_businesses')
+        .update({ owner_user_id: user.id })
+        .eq('id', business_id)
+    } catch (_) {
+      // nao bloqueia o auth se backfill falhar
+    }
   }
 
   return { ok: true, user, business }
