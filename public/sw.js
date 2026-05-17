@@ -4,7 +4,12 @@
    - Cache First   → fontes, imagens, ícones
    - Stale While Revalidate → HTML, JS, CSS (rápido, atualiza em background)
 */
-const CACHE_NAME = 'bc-v2-redesign';
+// IMPORTANTE: bumpa CACHE_NAME a cada deploy que renomeia/move arquivos do
+// dist/ (ex: rename de index.html -> app.html no PR #12 deixou cache antigo
+// servindo links pra assets/index-XXX.css que nao existem mais, quebrando o
+// /app/bolao com pagina em branco). Trocar de versao forca activate handler
+// a deletar caches antigos e re-precache os arquivos atuais.
+const CACHE_NAME = 'bc-v3-prelaunch-2026-05-14';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE = ['/', '/offline.html', '/css/premium.css', '/js/site.js', '/img/logo.svg', '/img/logo-mark.svg', '/favicon.svg'];
 
