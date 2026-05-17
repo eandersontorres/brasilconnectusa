@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/premium.css">
+  <script src="/js/bc-modules.js"></script>
 </head>
 <body class="has-flag-stripe">
 
@@ -132,7 +133,7 @@
               </div>
               <div class="field">
                 <label>Categoria</label>
-                <select name="category" required>
+                <select name="category" id="catSelect" required>
                   <option value="">Selecione</option>
                   <option value="restaurante">Restaurante</option>
                   <option value="mercado">Mercado</option>
@@ -145,6 +146,25 @@
                   <option value="educacao">Educação</option>
                   <option value="transporte">Transporte</option>
                 </select>
+              </div>
+              <div class="field full" id="moduleHintWrap" style="display:none;">
+                <div id="moduleHint" style="background:#FFF8E1;border:1px solid #F5D26A;border-left:4px solid var(--brand-gold,#FFD700);padding:12px 14px;border-radius:8px;font-size:13px;line-height:1.55;color:#5C4A00;">
+                  <!-- preenchido por JS conforme categoria -->
+                </div>
+                <details style="margin-top:8px;">
+                  <summary style="font-size:12px;color:var(--ink-muted);cursor:pointer;">Quero um painel diferente do padrão</summary>
+                  <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                    <label style="font-size:12px;color:var(--ink-muted);">Módulo:</label>
+                    <select name="module" id="moduleOverride" style="padding:6px 10px;border:1px solid var(--line);border-radius:6px;font-size:13px;">
+                      <option value="">Usar padrão da categoria</option>
+                      <option value="restaurant">Restaurante (cardápio + pedidos)</option>
+                      <option value="grocery">Mercado (catálogo + pedidos)</option>
+                      <option value="retail">Loja/Retail (catálogo + pedidos)</option>
+                      <option value="agenda_pro">AgendaPro (agendamento)</option>
+                      <option value="showcase">Só divulgação (sem loja/agenda)</option>
+                    </select>
+                  </div>
+                </details>
               </div>
               <div class="field">
                 <label>Cidade</label>
@@ -310,11 +330,35 @@
       p.classList.add('active'); filterCat = p.dataset.cat; render()
     })
 
+    // ─── Modulo: mostra qual painel sera ativado conforme categoria ─────
+    function updateModuleHint() {
+      const cat = $('catSelect').value
+      const override = $('moduleOverride').value
+      const wrap = $('moduleHintWrap')
+      const hint = $('moduleHint')
+      if (!cat) { wrap.style.display = 'none'; return }
+      const modKey = override || (window.BC_MODULES?.categoryToModule(cat) || 'showcase')
+      const m = window.BC_MODULES?.getModule(modKey)
+      if (!m) { wrap.style.display = 'none'; return }
+      const tabs = m.tabs.map(t => t.label).join(' · ')
+      hint.innerHTML = `
+        <div style="font-weight:700;margin-bottom:4px;">${m.emoji} Painel ativado: ${escapeHtml(m.label)}</div>
+        <div style="font-size:12px;line-height:1.55;">${escapeHtml(m.blurb)}</div>
+        <div style="font-size:11px;color:#7A6710;margin-top:6px;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Abas: ${escapeHtml(tabs)}</div>
+      `
+      wrap.style.display = 'block'
+    }
+    $('catSelect').addEventListener('change', updateModuleHint)
+    $('moduleOverride').addEventListener('change', updateModuleHint)
+
     $('submitForm').onsubmit = async e => {
       e.preventDefault()
       const fd = new FormData(e.target)
       const body = Object.fromEntries(fd)
       body.state = body.state.toUpperCase()
+      // Se nao escolheu override, deriva no backend pela categoria.
+      // Mandamos so se foi explicito pra evitar lock-in errado.
+      if (!body.module) delete body.module
       const msg = $('submitMsg')
       try {
         const r = await fetch('/api/businesses/submit', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) })
@@ -323,6 +367,7 @@
         msg.textContent = '✓ ' + d.message
         msg.style.color = '#1F4D3F'; msg.style.display = 'block'
         e.target.reset()
+        $('moduleHintWrap').style.display = 'none'
       } catch (err) {
         msg.textContent = err.message; msg.style.color = '#9F2D2D'; msg.style.display = 'block'
       }

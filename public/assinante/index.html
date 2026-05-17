@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,200;1,9..144,300&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/premium.css">
+  <script src="/js/bc-modules.js"></script>
 
   <style>
     /* Container do painel (max 900px) */
@@ -262,12 +263,7 @@
       Gerencie seu negócio ou perfil de profissional. Fotos, vídeos, descrição, contato — tudo num lugar só.
     </p>
 
-    <div class="tabs">
-      <button class="tab active" data-tab="negocio" onclick="switchTab('negocio')">Meu Negócio</button>
-      <button class="tab" data-tab="profissional" onclick="switchTab('profissional')">Profissional (AgendaPro)</button>
-      <button class="tab" data-tab="cardapio" onclick="switchTab('cardapio')">Cardápio</button>
-      <button class="tab" data-tab="pedidos" onclick="switchTab('pedidos')">Pedidos <span id="orders-badge" class="orders-badge"></span></button>
-    </div>
+    <div class="tabs" id="tabs"></div>
 
     <div id="content"></div>
   </div>
@@ -402,6 +398,87 @@
       render()
     }
 
+    // ───── Cache do negocio (1 fetch por sessao, invalida ao salvar) ─────
+    let _biz = null
+    let _bizLoadedFor = null  // email usado no ultimo fetch
+
+    async function loadBiz(email, force) {
+      if (!force && _biz && _bizLoadedFor === email) return _biz
+      const r = await window.bcFetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
+      const data = await r.json().catch(() => ({}))
+      _biz = (data.businesses || [])[0] || null
+      _bizLoadedFor = email
+      return _biz
+    }
+
+    function getModuleKey(biz) {
+      // Fallback robusto: se biz.module faltar (pre-migracao), deriva da categoria
+      if (biz?.module) return biz.module
+      if (window.BC_MODULES && biz?.category) return window.BC_MODULES.categoryToModule(biz.category)
+      return 'showcase'
+    }
+
+    function renderTabs(modKey) {
+      const tabsEl = document.getElementById('tabs')
+      if (!tabsEl) return
+      const m = window.BC_MODULES?.getModule(modKey)
+      const tabs = m?.tabs || [{ key: 'negocio', label: 'Meu Negócio' }]
+      // Se currentTab nao existe no modulo, cai pro primeiro
+      if (!tabs.find(t => t.key === currentTab)) currentTab = tabs[0].key
+      tabsEl.innerHTML = tabs.map(t => `
+        <button class="tab ${currentTab === t.key ? 'active' : ''}" data-tab="${t.key}" onclick="switchTab('${t.key}')">
+          ${escapeAttr(t.label)}${t.badge ? ' <span id="orders-badge" class="orders-badge"></span>' : ''}
+        </button>
+      `).join('')
+    }
+
+    function escapeAttr(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
+    }
+
+    function clearTabs() {
+      const el = document.getElementById('tabs')
+      if (el) el.innerHTML = ''
+    }
+
+    // ───── Trocar modulo (UI inline) ─────────────────────────────────────
+    window.openModuleSwitcher = async function() {
+      const biz = _biz
+      if (!biz?.id) return
+      const cur = getModuleKey(biz)
+      const opts = ['restaurant', 'grocery', 'retail', 'agenda_pro', 'showcase']
+        .map(k => {
+          const m = window.BC_MODULES?.getModule(k)
+          return { k, label: `${m?.emoji || ''} ${m?.label || k}`.trim(), tagline: m?.tagline || '' }
+        })
+      const choice = prompt(
+        'Escolher novo módulo (digite o número):\n\n' +
+        opts.map((o, i) => `${i + 1}) ${o.label}${o.k === cur ? ' (atual)' : ''}\n   ${o.tagline}`).join('\n\n') +
+        '\n\nNº:'
+      )
+      const idx = parseInt(choice, 10) - 1
+      if (isNaN(idx) || idx < 0 || idx >= opts.length) return
+      const newMod = opts[idx].k
+      if (newMod === cur) { showToast('Já está nesse módulo.'); return }
+      if (!confirm(`Trocar módulo de "${opts.find(o => o.k === cur)?.label}" para "${opts[idx].label}"?\n\nAlgumas abas vão mudar.`)) return
+
+      try {
+        const r = await window.bcFetch('/api/businesses/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: biz.id, module: newMod }),
+        })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        showToast('Módulo trocado para ' + opts[idx].label)
+        _biz = null
+        currentTab = 'negocio'
+        await render()
+      } catch (e) {
+        showToast('Erro: ' + e.message, true)
+      }
+    }
+
     // Hook pra atualizar status do Restaurant quando voltar do Stripe
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search)
@@ -507,41 +584,57 @@
 
     async function render() {
       const email = getEmail()
-      if (!email) { renderLogin(); return }
+      if (!email) { clearTabs(); renderLogin(); return }
 
       root.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--ink-muted);">Carregando…</div>'
 
       try {
-        if (currentTab === 'negocio') await renderNegocio(email)
-        else if (currentTab === 'cardapio') await renderCardapio(email)
-        else if (currentTab === 'pedidos') await renderPedidos(email)
-        else await renderProfissional(email)
+        // Carrega biz primeiro (cached) pra saber qual modulo
+        const biz = await loadBiz(email)
+        const modKey = getModuleKey(biz)
+        renderTabs(modKey)
+
+        if (currentTab === 'negocio')           await renderNegocio(email)
+        else if (currentTab === 'cardapio')     await renderCardapio(email)
+        else if (currentTab === 'pedidos')      await renderPedidos(email)
+        else if (currentTab === 'profissional') await renderProfissional(email)
+        else                                    await renderNegocio(email)
       } catch (e) {
         root.innerHTML = '<div style="padding: 32px; color: #991B1B;">Erro: ' + e.message + '</div>'
       }
     }
 
     async function renderNegocio(email) {
-      // Busca negócio do email
-      const r = await window.bcFetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
-      const data = await r.json().catch(() => ({}))
-      const list = data.businesses || []
-      const biz = list[0] || null
+      // Usa cache (loadBiz ja chamado em render())
+      const biz = await loadBiz(email)
+      const modKey = getModuleKey(biz)
+      const m = window.BC_MODULES?.getModule(modKey)
+      const hasOrders = m && m.tabs.some(t => t.key === 'pedidos')
 
       root.innerHTML = `
         <div class="panel">
-          ${biz ? '' : '<div class="help-box">Nenhum negócio encontrado pra <strong>' + email + '</strong>. <a href="/?preview=brasil2026" style="color:var(--green);">Cadastre seu negócio</a> primeiro, depois volta aqui pra gerenciar.</div>'}
+          ${biz ? '' : '<div class="help-box">Nenhum negócio encontrado pra <strong>' + email + '</strong>. <a href="/negocio#cadastro" style="color:var(--green);">Cadastre seu negócio</a> primeiro, depois volta aqui pra gerenciar.</div>'}
 
           <h2>${biz ? biz.name : 'Cadastrar novo negócio'}</h2>
           <p class="sub">${biz ? 'Logado como ' + email : 'Preencha os dados pra começar'} · <button class="btn-link" onclick="logout()">Sair</button></p>
 
-          ${biz ? `
+          ${biz && m ? `
+            <div style="background:#FFF8E1;border:1px solid #F5D26A;border-left:4px solid var(--brand-gold,#FFD700);padding:14px 16px;border-radius:10px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:220px;">
+                <div style="font-weight:700;font-size:14px;color:#5C4A00;">${m.emoji} Módulo: ${esc(m.label)}</div>
+                <div style="font-size:12px;color:#7A6710;margin-top:3px;line-height:1.5;">${esc(m.tagline)}</div>
+              </div>
+              <button onclick="openModuleSwitcher()" type="button" style="background:transparent;border:1px solid #C9A227;color:#5C4A00;padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">Trocar módulo</button>
+            </div>
+          ` : ''}
+
+          ${biz && hasOrders ? `
             <div id="restaurant-card" style="background:linear-gradient(135deg,#7c2d12 0%,#b91c1c 100%);color:#fff;padding:18px 20px;border-radius:12px;margin-bottom:18px;">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
                 <div style="flex:1;min-width:200px;">
-                  <div style="font-weight:700;font-size:16px;margin-bottom:4px;">🍽️ Modo Restaurante</div>
+                  <div style="font-weight:700;font-size:16px;margin-bottom:4px;">${m.emoji} Pedidos online</div>
                   <div style="font-size:13px;opacity:0.9;line-height:1.5;">
-                    Aceite pedidos online com cardápio digital. Cobramos só <b>2.5%</b> por pedido (DoorDash cobra 30%).
+                    Aceite pedidos pela web com pagamento. Cobramos só <b>2.5%</b> por pedido.
                   </div>
                 </div>
                 <button onclick="openRestaurantOnboard('${biz.id}')" style="background:#fff;color:#b91c1c;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
@@ -687,7 +780,8 @@
         showToast(isUpdate ? 'Alterações salvas!' : 'Negócio cadastrado!')
         // Preserva scroll: re-render reseta innerHTML do container, perdendo posicao
         const _scrollY = window.scrollY
-        await renderNegocio(getEmail())
+        _biz = null  // invalida cache pra refletir mudancas
+        await render()
         requestAnimationFrame(() => window.scrollTo({ top: _scrollY, behavior: 'instant' }))
       } catch (err) {
         showToast(err.message, true)
@@ -836,9 +930,7 @@
     let lastNewCount = 0
 
     async function renderPedidos(email) {
-      const r = await window.bcFetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
-      const data = await r.json().catch(() => ({}))
-      const biz = (data.businesses || [])[0]
+      const biz = await loadBiz(email)
       if (!biz) {
         root.innerHTML = '<div class="panel"><div class="help-box">Cadastre seu negócio na aba <strong>Meu Negócio</strong> primeiro.</div></div>'
         return
@@ -992,16 +1084,16 @@
     let cardapioItems = []
 
     async function renderCardapio(email) {
-      // Busca o negocio pelo email
-      const r = await window.bcFetch('/api/businesses/list?owner_email=' + encodeURIComponent(email))
-      const data = await r.json().catch(() => ({}))
-      const biz = (data.businesses || [])[0]
-
+      const biz = await loadBiz(email)
       if (!biz) {
         root.innerHTML = '<div class="panel"><div class="help-box">Cadastre seu negócio na aba <strong>Meu Negócio</strong> primeiro.</div></div>'
         return
       }
       cardapioBiz = biz
+      // Label dinamico conforme modulo (Cardapio vs Catalogo)
+      const _modKey = getModuleKey(biz)
+      const _catalogLabel = (_modKey === 'grocery' || _modKey === 'retail') ? 'Catálogo' : 'Cardápio'
+      const _catalogEmoji = window.BC_MODULES?.getModule(_modKey)?.emoji || '🍽️'
 
       // Busca status Stripe (nao bloqueia — so usado pra mostrar banner contextual
       // + decidir se botao "Aceitar pedidos" pode ser ligado)
@@ -1018,7 +1110,7 @@
       // Banner se Stripe nao esta pronto — informa mas nao bloqueia edicao
       const stripeBanner = !ready ? `
         <div class="help-box" style="background:#FEF3C7;border-left-color:#F59E0B;color:#92400E;">
-          <strong>💡 Cardápio em rascunho</strong> — você pode criar os itens agora, mas pra receber pedidos online precisa ativar o Stripe na aba <strong>Meu Negócio</strong> → "Ativar pedidos →". Os itens cadastrados aqui ficam prontos pra quando o Stripe estiver ativo.
+          <strong>💡 ${_catalogLabel} em rascunho</strong> — você pode criar os itens agora, mas pra receber pedidos online precisa ativar o Stripe na aba <strong>Meu Negócio</strong> → "Ativar pedidos →". Os itens cadastrados aqui ficam prontos pra quando o Stripe estiver ativo.
         </div>
       ` : ''
 
@@ -1032,7 +1124,7 @@
         <div class="panel">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px;">
             <div>
-              <h2>🍽️ Cardápio de ${esc(biz.name)}</h2>
+              <h2>${_catalogEmoji} ${esc(_catalogLabel)} de ${esc(biz.name)}</h2>
               <p class="sub" style="margin-bottom:0;">${cardapioCats.length} categorias · ${cardapioItems.length} itens · ${cardapioItems.filter(i=>i.available).length} disponíveis</p>
             </div>
             ${ordersToggle}
@@ -1042,7 +1134,7 @@
 
           ${ready ? `
             <div class="help-box" style="background:#FEF3C7;color:#78350f;border-color:#fbbf24;">
-              <strong>${biz.accepts_orders ? '✅ Aceitando pedidos' : '⏸️ Pedidos pausados'}</strong> — público vê o cardápio em <a href="/negocio/${biz.slug}/cardapio" target="_blank" style="color:#92400e;text-decoration:underline;">brasilconnectusa.com/negocio/${biz.slug}/cardapio</a>
+              <strong>${biz.accepts_orders ? '✅ Aceitando pedidos' : '⏸️ Pedidos pausados'}</strong> — público vê o ${_catalogLabel.toLowerCase()} em <a href="/negocio/${biz.slug}/cardapio" target="_blank" style="color:#92400e;text-decoration:underline;">brasilconnectusa.com/negocio/${biz.slug}/cardapio</a>
             </div>
           ` : ''}
 

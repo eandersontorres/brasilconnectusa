@@ -17,10 +17,11 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { requireBusinessAuth } from '../_lib/businessAuth.js'
+import { VALID_MODULES } from '../_lib/modules.js'
 
 // Whitelist de campos editaveis pelo dono (TUDO que nao esta aqui sera ignorado)
 const EDITABLE_FIELDS = [
-  'name', 'category', 'city', 'state', 'zip', 'address',
+  'name', 'category', 'module', 'city', 'state', 'zip', 'address',
   'phone', 'whatsapp', 'website', 'instagram', 'tiktok', 'facebook',
   'description', 'short_desc',
   'logo_url', 'cover_url', 'video_url', 'gallery_urls',
@@ -54,6 +55,11 @@ export default async function handler(req, res) {
         let v = req.body[k]
         // Normaliza state pra uppercase 2 chars
         if (k === 'state' && v) v = String(v).toUpperCase().slice(0, 2)
+        // Modulo: aceita so canonicos. Vazio/invalido = ignora (mantem atual)
+        if (k === 'module') {
+          if (!v || !VALID_MODULES.has(String(v).toLowerCase())) continue
+          v = String(v).toLowerCase()
+        }
         // Strings vazias viram null
         if (typeof v === 'string' && v.trim() === '') v = null
         payload[k] = v
