@@ -963,6 +963,26 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
 // ════════════════════════════════════════════════════════════════════════════
 //   View: Premiação (modal/edit)
 // ════════════════════════════════════════════════════════════════════════════
+// Limites sincronizados com backend (api/bolao.js update-prize). Trocar nos
+// dois lugares juntos — divergencia causa truncamento silencioso no servidor.
+const PRIZE_LIMITS = {
+  title:       120,
+  description: 3000,
+  position:    300,   // 1º, 2º e 3º lugar (mesma faixa)
+}
+
+function CharCounter({ value, max }) {
+  const len = (value || '').length
+  const ratio = len / max
+  const color = ratio >= 1 ? '#ef4444' : ratio >= 0.9 ? '#f59e0b' : '#9ca3af'
+  const weight = ratio >= 0.9 ? 600 : 400
+  return (
+    <div style={{ fontSize: 11, color, fontWeight: weight, marginTop: 4, textAlign: 'right' }}>
+      {len.toLocaleString('pt-BR')} / {max.toLocaleString('pt-BR')}
+    </div>
+  )
+}
+
 function PrizeEditor({ group, onClose, onSaved, setToast, adminEmail }) {
   const [title, setTitle]   = useState(group.prize_title || '')
   const [desc, setDesc]     = useState(group.prize_description || '')
@@ -1000,20 +1020,38 @@ function PrizeEditor({ group, onClose, onSaved, setToast, adminEmail }) {
         <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>🏆 Editar Premiação</div>
         <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>Visível para todos os membros do grupo</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <Input label="Título da premiação" value={title} onChange={e => setTitle(e.target.value)} placeholder="Ex: Pizza pro vencedor!" />
+          <div>
+            <Input label="Título da premiação" value={title} onChange={e => setTitle(e.target.value)}
+              placeholder="Ex: Pizza pro vencedor!" maxLength={PRIZE_LIMITS.title} />
+            <CharCounter value={title} max={PRIZE_LIMITS.title} />
+          </div>
           <div>
             <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Descrição / regras</label>
-            <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={3}
-              placeholder="Ex: Quem fizer mais pontos ganha uma pizza família e uma cerveja."
-              style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 14, outline: 'none', background: '#fff', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical' }}
+            <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={5}
+              maxLength={PRIZE_LIMITS.description}
+              placeholder="Ex: Quem fizer mais pontos ganha uma pizza família e uma cerveja. Em caso de empate, o desempate é pela quantidade de placares exatos. Premio entregue até 1 semana após a final."
+              style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 14, outline: 'none', background: '#fff', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical', minHeight: 90 }}
             />
+            <CharCounter value={desc} max={PRIZE_LIMITS.description} />
           </div>
           <div style={{ borderTop: '1px solid #f3f4f6', paddingTop: 12 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#6b7280', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>Posições (opcional)</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <Input label="🥇 1º lugar" value={first} onChange={e => setFirst(e.target.value)} placeholder="Ex: Pizza família + cerveja" />
-              <Input label="🥈 2º lugar" value={second} onChange={e => setSecond(e.target.value)} placeholder="Ex: Hamburguer" />
-              <Input label="🥉 3º lugar" value={third} onChange={e => setThird(e.target.value)} placeholder="Ex: Refrigerante" />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div>
+                <Input label="🥇 1º lugar" value={first} onChange={e => setFirst(e.target.value)}
+                  placeholder="Ex: Pizza família + cerveja" maxLength={PRIZE_LIMITS.position} />
+                <CharCounter value={first} max={PRIZE_LIMITS.position} />
+              </div>
+              <div>
+                <Input label="🥈 2º lugar" value={second} onChange={e => setSecond(e.target.value)}
+                  placeholder="Ex: Hamburguer" maxLength={PRIZE_LIMITS.position} />
+                <CharCounter value={second} max={PRIZE_LIMITS.position} />
+              </div>
+              <div>
+                <Input label="🥉 3º lugar" value={third} onChange={e => setThird(e.target.value)}
+                  placeholder="Ex: Refrigerante" maxLength={PRIZE_LIMITS.position} />
+                <CharCounter value={third} max={PRIZE_LIMITS.position} />
+              </div>
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>

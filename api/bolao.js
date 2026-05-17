@@ -537,12 +537,16 @@ export default async function handler(req, res) {
         return res.status(403).json({ error: 'Apenas o admin do grupo pode editar a premiação' })
       }
 
+      // Limites sincronizados com o frontend (PrizeEditor em BolaoScreen.jsx
+      // usa PRIZE_LIMITS). Se mexer aqui, mexer la tambem — ou pessoa
+      // digita mais que o limite, ve contador OK no client e perde texto
+      // no servidor (truncamento silencioso).
       const update = {
-        prize_title:       prize_title ? String(prize_title).slice(0, 100) : null,
-        prize_description: prize_description ? String(prize_description).slice(0, 1000) : null,
-        prize_first:       prize_first ? String(prize_first).slice(0, 200) : null,
-        prize_second:      prize_second ? String(prize_second).slice(0, 200) : null,
-        prize_third:       prize_third ? String(prize_third).slice(0, 200) : null,
+        prize_title:       prize_title ? String(prize_title).slice(0, 120) : null,
+        prize_description: prize_description ? String(prize_description).slice(0, 3000) : null,
+        prize_first:       prize_first ? String(prize_first).slice(0, 300) : null,
+        prize_second:      prize_second ? String(prize_second).slice(0, 300) : null,
+        prize_third:       prize_third ? String(prize_third).slice(0, 300) : null,
         prize_updated_at:  new Date().toISOString(),
       }
 
