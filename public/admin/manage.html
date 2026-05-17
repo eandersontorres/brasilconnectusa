@@ -506,34 +506,43 @@
       }
     }
 
-    // Aprovar / rejeitar negócio
+    // Aprovar / rejeitar negócio (com email automático via Resend)
     async function bizAction(id, action) {
       const label = action === 'approve' ? 'aprovar' : 'rejeitar'
-      if (!confirm('Tem certeza que quer ' + label + ' esse negócio?')) return
+
+      // Pra rejeitar, pede motivo (opcional mas recomendado — vai no email)
+      let reason = null
+      if (action === 'reject') {
+        reason = prompt('Motivo da rejeição (opcional — vai no email pro dono):\n\nEx: "Não conseguimos confirmar o endereço, ou o telefone não atende."', '')
+        if (reason === null) return // cancelou
+      } else {
+        if (!confirm('Aprovar esse negócio? Vamos mandar email automático pro dono confirmando.')) return
+      }
 
       const msg = document.getElementById('msg-biz-' + id)
       const aBtn = document.getElementById('appr-' + id)
       const rBtn = document.getElementById('rej-' + id)
       aBtn.disabled = true; rBtn.disabled = true
       msg.style.color = 'var(--ink-muted)'
-      msg.textContent = action === 'approve' ? 'Aprovando…' : 'Rejeitando…'
+      msg.textContent = (action === 'approve' ? 'Aprovando' : 'Rejeitando') + ' + mandando email…'
 
       try {
         const r = await fetch('/api/admin/business-action', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
-          body: JSON.stringify({ business_id: id, action }),
+          body: JSON.stringify({ business_id: id, action, reason: reason || undefined }),
         })
         const d = await r.json().catch(() => ({}))
         if (!r.ok) throw new Error(d.error || 'Erro')
 
         msg.style.color = action === 'approve' ? '#166534' : '#DC2626'
-        msg.textContent = action === 'approve' ? '✓ Aprovado' : '✗ Rejeitado'
-        // Some o item da lista em 1.5s
+        const emailNote = d.email_sent ? ' · email enviado pra ' + (d.email_to || 'dono') : ' · email NÃO enviado'
+        msg.textContent = (action === 'approve' ? '✓ Aprovado' : '✗ Rejeitado') + emailNote
+        // Some o item da lista em 1.8s
         setTimeout(() => {
           const el = document.getElementById('biz-' + id)
           if (el) { el.style.transition = 'opacity 0.3s'; el.style.opacity = '0'; setTimeout(() => loadTab('businesses'), 350) }
-        }, 1200)
+        }, 1800)
       } catch (e) {
         msg.style.color = '#DC2626'
         msg.textContent = '⚠️ ' + e.message
