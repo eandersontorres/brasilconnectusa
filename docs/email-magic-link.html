@@ -3,12 +3,16 @@
   Supabase Dashboard → Authentication → Email Templates → Magic Link
 
   Variáveis disponíveis no template do Supabase:
-    {{ .ConfirmationURL }} — link mágico que faz login
+    {{ .ConfirmationURL }} — link mágico que faz login (fallback)
     {{ .Email }}           — email do destinatário
-    {{ .Token }}           — token bruto (não precisa usar)
+    {{ .Token }}           — código OTP de 6 dígitos (PRINCIPAL agora)
     {{ .TokenHash }}       — hash do token (não precisa usar)
 
-  Subject sugerido: Seu link de acesso ao BrasilConnect USA
+  Subject sugerido: Seu código de acesso ao BrasilConnect USA
+
+  IMPORTANTE: o app agora pede CÓDIGO de 6 dígitos como flow principal
+  (verifyOtp em src/AuthModal.jsx). O magic link continua funcionando
+  como fallback (clicar é alternativa pra quem nao quer digitar).
 -->
 
 <!DOCTYPE html>
@@ -37,34 +41,48 @@
         <tr>
           <td style="padding:40px 36px;">
             <div style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:#009C3B;margin-bottom:14px;">
-              SEU LINK DE ACESSO
+              SEU CÓDIGO DE ACESSO
             </div>
 
             <h1 style="margin:0 0 18px 0;font-family:Georgia,'Times New Roman',serif;font-size:28px;font-weight:700;color:#1A1F1C;line-height:1.2;letter-spacing:-0.01em;">
               Bem-vindo de volta!
             </h1>
 
-            <p style="margin:0 0 20px 0;font-size:15px;color:#4B4F4D;line-height:1.65;">
-              Clica no botão abaixo pra entrar no <strong style="color:#1A1F1C;">BrasilConnect USA</strong>. O link expira em 1 hora — você não precisa de senha nem código.
+            <p style="margin:0 0 16px 0;font-size:15px;color:#4B4F4D;line-height:1.65;">
+              Cole este código de 6 dígitos na tela de login do <strong style="color:#1A1F1C;">BrasilConnect USA</strong>:
             </p>
 
-            <!-- CTA principal -->
-            <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0 28px;">
-              <tr>
-                <td style="border-radius:12px;background:#009c3b;">
-                  <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:14px 32px;color:#FFFFFF;text-decoration:none;font-weight:700;font-size:15px;letter-spacing:0.01em;">
-                    Entrar agora →
-                  </a>
-                </td>
-              </tr>
-            </table>
+            <!-- CÓDIGO OTP (principal) -->
+            <div style="margin:18px 0 26px;background:#F0FDF4;border:2px solid #86EFAC;border-radius:14px;padding:22px 16px;text-align:center;">
+              <div style="font-family:Georgia,'Times New Roman',serif;font-size:38px;font-weight:700;color:#14532D;letter-spacing:14px;line-height:1;padding-left:14px;">
+                {{ .Token }}
+              </div>
+              <div style="margin-top:10px;font-size:11px;color:#166534;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">
+                Válido por 1 hora · não compartilhe
+              </div>
+            </div>
 
-            <p style="margin:0 0 8px 0;font-size:12px;color:#6B6E68;line-height:1.6;">
-              Ou copia e cola este endereço no navegador:
-            </p>
-            <p style="margin:0 0 28px 0;font-size:12px;color:#001a5e;word-break:break-all;background:#FAF7F0;border:1px solid #E5E1D6;border-radius:8px;padding:10px 14px;font-family:monospace;line-height:1.5;">
-              {{ .ConfirmationURL }}
-            </p>
+            <!-- ── Fallback: link mágico ───────────────────────────────────── -->
+            <div style="border-top:1px dashed #E5E1D6;padding-top:18px;margin-top:6px;">
+              <p style="margin:0 0 10px 0;font-size:12px;color:#6B6E68;line-height:1.6;">
+                <strong>Não quer digitar o código?</strong> Clica no botão abaixo:
+              </p>
+              <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 14px;">
+                <tr>
+                  <td style="border-radius:10px;background:#009c3b;">
+                    <a href="{{ .ConfirmationURL }}" target="_blank" style="display:inline-block;padding:10px 22px;color:#FFFFFF;text-decoration:none;font-weight:600;font-size:13px;">
+                      Entrar com 1 clique →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin:0 0 6px 0;font-size:11px;color:#9CA3AF;line-height:1.6;">
+                Ou copia esse endereço:
+              </p>
+              <p style="margin:0 0 22px 0;font-size:11px;color:#001a5e;word-break:break-all;background:#FAF7F0;border:1px solid #E5E1D6;border-radius:6px;padding:8px 10px;font-family:monospace;line-height:1.5;">
+                {{ .ConfirmationURL }}
+              </p>
+            </div>
 
             <!-- Aviso de segurança -->
             <div style="border-top:1px solid #E5E1D6;padding-top:22px;">
