@@ -132,7 +132,7 @@
               </div>
               <div class="field">
                 <label>Categoria</label>
-                <select name="category" required>
+                <select name="category" id="categorySelect" required>
                   <option value="">Selecione</option>
                   <option value="restaurante">Restaurante</option>
                   <option value="mercado">Mercado</option>
@@ -144,7 +144,15 @@
                   <option value="imoveis">Imóveis</option>
                   <option value="educacao">Educação</option>
                   <option value="transporte">Transporte</option>
+                  <option value="outro">Outro (especificar)</option>
                 </select>
+              </div>
+
+              <!-- Aparece só quando categoria = "Outro" -->
+              <div class="field full" id="categoryOtherField" style="display:none;">
+                <label>Especifique a categoria</label>
+                <input name="category_other" id="categoryOther" placeholder="Ex: Lavanderia, Pet shop, Escritório de seguros..." maxlength="60" />
+                <p class="muted" style="font-size:12px;margin-top:6px;">Vamos usar isso pra criar a categoria nova se vários negócios pedirem o mesmo.</p>
               </div>
               <div class="field">
                 <label>Cidade</label>
@@ -310,11 +318,43 @@
       p.classList.add('active'); filterCat = p.dataset.cat; render()
     })
 
+    // Mostra/esconde campo "Especifique" quando user escolhe "Outro" na categoria
+    const catSelect = $('categorySelect')
+    const catOtherField = $('categoryOtherField')
+    const catOtherInput = $('categoryOther')
+    if (catSelect && catOtherField && catOtherInput) {
+      catSelect.addEventListener('change', () => {
+        const isOther = catSelect.value === 'outro'
+        catOtherField.style.display = isOther ? '' : 'none'
+        catOtherInput.required = isOther
+        if (isOther) {
+          setTimeout(() => catOtherInput.focus(), 50)
+        } else {
+          catOtherInput.value = ''
+        }
+      })
+    }
+
     $('submitForm').onsubmit = async e => {
       e.preventDefault()
       const fd = new FormData(e.target)
       const body = Object.fromEntries(fd)
       body.state = body.state.toUpperCase()
+
+      // Se categoria = "outro", usa o texto digitado como categoria real
+      // (admin depois normaliza/agrupa quando virar volume relevante)
+      if (body.category === 'outro') {
+        const other = (body.category_other || '').trim()
+        if (!other) {
+          const msgErr = $('submitMsg')
+          msgErr.textContent = 'Por favor, especifique a categoria.'
+          msgErr.style.color = '#9F2D2D'; msgErr.style.display = 'block'
+          return
+        }
+        body.category = other
+      }
+      delete body.category_other
+
       const msg = $('submitMsg')
       try {
         const r = await fetch('/api/businesses/submit', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) })
@@ -323,6 +363,8 @@
         msg.textContent = '✓ ' + d.message
         msg.style.color = '#1F4D3F'; msg.style.display = 'block'
         e.target.reset()
+        // Esconde de volta o campo "Outro" se estava aberto
+        if (catOtherField) catOtherField.style.display = 'none'
       } catch (err) {
         msg.textContent = err.message; msg.style.color = '#9F2D2D'; msg.style.display = 'block'
       }
