@@ -214,6 +214,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;ali
 .a-inp{width:100%;padding:11px 14px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);border-radius:11px;color:#fff;font-size:14px;font-family:'Sora',sans-serif;outline:none;transition:border-color .15s;margin-bottom:10px;}
 .a-inp:focus{border-color:rgba(0,156,59,.5);}
 .a-inp::placeholder{color:rgba(255,255,255,.2);}
+/* Dropdown nativo do <select>: forca bg escuro pra opções ficarem legiveis
+   (sem isso o navegador usa bg branco padrao → texto branco no branco) */
+.a-inp option{background:#001a5e;color:#fff;}
+.a-inp option:disabled,.a-inp option[value=""]{color:rgba(255,255,255,.5);}
 .a-row{display:flex;gap:10px;margin-bottom:12px;}
 .a-pfx{display:flex;align-items:center;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.1);border-radius:11px;overflow:hidden;transition:border-color .15s;}
 .a-pfx:focus-within{border-color:rgba(0,156,59,.5);}
