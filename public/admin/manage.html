@@ -227,21 +227,149 @@
         return
       }
 
+      // Templates pre-definidos pra acelerar resposta
+      const TEMPLATES = {
+        generic:    { label: 'Confirmação genérica',  body: 'Obrigado pelo contato! Recebemos sua mensagem e vamos analisar com calma. Te dou retorno em até 48h úteis.' },
+        partnership:{ label: 'Parceria interessada',   body: 'Que ótimo seu interesse em parceria! Vamos sim conversar mais sobre. Você consegue me passar mais detalhes sobre o que tem em mente — modelo de negócio, audiência, e como imagina que faria sentido juntar forças? Posso marcar uma call essa semana se preferir.' },
+        business:   { label: 'Listar negócio',         body: 'Adoramos a iniciativa! Pra começar o cadastro do seu negócio, abre essa página: https://brasilconnectusa.com/negocio — preenche o form com os dados (leva 2 min). Nossa equipe analisa e libera em até 48h. Qualquer dúvida me chama por aqui.' },
+        investor:   { label: 'Investidor',             body: 'Obrigado pelo interesse em investir no BrasilConnect! Vamos sim conversar com mais profundidade. Pode me mandar uma breve apresentação sua (background, tese de investimento, ticket médio) que monto material apropriado e marco uma call?' },
+        bug:        { label: 'Bug reportado',          body: 'Obrigado por reportar! Vou investigar agora e te aviso assim que resolver. Se possível, manda mais detalhes: navegador (Chrome/Safari/Firefox), dispositivo (desktop/celular), e os passos exatos pra reproduzir.' },
+        blank:      { label: 'Em branco',              body: '' },
+      }
+
+      const fmtDate = (iso) => new Date(iso).toLocaleString('pt-BR', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' })
+
       c.innerHTML = '<div class="panel"><div class="panel-eyebrow">FALE CONOSCO</div><h3>' + msgs.length + ' mensagens</h3>' +
-        msgs.map(m => `
-          <div class="item">
+        msgs.map(m => {
+          const replied = m.status === 'replied'
+          const statusBadge = replied
+            ? `<span style="background:#DCFCE7;color:#166534;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:0.05em;">✓ Respondido ${m.replied_at ? '· ' + fmtDate(m.replied_at) : ''}</span>`
+            : `<span style="background:#FEF3C7;color:#92400E;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:0.05em;">Novo</span>`
+
+          return `
+          <div class="item" id="msg-${m.id}">
             <div class="head">
-              <div>
-                <div class="name">${escapeHtml(m.name)} <span style="font-weight:400;color:var(--ink-muted)">· ${escapeHtml(m.reason)}</span></div>
-                <div class="meta">${escapeHtml(m.email)} · ${new Date(m.created_at).toLocaleString('pt-BR')}</div>
+              <div style="flex:1;">
+                <div class="name">${escapeHtml(m.name)} <span style="font-weight:400;color:var(--ink-muted)">· ${escapeHtml(m.reason)}</span> ${statusBadge}</div>
+                <div class="meta">${escapeHtml(m.email)} · ${fmtDate(m.created_at)}</div>
               </div>
             </div>
             <div class="answer">${escapeHtml(m.message)}</div>
-            <div class="actions">
-              <a href="mailto:${escapeHtml(m.email)}?subject=Re: BrasilConnect" class="btn-mini btn-mark" style="text-decoration:none;display:inline-block;">📧 Responder</a>
+
+            ${replied && m.reply_notes ? `
+              <div style="margin-top:10px;padding:10px 12px;background:#F0FDF4;border-left:3px solid #009C3B;border-radius:6px;font-size:13px;color:#14532D;line-height:1.55;">
+                <div style="font-size:10px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Sua resposta</div>
+                ${escapeHtml(m.reply_notes).replace(/\n/g,'<br/>')}
+              </div>
+            ` : ''}
+
+            <div class="actions" style="margin-top:10px;">
+              <button class="btn-mini btn-mark" onclick="toggleReply('${m.id}')">${replied ? '↻ Responder de novo' : '✉️ Responder'}</button>
+              <a href="mailto:${escapeHtml(m.email)}?subject=Re: BrasilConnect" class="btn-mini" style="text-decoration:none;display:inline-block;background:transparent;border:1px solid var(--line);color:var(--ink-soft);">Cliente de email</a>
+            </div>
+
+            <!-- Form de resposta (escondido até clicar) -->
+            <div id="reply-${m.id}" style="display:none;margin-top:12px;padding:14px;background:#FAFAFA;border:1px solid var(--line);border-radius:8px;">
+              <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Template (opcional)</label>
+              <select id="tpl-${m.id}" onchange="applyTemplate('${m.id}', this.value)"
+                style="width:100%;padding:8px 10px;border-radius:6px;border:1px solid var(--line);background:#fff;font-size:13px;margin-bottom:10px;">
+                <option value="">Escolher template…</option>
+                ${Object.entries(TEMPLATES).map(([k,t]) => `<option value="${k}">${escapeHtml(t.label)}</option>`).join('')}
+              </select>
+
+              <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Mensagem</label>
+              <textarea id="txt-${m.id}" rows="6" maxlength="10000"
+                placeholder="Olá! Obrigado pelo contato..."
+                style="width:100%;padding:10px 12px;border-radius:6px;border:1.5px solid var(--line);background:#fff;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;line-height:1.55;"></textarea>
+              <div id="cnt-${m.id}" style="text-align:right;font-size:11px;color:#9ca3af;margin-top:4px;">0 / 10.000</div>
+
+              <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
+                <button class="btn-mini btn-approve" onclick="sendReply('${m.id}', '${escapeHtml(m.email)}')" id="snd-${m.id}">Enviar resposta →</button>
+                <button class="btn-mini" onclick="toggleReply('${m.id}')" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);">Cancelar</button>
+                <span id="sta-${m.id}" style="font-size:12px;color:var(--ink-muted);margin-left:auto;"></span>
+              </div>
             </div>
           </div>
-        `).join('') + '</div>'
+        `}).join('') + '</div>'
+
+      // Wire counter de chars em cada textarea
+      msgs.forEach(m => {
+        const txt = document.getElementById('txt-' + m.id)
+        const cnt = document.getElementById('cnt-' + m.id)
+        if (txt && cnt) {
+          txt.addEventListener('input', () => {
+            const len = txt.value.length
+            const ratio = len / 10000
+            const color = ratio >= 1 ? '#ef4444' : ratio >= 0.9 ? '#f59e0b' : '#9ca3af'
+            cnt.style.color = color
+            cnt.textContent = len.toLocaleString('pt-BR') + ' / 10.000'
+          })
+        }
+      })
+
+      // Expoe os templates globalmente pra applyTemplate
+      window.__BC_TEMPLATES__ = TEMPLATES
+    }
+
+    function toggleReply(id) {
+      const box = document.getElementById('reply-' + id)
+      if (!box) return
+      const isOpen = box.style.display !== 'none'
+      box.style.display = isOpen ? 'none' : 'block'
+      if (!isOpen) {
+        setTimeout(() => document.getElementById('txt-' + id)?.focus(), 50)
+      }
+    }
+
+    function applyTemplate(id, key) {
+      if (!key) return
+      const tpl = window.__BC_TEMPLATES__?.[key]
+      if (!tpl) return
+      const txt = document.getElementById('txt-' + id)
+      if (!txt) return
+      txt.value = tpl.body
+      txt.dispatchEvent(new Event('input'))
+      txt.focus()
+    }
+
+    async function sendReply(id, email) {
+      const txt = document.getElementById('txt-' + id)
+      const btn = document.getElementById('snd-' + id)
+      const sta = document.getElementById('sta-' + id)
+      if (!txt || !btn || !sta) return
+
+      const reply_text = txt.value.trim()
+      if (reply_text.length < 5) {
+        sta.style.color = '#ef4444'
+        sta.textContent = 'Mensagem muito curta'
+        return
+      }
+
+      btn.disabled = true
+      btn.textContent = 'Enviando…'
+      sta.style.color = 'var(--ink-muted)'
+      sta.textContent = ''
+
+      try {
+        const r = await fetch('/api/admin/contact-reply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+          body: JSON.stringify({ message_id: id, reply_text }),
+        })
+        const data = await r.json().catch(() => ({}))
+        if (!r.ok) throw new Error(data.error || 'Falha no envio')
+
+        sta.style.color = '#166534'
+        sta.textContent = '✓ Enviado pra ' + email
+        btn.textContent = 'Enviado ✓'
+        // Recarrega a lista pra mostrar status atualizado
+        setTimeout(() => loadContact(document.getElementById('tab-content')), 1500)
+      } catch (e) {
+        sta.style.color = '#ef4444'
+        sta.textContent = '⚠️ ' + e.message
+        btn.disabled = false
+        btn.textContent = 'Enviar resposta →'
+      }
     }
 
     async function loadReports(c) {
