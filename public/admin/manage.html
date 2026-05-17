@@ -120,7 +120,7 @@
             <button class="tab-btn ${currentTab==='contact'?'active':''}" onclick="switchTab('contact')">Fale Conosco</button>
             <button class="tab-btn ${currentTab==='enterprise'?'active':''}" onclick="switchTab('enterprise')">Leads Enterprise</button>
             <button class="tab-btn ${currentTab==='reports'?'active':''}" onclick="switchTab('reports')">Moderação</button>
-            <button class="tab-btn ${currentTab==='businesses'?'active':''}" onclick="switchTab('businesses')">Negócios pendentes</button>
+            <button class="tab-btn ${currentTab==='businesses'?'active':''}" onclick="switchTab('businesses')">Negócios</button>
             <button class="tab-btn ${currentTab==='restaurant-orders'?'active':''}" onclick="switchTab('restaurant-orders')">Pedidos Restaurante</button>
             <button class="tab-btn ${currentTab==='bolao'?'active':''}" onclick="switchTab('bolao')">Bolão Copa</button>
           </div>
@@ -453,28 +453,124 @@
     }
 
     async function loadBusinesses(c) {
-      try {
-        const r = await fetch('/api/businesses/list?status=pending')
-        const data = await r.json().catch(() => ({}))
-        const list = data.businesses || []
-        if (list.length === 0) { c.innerHTML = '<div class="panel"><div class="empty">✅ Nenhum negocio pendente de aprovacao.</div></div>'; return }
+      // Filtros persistentes no dataset do container (sobrevivem ao re-render)
+      const statusFilter = c.dataset.bizStatus || 'pending'
+      const searchQ      = c.dataset.bizQ      || ''
+      const params = new URLSearchParams()
+      params.set('status', statusFilter)
+      if (searchQ) params.set('q', searchQ)
 
-        // Função pra montar linha de detalhe (label + valor) — só mostra se tem valor
-        const detail = (label, val) => val ? `<div style="font-size:12px;color:var(--ink-soft);margin:3px 0;"><strong style="color:var(--ink-muted);font-weight:600;">${label}:</strong> ${escapeHtml(String(val))}</div>` : ''
+      let r
+      try { r = await fetch('/api/admin/businesses-list?' + params, { headers: { 'x-admin-secret': getSecret() } }) }
+      catch (e) { c.innerHTML = '<div class="panel"><div class="empty">⚠️ Erro de rede: ' + escapeHtml(e.message) + '</div></div>'; return }
 
-        c.innerHTML = '<div class="panel"><div class="panel-eyebrow">NEGOCIOS PENDENTES</div><h3>' + list.length + ' submissoes</h3>' +
-          list.map(b => `
+      if (!r.ok) {
+        const d = await r.json().catch(() => ({}))
+        c.innerHTML = '<div class="panel"><div class="empty">' + escapeHtml(d.error || 'HTTP ' + r.status) + '</div></div>'
+        return
+      }
+
+      const data = await r.json().catch(() => ({}))
+      const list = data.businesses || []
+      const s    = data.summary    || {}
+
+      // helpers
+      const detail = (label, val) => val ? `<div style="font-size:12px;color:var(--ink-soft);margin:3px 0;"><strong style="color:var(--ink-muted);font-weight:600;">${label}:</strong> ${escapeHtml(String(val))}</div>` : ''
+      const statusBadge = (st, active) => {
+        const map = {
+          pending:   { bg: '#FEF3C7', fg: '#92400E', label: 'Pendente' },
+          approved:  { bg: '#DCFCE7', fg: '#166534', label: 'Aprovado' },
+          rejected:  { bg: '#FEE2E2', fg: '#991B1B', label: 'Rejeitado' },
+          archived:  { bg: '#F3F4F6', fg: '#6B7280', label: 'Arquivado' },
+        }
+        const m = map[st] || { bg: '#F3F4F6', fg: '#6B7280', label: st || '—' }
+        const activeIcon = active === false ? ' · ⏸ inativo' : ''
+        return `<span style="background:${m.bg};color:${m.fg};font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:0.05em;">${m.label}${activeIcon}</span>`
+      }
+      const stripeBadge = (b) => {
+        if (b.stripe_charges_enabled) return `<span style="background:#A7F3D0;color:#065F46;font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px;">💳 Stripe ativo</span>`
+        if (b.stripe_onboarded)        return `<span style="background:#FED7AA;color:#9A3412;font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px;">💳 Stripe pendente</span>`
+        return ''
+      }
+      const ordersBadge = (b) => b.accepts_orders ? `<span style="background:#DBEAFE;color:#1E40AF;font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px;">🍽️ aceita pedidos</span>` : ''
+
+      c.innerHTML = `
+        <!-- Métricas resumo -->
+        <div class="panel" style="padding:20px;">
+          <div class="panel-eyebrow">RESUMO DE NEGÓCIOS</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-top:12px;">
+            <div style="background:var(--paper-soft);border-radius:10px;padding:12px;">
+              <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">Total</div>
+              <div style="font-size:22px;font-weight:800;color:var(--ink);margin-top:2px;">${s.total || 0}</div>
+            </div>
+            <div style="background:#FEFCE8;border-radius:10px;padding:12px;border:1px solid #FDE047;">
+              <div style="font-size:10px;color:#854D0E;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">Pendentes</div>
+              <div style="font-size:22px;font-weight:800;color:#713F12;margin-top:2px;">${s.pending || 0}</div>
+            </div>
+            <div style="background:#F0FDF4;border-radius:10px;padding:12px;border:1px solid #86EFAC;">
+              <div style="font-size:10px;color:#166534;text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">Aprovados</div>
+              <div style="font-size:22px;font-weight:800;color:#14532D;margin-top:2px;">${s.approved || 0}</div>
+            </div>
+            <div style="background:var(--paper-soft);border-radius:10px;padding:12px;">
+              <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">💳 c/ Stripe</div>
+              <div style="font-size:22px;font-weight:800;color:var(--ink);margin-top:2px;">${s.with_stripe || 0}</div>
+            </div>
+            <div style="background:var(--paper-soft);border-radius:10px;padding:12px;">
+              <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">🍽️ Aceitam pedidos</div>
+              <div style="font-size:22px;font-weight:800;color:var(--ink);margin-top:2px;">${s.accepting_orders || 0}</div>
+            </div>
+            <div style="background:var(--paper-soft);border-radius:10px;padding:12px;">
+              <div style="font-size:10px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;">📅 7 dias</div>
+              <div style="font-size:22px;font-weight:800;color:var(--ink);margin-top:2px;">${s.created_week || 0}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtros -->
+        <div style="display:flex;gap:8px;align-items:center;margin:14px 0;flex-wrap:wrap;">
+          <label style="font-size:12px;color:var(--ink-muted);">Status:</label>
+          <select onchange="setBizFilter('bizStatus', this.value)" style="padding:6px 10px;border-radius:6px;border:1px solid var(--line);font-size:13px;background:#fff;">
+            <option value="all"       ${statusFilter==='all'      ?'selected':''}>Todos</option>
+            <option value="pending"   ${statusFilter==='pending'  ?'selected':''}>Pendentes</option>
+            <option value="approved"  ${statusFilter==='approved' ?'selected':''}>Aprovados</option>
+            <option value="rejected"  ${statusFilter==='rejected' ?'selected':''}>Rejeitados</option>
+            <option value="archived"  ${statusFilter==='archived' ?'selected':''}>Arquivados</option>
+          </select>
+          <input id="bizSearchInput" type="text" placeholder="Buscar por nome, cidade ou email…"
+            value="${escapeHtml(searchQ)}"
+            onkeypress="if(event.key==='Enter') setBizFilter('bizQ', this.value)"
+            style="flex:1;min-width:200px;padding:6px 10px;border-radius:6px;border:1px solid var(--line);font-size:13px;background:#fff;" />
+          <button class="btn-mini" onclick="setBizFilter('bizQ', document.getElementById('bizSearchInput').value)"
+            style="background:var(--brand-green);color:#fff;border:none;">Buscar</button>
+          ${searchQ ? `<button class="btn-mini" onclick="setBizFilter('bizQ', '')" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);">Limpar</button>` : ''}
+          <span style="margin-left:auto;font-size:12px;color:var(--ink-muted);">${list.length} negócios</span>
+        </div>
+
+        <!-- Lista -->
+        <div class="panel">
+          ${list.length === 0 ? `
+            <div class="empty" style="padding:30px;text-align:center;">
+              ${statusFilter === 'pending' ? '✅ Nenhum negócio pendente de aprovação.' :
+                statusFilter === 'approved' ? '📭 Nenhum negócio aprovado ainda.' :
+                '📭 Nenhum negócio nesse filtro.'}
+            </div>
+          ` : list.map(b => `
             <div class="item" id="biz-${b.id}">
               <div class="head">
                 <div style="flex:1;">
-                  <div class="name">${escapeHtml(b.name || '(sem nome)')} <span style="font-weight:400;color:var(--ink-muted)">· ${escapeHtml(b.category || '—')}</span></div>
-                  <div class="meta">📍 ${escapeHtml(b.city || '—')}, ${escapeHtml(b.state || '—')} · ✉️ ${escapeHtml(b.submitted_email || '')}</div>
+                  <div class="name">
+                    ${escapeHtml(b.name || '(sem nome)')}
+                    <span style="font-weight:400;color:var(--ink-muted)">· ${escapeHtml(b.category || '—')}</span>
+                    ${statusBadge(b.status, b.active)}
+                    ${stripeBadge(b)}
+                    ${ordersBadge(b)}
+                  </div>
+                  <div class="meta">📍 ${escapeHtml(b.city || '—')}, ${escapeHtml(b.state || '—')} · ✉️ ${escapeHtml(b.submitted_email || b.owner_email || '')}</div>
                 </div>
               </div>
 
               <div class="answer">${escapeHtml(b.description || '(sem descrição)')}</div>
 
-              <!-- Detalhes (expand) -->
               <details style="margin-top:10px;">
                 <summary style="cursor:pointer;font-size:12px;color:var(--brand-green);font-weight:600;padding:4px 0;">Ver todos os campos ▾</summary>
                 <div style="margin-top:8px;padding:10px 12px;background:var(--paper-soft);border-radius:6px;">
@@ -482,25 +578,37 @@
                   ${detail('Telefone', b.phone)}
                   ${detail('WhatsApp', b.whatsapp)}
                   ${detail('Website', b.website)}
+                  ${detail('Instagram', b.instagram)}
+                  ${detail('Submitted email', b.submitted_email)}
+                  ${detail('Owner email', b.owner_email)}
                   ${detail('Cadastrado em', b.created_at ? new Date(b.created_at).toLocaleString('pt-BR') : '')}
-                  ${detail('Slug gerado', b.slug)}
+                  ${detail('Atualizado em', b.updated_at ? new Date(b.updated_at).toLocaleString('pt-BR') : '')}
+                  ${detail('Slug', b.slug)}
+                  ${detail('Stripe Account ID', b.stripe_account_id)}
+                  ${detail('Platform fee %', b.platform_fee_pct)}
+                  ${detail('Cliques', b.clicks_count)}
                   ${detail('ID', b.id)}
                 </div>
               </details>
 
-              <!-- Ações -->
+              <!-- Ações contextuais por status -->
               <div class="actions" style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                <button class="btn-mini btn-approve" onclick="bizAction('${b.id}', 'approve')" id="appr-${b.id}">✓ Aprovar</button>
-                <button class="btn-mini" onclick="bizAction('${b.id}', 'reject')" id="rej-${b.id}"
-                  style="background:transparent;border:1px solid #DC2626;color:#DC2626;">✗ Rejeitar</button>
-                <button class="btn-mini" onclick="toggleBizMsg('${b.id}')"
-                  style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);">
-                  💬 Falar com dono
-                </button>
+                ${b.status === 'pending' ? `
+                  <button class="btn-mini btn-approve" onclick="bizAction('${b.id}', 'approve')" id="appr-${b.id}">✓ Aprovar</button>
+                  <button class="btn-mini" onclick="bizAction('${b.id}', 'reject')" id="rej-${b.id}" style="background:transparent;border:1px solid #DC2626;color:#DC2626;">✗ Rejeitar</button>
+                ` : ''}
+                ${b.status === 'approved' ? `
+                  <a href="/negocio/${escapeHtml(b.slug || '')}" target="_blank" class="btn-mini btn-approve" style="text-decoration:none;display:inline-block;">🌐 Ver página pública</a>
+                  <button class="btn-mini" onclick="bizAction('${b.id}', 'archive')" style="background:transparent;border:1px solid var(--ink-muted);color:var(--ink-muted);">📦 Arquivar</button>
+                ` : ''}
+                ${b.status === 'rejected' || b.status === 'archived' ? `
+                  <button class="btn-mini btn-approve" onclick="bizAction('${b.id}', 'approve')" id="appr-${b.id}">↩ Restaurar (aprovar)</button>
+                ` : ''}
+                <button class="btn-mini" onclick="toggleBizMsg('${b.id}')" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);">💬 Falar com dono</button>
                 <span id="msg-biz-${b.id}" style="font-size:12px;color:var(--ink-muted);margin-left:auto;"></span>
               </div>
 
-              <!-- Form de mensagem inline (escondido até clicar "Falar com dono") -->
+              <!-- Form de mensagem inline -->
               <div id="bizmsg-${b.id}" style="display:none;margin-top:12px;padding:14px;background:#FAFAFA;border:1px solid var(--line);border-radius:8px;">
                 <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Template (opcional)</label>
                 <select id="bmtpl-${b.id}" onchange="applyBizTemplate('${b.id}', this.value)"
@@ -513,13 +621,11 @@
                   <option value="duplicate">Aviso de cadastro duplicado</option>
                   <option value="blank">Em branco</option>
                 </select>
-
                 <label style="display:block;font-size:11px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px;">Mensagem</label>
                 <textarea id="bmtxt-${b.id}" rows="5" maxlength="10000"
-                  placeholder="Olá! Antes de aprovar, precisava confirmar..."
+                  placeholder="Olá!"
                   style="width:100%;padding:10px 12px;border-radius:6px;border:1.5px solid var(--line);background:#fff;font-size:14px;font-family:inherit;resize:vertical;box-sizing:border-box;line-height:1.55;"></textarea>
                 <div id="bmcnt-${b.id}" style="text-align:right;font-size:11px;color:#9ca3af;margin-top:4px;">0 / 10.000</div>
-
                 <div style="display:flex;gap:8px;margin-top:10px;align-items:center;">
                   <button class="btn-mini btn-approve" onclick="sendBizMsg('${b.id}', '${escapeHtml(b.submitted_email || b.owner_email || '')}')" id="bmsnd-${b.id}">Enviar mensagem →</button>
                   <button class="btn-mini" onclick="toggleBizMsg('${b.id}')" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);">Cancelar</button>
@@ -527,10 +633,12 @@
                 </div>
               </div>
             </div>
-          `).join('') + '</div>'
+          `).join('')}
+        </div>
+      `
 
-        // Templates pré-definidos
-        window.__BIZ_TEMPLATES__ = {
+      // Templates pré-definidos + wire counters
+      window.__BIZ_TEMPLATES__ = {
           confirm_address: 'Olá! Antes de aprovar o cadastro do seu negócio, precisava confirmar o endereço cadastrado. Você consegue mandar um print/foto da fachada com o endereço visível, ou uma conta de luz/água no nome do estabelecimento? Obrigado!',
           ask_photo:       'Olá! Pra completar o perfil do seu negócio no BrasilConnect, precisamos de pelo menos 1 foto da fachada/interior. Você consegue mandar nessa resposta? Quanto mais fotos melhor (até 5 no plano gratuito).',
           ask_doc:         'Olá! Pra validar que você é o dono do negócio, precisamos de um comprovante simples: print da LLC/EIN, foto do alvará, ou contrato social. Pode mandar respondendo este email. Tudo confidencial — só usado pra confirmar identidade.',
@@ -552,9 +660,14 @@
             })
           }
         })
-      } catch (e) {
-        c.innerHTML = '<div class="empty">Erro ao carregar: ' + escapeHtml(e.message) + '</div>'
-      }
+    }
+
+    // Filtros persistentes da aba Negócios (sobrevivem re-render via dataset do container)
+    function setBizFilter(key, value) {
+      const c = document.getElementById('tab-content')
+      if (value) c.dataset[key] = value
+      else delete c.dataset[key]
+      loadBusinesses(c)
     }
 
     // ─── Mensagem livre pro dono do negócio (com template + Resend) ──────
