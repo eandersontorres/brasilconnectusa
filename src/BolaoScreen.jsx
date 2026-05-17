@@ -756,13 +756,16 @@ function HomeView({ onCreateClick, onJoinClick, config, setToast, memberships, o
 // ════════════════════════════════════════════════════════════════════════════
 //   View: Criar Grupo (com cadastro completo)
 // ════════════════════════════════════════════════════════════════════════════
-function CreateGroupView({ onBack, onCreated, setToast }) {
+function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
   const [name, setName]       = useState('')
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail]     = useState('')
-  const [state, setState]     = useState('')
-  const [whatsapp, setWhatsapp] = useState('')
+  // Pre-fill com dados do user logado + ultima membership. Email fica
+  // bloqueado quando logado (admin_email tem que casar com o user_id).
+  const [fullName, setFullName] = useState(prefill?.full_name || '')
+  const [email, setEmail]     = useState(prefill?.email || '')
+  const [state, setState]     = useState(prefill?.state || '')
+  const [whatsapp, setWhatsapp] = useState(prefill?.whatsapp || '')
   const [loading, setLoading] = useState(false)
+  const emailLocked = !!prefill?.locked_email
 
   async function handleCreate(e) {
     e.preventDefault()
@@ -803,10 +806,25 @@ function CreateGroupView({ onBack, onCreated, setToast }) {
       <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
         Você vira o admin: define a premiação e recebe um código de convite.
       </div>
+      {prefill && (
+        <div style={{
+          background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 10,
+          padding: '10px 12px', marginBottom: 12, fontSize: 12, color: '#166534',
+          display: 'flex', alignItems: 'center', gap: 8,
+        }}>
+          <span style={{ fontSize: 14 }}>✓</span>
+          <span>Preenchemos com seus dados. Pode editar se quiser.</span>
+        </div>
+      )}
       <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         <Input label="Nome do bolão" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Bolão da TorresBee" required />
         <Input label="Seu nome completo" type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="João Silva" required />
-        <Input label="Seu e-mail" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" required hint="Usado para login admin e notificações" />
+        <Input label="Seu e-mail" type="email" value={email}
+          onChange={e => emailLocked ? null : setEmail(e.target.value)}
+          placeholder="voce@email.com" required
+          readOnly={emailLocked}
+          style={emailLocked ? { background: '#f3f4f6', color: '#6b7280', cursor: 'not-allowed' } : {}}
+          hint={emailLocked ? 'Email da sua conta — não pode ser alterado aqui' : 'Usado para login admin e notificações'} />
         <StateSelect value={state} onChange={setState} required />
         <Input label="WhatsApp (opcional)" type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+1 (555) 555-5555" hint="Para o admin te avisar do prêmio" />
         <Btn type="submit" disabled={loading || !valid}>
@@ -1731,6 +1749,22 @@ export default function BolaoScreen() {
   const { user: authUser } = useAuth()
   const [lastSyncedUserId, setLastSyncedUserId] = useState(null)
 
+  // Prefill do CreateGroupView quando user esta logado:
+  //  - email vem do Supabase user (lockado — admin_email tem que casar)
+  //  - full_name, state, whatsapp vem da membership mais recente (cache local
+  //    populado por my-memberships no login). Membros mais novos primeiro.
+  const createPrefill = useMemo(() => {
+    if (!authUser?.email) return null
+    const latest = (memberships || []).find(m => m.email?.toLowerCase() === authUser.email.toLowerCase()) || memberships?.[0]
+    return {
+      email:        authUser.email,
+      full_name:    latest?.full_name || '',
+      state:        latest?.state    || '',
+      whatsapp:     latest?.whatsapp || '',
+      locked_email: true,
+    }
+  }, [authUser, memberships])
+
   useEffect(() => {
     fetch('/api/bolao?action=config').then(r => r.json()).then(d => setConfig(d.config || {})).catch(() => setConfig({}))
   }, [])
@@ -1835,7 +1869,7 @@ export default function BolaoScreen() {
     <div style={{ padding: '0 0 16px' }}>
       {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
       {view === 'home'      && <HomeView onCreateClick={() => setView('create')} onJoinClick={() => setView('join')} config={config} setToast={setToast} memberships={memberships} onPickMembership={handlePickMembership} />}
-      {view === 'create'    && <CreateGroupView onBack={() => setView('home')} onCreated={handleCreated} setToast={setToast} />}
+      {view === 'create'    && <CreateGroupView onBack={() => setView('home')} onCreated={handleCreated} setToast={setToast} prefill={createPrefill} />}
       {view === 'created-success' && <CreatedSuccessView group={group} onContinue={() => setView('group')} setToast={setToast} />}
       {view === 'join'      && <JoinGroupView onBack={() => setView('home')} onJoined={handleJoined} setToast={setToast} prefilledCode={joinCode} />}
       {view === 'group'     && <GroupDashboard group={group} member={member} onPredict={() => setView('predict')} onStandings={() => setView('standings')} onLeave={handleLeave} onSwitch={handleSwitch} setToast={setToast} refreshGroup={refreshGroup} deadline={config?.predictions_deadline} />}
