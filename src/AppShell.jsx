@@ -11,6 +11,7 @@ import NotificationBell from './NotificationBell'
 const TABS = [
   { id: 'feed',      icon: '⌂',  label: 'Feed' },
   { id: 'discover',  icon: '⌕',  label: 'Buscar' },
+  { id: 'eventos',   icon: '🎉', label: 'Eventos' },
   { id: 'remessas',  icon: '$',  label: 'Câmbio' },
   { id: 'bolao',     icon: '⚽', label: 'Bolão' },
   { id: 'voos',      icon: '✈',  label: 'Voos' },
@@ -36,6 +37,94 @@ function Logo({ size = 22 }) {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+//   UserMenu — popover do avatar com email + botão Sair
+// ────────────────────────────────────────────────────────────────────────────
+function UserMenu({ user, onSignOut, size = 32 }) {
+  const [open, setOpen] = useState(false)
+
+  // Fecha ao clicar fora ou apertar Esc
+  useEffect(() => {
+    if (!open) return
+    const onDocClick = (e) => {
+      if (!e.target.closest('[data-usermenu]')) setOpen(false)
+    }
+    const onEsc = (e) => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', onDocClick)
+    document.addEventListener('keydown', onEsc)
+    return () => {
+      document.removeEventListener('mousedown', onDocClick)
+      document.removeEventListener('keydown', onEsc)
+    }
+  }, [open])
+
+  const initial = (user.email || '?').charAt(0).toUpperCase()
+
+  return (
+    <div data-usermenu style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        aria-label="Menu do usuário"
+        aria-expanded={open}
+        style={{
+          width: size, height: size, borderRadius: '50%', background: C.green,
+          color: C.white, border: 'none', cursor: 'pointer',
+          fontFamily: FONT.sans, fontSize: size > 32 ? 14 : 13, fontWeight: 600,
+        }}
+      >
+        {initial}
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute', top: size + 8, right: 0, zIndex: 200,
+          background: C.white, border: '1px solid ' + C.line,
+          borderRadius: 12, boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
+          minWidth: 240, overflow: 'hidden', fontFamily: FONT.sans,
+        }}>
+          {/* Header com email */}
+          <div style={{
+            padding: '12px 14px', borderBottom: '1px solid ' + C.line,
+            display: 'flex', alignItems: 'center', gap: 10,
+          }}>
+            <div style={{
+              width: 36, height: 36, borderRadius: '50%', background: C.green,
+              color: C.white, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 14, fontWeight: 600, flexShrink: 0,
+            }}>{initial}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{
+                fontSize: 10, fontWeight: 700, color: C.inkMuted,
+                textTransform: 'uppercase', letterSpacing: 1, marginBottom: 2,
+              }}>Logado como</div>
+              <div style={{
+                fontSize: 13, color: C.ink, fontWeight: 500,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>{user.email || '—'}</div>
+            </div>
+          </div>
+
+          {/* Ações */}
+          <button
+            onClick={() => { setOpen(false); onSignOut() }}
+            style={{
+              width: '100%', textAlign: 'left', padding: '12px 14px',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              fontSize: 13, color: '#dc2626', fontWeight: 600,
+              fontFamily: FONT.sans,
+              display: 'flex', alignItems: 'center', gap: 8,
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = '#FEF2F2'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <span style={{ fontSize: 14 }}>↪</span> Sair da conta
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 //   Mobile Top Bar
 // ────────────────────────────────────────────────────────────────────────────
 function MobileTopBar({ user, onSignIn, onSignOut }) {
@@ -49,13 +138,7 @@ function MobileTopBar({ user, onSignIn, onSignOut }) {
       <div style={{ flex: 1 }} />
       {user && <NotificationBell user={user} />}
       {user ? (
-        <button onClick={onSignOut} title="Sair" style={{
-          width: 32, height: 32, borderRadius: '50%', background: C.green,
-          color: C.white, border: 'none', cursor: 'pointer',
-          fontFamily: FONT.sans, fontSize: 13, fontWeight: 600,
-        }}>
-          {(user.email || '?').charAt(0).toUpperCase()}
-        </button>
+        <UserMenu user={user} onSignOut={onSignOut} size={32} />
       ) : (
         <button onClick={onSignIn} style={{
           background: C.navy, color: C.white, border: 'none', borderRadius: 8,
@@ -127,13 +210,7 @@ function DesktopTopBar({ user, onSignIn, onSignOut, search, setSearch }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         {user && <NotificationBell user={user} />}
         {user ? (
-          <button onClick={onSignOut} title={user.email + ' — clique pra sair'} style={{
-            width: 34, height: 34, borderRadius: '50%', background: C.green,
-            color: C.white, border: 'none', cursor: 'pointer',
-            fontFamily: FONT.sans, fontSize: 13, fontWeight: 600,
-          }}>
-            {(user.email || '?').charAt(0).toUpperCase()}
-          </button>
+          <UserMenu user={user} onSignOut={onSignOut} size={34} />
         ) : (
           <button onClick={onSignIn} style={{
             background: C.navy, color: C.white, border: 'none', borderRadius: 8,
@@ -192,6 +269,7 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
       )}
 
       {sectionTitle('Ferramentas')}
+      {item(tab === 'eventos',  '🎉', 'Eventos',    () => setTab('eventos'))}
       {item(tab === 'remessas', '$',  'Câmbio',     () => setTab('remessas'))}
       {item(tab === 'voos',     '✈',  'Voos',       () => setTab('voos'))}
       {item(false, '◫',  'Negócios', () => { window.location.href = '/negocio' })}
@@ -209,7 +287,7 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
 // ────────────────────────────────────────────────────────────────────────────
 //   Sidebar Direita (desktop)
 // ────────────────────────────────────────────────────────────────────────────
-function RightSidebar({ rate }) {
+function RightSidebar({ rate, setTab, upcomingEvents }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'sticky', top: 80, alignSelf: 'start' }}>
       <div style={{
@@ -227,12 +305,71 @@ function RightSidebar({ rate }) {
       <div style={{
         background: C.white, border: '1px solid ' + C.line, borderRadius: 12, padding: '14px 16px',
       }}>
-        <div style={{ fontSize: 10, fontWeight: 700, color: C.inkMuted, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
-          Eventos próximos
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8,
+        }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: C.inkMuted, textTransform: 'uppercase', letterSpacing: 1 }}>
+            Eventos próximos
+          </div>
+          {upcomingEvents.length > 0 && (
+            <button
+              onClick={() => setTab('eventos')}
+              style={{
+                background: 'transparent', border: 'none', color: C.green,
+                fontSize: 11, fontWeight: 600, cursor: 'pointer', padding: 0,
+                fontFamily: FONT.sans,
+              }}
+            >Ver todos →</button>
+          )}
         </div>
-        <div style={{ fontSize: 12, color: C.inkSoft, fontStyle: 'italic' }}>
-          Nenhum evento agendado.
-        </div>
+        {upcomingEvents.length === 0 ? (
+          <div style={{ fontSize: 12, color: C.inkSoft, fontStyle: 'italic' }}>
+            Nenhum evento agendado.
+          </div>
+        ) : (
+          upcomingEvents.slice(0, 3).map(ev => {
+            const d = ev.starts_at ? new Date(ev.starts_at) : null
+            return (
+              <button
+                key={ev.id}
+                onClick={() => setTab('eventos')}
+                style={{
+                  display: 'flex', gap: 10, alignItems: 'flex-start',
+                  background: 'transparent', border: 'none', padding: '6px 0',
+                  width: '100%', textAlign: 'left', cursor: 'pointer',
+                  borderTop: '1px solid ' + C.lineSoft,
+                  fontFamily: FONT.sans,
+                }}
+              >
+                {d && (
+                  <div style={{
+                    width: 36, flexShrink: 0, textAlign: 'center',
+                    background: C.greenSoft, color: C.green, borderRadius: 6, padding: '4px 0',
+                  }}>
+                    <div style={{ fontSize: 8, fontWeight: 700, textTransform: 'uppercase' }}>
+                      {d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}
+                    </div>
+                    <div style={{ fontFamily: FONT.serif, fontSize: 15, fontWeight: 700, lineHeight: 1 }}>
+                      {d.getDate()}
+                    </div>
+                  </div>
+                )}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontSize: 12, fontWeight: 600, color: C.ink, lineHeight: 1.3,
+                    overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box',
+                    WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                  }}>
+                    {ev.title}
+                  </div>
+                  <div style={{ fontSize: 10, color: C.inkMuted, marginTop: 2 }}>
+                    {[ev.city, ev.state].filter(Boolean).join(', ')}
+                  </div>
+                </div>
+              </button>
+            )
+          })
+        )}
       </div>
 
       <div style={{
@@ -281,9 +418,11 @@ export default function AppShell({ tab, setTab, children }) {
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [rate, setRate] = useState(null)
   const [myCommunities, setMyCommunities] = useState([])
+  const [upcomingEvents, setUpcomingEvents] = useState([])
 
   useEffect(() => {
     fetch('/api/rates').then(r => r.json()).then(d => { if (d.mid_rate) setRate(d.mid_rate) }).catch(() => {})
+    fetch('/api/events/list?limit=5').then(r => r.json()).then(d => setUpcomingEvents(d.events || [])).catch(() => {})
   }, [])
 
   useEffect(() => {
@@ -351,7 +490,7 @@ export default function AppShell({ tab, setTab, children }) {
           {children}
         </div>
 
-        <RightSidebar rate={rate} />
+        <RightSidebar rate={rate} setTab={setTab} upcomingEvents={upcomingEvents} />
       </div>
 
       {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
