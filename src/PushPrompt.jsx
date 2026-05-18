@@ -12,7 +12,7 @@ const TOPICS = [
   { id: 'restaurant_status', label: 'Status dos meus pedidos',       emoji: '📦' },
   { id: 'community',         label: 'Mensagens na comunidade',       emoji: '💬' },
   { id: 'events',            label: 'Eventos perto de mim',          emoji: '📅' },
-  { id: 'cambio',            label: 'Câmbio bater taxa alvo',        emoji: '💱' },
+  { id: 'cambio',            label: 'Câmbio bater taxa alvo',        emoji: '💵' },
   { id: 'bolao',             label: 'Bolão (palpite/resultado)',     emoji: '⚽' },
 ]
 
