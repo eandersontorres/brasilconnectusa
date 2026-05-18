@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://brasilconnectusa.com/para/restaurant/">
+  <title>Restaurante brasileiro nos EUA — Painel de cardápio + pedidos | BrasilConnect</title>
+  <meta name="description" content="Cardápio digital + pedidos online com pagamento via Stripe. 2.5% por pedido (DoorDash cobra 30%). Pra restaurante brasileiro nos EUA.">
+  <meta name="theme-color" content="#1F4D3F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    .module-hero { background: linear-gradient(135deg, #7c2d12 0%, #b91c1c 100%); color: #fff; padding: 80px 0 60px; }
+    .module-hero .container-narrow { padding: 0 40px; }
+    .module-hero .emoji-big { font-size: 64px; margin-bottom: 16px; }
+    .module-hero h1 { color: #fff; font-family: var(--font-display); font-size: 56px; font-weight: 600; margin: 0 0 12px 0; letter-spacing: -0.02em; }
+    .module-hero .tagline { color: #FFD700; font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+    .module-hero .lede { color: rgba(255,255,255,0.9); font-size: 17px; line-height: 1.65; max-width: 600px; }
+    .module-hero .cta-row { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .module-hero .btn-primary { background: #FFD700; color: #7c2d12; border: none; padding: 14px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; font-size: 15px; }
+    .module-hero .btn-ghost-white { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 14px 28px; font-weight: 600; border-radius: 8px; text-decoration: none; font-size: 15px; }
+
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 32px 0; }
+    .step-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; position: relative; }
+    .step-card .step-num { position: absolute; top: -14px; left: 24px; background: var(--green-deep); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .step-card h4 { font-family: var(--font-display); font-size: 18px; margin: 6px 0 8px 0; color: var(--ink); }
+    .step-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+    .uses-list { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 28px; margin: 24px 0; }
+    .uses-list h3 { margin: 0 0 14px 0; font-size: 18px; }
+    .uses-list ul { margin: 0; padding-left: 22px; }
+    .uses-list li { padding: 5px 0; color: var(--ink-soft); line-height: 1.7; }
+
+    .plans-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin: 24px 0; }
+    .plan-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+    .plan-card.featured { border-color: var(--green-deep); border-width: 2px; position: relative; }
+    .plan-card.featured::before { content: 'POPULAR'; position: absolute; top: -10px; right: 16px; background: var(--green-deep); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.08em; }
+    .plan-card h4 { font-family: var(--font-display); font-size: 22px; margin: 0 0 6px 0; color: var(--ink); }
+    .plan-card .price { font-family: var(--font-display); font-size: 32px; font-weight: 300; margin-bottom: 18px; }
+    .plan-card .price small { font-size: 14px; color: var(--ink-muted); font-weight: 400; }
+    .plan-card ul { list-style: none; padding: 0; margin: 0; }
+    .plan-card li { padding: 6px 0; font-size: 14px; color: var(--ink-soft); }
+    .plan-card li::before { content: '✓ '; color: var(--green-deep); font-weight: 700; }
+
+    .mockup { background: #FAFAFA; border: 1px solid var(--line); border-radius: 14px; padding: 32px; margin: 24px 0; }
+    .mockup-header { display: flex; align-items: center; gap: 10px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; font-size: 13px; color: var(--ink-muted); }
+    .mockup-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #DCFCE7; }
+    .mockup-menu-item { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px dashed var(--line); }
+    .mockup-menu-item:last-child { border-bottom: none; }
+    .mockup-menu-img { width: 56px; height: 56px; background: linear-gradient(135deg, #fde68a, #fbbf24); border-radius: 8px; flex-shrink: 0; }
+    .mockup-menu-info { flex: 1; }
+    .mockup-menu-name { font-weight: 600; font-size: 14px; color: var(--ink); }
+    .mockup-menu-desc { font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+    .mockup-menu-price { font-weight: 700; color: var(--green-deep); font-size: 14px; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item summary { font-weight: 600; cursor: pointer; color: var(--ink); font-size: 15px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::before { content: '+ '; color: var(--green); font-weight: 700; }
+    .faq-item[open] summary::before { content: '− '; }
+    .faq-item p { margin: 10px 0 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+
+    .final-cta { background: var(--paper-soft); padding: 60px 0; text-align: center; margin-top: 40px; }
+    .final-cta h2 { font-family: var(--font-display); font-size: 36px; margin-bottom: 12px; }
+    .final-cta p { color: var(--ink-soft); font-size: 16px; margin-bottom: 24px; }
+  </style>
+</head>
+<body class="has-flag-stripe">
+  <nav class="bc-nav">
+    <a href="/" class="bc-logo">Brasil<em>Connect</em></a>
+    <div class="bc-nav-links">
+      <a href="/" class="bc-nl">Início</a>
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/para/" class="bc-nl active">Para seu negócio</a>
+      <a href="/negocio/" class="bc-nl">Negócios</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="module-hero">
+      <div class="container-narrow">
+        <div class="emoji-big">🍽️</div>
+        <h1>Restaurante</h1>
+        <div class="tagline">Cardápio digital + pedidos online com pagamento.</div>
+        <p class="lede">Pra restaurante, padaria, lanchonete, food truck. Seu cliente vê o cardápio no celular, faz pedido com cartão e você só precisa preparar e entregar. Sem comissão de 30% do DoorDash — cobramos só <strong>2.5%</strong>.</p>
+        <div class="cta-row">
+          <a href="/negocio?module=restaurant#cadastro" class="btn-primary">🚀 Cadastrar restaurante →</a>
+          <a href="#planos" class="btn-ghost-white">Ver planos</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Como funciona</div>
+        <h2>Do cadastro ao primeiro pedido em 1 hora.</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <span class="step-num">1</span>
+            <h4>Cadastra o negócio</h4>
+            <p>Nome, endereço, telefone, foto da fachada. 2 minutos. Aprovação em até 48h.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">2</span>
+            <h4>Conecta o Stripe</h4>
+            <p>Onboarding direto no painel — Stripe pede dados bancários e SSN/EIN. Aprovação no mesmo dia.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">3</span>
+            <h4>Monta o cardápio</h4>
+            <p>Categorias (Pratos, Bebidas, Sobremesas), itens com foto e preço, modificadores (Ponto da carne, Sem cebola).</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">4</span>
+            <h4>Recebe pedidos</h4>
+            <p>Cliente pede pela URL pública do seu restaurante. Painel toca som de alerta. Você marca Confirmado → Em preparo → Pronto → Entregue.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Pra quem é</div>
+        <h2>Funciona pra qualquer comida brasileira.</h2>
+        <div class="uses-list">
+          <h3>Casos de uso típicos</h3>
+          <ul>
+            <li><strong>Restaurante de comida brasileira</strong> — picanha, feijoada, moqueca. Cliente que está com saudade pede pra delivery.</li>
+            <li><strong>Padaria</strong> — pão de queijo congelado, brigadeiro, beijinho. Encomenda pra retirar no fim de semana.</li>
+            <li><strong>Lanchonete / lanche brasileiro</strong> — coxinha, kibe, x-tudo, açaí. Cardápio fixo + rotativo.</li>
+            <li><strong>Food truck</strong> — cardápio simplificado, pedido antecipado pra retirar no horário.</li>
+            <li><strong>Buffet / catering</strong> — pacotes pra eventos, pedido com antecedência.</li>
+            <li><strong>Doceria caseira</strong> — encomenda de bolo de aniversário, docinhos pra festa.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="background:var(--paper-soft);">
+      <div class="container-narrow">
+        <div class="eyebrow">Preview</div>
+        <h2>O cardápio que seu cliente vê.</h2>
+        <div class="mockup">
+          <div class="mockup-header">
+            <div class="dot"></div>
+            <span><strong>brasilconnectusa.com</strong>/negocio/sua-padaria/cardapio</span>
+          </div>
+          <div style="font-family:var(--font-display);font-size:24px;font-weight:600;margin-bottom:4px;">🍞 Pratos principais</div>
+          <div class="mockup-menu-item">
+            <div class="mockup-menu-img"></div>
+            <div class="mockup-menu-info">
+              <div class="mockup-menu-name">Feijoada completa</div>
+              <div class="mockup-menu-desc">Com arroz, couve, farofa, laranja e torresmo</div>
+            </div>
+            <div class="mockup-menu-price">$18.90</div>
+          </div>
+          <div class="mockup-menu-item">
+            <div class="mockup-menu-img" style="background:linear-gradient(135deg,#fecaca,#ef4444);"></div>
+            <div class="mockup-menu-info">
+              <div class="mockup-menu-name">Picanha na chapa</div>
+              <div class="mockup-menu-desc">Com arroz, feijão tropeiro, vinagrete e farofa. Modificadores: Ponto da carne.</div>
+            </div>
+            <div class="mockup-menu-price">$24.50</div>
+          </div>
+          <div class="mockup-menu-item">
+            <div class="mockup-menu-img" style="background:linear-gradient(135deg,#fef3c7,#fcd34d);"></div>
+            <div class="mockup-menu-info">
+              <div class="mockup-menu-name">Pão de queijo (6 un)</div>
+              <div class="mockup-menu-desc">Pão de queijo artesanal feito na hora</div>
+            </div>
+            <div class="mockup-menu-price">$6.00</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="planos">
+      <div class="container-narrow">
+        <div class="eyebrow">Planos</div>
+        <h2>Comece grátis. Pague quando vender.</h2>
+        <p class="lede" style="margin-top:14px;margin-bottom:24px;">Sem mensalidade durante o lançamento. Quando ativar pedidos online, cobramos só 2.5% por pedido pago (DoorDash cobra 30%).</p>
+
+        <div class="plans-cards">
+          <div class="plan-card">
+            <h4>Free</h4>
+            <div class="price">$0<small> / mês</small></div>
+            <ul>
+              <li>Perfil público no diretório</li>
+              <li>Telefone + WhatsApp</li>
+              <li>Cardápio com até 20 itens</li>
+              <li>Aprovação em 48h</li>
+            </ul>
+          </div>
+          <div class="plan-card featured">
+            <h4>Pro</h4>
+            <div class="price">2.5%<small> / pedido</small></div>
+            <ul>
+              <li>Tudo do Free</li>
+              <li>Cardápio ilimitado</li>
+              <li>Modificadores (ponto, sem cebola)</li>
+              <li>Pedidos online com Stripe</li>
+              <li>Painel de pedidos com alerta sonoro</li>
+            </ul>
+          </div>
+          <div class="plan-card">
+            <h4>Premium</h4>
+            <div class="price">Em breve</div>
+            <ul>
+              <li>Tudo do Pro</li>
+              <li>Destaque na busca</li>
+              <li>Badge verificado</li>
+              <li>Analytics de vendas</li>
+              <li>Prioridade SEO</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Perguntas</div>
+        <h2>Dúvidas frequentes</h2>
+
+        <details class="faq-item">
+          <summary>Por que 2.5% e não 30% como DoorDash?</summary>
+          <p>Porque a gente não é marketplace que aluga motoboys. Você usa sua entrega (próprio carro, motoboy local) ou cliente vem retirar. A gente só cobra a comissão de processar o pagamento via Stripe — Stripe leva 2.9% + 30¢ e a gente leva 2.5% adicional. Total por pedido: ~5.4%.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Preciso de Stripe pra começar?</summary>
+          <p>Não. Você cadastra o restaurante e monta o cardápio sem Stripe. O cliente vê tudo mas não consegue pedir online até você ativar. Muita gente usa só pra ter o cardápio digital pra mostrar (substituindo o cardápio impresso).</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Como recebo o dinheiro?</summary>
+          <p>Stripe Connect deposita direto na sua conta bancária americana, normalmente em 2 dias úteis. Você vê tudo no dashboard do Stripe + no nosso painel.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>E se tiver um pedido com problema?</summary>
+          <p>Estorno é feito pelo Stripe (botão no painel). Cliente pode disputar no cartão se ficar insatisfeito — você responde via Stripe dashboard. Cobramos a comissão de volta do estorno.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Funciona em qualquer estado?</summary>
+          <p>Funciona em todos os 50 estados. Stripe atende EUA inteiro. Você só precisa ter conta bancária americana e SSN/EIN.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Posso pausar pedidos quando fechado?</summary>
+          <p>Pode. Botão "⏸️ Pausar pedidos" no painel — cliente vê o cardápio mas não consegue finalizar. Útil pra horário de almoço só, fim de semana só, etc.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container-narrow">
+        <h2>Pronto pra começar?</h2>
+        <p>Cadastro grátis. Sem cartão de crédito. Aprovação em 48h.</p>
+        <a href="/negocio?module=restaurant#cadastro" class="btn btn-primary" style="padding:16px 32px;font-size:16px;font-weight:700;">🚀 Cadastrar meu restaurante →</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bc-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
+          <p class="footer-tagline">A plataforma para brasileiros nos EUA.</p>
+        </div>
+        <div>
+          <h4>Para seu negócio</h4>
+          <a href="/para/restaurant/">Restaurante</a>
+          <a href="/para/grocery/">Mercado</a>
+          <a href="/para/retail/">Loja (Retail)</a>
+          <a href="/para/agenda-pro/">AgendaPro</a>
+          <a href="/para/showcase/">Divulgação</a>
+        </div>
+        <div>
+          <h4>Sobre</h4>
+          <a href="/">Início</a>
+          <a href="/custo-de-vida/">Cidades</a>
+          <a href="/guias/">Guias</a>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 BrasilConnect USA</div>
+    </div>
+  </footer>
+</body>
+</html>

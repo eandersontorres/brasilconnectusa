@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://brasilconnectusa.com/para/grocery/">
+  <title>Mercado brasileiro nos EUA — Catálogo + pedidos online | BrasilConnect</title>
+  <meta name="description" content="Catálogo online com produtos importados do Brasil, pedido pra entrega ou retirada. 2.5% por pedido. Pra mercado, mercearia, açougue brasileiro nos EUA.">
+  <meta name="theme-color" content="#1F4D3F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    .module-hero { background: linear-gradient(135deg, #14532d 0%, #16a34a 100%); color: #fff; padding: 80px 0 60px; }
+    .module-hero .container-narrow { padding: 0 40px; }
+    .module-hero .emoji-big { font-size: 64px; margin-bottom: 16px; }
+    .module-hero h1 { color: #fff; font-family: var(--font-display); font-size: 56px; font-weight: 600; margin: 0 0 12px 0; letter-spacing: -0.02em; }
+    .module-hero .tagline { color: #FFD700; font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+    .module-hero .lede { color: rgba(255,255,255,0.9); font-size: 17px; line-height: 1.65; max-width: 600px; }
+    .module-hero .cta-row { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .module-hero .btn-primary { background: #FFD700; color: #14532d; border: none; padding: 14px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; font-size: 15px; }
+    .module-hero .btn-ghost-white { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 14px 28px; font-weight: 600; border-radius: 8px; text-decoration: none; font-size: 15px; }
+
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 32px 0; }
+    .step-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; position: relative; }
+    .step-card .step-num { position: absolute; top: -14px; left: 24px; background: var(--green-deep); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .step-card h4 { font-family: var(--font-display); font-size: 18px; margin: 6px 0 8px 0; color: var(--ink); }
+    .step-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+    .uses-list { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 28px; margin: 24px 0; }
+    .uses-list h3 { margin: 0 0 14px 0; font-size: 18px; }
+    .uses-list ul { margin: 0; padding-left: 22px; }
+    .uses-list li { padding: 5px 0; color: var(--ink-soft); line-height: 1.7; }
+
+    .plans-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin: 24px 0; }
+    .plan-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+    .plan-card.featured { border-color: var(--green-deep); border-width: 2px; position: relative; }
+    .plan-card.featured::before { content: 'POPULAR'; position: absolute; top: -10px; right: 16px; background: var(--green-deep); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.08em; }
+    .plan-card h4 { font-family: var(--font-display); font-size: 22px; margin: 0 0 6px 0; color: var(--ink); }
+    .plan-card .price { font-family: var(--font-display); font-size: 32px; font-weight: 300; margin-bottom: 18px; }
+    .plan-card .price small { font-size: 14px; color: var(--ink-muted); font-weight: 400; }
+    .plan-card ul { list-style: none; padding: 0; margin: 0; }
+    .plan-card li { padding: 6px 0; font-size: 14px; color: var(--ink-soft); }
+    .plan-card li::before { content: '✓ '; color: var(--green-deep); font-weight: 700; }
+
+    .mockup { background: #FAFAFA; border: 1px solid var(--line); border-radius: 14px; padding: 32px; margin: 24px 0; }
+    .mockup-header { display: flex; align-items: center; gap: 10px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; font-size: 13px; color: var(--ink-muted); }
+    .mockup-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #DCFCE7; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+    .product-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+    .product-img { width: 100%; height: 90px; background: linear-gradient(135deg,#fef3c7,#fcd34d); border-radius: 6px; margin-bottom: 8px; }
+    .product-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .product-stock { font-size: 11px; color: var(--ink-muted); margin: 2px 0; }
+    .product-price { font-weight: 700; color: var(--green-deep); font-size: 14px; margin-top: 4px; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item summary { font-weight: 600; cursor: pointer; color: var(--ink); font-size: 15px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::before { content: '+ '; color: var(--green); font-weight: 700; }
+    .faq-item[open] summary::before { content: '− '; }
+    .faq-item p { margin: 10px 0 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+
+    .final-cta { background: var(--paper-soft); padding: 60px 0; text-align: center; margin-top: 40px; }
+    .final-cta h2 { font-family: var(--font-display); font-size: 36px; margin-bottom: 12px; }
+    .final-cta p { color: var(--ink-soft); font-size: 16px; margin-bottom: 24px; }
+  </style>
+</head>
+<body class="has-flag-stripe">
+  <nav class="bc-nav">
+    <a href="/" class="bc-logo">Brasil<em>Connect</em></a>
+    <div class="bc-nav-links">
+      <a href="/" class="bc-nl">Início</a>
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/para/" class="bc-nl active">Para seu negócio</a>
+      <a href="/negocio/" class="bc-nl">Negócios</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="module-hero">
+      <div class="container-narrow">
+        <div class="emoji-big">🛒</div>
+        <h1>Mercado</h1>
+        <div class="tagline">Catálogo online + pedidos pra entrega ou retirada.</div>
+        <p class="lede">Pra mercado brasileiro, mercearia, açougue, loja de importados. Seu cliente vê o que tem no estoque pelo celular, monta o carrinho e paga online. Você separa, entrega ou guarda pra retirada.</p>
+        <div class="cta-row">
+          <a href="/negocio?module=grocery#cadastro" class="btn-primary">🚀 Cadastrar mercado →</a>
+          <a href="#planos" class="btn-ghost-white">Ver planos</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Como funciona</div>
+        <h2>Do cadastro à primeira venda em 1 hora.</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <span class="step-num">1</span>
+            <h4>Cadastra o mercado</h4>
+            <p>Nome, endereço, foto da fachada, horário. Aprovação em até 48h.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">2</span>
+            <h4>Conecta o Stripe</h4>
+            <p>Onboarding direto no painel. Stripe pede dados bancários e EIN. Mesmo dia.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">3</span>
+            <h4>Sobe o catálogo</h4>
+            <p>Categorias (Bebidas, Doces, Carnes, Congelados), produtos com foto, preço e estoque.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">4</span>
+            <h4>Separa e entrega</h4>
+            <p>Cliente paga online. Painel mostra os pedidos do dia. Você separa e despacha (entrega própria, motoboy, ou cliente retira).</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Pra quem é</div>
+        <h2>Pensado pra mercearia brasileira nos EUA.</h2>
+        <div class="uses-list">
+          <h3>Casos de uso típicos</h3>
+          <ul>
+            <li><strong>Mercado brasileiro</strong> — produtos importados (guaraná, pão de queijo congelado, biscoito Globo, Nescau, brigadeiro pronto).</li>
+            <li><strong>Açougue brasileiro</strong> — picanha cortada do jeito brasileiro, linguiça, costela. Cliente reserva e retira fresco.</li>
+            <li><strong>Padaria com mercearia</strong> — venda pães + produtos importados num catálogo só.</li>
+            <li><strong>Loja de produtos congelados</strong> — coxinha, kibe, pastel pra cliente comprar pacote e ter em casa.</li>
+            <li><strong>Importadora pequena</strong> — atende restaurantes brasileiros locais, vende em quantidade.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="background:var(--paper-soft);">
+      <div class="container-narrow">
+        <div class="eyebrow">Preview</div>
+        <h2>O catálogo que seu cliente vê.</h2>
+        <div class="mockup">
+          <div class="mockup-header">
+            <div class="dot"></div>
+            <span><strong>brasilconnectusa.com</strong>/negocio/seu-mercado/cardapio</span>
+          </div>
+          <div style="font-family:var(--font-display);font-size:22px;font-weight:600;margin-bottom:14px;">🥤 Bebidas brasileiras</div>
+          <div class="product-grid">
+            <div class="product-card">
+              <div class="product-img" style="background:linear-gradient(135deg,#fef3c7,#facc15);"></div>
+              <div class="product-name">Guaraná Antarctica 2L</div>
+              <div class="product-stock">12 em estoque</div>
+              <div class="product-price">$5.99</div>
+            </div>
+            <div class="product-card">
+              <div class="product-img" style="background:linear-gradient(135deg,#fecaca,#ef4444);"></div>
+              <div class="product-name">Suco Maguary Maracujá</div>
+              <div class="product-stock">8 em estoque</div>
+              <div class="product-price">$4.50</div>
+            </div>
+            <div class="product-card">
+              <div class="product-img" style="background:linear-gradient(135deg,#bbf7d0,#22c55e);"></div>
+              <div class="product-name">Mate Leão 250g</div>
+              <div class="product-stock">3 em estoque</div>
+              <div class="product-price">$8.20</div>
+            </div>
+            <div class="product-card">
+              <div class="product-img" style="background:linear-gradient(135deg,#fed7aa,#fb923c);"></div>
+              <div class="product-name">Cachaça 51 - 750ml</div>
+              <div class="product-stock">15 em estoque</div>
+              <div class="product-price">$19.90</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="planos">
+      <div class="container-narrow">
+        <div class="eyebrow">Planos</div>
+        <h2>Comece grátis. Pague quando vender.</h2>
+        <p class="lede" style="margin-top:14px;margin-bottom:24px;">Sem mensalidade durante o lançamento. Cobramos só 2.5% por pedido pago — sem taxa de listagem, sem cobrança de catálogo grande.</p>
+
+        <div class="plans-cards">
+          <div class="plan-card">
+            <h4>Free</h4>
+            <div class="price">$0<small> / mês</small></div>
+            <ul>
+              <li>Perfil público no diretório</li>
+              <li>Telefone + WhatsApp</li>
+              <li>Catálogo com até 30 produtos</li>
+              <li>Aprovação em 48h</li>
+            </ul>
+          </div>
+          <div class="plan-card featured">
+            <h4>Pro</h4>
+            <div class="price">2.5%<small> / pedido</small></div>
+            <ul>
+              <li>Tudo do Free</li>
+              <li>Catálogo ilimitado</li>
+              <li>Pedidos online com Stripe</li>
+              <li>Painel de pedidos do dia</li>
+              <li>Controle de estoque</li>
+            </ul>
+          </div>
+          <div class="plan-card">
+            <h4>Premium</h4>
+            <div class="price">Em breve</div>
+            <ul>
+              <li>Tudo do Pro</li>
+              <li>Destaque na busca</li>
+              <li>Badge verificado</li>
+              <li>Analytics de vendas</li>
+              <li>Prioridade SEO</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Perguntas</div>
+        <h2>Dúvidas frequentes</h2>
+
+        <details class="faq-item">
+          <summary>Como funciona a entrega?</summary>
+          <p>Você decide. Pode entregar com motoboy próprio, com motoboy terceirizado (DoorDash Drive, Uber Direct) ou cliente retira. A gente só processa o pagamento — a logística é com você. Em breve teremos integração com motoboy on-demand.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>O estoque atualiza sozinho quando vende?</summary>
+          <p>Sim. Cada pedido pago decrementa o estoque automaticamente. Quando o estoque chega a zero, o produto fica indisponível no catálogo (você vê no painel). É só repor.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Posso ter produtos com preço por peso (libra/kg)?</summary>
+          <p>Hoje preço é fixo por unidade. Pra carnes e itens por peso, recomendamos vender em pacotes pré-determinados ("Picanha 1 lb", "Picanha 2 lb"). Estamos avaliando preço por peso pra próxima versão.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>E se cliente quer trocar/cancelar?</summary>
+          <p>Estorno pelo Stripe (botão no painel). Você decide a política — pode permitir cancelamento até 1h antes da retirada, por exemplo. Cobramos a comissão de volta do estorno.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Funciona pra atender empresas (B2B)?</summary>
+          <p>Funciona, mas hoje sem features específicas de B2B (nota fiscal, preço por cliente, pedido recorrente). Você pode usar tags pra separar clientes e fazer pedido sob encomenda via WhatsApp pelo perfil.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Quem paga o frete?</summary>
+          <p>Você decide. Pode incluir taxa de entrega fixa, mínima de pedido pra entrega grátis, ou cobrar separado. Em breve teremos campo dedicado pra taxa de entrega.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container-narrow">
+        <h2>Pronto pra começar?</h2>
+        <p>Cadastro grátis. Sem cartão de crédito. Aprovação em 48h.</p>
+        <a href="/negocio?module=grocery#cadastro" class="btn btn-primary" style="padding:16px 32px;font-size:16px;font-weight:700;">🚀 Cadastrar meu mercado →</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bc-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
+          <p class="footer-tagline">A plataforma para brasileiros nos EUA.</p>
+        </div>
+        <div>
+          <h4>Para seu negócio</h4>
+          <a href="/para/restaurant/">Restaurante</a>
+          <a href="/para/grocery/">Mercado</a>
+          <a href="/para/retail/">Loja (Retail)</a>
+          <a href="/para/agenda-pro/">AgendaPro</a>
+          <a href="/para/showcase/">Divulgação</a>
+        </div>
+        <div>
+          <h4>Sobre</h4>
+          <a href="/">Início</a>
+          <a href="/custo-de-vida/">Cidades</a>
+          <a href="/guias/">Guias</a>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 BrasilConnect USA</div>
+    </div>
+  </footer>
+</body>
+</html>

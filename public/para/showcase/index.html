@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://brasilconnectusa.com/para/showcase/">
+  <title>Divulgação — Perfil no diretório brasileiro dos EUA | BrasilConnect</title>
+  <meta name="description" content="Só perfil — sem loja, sem agenda. Pra advogado, contador, igreja, imobiliária, escola. Apareça no diretório com fotos, contato e descrição.">
+  <meta name="theme-color" content="#1F4D3F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    .module-hero { background: linear-gradient(135deg, #0F172A 0%, #475569 100%); color: #fff; padding: 80px 0 60px; }
+    .module-hero .container-narrow { padding: 0 40px; }
+    .module-hero .emoji-big { font-size: 64px; margin-bottom: 16px; }
+    .module-hero h1 { color: #fff; font-family: var(--font-display); font-size: 56px; font-weight: 600; margin: 0 0 12px 0; letter-spacing: -0.02em; }
+    .module-hero .tagline { color: #FFD700; font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+    .module-hero .lede { color: rgba(255,255,255,0.9); font-size: 17px; line-height: 1.65; max-width: 600px; }
+    .module-hero .cta-row { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .module-hero .btn-primary { background: #FFD700; color: #0F172A; border: none; padding: 14px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; font-size: 15px; }
+    .module-hero .btn-ghost-white { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 14px 28px; font-weight: 600; border-radius: 8px; text-decoration: none; font-size: 15px; }
+
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 32px 0; }
+    .step-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; position: relative; }
+    .step-card .step-num { position: absolute; top: -14px; left: 24px; background: var(--green-deep); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .step-card h4 { font-family: var(--font-display); font-size: 18px; margin: 6px 0 8px 0; color: var(--ink); }
+    .step-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+    .uses-list { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 28px; margin: 24px 0; }
+    .uses-list h3 { margin: 0 0 14px 0; font-size: 18px; }
+    .uses-list ul { margin: 0; padding-left: 22px; }
+    .uses-list li { padding: 5px 0; color: var(--ink-soft); line-height: 1.7; }
+
+    .plans-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin: 24px 0; }
+    .plan-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+    .plan-card.featured { border-color: var(--green-deep); border-width: 2px; position: relative; }
+    .plan-card.featured::before { content: 'POPULAR'; position: absolute; top: -10px; right: 16px; background: var(--green-deep); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.08em; }
+    .plan-card h4 { font-family: var(--font-display); font-size: 22px; margin: 0 0 6px 0; color: var(--ink); }
+    .plan-card .price { font-family: var(--font-display); font-size: 32px; font-weight: 300; margin-bottom: 18px; }
+    .plan-card .price small { font-size: 14px; color: var(--ink-muted); font-weight: 400; }
+    .plan-card ul { list-style: none; padding: 0; margin: 0; }
+    .plan-card li { padding: 6px 0; font-size: 14px; color: var(--ink-soft); }
+    .plan-card li::before { content: '✓ '; color: var(--green-deep); font-weight: 700; }
+
+    .mockup { background: #FAFAFA; border: 1px solid var(--line); border-radius: 14px; padding: 32px; margin: 24px 0; }
+    .mockup-header { display: flex; align-items: center; gap: 10px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; font-size: 13px; color: var(--ink-muted); }
+    .mockup-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #DCFCE7; }
+    .biz-preview { background: #fff; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+    .biz-preview .cover { height: 140px; background: linear-gradient(135deg,#dbeafe,#3b82f6); position: relative; }
+    .biz-preview .body { padding: 20px; }
+    .biz-preview .name { font-family: var(--font-display); font-size: 22px; font-weight: 600; color: var(--ink); margin: 0 0 4px 0; }
+    .biz-preview .cat { font-size: 12px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 10px; }
+    .biz-preview .desc { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 14px; }
+    .biz-preview .contact { display: flex; gap: 8px; flex-wrap: wrap; }
+    .biz-preview .contact a { background: var(--paper-soft); color: var(--ink); padding: 8px 14px; border-radius: 6px; font-size: 13px; text-decoration: none; font-weight: 600; }
+    .biz-preview .verified { position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.95); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; color: var(--green-deep); }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item summary { font-weight: 600; cursor: pointer; color: var(--ink); font-size: 15px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::before { content: '+ '; color: var(--green); font-weight: 700; }
+    .faq-item[open] summary::before { content: '− '; }
+    .faq-item p { margin: 10px 0 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+
+    .final-cta { background: var(--paper-soft); padding: 60px 0; text-align: center; margin-top: 40px; }
+    .final-cta h2 { font-family: var(--font-display); font-size: 36px; margin-bottom: 12px; }
+    .final-cta p { color: var(--ink-soft); font-size: 16px; margin-bottom: 24px; }
+  </style>
+</head>
+<body class="has-flag-stripe">
+  <nav class="bc-nav">
+    <a href="/" class="bc-logo">Brasil<em>Connect</em></a>
+    <div class="bc-nav-links">
+      <a href="/" class="bc-nl">Início</a>
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/para/" class="bc-nl active">Para seu negócio</a>
+      <a href="/negocio/" class="bc-nl">Negócios</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="module-hero">
+      <div class="container-narrow">
+        <div class="emoji-big">📣</div>
+        <h1>Divulgação</h1>
+        <div class="tagline">Só perfil. Sem loja, sem agenda. Direto ao ponto.</div>
+        <p class="lede">Pra advogado, contador, igreja, imobiliária, escola, escritório. Apareça no diretório de negócios brasileiros nos EUA com foto, descrição, contato e endereço. Cliente brasileiro busca por categoria e cidade — você aparece.</p>
+        <div class="cta-row">
+          <a href="/negocio?module=showcase#cadastro" class="btn-primary">🚀 Cadastrar perfil →</a>
+          <a href="#planos" class="btn-ghost-white">Ver planos</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Como funciona</div>
+        <h2>Do cadastro à primeira ligação em 1 dia.</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <span class="step-num">1</span>
+            <h4>Cadastra o negócio</h4>
+            <p>Nome, categoria, endereço, telefone, WhatsApp, Instagram, site. Aprovação em até 48h.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">2</span>
+            <h4>Adiciona fotos</h4>
+            <p>Logo, foto da fachada, galeria com até 10 fotos. Vídeo opcional (YouTube ou Vimeo).</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">3</span>
+            <h4>Aparece na busca</h4>
+            <p>Cliente brasileiro busca "advogado de imigração em Boston" ou "contador em Orlando" e vê seu perfil.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">4</span>
+            <h4>Recebe contato</h4>
+            <p>Cliente liga, manda WhatsApp ou clica no site direto do seu perfil. Você atende como sempre — sem novo software pra aprender.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Pra quem é</div>
+        <h2>Negócios que vendem confiança, não produto.</h2>
+        <div class="uses-list">
+          <h3>Casos de uso típicos</h3>
+          <ul>
+            <li><strong>Advogado</strong> — imigração, família, trabalhista. Cliente precisa de profissional que fala português antes de qualquer coisa.</li>
+            <li><strong>Contador / CPA brasileiro</strong> — Income Tax, ITIN, abertura de LLC. Cliente quer alguém que entende o sistema brasileiro também.</li>
+            <li><strong>Imobiliária / Realtor</strong> — compra, venda, aluguel. Atende brasileiros que estão mudando ou comprando primeiro imóvel.</li>
+            <li><strong>Igreja / comunidade</strong> — culto em português, missa, encontro. Pessoas novas na cidade procuram.</li>
+            <li><strong>Escola brasileira / curso de português</strong> — aulas pra filhos manterem o português, curso pra americano aprender.</li>
+            <li><strong>Médico, dentista que não usa agenda online</strong> — só quer aparecer e receber ligação como sempre.</li>
+            <li><strong>Mecânico, eletricista, encanador</strong> — serviço sob demanda, agendamento via telefone.</li>
+            <li><strong>Despachante, tradutor juramentado, fotógrafo</strong> — serviço B2C ou B2B, vendido por reputação.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="background:var(--paper-soft);">
+      <div class="container-narrow">
+        <div class="eyebrow">Preview</div>
+        <h2>Como seu perfil aparece no diretório.</h2>
+        <div class="mockup">
+          <div class="mockup-header">
+            <div class="dot"></div>
+            <span><strong>brasilconnectusa.com</strong>/negocio/silva-imigracao-law</span>
+          </div>
+          <div class="biz-preview">
+            <div class="cover">
+              <div class="verified">✓ Verificado</div>
+            </div>
+            <div class="body">
+              <h3 class="name">Silva Imigração Law Firm</h3>
+              <div class="cat">Advocacia · Boston, MA</div>
+              <p class="desc">Escritório brasileiro especializado em imigração. Green Card por casamento, EB-2 NIW, EB-5, asilo. Atendimento em português há 12 anos. Primeira consulta gratuita.</p>
+              <div class="contact">
+                <a href="#">📞 (617) 555-0123</a>
+                <a href="#">💬 WhatsApp</a>
+                <a href="#">🌐 silvaimigracao.com</a>
+                <a href="#">📍 123 Main St, Boston MA</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="planos">
+      <div class="container-narrow">
+        <div class="eyebrow">Planos</div>
+        <h2>Free é o suficiente. Pago é pra quem quer destaque.</h2>
+        <p class="lede" style="margin-top:14px;margin-bottom:24px;">A maioria dos negócios funciona bem só com o Free. Pro libera fotos profissionais ilimitadas + redes sociais. Premium é pra quem quer aparecer no topo da categoria.</p>
+
+        <div class="plans-cards">
+          <div class="plan-card">
+            <h4>Free</h4>
+            <div class="price">$0<small> / mês</small></div>
+            <ul>
+              <li>Perfil público no diretório</li>
+              <li>Telefone + WhatsApp</li>
+              <li>1 foto de capa + descrição</li>
+              <li>Aprovação em 48h</li>
+            </ul>
+          </div>
+          <div class="plan-card featured">
+            <h4>Pro</h4>
+            <div class="price">$9<small> / mês</small></div>
+            <ul>
+              <li>Tudo do Free</li>
+              <li>Logo + capa + galeria (10 fotos)</li>
+              <li>Vídeo (YouTube/Vimeo)</li>
+              <li>Instagram + Facebook</li>
+              <li>Descrição completa</li>
+            </ul>
+          </div>
+          <div class="plan-card">
+            <h4>Premium</h4>
+            <div class="price">Em breve</div>
+            <ul>
+              <li>Tudo do Pro</li>
+              <li>Badge verificado</li>
+              <li>Destaque no topo da categoria</li>
+              <li>Analytics de visitas</li>
+              <li>Prioridade SEO</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Perguntas</div>
+        <h2>Dúvidas frequentes</h2>
+
+        <details class="faq-item">
+          <summary>Como é diferente do Google My Business?</summary>
+          <p>Google My Business é genérico — todo mundo está lá. Aqui é diretório <strong>especializado em brasileiro nos EUA</strong>. Cliente que busca "advogado brasileiro" filtra por categoria + cidade e encontra você direto. Você aparece nos dois — não precisa escolher.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Cliente pode me avaliar?</summary>
+          <p>Pode. Reviews públicas (igual Yelp/Google) com nota de 1-5 e comentário. Premium libera resposta às reviews. Reviews são moderadas — review ofensiva ou falsa é removida.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Quanto tempo até aparecer no Google?</summary>
+          <p>Geralmente 7-14 dias depois da aprovação. A gente otimiza o perfil pra SEO (schema.org, meta tags, sitemap) então Google encontra rápido. URL fica tipo brasilconnectusa.com/negocio/seu-nome.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Posso linkar pro meu próprio site?</summary>
+          <p>Pode. Botão "Site" no seu perfil leva direto pra sua URL. Não cobramos por isso — é Free.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Mais tarde posso virar Restaurante ou Mercado?</summary>
+          <p>Pode. No painel tem "Trocar módulo" — vira Restaurante/Mercado/Retail/AgendaPro sem perder fotos, descrição ou contato. Só ganha abas novas (Cardápio, Pedidos, etc).</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>E se eu não quero aparecer em busca pública?</summary>
+          <p>Aí não é pra você — a ideia é justamente aparecer. Se quer só um link privado pra mandar pra clientes específicos, você pode criar perfil e desativar a indexação na hora do cadastro (opção em "Não listar publicamente").</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container-narrow">
+        <h2>Pronto pra começar?</h2>
+        <p>Cadastro grátis. Sem cartão de crédito. Aprovação em 48h.</p>
+        <a href="/negocio?module=showcase#cadastro" class="btn btn-primary" style="padding:16px 32px;font-size:16px;font-weight:700;">🚀 Cadastrar meu perfil →</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bc-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
+          <p class="footer-tagline">A plataforma para brasileiros nos EUA.</p>
+        </div>
+        <div>
+          <h4>Para seu negócio</h4>
+          <a href="/para/restaurant/">Restaurante</a>
+          <a href="/para/grocery/">Mercado</a>
+          <a href="/para/retail/">Loja (Retail)</a>
+          <a href="/para/agenda-pro/">AgendaPro</a>
+          <a href="/para/showcase/">Divulgação</a>
+        </div>
+        <div>
+          <h4>Sobre</h4>
+          <a href="/">Início</a>
+          <a href="/custo-de-vida/">Cidades</a>
+          <a href="/guias/">Guias</a>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 BrasilConnect USA</div>
+    </div>
+  </footer>
+</body>
+</html>

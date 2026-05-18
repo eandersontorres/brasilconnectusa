@@ -25,6 +25,7 @@
       <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
       <a href="/guias/" class="bc-nl">Guias</a>
       <a href="/agenda/" class="bc-nl">Agenda</a>
+      <a href="/para/" class="bc-nl">Para seu negócio</a>
       <a href="/negocio/" class="bc-nl active">Negócios</a>
       <a href="/?preview=brasil2026" class="bc-nl">App</a>
     </div>
@@ -254,12 +255,15 @@
         <div>
           <h4>Diretório</h4>
           <a href="#cadastro">Cadastrar negócio</a>
+          <a href="/para/">Escolher módulo</a>
         </div>
         <div>
-          <h4>Produtos</h4>
-          <a href="/agenda/">AgendaPro</a>
-          <a href="/grupos/">Grupos</a>
-          <a href="/viagem/">Viagem</a>
+          <h4>Para seu negócio</h4>
+          <a href="/para/restaurant/">Restaurante</a>
+          <a href="/para/grocery/">Mercado</a>
+          <a href="/para/retail/">Loja (Retail)</a>
+          <a href="/para/agenda-pro/">AgendaPro</a>
+          <a href="/para/showcase/">Divulgação</a>
         </div>
         <div>
           <h4>Sobre</h4>
@@ -330,6 +334,32 @@
       p.classList.add('active'); filterCat = p.dataset.cat; render()
     })
 
+    // ─── Pre-selecao via ?module= (vindo das landing pages /para/) ──────
+    // Mapping modulo -> categoria padrao (inverso do CATEGORY_TO_MODULE)
+    const MODULE_TO_DEFAULT_CAT = {
+      restaurant: 'restaurante',
+      grocery:    'mercado',
+      retail:     'imoveis',     // sem categoria 'loja' hoje — usuario escolhe a real
+      agenda_pro: 'beleza',
+      showcase:   '',            // multiplas categorias mapeiam aqui — deixa user escolher
+    }
+    function preselectFromUrl() {
+      const params = new URLSearchParams(window.location.search)
+      const mod = (params.get('module') || '').toLowerCase()
+      if (!mod || !MODULE_TO_DEFAULT_CAT.hasOwnProperty(mod)) return
+      // Seta override de modulo
+      const overrideSel = $('moduleOverride')
+      if (overrideSel) overrideSel.value = mod
+      // Sugere categoria default (se houver)
+      const defCat = MODULE_TO_DEFAULT_CAT[mod]
+      const catSel = $('catSelect')
+      if (catSel && defCat && !catSel.value) catSel.value = defCat
+      // Expande o details do override pra user enxergar
+      const det = document.querySelector('#moduleHintWrap details')
+      if (det) det.open = true
+      updateModuleHint()
+    }
+
     // ─── Modulo: mostra qual painel sera ativado conforme categoria ─────
     function updateModuleHint() {
       const cat = $('catSelect').value
@@ -374,6 +404,7 @@
     }
 
     load()
+    preselectFromUrl()
   </script>
 </body>
 </html>

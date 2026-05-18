@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://brasilconnectusa.com/para/retail/">
+  <title>Loja brasileira nos EUA — Vitrine online + pedidos | BrasilConnect</title>
+  <meta name="description" content="Vitrine online pra loja física brasileira nos EUA — roupas, artesanato, importados, suplementos. Sem maquininha extra. 2.5% por pedido.">
+  <meta name="theme-color" content="#1F4D3F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    .module-hero { background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 100%); color: #fff; padding: 80px 0 60px; }
+    .module-hero .container-narrow { padding: 0 40px; }
+    .module-hero .emoji-big { font-size: 64px; margin-bottom: 16px; }
+    .module-hero h1 { color: #fff; font-family: var(--font-display); font-size: 56px; font-weight: 600; margin: 0 0 12px 0; letter-spacing: -0.02em; }
+    .module-hero .tagline { color: #FFD700; font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+    .module-hero .lede { color: rgba(255,255,255,0.9); font-size: 17px; line-height: 1.65; max-width: 600px; }
+    .module-hero .cta-row { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .module-hero .btn-primary { background: #FFD700; color: #4c1d95; border: none; padding: 14px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; font-size: 15px; }
+    .module-hero .btn-ghost-white { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 14px 28px; font-weight: 600; border-radius: 8px; text-decoration: none; font-size: 15px; }
+
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 32px 0; }
+    .step-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; position: relative; }
+    .step-card .step-num { position: absolute; top: -14px; left: 24px; background: var(--green-deep); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .step-card h4 { font-family: var(--font-display); font-size: 18px; margin: 6px 0 8px 0; color: var(--ink); }
+    .step-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+    .uses-list { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 28px; margin: 24px 0; }
+    .uses-list h3 { margin: 0 0 14px 0; font-size: 18px; }
+    .uses-list ul { margin: 0; padding-left: 22px; }
+    .uses-list li { padding: 5px 0; color: var(--ink-soft); line-height: 1.7; }
+
+    .plans-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin: 24px 0; }
+    .plan-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+    .plan-card.featured { border-color: var(--green-deep); border-width: 2px; position: relative; }
+    .plan-card.featured::before { content: 'POPULAR'; position: absolute; top: -10px; right: 16px; background: var(--green-deep); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.08em; }
+    .plan-card h4 { font-family: var(--font-display); font-size: 22px; margin: 0 0 6px 0; color: var(--ink); }
+    .plan-card .price { font-family: var(--font-display); font-size: 32px; font-weight: 300; margin-bottom: 18px; }
+    .plan-card .price small { font-size: 14px; color: var(--ink-muted); font-weight: 400; }
+    .plan-card ul { list-style: none; padding: 0; margin: 0; }
+    .plan-card li { padding: 6px 0; font-size: 14px; color: var(--ink-soft); }
+    .plan-card li::before { content: '✓ '; color: var(--green-deep); font-weight: 700; }
+
+    .mockup { background: #FAFAFA; border: 1px solid var(--line); border-radius: 14px; padding: 32px; margin: 24px 0; }
+    .mockup-header { display: flex; align-items: center; gap: 10px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; font-size: 13px; color: var(--ink-muted); }
+    .mockup-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #DCFCE7; }
+    .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+    .product-card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+    .product-img { width: 100%; height: 130px; background: linear-gradient(135deg,#e9d5ff,#a855f7); border-radius: 6px; margin-bottom: 8px; }
+    .product-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+    .product-stock { font-size: 11px; color: var(--ink-muted); margin: 2px 0; }
+    .product-price { font-weight: 700; color: var(--green-deep); font-size: 14px; margin-top: 4px; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item summary { font-weight: 600; cursor: pointer; color: var(--ink); font-size: 15px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::before { content: '+ '; color: var(--green); font-weight: 700; }
+    .faq-item[open] summary::before { content: '− '; }
+    .faq-item p { margin: 10px 0 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+
+    .final-cta { background: var(--paper-soft); padding: 60px 0; text-align: center; margin-top: 40px; }
+    .final-cta h2 { font-family: var(--font-display); font-size: 36px; margin-bottom: 12px; }
+    .final-cta p { color: var(--ink-soft); font-size: 16px; margin-bottom: 24px; }
+  </style>
+</head>
+<body class="has-flag-stripe">
+  <nav class="bc-nav">
+    <a href="/" class="bc-logo">Brasil<em>Connect</em></a>
+    <div class="bc-nav-links">
+      <a href="/" class="bc-nl">Início</a>
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/para/" class="bc-nl active">Para seu negócio</a>
+      <a href="/negocio/" class="bc-nl">Negócios</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="module-hero">
+      <div class="container-narrow">
+        <div class="emoji-big">🛍️</div>
+        <h1>Loja (Retail)</h1>
+        <div class="tagline">Vitrine online pra loja física vender no digital.</div>
+        <p class="lede">Pra loja brasileira de roupa, calçado, artesanato, importado, suplemento, cosmético. Você tem loja física mas quer vender pela web sem pagar Shopify, Wix ou Squarespace? Aqui não tem mensalidade — só 2.5% por venda.</p>
+        <div class="cta-row">
+          <a href="/negocio?module=retail#cadastro" class="btn-primary">🚀 Cadastrar loja →</a>
+          <a href="#planos" class="btn-ghost-white">Ver planos</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Como funciona</div>
+        <h2>Do cadastro à primeira venda em 1 hora.</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <span class="step-num">1</span>
+            <h4>Cadastra a loja</h4>
+            <p>Nome, endereço, fachada, horário. Aprovação em até 48h.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">2</span>
+            <h4>Conecta o Stripe</h4>
+            <p>Onboarding direto no painel. Stripe pede dados bancários e EIN. Mesmo dia.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">3</span>
+            <h4>Sobe a vitrine</h4>
+            <p>Categorias (Roupa feminina, Acessórios, Calçado), produtos com foto, preço e estoque por tamanho/cor.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">4</span>
+            <h4>Vende e entrega</h4>
+            <p>Cliente paga online. Você embala, despacha (USPS, UPS, FedEx) ou guarda pra retirada na loja. Anote o tracking pro cliente.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Pra quem é</div>
+        <h2>Lojas físicas que querem o digital sem complicação.</h2>
+        <div class="uses-list">
+          <h3>Casos de uso típicos</h3>
+          <ul>
+            <li><strong>Loja de roupa brasileira</strong> — biquíni de Salinas, camiseta de futebol, vestido de festa.</li>
+            <li><strong>Loja de chinelos / sandálias</strong> — Havaianas, Ipanema, Melissa. Estoque por número.</li>
+            <li><strong>Loja de cosméticos brasileiros</strong> — Granado, Natura, O Boticário. Cliente acha o que não tem em loja americana.</li>
+            <li><strong>Suplementos / produtos naturais</strong> — guaraná em pó, açaí em pó, açaí concentrado.</li>
+            <li><strong>Artesanato e decoração</strong> — peças de Minas, redes do Nordeste, café especial.</li>
+            <li><strong>Brechó / segunda mão</strong> — peças únicas, foto + descrição, primeiro a pagar leva.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="background:var(--paper-soft);">
+      <div class="container-narrow">
+        <div class="eyebrow">Preview</div>
+        <h2>A vitrine que seu cliente vê.</h2>
+        <div class="mockup">
+          <div class="mockup-header">
+            <div class="dot"></div>
+            <span><strong>brasilconnectusa.com</strong>/negocio/sua-loja/cardapio</span>
+          </div>
+          <div style="font-family:var(--font-display);font-size:22px;font-weight:600;margin-bottom:14px;">👗 Vestidos de festa</div>
+          <div class="product-grid">
+            <div class="product-card">
+              <div class="product-img" style="background:linear-gradient(135deg,#fce7f3,#ec4899);"></div>
+              <div class="product-name">Vestido longo rosé</div>
+              <div class="product-stock">P, M, G · 4 em estoque</div>
+              <div class="product-price">$89.90</div>
+            </div>
+            <div class="product-card">
+              <div class="product-img" style="background:linear-gradient(135deg,#fef9c3,#facc15);"></div>
+              <div class="product-name">Vestido midi amarelo</div>
+              <div class="product-stock">M, G · 2 em estoque</div>
+              <div class="product-price">$72.00</div>
+            </div>
+            <div class="product-card">
+              <div class="product-img" style="background:linear-gradient(135deg,#dbeafe,#3b82f6);"></div>
+              <div class="product-name">Vestido tubinho azul</div>
+              <div class="product-stock">P, M · 6 em estoque</div>
+              <div class="product-price">$65.50</div>
+            </div>
+            <div class="product-card">
+              <div class="product-img" style="background:linear-gradient(135deg,#ede9fe,#8b5cf6);"></div>
+              <div class="product-name">Vestido de festa lilás</div>
+              <div class="product-stock">G, GG · 3 em estoque</div>
+              <div class="product-price">$110.00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="planos">
+      <div class="container-narrow">
+        <div class="eyebrow">Planos</div>
+        <h2>Sem mensalidade. Sem taxa de instalação.</h2>
+        <p class="lede" style="margin-top:14px;margin-bottom:24px;">Cobramos só 2.5% por venda paga. Compare com Shopify ($39/mês + 2.9% por venda) ou Etsy (transaction fee + listing fee).</p>
+
+        <div class="plans-cards">
+          <div class="plan-card">
+            <h4>Free</h4>
+            <div class="price">$0<small> / mês</small></div>
+            <ul>
+              <li>Perfil público no diretório</li>
+              <li>Telefone + WhatsApp</li>
+              <li>Catálogo com até 20 produtos</li>
+              <li>Aprovação em 48h</li>
+            </ul>
+          </div>
+          <div class="plan-card featured">
+            <h4>Pro</h4>
+            <div class="price">2.5%<small> / venda</small></div>
+            <ul>
+              <li>Tudo do Free</li>
+              <li>Catálogo ilimitado</li>
+              <li>Pedidos online com Stripe</li>
+              <li>Painel de pedidos</li>
+              <li>Controle de estoque</li>
+            </ul>
+          </div>
+          <div class="plan-card">
+            <h4>Premium</h4>
+            <div class="price">Em breve</div>
+            <ul>
+              <li>Tudo do Pro</li>
+              <li>Destaque na busca</li>
+              <li>Badge verificado</li>
+              <li>Analytics de vendas</li>
+              <li>Prioridade SEO</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Perguntas</div>
+        <h2>Dúvidas frequentes</h2>
+
+        <details class="faq-item">
+          <summary>Como faço pra entregar pra outros estados?</summary>
+          <p>Você cuida do envio (USPS, UPS, FedEx). O painel mostra o pedido com endereço do cliente, você embala e despacha. Em breve teremos campo de tracking number pra colar a etiqueta.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Posso ter variações (tamanho, cor)?</summary>
+          <p>Hoje cada variação é cadastrada como um produto separado (ex: "Vestido azul P", "Vestido azul M"). Estamos avaliando suporte nativo a variações pra próxima versão.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>E se cliente quiser devolver?</summary>
+          <p>Estorno pelo Stripe (botão no painel). Você decide a política — pode permitir devolução em 7 dias, 30 dias, ou só troca. Recomendamos deixar claro na descrição. Cobramos a comissão de volta do estorno.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>É melhor que Shopify pra mim?</summary>
+          <p>Depende. Shopify é mais completo mas custa $39/mês + tem aprendizado. Aqui é 0/mês, mais simples, mas tem menos features (sem variações nativas, sem cupom, sem múltiplas imagens por produto). Pra começar é melhor — quando seu volume justificar Shopify, migra. Você não fica preso.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Quem paga o frete?</summary>
+          <p>Você decide. Pode embutir no preço, cobrar fixo, ou frete grátis acima de X. Em breve teremos campo dedicado pra calcular frete por peso/destino.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Cliente paga em quantas vezes?</summary>
+          <p>Cartão de crédito americano à vista (Stripe não parcela como no Brasil). Em breve adicionaremos Klarna/Afterpay pra parcelar em 4x sem juros.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container-narrow">
+        <h2>Pronto pra começar?</h2>
+        <p>Cadastro grátis. Sem cartão de crédito. Aprovação em 48h.</p>
+        <a href="/negocio?module=retail#cadastro" class="btn btn-primary" style="padding:16px 32px;font-size:16px;font-weight:700;">🚀 Cadastrar minha loja →</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bc-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
+          <p class="footer-tagline">A plataforma para brasileiros nos EUA.</p>
+        </div>
+        <div>
+          <h4>Para seu negócio</h4>
+          <a href="/para/restaurant/">Restaurante</a>
+          <a href="/para/grocery/">Mercado</a>
+          <a href="/para/retail/">Loja (Retail)</a>
+          <a href="/para/agenda-pro/">AgendaPro</a>
+          <a href="/para/showcase/">Divulgação</a>
+        </div>
+        <div>
+          <h4>Sobre</h4>
+          <a href="/">Início</a>
+          <a href="/custo-de-vida/">Cidades</a>
+          <a href="/guias/">Guias</a>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 BrasilConnect USA</div>
+    </div>
+  </footer>
+</body>
+</html>

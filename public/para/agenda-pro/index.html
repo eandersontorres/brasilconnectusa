@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://brasilconnectusa.com/para/agenda-pro/">
+  <title>AgendaPro — Agendamento online pra profissionais brasileiros nos EUA | BrasilConnect</title>
+  <meta name="description" content="Cliente vê horários disponíveis e agenda direto no seu calendário. Lembretes automáticos. Pra cabeleireira, massagista, dentista, personal nos EUA.">
+  <meta name="theme-color" content="#1F4D3F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    .module-hero { background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 100%); color: #fff; padding: 80px 0 60px; }
+    .module-hero .container-narrow { padding: 0 40px; }
+    .module-hero .emoji-big { font-size: 64px; margin-bottom: 16px; }
+    .module-hero h1 { color: #fff; font-family: var(--font-display); font-size: 56px; font-weight: 600; margin: 0 0 12px 0; letter-spacing: -0.02em; }
+    .module-hero .tagline { color: #FFD700; font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+    .module-hero .lede { color: rgba(255,255,255,0.9); font-size: 17px; line-height: 1.65; max-width: 600px; }
+    .module-hero .cta-row { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .module-hero .btn-primary { background: #FFD700; color: #0c4a6e; border: none; padding: 14px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; font-size: 15px; }
+    .module-hero .btn-ghost-white { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 14px 28px; font-weight: 600; border-radius: 8px; text-decoration: none; font-size: 15px; }
+
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 32px 0; }
+    .step-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; position: relative; }
+    .step-card .step-num { position: absolute; top: -14px; left: 24px; background: var(--green-deep); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .step-card h4 { font-family: var(--font-display); font-size: 18px; margin: 6px 0 8px 0; color: var(--ink); }
+    .step-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+    .uses-list { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 28px; margin: 24px 0; }
+    .uses-list h3 { margin: 0 0 14px 0; font-size: 18px; }
+    .uses-list ul { margin: 0; padding-left: 22px; }
+    .uses-list li { padding: 5px 0; color: var(--ink-soft); line-height: 1.7; }
+
+    .plans-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin: 24px 0; }
+    .plan-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+    .plan-card.featured { border-color: var(--green-deep); border-width: 2px; position: relative; }
+    .plan-card.featured::before { content: 'POPULAR'; position: absolute; top: -10px; right: 16px; background: var(--green-deep); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.08em; }
+    .plan-card h4 { font-family: var(--font-display); font-size: 22px; margin: 0 0 6px 0; color: var(--ink); }
+    .plan-card .price { font-family: var(--font-display); font-size: 32px; font-weight: 300; margin-bottom: 18px; }
+    .plan-card .price small { font-size: 14px; color: var(--ink-muted); font-weight: 400; }
+    .plan-card ul { list-style: none; padding: 0; margin: 0; }
+    .plan-card li { padding: 6px 0; font-size: 14px; color: var(--ink-soft); }
+    .plan-card li::before { content: '✓ '; color: var(--green-deep); font-weight: 700; }
+
+    .mockup { background: #FAFAFA; border: 1px solid var(--line); border-radius: 14px; padding: 32px; margin: 24px 0; }
+    .mockup-header { display: flex; align-items: center; gap: 10px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; font-size: 13px; color: var(--ink-muted); }
+    .mockup-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #DCFCE7; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 12px; }
+    .cal-day-label { font-size: 11px; color: var(--ink-muted); text-align: center; padding: 6px 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .cal-slot { background: #fff; border: 1px solid var(--line); padding: 10px 4px; text-align: center; font-size: 12px; border-radius: 6px; cursor: pointer; }
+    .cal-slot.busy { background: #FEE2E2; color: #991B1B; opacity: 0.5; cursor: not-allowed; text-decoration: line-through; }
+    .cal-slot.free { background: #DCFCE7; color: #166534; border-color: #86EFAC; font-weight: 600; }
+    .cal-slot.selected { background: var(--green-deep); color: #fff; border-color: var(--green-deep); font-weight: 700; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item summary { font-weight: 600; cursor: pointer; color: var(--ink); font-size: 15px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::before { content: '+ '; color: var(--green); font-weight: 700; }
+    .faq-item[open] summary::before { content: '− '; }
+    .faq-item p { margin: 10px 0 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+
+    .final-cta { background: var(--paper-soft); padding: 60px 0; text-align: center; margin-top: 40px; }
+    .final-cta h2 { font-family: var(--font-display); font-size: 36px; margin-bottom: 12px; }
+    .final-cta p { color: var(--ink-soft); font-size: 16px; margin-bottom: 24px; }
+  </style>
+</head>
+<body class="has-flag-stripe">
+  <nav class="bc-nav">
+    <a href="/" class="bc-logo">Brasil<em>Connect</em></a>
+    <div class="bc-nav-links">
+      <a href="/" class="bc-nl">Início</a>
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/para/" class="bc-nl active">Para seu negócio</a>
+      <a href="/negocio/" class="bc-nl">Negócios</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="module-hero">
+      <div class="container-narrow">
+        <div class="emoji-big">📅</div>
+        <h1>AgendaPro</h1>
+        <div class="tagline">Cliente agenda direto no seu calendário, 24 horas.</div>
+        <p class="lede">Pra profissionais que vendem horários — cabeleireira, massagista, dentista, personal trainer, manicure, esteticista. Cliente vê os horários livres da semana, escolhe e confirma. Você recebe a notificação e o lembrete vai sozinho 24h antes.</p>
+        <div class="cta-row">
+          <a href="/negocio?module=agenda_pro#cadastro" class="btn-primary">🚀 Cadastrar perfil →</a>
+          <a href="#planos" class="btn-ghost-white">Ver planos</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Como funciona</div>
+        <h2>Do cadastro à primeira marcação em 30 minutos.</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <span class="step-num">1</span>
+            <h4>Cadastra o perfil</h4>
+            <p>Nome, foto, especialidade, endereço (ou "atendo a domicílio"). Aprovação em até 48h.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">2</span>
+            <h4>Define horários</h4>
+            <p>Quando atende (seg-sex 9h-18h, ou sábado tarde, etc) e duração padrão dos serviços (corte 30min, escova 1h, química 2h).</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">3</span>
+            <h4>Cliente agenda</h4>
+            <p>Cliente entra no seu perfil, vê só os horários livres e escolhe. Recebe confirmação por email e lembrete 24h antes.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">4</span>
+            <h4>Atende</h4>
+            <p>Painel mostra a agenda do dia/semana. Cliente paga no atendimento (ou online, em breve). Sem WhatsApp pra marcar = menos confusão.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Pra quem é</div>
+        <h2>Pra quem vende horário, não produto.</h2>
+        <div class="uses-list">
+          <h3>Casos de uso típicos</h3>
+          <ul>
+            <li><strong>Cabeleireira / barbeiro brasileiro</strong> — escova progressiva, corte masculino, química. Cada serviço com duração diferente.</li>
+            <li><strong>Massagista / esteticista</strong> — drenagem, modeladora, depilação. Atende em clínica ou a domicílio.</li>
+            <li><strong>Manicure / pedicure</strong> — esmaltação em gel, banho de loja, pé e mão. Agenda na hora pelo celular.</li>
+            <li><strong>Dentista / médico</strong> — consulta, limpeza, clareamento. Define qual serviço cada slot atende.</li>
+            <li><strong>Personal trainer</strong> — treino individual, dupla, online. Cliente reserva o slot da semana inteira de uma vez.</li>
+            <li><strong>Professor particular</strong> — aula de inglês, português pra americano, reforço escolar. Cliente recorrente agenda mês inteiro.</li>
+            <li><strong>Coach / terapeuta</strong> — sessão de 50min, pacote mensal. Lembrete automático evita falta.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="background:var(--paper-soft);">
+      <div class="container-narrow">
+        <div class="eyebrow">Preview</div>
+        <h2>O que seu cliente vê quando vai agendar.</h2>
+        <div class="mockup">
+          <div class="mockup-header">
+            <div class="dot"></div>
+            <span><strong>brasilconnectusa.com</strong>/agenda/sua-especialidade</span>
+          </div>
+          <div style="font-family:var(--font-display);font-size:22px;font-weight:600;margin-bottom:4px;">📅 Escolha um horário</div>
+          <div style="color:var(--ink-muted);font-size:13px;margin-bottom:12px;">Semana de 18 a 24 de maio · Escova brasileira (1h) · $80</div>
+          <div class="cal-grid">
+            <div class="cal-day-label">Seg 18</div>
+            <div class="cal-day-label">Ter 19</div>
+            <div class="cal-day-label">Qua 20</div>
+            <div class="cal-day-label">Qui 21</div>
+            <div class="cal-day-label">Sex 22</div>
+            <div class="cal-day-label">Sáb 23</div>
+            <div class="cal-day-label">Dom 24</div>
+
+            <div class="cal-slot busy">9:00</div>
+            <div class="cal-slot free">9:00</div>
+            <div class="cal-slot busy">9:00</div>
+            <div class="cal-slot free">9:00</div>
+            <div class="cal-slot busy">9:00</div>
+            <div class="cal-slot free">9:00</div>
+            <div class="cal-slot" style="opacity:0.4;">—</div>
+
+            <div class="cal-slot free">11:00</div>
+            <div class="cal-slot busy">11:00</div>
+            <div class="cal-slot free">11:00</div>
+            <div class="cal-slot busy">11:00</div>
+            <div class="cal-slot free">11:00</div>
+            <div class="cal-slot selected">11:00</div>
+            <div class="cal-slot" style="opacity:0.4;">—</div>
+
+            <div class="cal-slot busy">14:00</div>
+            <div class="cal-slot free">14:00</div>
+            <div class="cal-slot free">14:00</div>
+            <div class="cal-slot busy">14:00</div>
+            <div class="cal-slot free">14:00</div>
+            <div class="cal-slot busy">14:00</div>
+            <div class="cal-slot" style="opacity:0.4;">—</div>
+
+            <div class="cal-slot free">16:00</div>
+            <div class="cal-slot busy">16:00</div>
+            <div class="cal-slot busy">16:00</div>
+            <div class="cal-slot free">16:00</div>
+            <div class="cal-slot busy">16:00</div>
+            <div class="cal-slot free">16:00</div>
+            <div class="cal-slot" style="opacity:0.4;">—</div>
+          </div>
+          <div style="margin-top:14px;font-size:11px;color:var(--ink-muted);">
+            <span style="display:inline-block;width:10px;height:10px;background:#DCFCE7;border:1px solid #86EFAC;border-radius:3px;vertical-align:middle;"></span> Livre
+            &nbsp;&nbsp;<span style="display:inline-block;width:10px;height:10px;background:#FEE2E2;border-radius:3px;vertical-align:middle;"></span> Ocupado
+            &nbsp;&nbsp;<span style="display:inline-block;width:10px;height:10px;background:var(--green-deep);border-radius:3px;vertical-align:middle;"></span> Selecionado
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="planos">
+      <div class="container-narrow">
+        <div class="eyebrow">Planos</div>
+        <h2>Comece grátis. Atualize quando precisar.</h2>
+        <p class="lede" style="margin-top:14px;margin-bottom:24px;">Free é suficiente pra começar. Pro libera agendamentos ilimitados + lembretes por SMS.</p>
+
+        <div class="plans-cards">
+          <div class="plan-card">
+            <h4>Free</h4>
+            <div class="price">$0<small> / mês</small></div>
+            <ul>
+              <li>Perfil público no diretório</li>
+              <li>Página de agendamento</li>
+              <li>Até 20 agendamentos / mês</li>
+              <li>Lembrete por email</li>
+            </ul>
+          </div>
+          <div class="plan-card featured">
+            <h4>Pro</h4>
+            <div class="price">$19<small> / mês</small></div>
+            <ul>
+              <li>Tudo do Free</li>
+              <li>Agendamentos ilimitados</li>
+              <li>Lembrete por SMS</li>
+              <li>Pagamento online (Stripe)</li>
+              <li>Cancelamento até X horas antes</li>
+            </ul>
+          </div>
+          <div class="plan-card">
+            <h4>Premium</h4>
+            <div class="price">Em breve</div>
+            <ul>
+              <li>Tudo do Pro</li>
+              <li>Multi-profissional (salão com várias)</li>
+              <li>Reviews pós-atendimento</li>
+              <li>Analytics de no-shows</li>
+              <li>Pacotes de sessões</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Perguntas</div>
+        <h2>Dúvidas frequentes</h2>
+
+        <details class="faq-item">
+          <summary>Como evita marcação em horário que já tô ocupado?</summary>
+          <p>O sistema só mostra horários livres do seu calendário. Se você bloquear um dia (férias, doutor) ou marcar um cliente offline, o slot some pra os outros. Em breve teremos sync com Google Calendar pra evitar dupla marcação com seus compromissos pessoais.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Cliente paga online ou no atendimento?</summary>
+          <p>Free: paga no atendimento (você cobra cash/Zelle/Venmo/cartão no local). Pro: ativa pagamento online via Stripe — cliente paga ao marcar, você só atende quando o pagamento confirma. Reduz no-show drasticamente.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>E se cliente não aparecer (no-show)?</summary>
+          <p>Free: você marca como no-show no painel pra histórico. Pro: cliente paga upfront então perde o valor (você define política de reembolso). Premium terá analytics de no-show por cliente pra evitar repetidos.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Lembrete por SMS funciona pra celular brasileiro?</summary>
+          <p>Funciona — SMS internacional. Mas a maioria dos clientes nos EUA tem celular americano, então a entrega é instantânea. WhatsApp como canal de lembrete está no roadmap.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Trabalho em casa / vou na casa do cliente. Funciona?</summary>
+          <p>Funciona. Você define no perfil: "Atendo em [endereço]" ou "Vou até você (raio de X milhas)". Endereço só aparece pro cliente depois de confirmar agendamento.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Tenho 3 profissionais no salão. Posso ter um perfil pra cada?</summary>
+          <p>Hoje cada profissional precisa de email separado pra cadastrar. Premium (em breve) vai ter multi-profissional num único salão — cliente escolhe com quem quer agendar.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container-narrow">
+        <h2>Pronto pra começar?</h2>
+        <p>Cadastro grátis. Sem cartão de crédito. Aprovação em 48h.</p>
+        <a href="/negocio?module=agenda_pro#cadastro" class="btn btn-primary" style="padding:16px 32px;font-size:16px;font-weight:700;">🚀 Cadastrar meu perfil →</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bc-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
+          <p class="footer-tagline">A plataforma para brasileiros nos EUA.</p>
+        </div>
+        <div>
+          <h4>Para seu negócio</h4>
+          <a href="/para/restaurant/">Restaurante</a>
+          <a href="/para/grocery/">Mercado</a>
+          <a href="/para/retail/">Loja (Retail)</a>
+          <a href="/para/agenda-pro/">AgendaPro</a>
+          <a href="/para/showcase/">Divulgação</a>
+        </div>
+        <div>
+          <h4>Sobre</h4>
+          <a href="/">Início</a>
+          <a href="/custo-de-vida/">Cidades</a>
+          <a href="/guias/">Guias</a>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 BrasilConnect USA</div>
+    </div>
+  </footer>
+</body>
+</html>
