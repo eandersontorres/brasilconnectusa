@@ -241,6 +241,9 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
   const [classifiedPrice, setClassifiedPrice] = useState('')
   const [classifiedKind, setClassifiedKind]   = useState('sell')
   const [classifiedContact, setClassifiedContact] = useState('')
+  // Campos específicos de event
+  const [eventDate, setEventDate] = useState('')
+  const [eventLocation, setEventLocation] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
@@ -274,6 +277,9 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
     if (type === 'classified' && classifiedKind === 'sell' && !classifiedPrice) {
       setError('Pra vender informe o preço'); return
     }
+    if (type === 'event' && !eventDate) {
+      setError('Data do evento obrigatória'); return
+    }
     setSubmitting(true); setError(null)
     try {
       const payload = { user_id: user.id, community_id: communityId, type, title, body }
@@ -282,6 +288,10 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
         payload.classified_kind = classifiedKind
         payload.classified_contact = classifiedContact.trim() || null
         payload.classified_status = 'available'
+      }
+      if (type === 'event') {
+        payload.event_date = new Date(eventDate).toISOString()
+        payload.event_location = eventLocation.trim() || null
       }
       const res = await fetch('/api/social?action=create-post', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -409,6 +419,39 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
                   value={classifiedContact}
                   onChange={e => setClassifiedContact(e.target.value)}
                   placeholder="+1 (555) 555-5555"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Campos específicos de Evento */}
+          {type === 'event' && (
+            <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#92400E', textTransform: 'uppercase', letterSpacing: 1 }}>
+                ◉ Evento — detalhes
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.inkSoft, display: 'block', marginBottom: 4 }}>
+                  Data e hora *
+                </label>
+                <input
+                  type="datetime-local"
+                  value={eventDate}
+                  onChange={e => setEventDate(e.target.value)}
+                  required
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.inkSoft, display: 'block', marginBottom: 4 }}>
+                  Local (opcional)
+                </label>
+                <input
+                  type="text" maxLength={200}
+                  value={eventLocation}
+                  onChange={e => setEventLocation(e.target.value)}
+                  placeholder="Ex: 123 Main St, Boston · ou Online"
                   style={inputStyle}
                 />
               </div>

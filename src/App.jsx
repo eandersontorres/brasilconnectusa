@@ -12,6 +12,7 @@ const MarketplaceScreen      = lazy(() => import('./MarketplaceScreen'))
 const ComunidadesScreen      = lazy(() => import('./ComunidadesScreen'))
 const CommunityDetailScreen  = lazy(() => import('./CommunityDetailScreen'))
 const SettingsScreen         = lazy(() => import('./SettingsScreen'))
+const EventsScreen           = lazy(() => import('./EventsScreen'))
 
 function TabFallback() {
   return (
@@ -1233,7 +1234,7 @@ function VoosScreen({ affiliateLinks }) {
 
 // ─── App Principal (usa AppShell responsivo) ──────────────────────────────
 
-const VALID_TABS = ['feed', 'discover', 'comunidades', 'community', 'remessas', 'voos', 'agenda', 'bolao', 'marketplace', 'settings']
+const VALID_TABS = ['feed', 'discover', 'comunidades', 'community', 'eventos', 'remessas', 'voos', 'agenda', 'bolao', 'marketplace', 'settings']
 const TAB_ALIASES = { cambio: 'remessas', comparador: 'remessas', 'venda-troca': 'marketplace', classifieds: 'marketplace' }
 // Slugs antigos que agora redirecionam pra páginas estáticas (1 source of truth)
 const REDIRECT_SLUGS = { negocios: '/negocio', negocio: '/negocio' }
@@ -1362,6 +1363,12 @@ export default function App() {
           ? <Suspense fallback={<TabFallback />}><SettingsScreen onNavigate={setTab} /></Suspense>
           : <LoginGate emoji="⚙️" title="Entre pra ver suas Configurações"
               message="Edite seu perfil, localização, notificações e mais." />
+        )}
+        {tab === 'eventos' && (user
+          ? <Suspense fallback={<TabFallback />}><EventsScreen onNavigate={setTab} /></Suspense>
+          : <LoginGate emoji="🎉" title="Entre pra ver os Eventos"
+              message="Encontros, festas, esportes e atividades das comunidades brasileiras nos EUA."
+              perks={['Eventos das suas comunidades', 'Confirmação de presença', 'Crie seus próprios eventos']} />
         )}
       </AppShell>
       <PushPrompt />
