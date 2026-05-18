@@ -342,10 +342,38 @@
       t.classList.add('active'); activeCat = t.dataset.cat; render()
     })
 
+    // Checa sessao Supabase via localStorage (sem importar SDK)
+    // Key padrao: sb-<project_ref>-auth-token. Ref vem do mesmo SUPA_URL
+    // usado em /assinante.
+    function isLoggedIn() {
+      try {
+        const raw = localStorage.getItem('sb-ggwppcbdnemjuddnzbdw-auth-token')
+        if (!raw) return false
+        const obj = JSON.parse(raw)
+        return !!obj?.access_token && (!obj.expires_at || obj.expires_at > Date.now() / 1000)
+      } catch (_) { return false }
+    }
+
     function openModal(id) {
       const interest = INTERESTS.find(i => i.id === id)
       if (!interest) return
       $('modal').classList.add('open')
+
+      // Gate: sem login, mostra CTA pra criar conta em vez do form
+      if (!isLoggedIn()) {
+        $('modalContent').innerHTML = `
+          <div class="modal-eyebrow">${interest.icon} ${escapeHtml(CAT_LABEL[interest.cat] || interest.cat)}</div>
+          <h2>${escapeHtml(interest.name)}</h2>
+          <div style="background:#FEF3C7;border:1px solid #F5D26A;border-left:4px solid #B8860B;padding:14px 16px;border-radius:10px;margin:16px 0;font-size:14px;color:#5C4A00;line-height:1.6;">
+            <strong>Crie sua conta primeiro</strong><br/>
+            Pra entrar na lista de espera de qualquer grupo, precisa ter conta no BrasilConnect (grátis, só email — sem senha).
+          </div>
+          <p style="color:var(--ink-soft);font-size:13px;margin-bottom:18px;">Depois de criar a conta, volta aqui e clica de novo — vai abrir o formulário direto.</p>
+          <a href="/app/feed" class="btn btn-primary" style="width:100%;justify-content:center;text-decoration:none;text-align:center;">Criar conta grátis →</a>
+        `
+        return
+      }
+
       $('modalContent').innerHTML = `
         <div class="modal-eyebrow">${interest.icon} ${escapeHtml(CAT_LABEL[interest.cat] || interest.cat)}</div>
         <h2>${escapeHtml(interest.name)}</h2>

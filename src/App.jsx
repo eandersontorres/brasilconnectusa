@@ -3,6 +3,7 @@ import AppShell from './AppShell'
 import PushPrompt from './PushPrompt'
 import FeedScreen from './FeedScreen'
 import DiscoverScreen from './DiscoverScreen'
+import { useAuth } from './AuthModal'
 
 // Lazy-loaded — só baixa quando o usuário troca pra essas abas
 const BolaoScreen        = lazy(() => import('./BolaoScreen'))
@@ -18,6 +19,41 @@ function TabFallback() {
         animation: 'spin 0.7s linear infinite',
       }} />
       <style>{'@keyframes spin { to { transform: rotate(360deg) } }'}</style>
+    </div>
+  )
+}
+
+// ─── Login gate — abre o modal de auth do AppShell via CustomEvent ──────────
+function LoginGate({ emoji, title, message, perks }) {
+  const openAuth = () => window.dispatchEvent(new CustomEvent('bc-open-auth'))
+  return (
+    <div style={{
+      maxWidth: 480, margin: '32px auto', padding: '40px 32px',
+      background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16,
+      boxShadow: '0 4px 20px rgba(0,0,0,0.04)', textAlign: 'center',
+      fontFamily: 'Sora, -apple-system, BlinkMacSystemFont, sans-serif',
+    }}>
+      <div style={{ fontSize: 48, marginBottom: 14 }}>{emoji}</div>
+      <h2 style={{
+        fontFamily: "'Cormorant Garamond', Georgia, serif",
+        fontSize: 28, fontWeight: 600, margin: '0 0 10px 0', color: '#001a5e',
+      }}>{title}</h2>
+      <p style={{ color: '#4B4F4D', fontSize: 15, lineHeight: 1.6, margin: '0 0 22px 0' }}>{message}</p>
+      {perks && (
+        <ul style={{
+          listStyle: 'none', padding: 0, margin: '0 0 24px 0',
+          textAlign: 'left', display: 'inline-block', color: '#374151', fontSize: 14, lineHeight: 1.9,
+        }}>
+          {perks.map((p, i) => <li key={i}>✓ {p}</li>)}
+        </ul>
+      )}
+      <button onClick={openAuth} style={{
+        background: '#009C3B', color: '#fff', border: 'none', padding: '14px 28px',
+        borderRadius: 8, fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
+      }}>Entrar / Criar conta →</button>
+      <div style={{ marginTop: 14, fontSize: 12, color: '#9ca3af' }}>
+        Grátis. Só email — sem senha (link mágico).
+      </div>
     </div>
   )
 }
@@ -1235,6 +1271,7 @@ function readTabFromUrl() {
 export default function App() {
   const [tab, setTabState] = useState(() => readTabFromUrl())
   const [affiliateLinks, setAffiliateLinks] = useState({})
+  const { user } = useAuth()
 
   // Sincroniza URL ↔ aba: sempre que a aba muda, atualiza /app/<tab> sem recarregar
   const setTab = useCallback((next) => {
@@ -1264,13 +1301,28 @@ export default function App() {
   return (
     <>
       <AppShell tab={tab} setTab={setTab}>
-        {tab === 'feed'     && <FeedScreen onNavigate={setTab} />}
-        {tab === 'discover' && <DiscoverScreen onNavigate={setTab} />}
+        {tab === 'feed' && (user
+          ? <FeedScreen onNavigate={setTab} />
+          : <LoginGate emoji="📰" title="Entre pra ver o Feed"
+              message="O Feed mostra posts da comunidade brasileira nos EUA — perguntas, dicas, eventos, anúncios. Conteúdo só pra membros."
+              perks={['Posts das suas comunidades', 'Curtir, comentar, postar', 'Notificações de quem responde']} />
+        )}
+        {tab === 'discover' && (user
+          ? <DiscoverScreen onNavigate={setTab} />
+          : <LoginGate emoji="🔎" title="Entre pra explorar comunidades"
+              message="Comunidades, vagas, eventos e classificados — tudo num só lugar. Pra ver e participar, faça login primeiro."
+              perks={['Comunidades por interesse (75+ grupos)', 'Vagas de emprego brasileiras', 'Eventos da sua cidade']} />
+        )}
         {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
         {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
         {tab === 'agenda'   && <Suspense fallback={<TabFallback />}><AgendaApp /></Suspense>}
         {tab === 'bolao'    && <Suspense fallback={<TabFallback />}><BolaoScreen /></Suspense>}
-        {tab === 'marketplace' && <Suspense fallback={<TabFallback />}><MarketplaceScreen /></Suspense>}
+        {tab === 'marketplace' && (user
+          ? <Suspense fallback={<TabFallback />}><MarketplaceScreen /></Suspense>
+          : <LoginGate emoji="🛍️" title="Entre pra usar o Marketplace"
+              message="Compre, venda e doe entre brasileiros na sua cidade. Móveis, eletrônicos, roupa, carro, serviços — direto com gente da comunidade."
+              perks={['Anunciar é grátis', 'Sem comissão por venda', 'Chat direto com vendedor']} />
+        )}
       </AppShell>
       <PushPrompt />
     </>

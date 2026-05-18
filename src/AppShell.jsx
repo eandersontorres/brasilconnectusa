@@ -425,6 +425,13 @@ export default function AppShell({ tab, setTab, children }) {
     fetch('/api/events/list?limit=5').then(r => r.json()).then(d => setUpcomingEvents(d.events || [])).catch(() => {})
   }, [])
 
+  // LoginGate (em App.jsx) e outras telas pedem o modal via CustomEvent
+  useEffect(() => {
+    const handler = () => setShowAuth(true)
+    window.addEventListener('bc-open-auth', handler)
+    return () => window.removeEventListener('bc-open-auth', handler)
+  }, [])
+
   useEffect(() => {
     if (!user) { setMyCommunities([]); setShowOnboarding(false); return }
 
