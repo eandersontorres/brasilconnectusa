@@ -13,6 +13,23 @@ import { useAuth } from './AuthModal'
 
 const VALID_STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC','PR']
 
+// ─── Ícones monocromáticos (Lucide-style, 22x22, currentColor) ──────────────
+const ICON_PROPS = {
+  width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none',
+  stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round', strokeLinejoin: 'round',
+}
+const Icons = {
+  user:    <svg {...ICON_PROPS}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  pin:     <svg {...ICON_PROPS}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>,
+  bell:    <svg {...ICON_PROPS}><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>,
+  users:   <svg {...ICON_PROPS}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+  store:   <svg {...ICON_PROPS}><path d="M2 7l1-4h18l1 4M3 7v13h18V7M3 7h18M9 22V12h6v10"/></svg>,
+  help:    <svg {...ICON_PROPS}><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>,
+  fileText:<svg {...ICON_PROPS}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>,
+  lock:    <svg {...ICON_PROPS}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+  logout:  <svg {...ICON_PROPS}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
+}
+
 export default function SettingsScreen({ onNavigate }) {
   const { user, signOut } = useAuth()
   const [profile, setProfile] = useState(null)
@@ -47,7 +64,7 @@ export default function SettingsScreen({ onNavigate }) {
       }}>
         {/* CONTA */}
         <Row
-          icon="👤" label="Conta" sub={profile?.full_name || profile?.display_name || user.email}
+          icon={Icons.user} label="Conta" sub={profile?.full_name || profile?.display_name || user.email}
           expanded={openPanel === 'conta'}
           onClick={() => setOpenPanel(openPanel === 'conta' ? null : 'conta')}
         />
@@ -62,7 +79,7 @@ export default function SettingsScreen({ onNavigate }) {
 
         {/* LOCALIZAÇÃO */}
         <Row
-          icon="📍" label="Localização" sub={profile?.city ? `${profile.city} / ${profile.state || '—'}` : 'Não definida'}
+          icon={Icons.pin} label="Localização" sub={profile?.city ? `${profile.city} / ${profile.state || '—'}` : 'Não definida'}
           expanded={openPanel === 'local'}
           onClick={() => setOpenPanel(openPanel === 'local' ? null : 'local')}
         />
@@ -76,25 +93,25 @@ export default function SettingsScreen({ onNavigate }) {
 
         {/* NOTIFICAÇÕES */}
         <Row
-          icon="🔔" label="Notificações" sub="Push, email, alertas"
+          icon={Icons.bell} label="Notificações" sub="Push, email, alertas"
           onClick={() => window.dispatchEvent(new CustomEvent('bc-open-push-prompt'))}
         />
 
         {/* MINHAS COMUNIDADES */}
         <Row
-          icon="🌐" label="Minhas comunidades" sub="Ver, entrar, sair"
+          icon={Icons.users} label="Minhas comunidades" sub="Ver, entrar, sair"
           onClick={() => onNavigate && onNavigate('comunidades')}
         />
 
         {/* MEU NEGÓCIO */}
         <Row
-          icon="🏪" label="Meu negócio" sub="Painel do assinante, cardápio, pedidos"
+          icon={Icons.store} label="Meu negócio" sub="Painel do assinante, cardápio, pedidos"
           onClick={() => { window.location.href = '/assinante' }}
         />
 
         {/* AJUDA */}
         <Row
-          icon="❓" label="Ajuda e suporte" sub="Mande mensagem pra equipe"
+          icon={Icons.help} label="Ajuda e suporte" sub="Mande mensagem pra equipe"
           onClick={() => { window.location.href = '/#contato' }}
         />
 
@@ -102,12 +119,12 @@ export default function SettingsScreen({ onNavigate }) {
 
         {/* TERMOS / PRIVACIDADE */}
         <Row
-          icon="📄" label="Termos de uso"
+          icon={Icons.fileText} label="Termos de uso"
           onClick={() => { window.location.href = '/termos' }}
           subtle
         />
         <Row
-          icon="🔒" label="Política de privacidade"
+          icon={Icons.lock} label="Política de privacidade"
           onClick={() => { window.location.href = '/privacidade' }}
           subtle
         />
@@ -116,7 +133,7 @@ export default function SettingsScreen({ onNavigate }) {
 
         {/* SAIR */}
         <Row
-          icon="🚪" label="Sair"
+          icon={Icons.logout} label="Sair"
           danger
           onClick={async () => {
             if (!confirm('Sair da sua conta?')) return
@@ -139,6 +156,7 @@ export default function SettingsScreen({ onNavigate }) {
 //   Row — linha clicável com ícone, label e chevron
 // ────────────────────────────────────────────────────────────────────────────
 function Row({ icon, label, sub, expanded, onClick, danger, subtle }) {
+  const iconColor = danger ? '#991B1B' : (subtle ? C.inkMuted : C.inkSoft)
   return (
     <button onClick={onClick} style={{
       display: 'flex', alignItems: 'center', gap: 14, width: '100%',
@@ -152,7 +170,7 @@ function Row({ icon, label, sub, expanded, onClick, danger, subtle }) {
     >
       <div style={{
         width: 32, height: 32, display: 'flex', alignItems: 'center',
-        justifyContent: 'center', fontSize: 18, flexShrink: 0,
+        justifyContent: 'center', flexShrink: 0, color: iconColor,
       }}>{icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
