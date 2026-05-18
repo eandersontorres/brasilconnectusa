@@ -1189,7 +1189,7 @@ function CrossSellPanel() {
           display: 'block', padding: '12px 14px', background: '#fff',
           border: '1px solid #e5e7eb', borderRadius: 12, textDecoration: 'none',
         }}>
-          <div style={{ fontSize: 18, marginBottom: 2 }}>💱</div>
+          <div style={{ fontSize: 18, marginBottom: 2 }}>💸</div>
           <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: GREEN, lineHeight: 1, marginBottom: 2 }}>
             {rate ? 'R$' + rate.toFixed(2) : '...'}
           </div>
