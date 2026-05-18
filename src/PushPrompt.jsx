@@ -37,6 +37,13 @@ export default function PushPrompt({ user }) {
   const [showModal, setShowModal] = useState(false)
   const [error, setError] = useState('')
 
+  // SettingsScreen e outras telas pedem o modal via CustomEvent
+  useEffect(() => {
+    const handler = () => setShowModal(true)
+    window.addEventListener('bc-open-push-prompt', handler)
+    return () => window.removeEventListener('bc-open-push-prompt', handler)
+  }, [])
+
   useEffect(() => {
     if (typeof window === 'undefined') return
     const ok = 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window

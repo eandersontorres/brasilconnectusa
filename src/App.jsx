@@ -11,6 +11,7 @@ const AgendaApp              = lazy(() => import('./AgendaApp'))
 const MarketplaceScreen      = lazy(() => import('./MarketplaceScreen'))
 const ComunidadesScreen      = lazy(() => import('./ComunidadesScreen'))
 const CommunityDetailScreen  = lazy(() => import('./CommunityDetailScreen'))
+const SettingsScreen         = lazy(() => import('./SettingsScreen'))
 
 function TabFallback() {
   return (
@@ -1232,7 +1233,7 @@ function VoosScreen({ affiliateLinks }) {
 
 // ─── App Principal (usa AppShell responsivo) ──────────────────────────────
 
-const VALID_TABS = ['feed', 'discover', 'comunidades', 'community', 'remessas', 'voos', 'agenda', 'bolao', 'marketplace']
+const VALID_TABS = ['feed', 'discover', 'comunidades', 'community', 'remessas', 'voos', 'agenda', 'bolao', 'marketplace', 'settings']
 const TAB_ALIASES = { cambio: 'remessas', comparador: 'remessas', 'venda-troca': 'marketplace', classifieds: 'marketplace' }
 // Slugs antigos que agora redirecionam pra páginas estáticas (1 source of truth)
 const REDIRECT_SLUGS = { negocios: '/negocio', negocio: '/negocio' }
@@ -1303,6 +1304,16 @@ export default function App() {
     return () => window.removeEventListener('popstate', onPop)
   }, [])
 
+  // Navegação programática via CustomEvent (UserMenu, gates, etc)
+  useEffect(() => {
+    function onNav(e) {
+      const t = e?.detail?.tab
+      if (t) setTab(t, e?.detail?.slug || null)
+    }
+    window.addEventListener('bc-navigate', onNav)
+    return () => window.removeEventListener('bc-navigate', onNav)
+  }, [setTab])
+
   useEffect(() => {
     fetch('/api/rates')
       .then(r => r.json())
@@ -1346,6 +1357,11 @@ export default function App() {
           : <LoginGate emoji="🌐" title="Entre pra ver essa comunidade"
               message="O conteúdo de comunidades é exclusivo pra membros. Faça login pra ver os posts e participar."
               perks={['Posts e perguntas dos membros', 'Pode entrar nas comunidades que curte', 'Notificações de quem responde']} />
+        )}
+        {tab === 'settings' && (user
+          ? <Suspense fallback={<TabFallback />}><SettingsScreen onNavigate={setTab} /></Suspense>
+          : <LoginGate emoji="⚙️" title="Entre pra ver suas Configurações"
+              message="Edite seu perfil, localização, notificações e mais." />
         )}
       </AppShell>
       <PushPrompt />

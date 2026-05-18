@@ -106,6 +106,24 @@ function UserMenu({ user, onSignOut, size = 32 }) {
 
           {/* Ações */}
           <button
+            onClick={() => {
+              setOpen(false)
+              window.dispatchEvent(new CustomEvent('bc-navigate', { detail: { tab: 'settings' } }))
+            }}
+            style={{
+              width: '100%', textAlign: 'left', padding: '12px 14px',
+              background: 'transparent', border: 'none', cursor: 'pointer',
+              fontSize: 13, color: C.ink, fontWeight: 500,
+              fontFamily: FONT.sans,
+              display: 'flex', alignItems: 'center', gap: 8,
+              borderBottom: '1px solid ' + C.line,
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = C.paper}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+          >
+            <span style={{ fontSize: 14 }}>⚙️</span> Configurações
+          </button>
+          <button
             onClick={() => { setOpen(false); onSignOut() }}
             style={{
               width: '100%', textAlign: 'left', padding: '12px 14px',
@@ -285,6 +303,12 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
       {item(false, '📖', 'Guias',          () => { window.location.href = '/guias/' })}
       {item(false, '🏠', 'Custo de vida',  () => { window.location.href = '/custo-de-vida/' })}
       {item(false, '🛬', 'Guia de chegada',() => { window.location.href = '/guia-chegada/' })}
+
+      {user && (
+        <div style={{ marginTop: 14, paddingTop: 8, borderTop: '1px solid ' + C.line }}>
+          {item(tab === 'settings', '⚙️', 'Configurações', () => setTab('settings'))}
+        </div>
+      )}
     </div>
   )
 }
