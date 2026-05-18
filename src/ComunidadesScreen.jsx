@@ -275,6 +275,7 @@ function CreateCommunityModal({ user, onClose, onCreated }) {
   const [geoCity, setGeoCity] = useState('')
   const [icon, setIcon] = useState('')
   const [description, setDescription] = useState('')
+  const [requiresApproval, setRequiresApproval] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
@@ -301,6 +302,7 @@ function CreateCommunityModal({ user, onClose, onCreated }) {
           geo_city: geoCity.trim() || null,
           description: description.trim() || null,
           icon: icon.trim() || null,
+          requires_approval: requiresApproval,
         }),
       })
       const d = await r.json()
@@ -410,6 +412,25 @@ function CreateCommunityModal({ user, onClose, onCreated }) {
               {description.length} / 500
             </div>
           </div>
+
+          <label style={{
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+            padding: 12, background: '#F0FDF4', border: '1px solid #BBF7D0',
+            borderRadius: 8, cursor: 'pointer',
+          }}>
+            <input type="checkbox" checked={requiresApproval}
+              onChange={e => setRequiresApproval(e.target.checked)}
+              style={{ marginTop: 2, accentColor: C.green }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.ink }}>
+                Aprovar novos membros manualmente
+              </div>
+              <div style={{ fontSize: 11, color: C.inkMuted, marginTop: 3, lineHeight: 1.5 }}>
+                Quando alguém pedir pra entrar, você (admin) recebe e aprova/rejeita.
+                Desmarque pra comunidade <b>aberta</b> — qualquer um entra direto.
+              </div>
+            </div>
+          </label>
 
           {error && (
             <div style={{

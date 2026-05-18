@@ -357,6 +357,79 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, request })
     }
 
+    // ══════════ Helpers: aprovacao por admin da comunidade ═══════════════
+    async function isCommunityAdmin(user_id, community_id) {
+      if (!user_id || !community_id) return false
+      const { data } = await supabase
+        .from('bc_community_members')
+        .select('role')
+        .eq('user_id', user_id)
+        .eq('community_id', community_id)
+        .maybeSingle()
+      return data?.role === 'admin'
+    }
+
+    // ══════════ GET: pedidos pendentes da comunidade (admin da comm) ═════
+    if (req.method === 'GET' && action === 'community-pending-requests') {
+      const { user_id, community_id } = req.query
+      if (!user_id || !community_id) return err(res, 400, 'user_id e community_id obrigatórios')
+      if (!(await isCommunityAdmin(user_id, community_id))) return err(res, 403, 'Apenas admins da comunidade podem ver pedidos')
+
+      const { data, error } = await supabase
+        .from('bc_community_join_requests')
+        .select('id, community_id, user_id, answer, created_at, bc_profiles(email, full_name, display_name, avatar_url, city, state)')
+        .eq('community_id', community_id)
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false })
+        .limit(100)
+      if (error) throw error
+      return res.status(200).json({ success: true, requests: data || [] })
+    }
+
+    // ══════════ POST: approve / reject (admin da comunidade) ═════════════
+    if (req.method === 'POST' && (action === 'community-approve-request' || action === 'community-reject-request')) {
+      const { user_id, request_id, notes } = req.body || {}
+      if (!user_id || !request_id) return err(res, 400, 'user_id e request_id obrigatórios')
+
+      // Busca o request pra saber qual comunidade
+      const { data: existingReq, error: e0 } = await supabase
+        .from('bc_community_join_requests')
+        .select('id, community_id, user_id, status')
+        .eq('id', request_id)
+        .maybeSingle()
+      if (e0) throw e0
+      if (!existingReq) return err(res, 404, 'Pedido não encontrado')
+      if (existingReq.status !== 'pending') return err(res, 400, 'Pedido já foi processado (' + existingReq.status + ')')
+
+      if (!(await isCommunityAdmin(user_id, existingReq.community_id))) {
+        return err(res, 403, 'Apenas admins da comunidade podem aprovar')
+      }
+
+      const newStatus = action === 'community-approve-request' ? 'approved' : 'rejected'
+      const { data: request, error: rErr } = await supabase
+        .from('bc_community_join_requests')
+        .update({
+          status: newStatus,
+          reviewed_at: new Date().toISOString(),
+          reviewer_id: user_id,
+          reviewer_notes: notes || null,
+        })
+        .eq('id', request_id)
+        .select().single()
+      if (rErr) throw rErr
+
+      if (newStatus === 'approved') {
+        await supabase.from('bc_community_members').upsert(
+          { user_id: request.user_id, community_id: request.community_id },
+          { onConflict: 'community_id,user_id' }
+        )
+        const { data: c } = await supabase.from('bc_communities').select('member_count').eq('id', request.community_id).single()
+        if (c) await supabase.from('bc_communities').update({ member_count: (c.member_count || 0) + 1 }).eq('id', request.community_id)
+      }
+
+      return res.status(200).json({ success: true, request })
+    }
+
     // ══════════ POST: leave ════════════════════════════════════════════════
     if (req.method === 'POST' && action === 'leave') {
       const { user_id, community_id } = req.body || {}
@@ -424,6 +497,9 @@ export default async function handler(req, res) {
         icon: b.icon ? String(b.icon).trim().slice(0, 4) : null,
         created_by: b.user_id,
         member_count: 1, // o criador entra como membro automaticamente
+        // Default: TODA comunidade nova requer aprovacao do admin (Nextdoor-style).
+        // Cliente pode opt-out passando requires_approval=false explicito.
+        requires_approval: b.requires_approval === false ? false : true,
       }
       const { data: community, error: ce } = await supabase
         .from('bc_communities')

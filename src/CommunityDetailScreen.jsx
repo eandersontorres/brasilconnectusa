@@ -31,6 +31,8 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
   const [myMembership, setMyMembership] = useState(null) // null = não membro, obj = membro
   const [actionBusy, setActionBusy] = useState(false)
   const [showCreate, setShowCreate] = useState(false)
+  const [pendingRequests, setPendingRequests] = useState([])
+  const [reviewing, setReviewing] = useState(null) // id do request em ação
 
   const load = useCallback(async () => {
     if (!slug) { setError('slug obrigatório'); setLoading(false); return }
@@ -58,8 +60,38 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
     } catch (_) { setMyMembership(null) }
   }, [user, community])
 
+  // Carrega pedidos pendentes se o user for admin da comunidade
+  const isAdmin = myMembership?.role === 'admin'
+  const loadPending = useCallback(async () => {
+    if (!isAdmin || !user || !community) { setPendingRequests([]); return }
+    try {
+      const r = await fetch(`/api/social?action=community-pending-requests&user_id=${user.id}&community_id=${community.id}`)
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error)
+      setPendingRequests(d.requests || [])
+    } catch (_) { setPendingRequests([]) }
+  }, [isAdmin, user, community])
+
   useEffect(() => { load() }, [load])
   useEffect(() => { loadMembership() }, [loadMembership])
+  useEffect(() => { loadPending() }, [loadPending])
+
+  async function handleReview(request, approve) {
+    setReviewing(request.id)
+    try {
+      const action = approve ? 'community-approve-request' : 'community-reject-request'
+      const r = await fetch('/api/social?action=' + action, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: user.id, request_id: request.id }),
+      })
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error || 'Erro')
+      await loadPending()
+      if (approve) await load() // refresh member_count
+    } catch (e) {
+      alert('Erro: ' + e.message)
+    } finally { setReviewing(null) }
+  }
 
   // Refresh ao postar de outra tela
   useEffect(() => {
@@ -136,6 +168,15 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
           setShowCreate(true)
         }}
       />
+
+      {/* Painel de admin: pedidos pendentes */}
+      {isAdmin && pendingRequests.length > 0 && (
+        <PendingRequestsPanel
+          requests={pendingRequests}
+          reviewing={reviewing}
+          onReview={handleReview}
+        />
+      )}
 
       {/* Lista de posts */}
       <div style={{ marginTop: 18 }}>
@@ -286,6 +327,83 @@ function Header({ community: c, myMembership, actionBusy, onBack, onJoin, onLeav
             }}>{c.rules}</div>
           </details>
         )}
+      </div>
+    </div>
+  )
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//   PendingRequestsPanel — só admins veem
+// ────────────────────────────────────────────────────────────────────────────
+function PendingRequestsPanel({ requests, reviewing, onReview }) {
+  return (
+    <div style={{
+      background: '#FFFBEA', border: '1px solid #FDE68A', borderRadius: 12,
+      padding: 16, marginTop: 16,
+    }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12,
+        paddingBottom: 10, borderBottom: '1px solid #FDE68A',
+      }}>
+        <div style={{
+          background: '#92400E', color: '#fff', fontSize: 10, fontWeight: 700,
+          padding: '3px 8px', borderRadius: 10, textTransform: 'uppercase', letterSpacing: 0.5,
+        }}>👑 Admin</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#5C4A00' }}>
+          {requests.length} pedido{requests.length === 1 ? '' : 's'} pra revisar
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {requests.map(r => {
+          const p = r.bc_profiles || {}
+          const name = p.full_name || p.display_name || p.email || r.user_id?.slice(0, 8)
+          const where = [p.city, p.state].filter(Boolean).join(' / ')
+          const busy = reviewing === r.id
+          return (
+            <div key={r.id} style={{
+              background: C.white, border: '1px solid ' + C.line, borderRadius: 10,
+              padding: 12, display: 'flex', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap',
+            }}>
+              {p.avatar_url ? (
+                <img src={p.avatar_url} alt="" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+              ) : (
+                <div style={{
+                  width: 40, height: 40, borderRadius: '50%', background: C.green,
+                  color: C.white, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 16, fontWeight: 700, flexShrink: 0,
+                }}>{(name || '?').charAt(0).toUpperCase()}</div>
+              )}
+              <div style={{ flex: 1, minWidth: 180 }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: C.ink }}>{name}</div>
+                <div style={{ fontSize: 11, color: C.inkMuted, marginTop: 2 }}>
+                  {p.email}{where ? ' · ' + where : ''}
+                </div>
+                {r.answer && (
+                  <div style={{
+                    fontSize: 12, color: C.inkSoft, marginTop: 6,
+                    padding: '6px 10px', background: C.paper, borderRadius: 6,
+                    fontStyle: 'italic',
+                  }}>"{r.answer}"</div>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                <button onClick={() => onReview(r, true)} disabled={busy} style={{
+                  background: C.green, color: C.white, border: 'none',
+                  padding: '7px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700,
+                  cursor: busy ? 'wait' : 'pointer', fontFamily: FONT.sans,
+                  opacity: busy ? 0.6 : 1,
+                }}>✓ Aprovar</button>
+                <button onClick={() => onReview(r, false)} disabled={busy} style={{
+                  background: 'transparent', color: '#991B1B',
+                  border: '1px solid #FCA5A5',
+                  padding: '7px 14px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+                  cursor: busy ? 'wait' : 'pointer', fontFamily: FONT.sans,
+                  opacity: busy ? 0.6 : 1,
+                }}>Rejeitar</button>
+              </div>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
