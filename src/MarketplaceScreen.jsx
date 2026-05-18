@@ -72,7 +72,7 @@ function ItemCard({ post, onClick }) {
         {!isSold && (
           <div style={{
             position: 'absolute', top: 8, left: 8,
-            background: 'rgba(109,40,217,0.92)', color: '#fff', fontSize: 10, fontWeight: 700,
+            background: 'rgba(30,64,175,0.92)', color: '#fff', fontSize: 10, fontWeight: 700,
             padding: '3px 10px', borderRadius: 4, letterSpacing: 0.4, textTransform: 'uppercase',
           }}>{KIND_LABELS[post.classified_kind] || 'Anúncio'}</div>
         )}
@@ -242,7 +242,7 @@ export default function MarketplaceScreen() {
 
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(135deg, #6D28D9 0%, #4C1D95 100%)',
+        background: 'linear-gradient(135deg, #001a5e 0%, #1e40af 100%)',
         borderRadius: 14, padding: '20px 18px', marginBottom: 14, color: '#fff',
       }}>
         <div style={{ fontFamily: FONT.serif, fontSize: 22, fontWeight: 600, marginBottom: 4 }}>
@@ -259,9 +259,9 @@ export default function MarketplaceScreen() {
         {KIND_FILTERS.map(f => (
           <button key={f.id} onClick={() => setKind(f.id)} style={{
             flexShrink: 0, padding: '7px 14px', borderRadius: 20,
-            background: kind === f.id ? '#6D28D9' : C.white,
+            background: kind === f.id ? '#1e40af' : C.white,
             color: kind === f.id ? '#fff' : C.inkSoft,
-            border: '1px solid ' + (kind === f.id ? '#6D28D9' : C.line),
+            border: '1px solid ' + (kind === f.id ? '#1e40af' : C.line),
             fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: FONT.sans, whiteSpace: 'nowrap',
           }}>
             {f.label}
