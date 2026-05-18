@@ -45,6 +45,7 @@ export default function ComunidadesScreen({ onNavigate }) {
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('')
   const [joining, setJoining] = useState(null) // community_id em ação
+  const [showCreate, setShowCreate] = useState(false)
 
   const loadAll = useCallback(async () => {
     setLoading(true)
@@ -121,20 +122,36 @@ export default function ComunidadesScreen({ onNavigate }) {
   return (
     <div style={{ fontFamily: FONT.sans, color: C.ink, padding: '4px 0 24px' }}>
       {/* Hero */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{
-          fontSize: 11, fontWeight: 700, color: C.green,
-          textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6,
-        }}>Comunidades</div>
-        <h1 style={{
-          fontFamily: FONT.serif, fontSize: 28, fontWeight: 600, color: C.ink,
-          margin: '0 0 6px 0', letterSpacing: '-0.01em',
+      <div style={{
+        marginBottom: 20, display: 'flex', alignItems: 'flex-start',
+        justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
+      }}>
+        <div style={{ flex: 1, minWidth: 260 }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, color: C.green,
+            textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6,
+          }}>Comunidades</div>
+          <h1 style={{
+            fontFamily: FONT.serif, fontSize: 28, fontWeight: 600, color: C.ink,
+            margin: '0 0 6px 0', letterSpacing: '-0.01em',
+          }}>
+            Encontre sua tribo brasileira nos EUA
+          </h1>
+          <p style={{ fontSize: 14, color: C.inkMuted, lineHeight: 1.6, margin: 0, maxWidth: 580 }}>
+            Comunidades por interesse, cidade ou estado. Entre nas que você curte pra acompanhar posts, perguntas e eventos no Feed.
+          </p>
+        </div>
+        <button onClick={() => {
+          if (!user) { window.dispatchEvent(new CustomEvent('bc-open-auth')); return }
+          setShowCreate(true)
+        }} style={{
+          background: C.green, color: C.white, border: 'none',
+          padding: '10px 18px', borderRadius: 20, fontSize: 13, fontWeight: 700,
+          cursor: 'pointer', fontFamily: FONT.sans, flexShrink: 0,
+          display: 'flex', alignItems: 'center', gap: 6,
         }}>
-          Encontre sua tribo brasileira nos EUA
-        </h1>
-        <p style={{ fontSize: 14, color: C.inkMuted, lineHeight: 1.6, margin: 0, maxWidth: 580 }}>
-          Comunidades por interesse, cidade ou estado. Entre nas que você curte pra acompanhar posts, perguntas e eventos no Feed.
-        </p>
+          <span style={{ fontSize: 16, lineHeight: 1 }}>+</span> Criar comunidade
+        </button>
       </div>
 
       {/* Search */}
@@ -230,6 +247,198 @@ export default function ComunidadesScreen({ onNavigate }) {
           </div>
         </>
       )}
+
+      {showCreate && user && (
+        <CreateCommunityModal
+          user={user}
+          onClose={() => setShowCreate(false)}
+          onCreated={async (community) => {
+            setShowCreate(false)
+            await Promise.all([loadAll(), loadMine()])
+            // Navegar pro Feed pra ver a nova comunidade — opcional
+            onNavigate && onNavigate('feed')
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//   CreateCommunityModal
+// ────────────────────────────────────────────────────────────────────────────
+function CreateCommunityModal({ user, onClose, onCreated }) {
+  const [name, setName] = useState('')
+  const [type, setType] = useState('interest')
+  const [geoState, setGeoState] = useState('')
+  const [geoCity, setGeoCity] = useState('')
+  const [icon, setIcon] = useState('')
+  const [description, setDescription] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setError(null)
+    if (name.trim().length < 3) { setError('Nome muito curto (mín 3)'); return }
+    if ((type === 'city' || type === 'state') && !geoState.trim()) {
+      setError('Tipo cidade/estado precisa de Estado (2 letras)'); return
+    }
+    if (type === 'city' && !geoCity.trim()) {
+      setError('Tipo cidade precisa de Cidade'); return
+    }
+    setSubmitting(true)
+    try {
+      const r = await fetch('/api/social?action=create-community', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          name: name.trim(),
+          type,
+          geo_state: geoState.trim() || null,
+          geo_city: geoCity.trim() || null,
+          description: description.trim() || null,
+          icon: icon.trim() || null,
+        }),
+      })
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error || 'Erro ao criar')
+      onCreated(d.community)
+    } catch (err) {
+      setError(err.message || 'Erro ao criar comunidade')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const inputStyle = {
+    width: '100%', padding: '10px 12px', borderRadius: 8,
+    border: '1px solid ' + C.line, fontSize: 14, outline: 'none',
+    background: C.white, boxSizing: 'border-box', fontFamily: FONT.sans, color: C.ink,
+  }
+
+  return (
+    <div onClick={onClose} style={{
+      position: 'fixed', inset: 0, background: 'rgba(11,25,40,0.7)', zIndex: 2100,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+    }}>
+      <form onClick={e => e.stopPropagation()} onSubmit={handleSubmit} style={{
+        background: C.white, borderRadius: 16, maxWidth: 520, width: '100%',
+        maxHeight: '90vh', overflow: 'auto', fontFamily: FONT.sans,
+        boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
+      }}>
+        <div style={{
+          padding: '20px 24px', borderBottom: '1px solid ' + C.line,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: 1 }}>
+              Nova comunidade
+            </div>
+            <div style={{ fontFamily: FONT.serif, fontSize: 22, fontWeight: 600, color: C.ink, marginTop: 2 }}>
+              Criar comunidade
+            </div>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Fechar" style={{
+            background: 'transparent', border: 'none', fontSize: 24, color: C.inkMuted,
+            cursor: 'pointer', padding: 4, lineHeight: 1,
+          }}>×</button>
+        </div>
+
+        <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+              Nome da comunidade *
+            </label>
+            <input value={name} onChange={e => setName(e.target.value)}
+              placeholder="Ex: Brasileiros em Boston" maxLength={60} required style={inputStyle} />
+          </div>
+
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+              Tipo *
+            </label>
+            <select value={type} onChange={e => setType(e.target.value)} style={inputStyle}>
+              <option value="interest">Interesse (ex: vinho, tech, mães)</option>
+              <option value="city">Cidade (ex: Boston, MA)</option>
+              <option value="state">Estado (ex: Massachusetts)</option>
+              <option value="general">Geral</option>
+            </select>
+          </div>
+
+          {(type === 'city' || type === 'state') && (
+            <div style={{ display: 'flex', gap: 10 }}>
+              <div style={{ flex: type === 'city' ? 2 : 1 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+                  Estado (2 letras) *
+                </label>
+                <input value={geoState} onChange={e => setGeoState(e.target.value.toUpperCase().slice(0, 2))}
+                  placeholder="MA" maxLength={2} style={{ ...inputStyle, textTransform: 'uppercase' }} required />
+              </div>
+              {type === 'city' && (
+                <div style={{ flex: 3 }}>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+                    Cidade *
+                  </label>
+                  <input value={geoCity} onChange={e => setGeoCity(e.target.value)}
+                    placeholder="Boston" maxLength={60} style={inputStyle} required />
+                </div>
+              )}
+            </div>
+          )}
+
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+              Ícone (emoji, opcional)
+            </label>
+            <input value={icon} onChange={e => setIcon(e.target.value.slice(0, 4))}
+              placeholder="🍷 ou 🍼 ou 💻" maxLength={4}
+              style={{ ...inputStyle, fontSize: 20, width: 100, textAlign: 'center' }} />
+          </div>
+
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+              Descrição (opcional, máx 500 chars)
+            </label>
+            <textarea value={description} onChange={e => setDescription(e.target.value)}
+              placeholder="O que essa comunidade vai discutir? Quem deve entrar?"
+              maxLength={500} rows={3}
+              style={{ ...inputStyle, resize: 'vertical', minHeight: 70 }} />
+            <div style={{ textAlign: 'right', fontSize: 11, color: C.inkMuted, marginTop: 2 }}>
+              {description.length} / 500
+            </div>
+          </div>
+
+          {error && (
+            <div style={{
+              background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#991B1B',
+              padding: '10px 12px', borderRadius: 8, fontSize: 13,
+            }}>{error}</div>
+          )}
+
+          <div style={{ fontSize: 11, color: C.inkMuted, lineHeight: 1.5 }}>
+            Você vira admin da comunidade automaticamente. O slug é gerado a partir do nome.
+          </div>
+        </div>
+
+        <div style={{
+          padding: '14px 20px', borderTop: '1px solid ' + C.line,
+          display: 'flex', gap: 10, justifyContent: 'flex-end',
+        }}>
+          <button type="button" onClick={onClose} style={{
+            background: 'transparent', border: '1px solid ' + C.line, color: C.ink,
+            padding: '10px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+            cursor: 'pointer', fontFamily: FONT.sans,
+          }}>Cancelar</button>
+          <button type="submit" disabled={submitting} style={{
+            background: C.green, color: C.white, border: 'none',
+            padding: '10px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+            cursor: submitting ? 'wait' : 'pointer', fontFamily: FONT.sans,
+            opacity: submitting ? 0.6 : 1,
+          }}>{submitting ? 'Criando…' : 'Criar comunidade'}</button>
+        </div>
+      </form>
     </div>
   )
 }

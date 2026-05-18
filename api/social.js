@@ -380,6 +380,74 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true })
     }
 
+    // ══════════ POST: create-community ════════════════════════════════════
+    if (req.method === 'POST' && action === 'create-community') {
+      const b = req.body || {}
+      if (!b.user_id || !b.name || !b.type) {
+        return err(res, 400, 'user_id, name e type obrigatórios')
+      }
+      const validTypes = ['general', 'city', 'state', 'interest']
+      if (!validTypes.includes(b.type)) {
+        return err(res, 400, 'type invalido (use: general, city, state, interest)')
+      }
+      const name = String(b.name).trim()
+      if (name.length < 3 || name.length > 60) {
+        return err(res, 400, 'name precisa ter 3-60 caracteres')
+      }
+      if (b.type === 'city' && !b.geo_city) {
+        return err(res, 400, 'comunidade tipo city precisa de geo_city')
+      }
+      if ((b.type === 'city' || b.type === 'state') && !b.geo_state) {
+        return err(res, 400, 'comunidade tipo city/state precisa de geo_state (2 letras)')
+      }
+
+      // Gera slug a partir do name (slug client opcional, mas server normaliza/garante unicidade)
+      const baseSlug = (b.slug || name).toString().toLowerCase()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60)
+      if (!baseSlug) return err(res, 400, 'slug invalido (use letras/numeros)')
+
+      let slug = baseSlug
+      for (let i = 1; i < 20; i++) {
+        const { data: ex } = await supabase.from('bc_communities').select('id').eq('slug', slug).maybeSingle()
+        if (!ex) break
+        slug = `${baseSlug}-${i}`
+      }
+
+      const insertPayload = {
+        slug,
+        name,
+        type: b.type,
+        geo_state: b.geo_state ? String(b.geo_state).toUpperCase().slice(0, 2) : null,
+        geo_city: b.geo_city ? String(b.geo_city).trim().slice(0, 60) : null,
+        description: b.description ? String(b.description).trim().slice(0, 500) : null,
+        icon: b.icon ? String(b.icon).trim().slice(0, 4) : null,
+        created_by: b.user_id,
+        member_count: 1, // o criador entra como membro automaticamente
+      }
+      const { data: community, error: ce } = await supabase
+        .from('bc_communities')
+        .insert(insertPayload)
+        .select()
+        .single()
+      if (ce) {
+        if (ce.code === '23505') return err(res, 409, 'slug ja existe — tente outro nome')
+        throw ce
+      }
+
+      // Auto-join do criador como admin
+      const { error: me } = await supabase
+        .from('bc_community_members')
+        .insert({ community_id: community.id, user_id: b.user_id, role: 'admin' })
+      if (me) {
+        // Rollback se falhar o auto-join (deixa orfã seria pior)
+        await supabase.from('bc_communities').delete().eq('id', community.id)
+        throw me
+      }
+
+      return res.status(200).json({ success: true, community })
+    }
+
     // ══════════ POST: create-post ══════════════════════════════════════════
     if (req.method === 'POST' && action === 'create-post') {
       const b = req.body || {}
