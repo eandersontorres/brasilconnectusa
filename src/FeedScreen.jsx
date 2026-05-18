@@ -229,9 +229,9 @@ function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold }) {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-//   CreatePostModal
+//   CreatePostModal — exportado pra ser reusado pelo PostButton global
 // ────────────────────────────────────────────────────────────────────────────
-function CreatePostModal({ user, onClose, onCreated, defaultType = 'question' }) {
+export function CreatePostModal({ user, onClose, onCreated, defaultType = 'question' }) {
   const [communities, setCommunities] = useState([])
   const [communityId, setCommunityId] = useState('')
   const [type, setType] = useState(defaultType)
@@ -463,6 +463,13 @@ export default function FeedScreen({ onNavigate }) {
   }, [user, filterType])
 
   useEffect(() => { loadFeed() }, [loadFeed])
+
+  // PostButton global avisa quando cria post — recarrega feed se montado
+  useEffect(() => {
+    const handler = () => loadFeed()
+    window.addEventListener('bc-post-created', handler)
+    return () => window.removeEventListener('bc-post-created', handler)
+  }, [loadFeed])
 
   return (
     <div style={{ fontFamily: FONT.sans, color: C.ink }}>

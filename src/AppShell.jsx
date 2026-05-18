@@ -3,6 +3,7 @@ import { C, FONT, useIsMobile } from './lib/colors'
 import { useAuth } from './AuthModal'
 import OnboardingFlow from './OnboardingFlow'
 import NotificationBell from './NotificationBell'
+import PostButton from './PostButton'
 
 // ────────────────────────────────────────────────────────────────────────────
 //   AppShell — layout responsivo (mobile bottom nav + desktop 3 colunas)
@@ -255,6 +256,9 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
       background: C.white, borderRadius: 12, border: '1px solid ' + C.line,
       padding: 8, position: 'sticky', top: 80, alignSelf: 'start',
     }}>
+      <div style={{ padding: '6px 4px 10px' }}>
+        <PostButton variant="sidebar" />
+      </div>
       {sectionTitle('Navegação')}
       {item(tab === 'feed',     '⌂', 'Feed',     () => setTab('feed'))}
       {item(tab === 'discover', '⌕', 'Buscar',   () => setTab('discover'))}
@@ -491,6 +495,7 @@ export default function AppShell({ tab, setTab, children }) {
           {children}
         </div>
         <MobileBottomNav tab={tab} setTab={setTab} />
+        <PostButton variant="fab" />
         {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
         {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} onDismiss={handleOnboardingDismiss} />}
       </div>
