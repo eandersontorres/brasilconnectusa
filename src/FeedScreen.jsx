@@ -63,9 +63,9 @@ function whatsappLink(contact, postTitle) {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-//   PostCard
+//   PostCard — exportado pra reuso em CommunityDetailScreen
 // ────────────────────────────────────────────────────────────────────────────
-function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold }) {
+export function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold }) {
   const t = POST_TYPES[post.type] || POST_TYPES.question
   const score = (post.upvotes || 0) - (post.downvotes || 0)
   const [voted, setVoted] = useState(0)
@@ -231,9 +231,9 @@ function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold }) {
 // ────────────────────────────────────────────────────────────────────────────
 //   CreatePostModal — exportado pra ser reusado pelo PostButton global
 // ────────────────────────────────────────────────────────────────────────────
-export function CreatePostModal({ user, onClose, onCreated, defaultType = 'question' }) {
+export function CreatePostModal({ user, onClose, onCreated, defaultType = 'question', defaultCommunityId = null }) {
   const [communities, setCommunities] = useState([])
-  const [communityId, setCommunityId] = useState('')
+  const [communityId, setCommunityId] = useState(defaultCommunityId || '')
   const [type, setType] = useState(defaultType)
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
@@ -251,17 +251,22 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
         const list = d.communities || []
         if (list.length > 0) {
           setCommunities(list)
-          setCommunityId(list[0].id)
+          // Se defaultCommunityId foi passado e existe na lista, usa; senão primeiro
+          const preferred = defaultCommunityId && list.find(c => c.id === defaultCommunityId)
+            ? defaultCommunityId : list[0].id
+          setCommunityId(preferred)
         } else {
           // sem comunidades ainda — busca todas
           fetch('/api/social?action=communities').then(r => r.json()).then(d2 => {
             const all = (d2.communities || []).slice(0, 60)
             setCommunities(all)
-            if (all.length > 0) setCommunityId(all[0].id)
+            const preferred = defaultCommunityId && all.find(c => c.id === defaultCommunityId)
+              ? defaultCommunityId : (all[0]?.id || '')
+            setCommunityId(preferred)
           })
         }
       })
-  }, [user])
+  }, [user, defaultCommunityId])
 
   async function handleSubmit(e) {
     e.preventDefault()

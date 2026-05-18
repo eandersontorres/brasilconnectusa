@@ -268,7 +268,7 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
         <>
           {sectionTitle('Suas comunidades')}
           {myCommunities.slice(0, 8).map(c =>
-            item(false, '#', c.name, () => alert('Comunidade: ' + c.slug))
+            item(false, c.icon || '#', c.name, () => setTab('community', c.slug))
           )}
         </>
       )}

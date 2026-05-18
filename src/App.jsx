@@ -6,10 +6,11 @@ import DiscoverScreen from './DiscoverScreen'
 import { useAuth } from './AuthModal'
 
 // Lazy-loaded — só baixa quando o usuário troca pra essas abas
-const BolaoScreen        = lazy(() => import('./BolaoScreen'))
-const AgendaApp          = lazy(() => import('./AgendaApp'))
-const MarketplaceScreen  = lazy(() => import('./MarketplaceScreen'))
-const ComunidadesScreen  = lazy(() => import('./ComunidadesScreen'))
+const BolaoScreen            = lazy(() => import('./BolaoScreen'))
+const AgendaApp              = lazy(() => import('./AgendaApp'))
+const MarketplaceScreen      = lazy(() => import('./MarketplaceScreen'))
+const ComunidadesScreen      = lazy(() => import('./ComunidadesScreen'))
+const CommunityDetailScreen  = lazy(() => import('./CommunityDetailScreen'))
 
 function TabFallback() {
   return (
@@ -1231,63 +1232,73 @@ function VoosScreen({ affiliateLinks }) {
 
 // ─── App Principal (usa AppShell responsivo) ──────────────────────────────
 
-const VALID_TABS = ['feed', 'discover', 'remessas', 'voos', 'agenda', 'bolao', 'marketplace']
+const VALID_TABS = ['feed', 'discover', 'comunidades', 'community', 'remessas', 'voos', 'agenda', 'bolao', 'marketplace']
 const TAB_ALIASES = { cambio: 'remessas', comparador: 'remessas', 'venda-troca': 'marketplace', classifieds: 'marketplace' }
 // Slugs antigos que agora redirecionam pra páginas estáticas (1 source of truth)
 const REDIRECT_SLUGS = { negocios: '/negocio', negocio: '/negocio' }
 
 function readTabFromUrl() {
-  if (typeof window === 'undefined') return 'feed'
+  if (typeof window === 'undefined') return { tab: 'feed', slug: null }
   try {
-    // Slug que virou redirect — manda pra página estática antes de montar o app
+    // Sub-rota com slug: /app/community/<slug>
+    const cm = window.location.pathname.match(/^\/app\/community\/([^\/?#]+)\/?$/)
+    if (cm) return { tab: 'community', slug: decodeURIComponent(cm[1]) }
+
+    // Slug único: /app/<tab>
     const m = window.location.pathname.match(/^\/app(?:\/([^\/?#]+))?\/?$/)
     if (m && m[1]) {
       const slug = decodeURIComponent(m[1]).toLowerCase()
       if (REDIRECT_SLUGS[slug]) {
         window.location.replace(REDIRECT_SLUGS[slug])
-        return 'feed'
+        return { tab: 'feed', slug: null }
       }
       const resolved = TAB_ALIASES[slug] || slug
-      if (VALID_TABS.includes(resolved)) return resolved
+      if (VALID_TABS.includes(resolved)) return { tab: resolved, slug: null }
     }
     // ?tab=<tab>
     const params = new URLSearchParams(window.location.search)
     const q = (params.get('tab') || '').toLowerCase()
     if (q) {
-      if (REDIRECT_SLUGS[q]) { window.location.replace(REDIRECT_SLUGS[q]); return 'feed' }
+      if (REDIRECT_SLUGS[q]) { window.location.replace(REDIRECT_SLUGS[q]); return { tab: 'feed', slug: null } }
       const resolved = TAB_ALIASES[q] || q
-      if (VALID_TABS.includes(resolved)) return resolved
+      if (VALID_TABS.includes(resolved)) return { tab: resolved, slug: null }
     }
     // #tab
     const h = (window.location.hash || '').replace(/^#/, '').toLowerCase()
     if (h) {
-      if (REDIRECT_SLUGS[h]) { window.location.replace(REDIRECT_SLUGS[h]); return 'feed' }
+      if (REDIRECT_SLUGS[h]) { window.location.replace(REDIRECT_SLUGS[h]); return { tab: 'feed', slug: null } }
       const resolved = TAB_ALIASES[h] || h
-      if (VALID_TABS.includes(resolved)) return resolved
+      if (VALID_TABS.includes(resolved)) return { tab: resolved, slug: null }
     }
   } catch (_) {}
-  return 'feed'
+  return { tab: 'feed', slug: null }
 }
 
 export default function App() {
-  const [tab, setTabState] = useState(() => readTabFromUrl())
+  const [tab, setTabState] = useState(() => readTabFromUrl().tab)
+  const [routeSlug, setRouteSlug] = useState(() => readTabFromUrl().slug)
   const [affiliateLinks, setAffiliateLinks] = useState({})
   const { user } = useAuth()
 
-  // Sincroniza URL ↔ aba: sempre que a aba muda, atualiza /app/<tab> sem recarregar
-  const setTab = useCallback((next) => {
+  // Sincroniza URL ↔ aba. Aceita (tab, slug?) — slug usado em rotas tipo /app/community/<slug>
+  const setTab = useCallback((next, slug = null) => {
     setTabState(next)
+    setRouteSlug(slug)
     try {
-      const newPath = '/app/' + next
+      const newPath = slug ? `/app/${next}/${slug}` : `/app/${next}`
       if (window.location.pathname !== newPath) {
-        window.history.pushState({ tab: next }, '', newPath)
+        window.history.pushState({ tab: next, slug }, '', newPath)
       }
     } catch (_) {}
   }, [])
 
   // Back/Forward do navegador
   useEffect(() => {
-    function onPop() { setTabState(readTabFromUrl()) }
+    function onPop() {
+      const r = readTabFromUrl()
+      setTabState(r.tab)
+      setRouteSlug(r.slug)
+    }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
@@ -1329,6 +1340,12 @@ export default function App() {
           : <LoginGate emoji="🌐" title="Entre pra ver as Comunidades"
               message="Comunidades por interesse, cidade ou estado. Entre nas que você curte pra acompanhar posts, perguntas e eventos no Feed."
               perks={['75+ comunidades brasileiras nos EUA', 'Posts e perguntas só pros membros', 'Notificações de quem comenta']} />
+        )}
+        {tab === 'community' && (user
+          ? <Suspense fallback={<TabFallback />}><CommunityDetailScreen slug={routeSlug} onNavigate={setTab} /></Suspense>
+          : <LoginGate emoji="🌐" title="Entre pra ver essa comunidade"
+              message="O conteúdo de comunidades é exclusivo pra membros. Faça login pra ver os posts e participar."
+              perks={['Posts e perguntas dos membros', 'Pode entrar nas comunidades que curte', 'Notificações de quem responde']} />
         )}
       </AppShell>
       <PushPrompt />

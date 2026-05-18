@@ -208,7 +208,7 @@ export default function ComunidadesScreen({ onNavigate }) {
                   <MyRow key={c.id}
                     community={c}
                     isLast={i === mine.length - 1}
-                    onOpen={() => onNavigate && onNavigate('feed')}
+                    onOpen={() => onNavigate && onNavigate('community', c.slug)}
                   />
                 ))}
               </div>
@@ -240,6 +240,7 @@ export default function ComunidadesScreen({ onNavigate }) {
                     community={c}
                     isJoining={joining === c.id}
                     onJoin={() => handleJoin(c)}
+                    onOpen={() => onNavigate && onNavigate('community', c.slug)}
                   />
                 ))}
               </div>
@@ -464,18 +465,22 @@ function SectionTitle({ label, count }) {
 // ────────────────────────────────────────────────────────────────────────────
 //   CommunityCard — card grande estilo Nextdoor
 // ────────────────────────────────────────────────────────────────────────────
-function CommunityCard({ community: c, isJoining, onJoin }) {
+function CommunityCard({ community: c, isJoining, onJoin, onOpen }) {
   const [bgColor, fgColor] = TYPE_BG[c.type] || TYPE_BG.default
   const initial = (c.icon || c.name || '?').trim().charAt(0).toUpperCase()
   const typeLabel = TYPE_LABEL[c.type] || c.type || 'Geral'
   const geo = c.geo_city ? `${c.geo_city}${c.geo_state ? ' / ' + c.geo_state : ''}` : c.geo_state || null
 
   return (
-    <article style={{
+    <article onClick={onOpen} style={{
       background: C.white, border: '1px solid ' + C.line, borderRadius: 14,
       padding: 18, display: 'flex', flexDirection: 'column', gap: 12,
       transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
-    }}>
+      cursor: onOpen ? 'pointer' : 'default',
+    }}
+      onMouseEnter={e => { if (onOpen) { e.currentTarget.style.borderColor = C.gold } }}
+      onMouseLeave={e => { if (onOpen) { e.currentTarget.style.borderColor = C.line } }}
+    >
       {/* Avatar circular */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
         <div style={{
@@ -517,7 +522,7 @@ function CommunityCard({ community: c, isJoining, onJoin }) {
           <b style={{ color: C.ink, fontWeight: 700 }}>{c.member_count || 0}</b> membros
           {c.post_count > 0 && <> · {c.post_count} posts</>}
         </div>
-        <button onClick={onJoin} disabled={isJoining} style={{
+        <button onClick={e => { e.stopPropagation(); onJoin() }} disabled={isJoining} style={{
           background: C.green, color: C.white, border: 'none',
           padding: '8px 18px', borderRadius: 18, fontSize: 13, fontWeight: 700,
           cursor: isJoining ? 'wait' : 'pointer', fontFamily: FONT.sans,
