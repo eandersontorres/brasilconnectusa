@@ -72,12 +72,11 @@ export default function PostButton({ variant = 'sidebar' }) {
     <>
       {variant === 'sidebar' && (
         <button onClick={handleClick} style={{
-          width: '100%', padding: '12px 16px', background: C.green, color: C.white,
-          border: 'none', borderRadius: 24, fontWeight: 700, fontSize: 14,
-          cursor: 'pointer', fontFamily: FONT.sans,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          width: '100%', padding: '14px 16px', background: C.green, color: C.white,
+          border: 'none', borderRadius: 24, fontWeight: 700, fontSize: 17,
+          letterSpacing: '0.02em',
+          cursor: 'pointer', fontFamily: FONT.sans, textAlign: 'center',
         }}>
-          <span style={{ fontSize: 16 }}>✏️</span>
           Post
         </button>
       )}
