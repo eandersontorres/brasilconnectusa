@@ -36,8 +36,11 @@
 
     .plans-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin: 24px 0; }
     .plan-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
-    .plan-card.featured { border-color: var(--green-deep); border-width: 2px; position: relative; }
-    .plan-card.featured::before { content: 'POPULAR'; position: absolute; top: -10px; right: 16px; background: var(--green-deep); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.08em; }
+    .plan-card.featured { background: #FFFBEA; color: var(--ink); border-color: var(--brand-gold-dark,#B8860B); border-width: 2px; position: relative; box-shadow: 0 10px 30px rgba(184,134,11,0.12); }
+    .plan-card.featured h4, .plan-card.featured .price { color: var(--ink); }
+    .plan-card.featured .price small { color: var(--ink-muted); }
+    .plan-card.featured li { color: var(--ink-soft); border-bottom-color: rgba(184,134,11,0.10); }
+    .plan-card.featured::before { content: 'POPULAR'; position: absolute; top: -10px; right: 16px; background: var(--brand-gold-dark,#B8860B); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.08em; }
     .plan-card h4 { font-family: var(--font-display); font-size: 22px; margin: 0 0 6px 0; color: var(--ink); }
     .plan-card .price { font-family: var(--font-display); font-size: 32px; font-weight: 300; margin-bottom: 18px; }
     .plan-card .price small { font-size: 14px; color: var(--ink-muted); font-weight: 400; }
