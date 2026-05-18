@@ -66,11 +66,13 @@ export default function DiscoverScreen({ onNavigate }) {
 
   function handleCategoryClick(key) {
     // Mapeia categoria para tab existente do app
-    if (key === 'cambio')        onNavigate && onNavigate('remessas')
-    else if (key === 'voos')     onNavigate && onNavigate('voos')
-    else if (key === 'bolao')    onNavigate && onNavigate('bolao')
-    else if (key === 'negocios') onNavigate && onNavigate('negocios')
-    else if (key === 'comunidades' || key === 'eventos' || key === 'classificados' || key === 'vagas') {
+    if (key === 'cambio')              onNavigate && onNavigate('remessas')
+    else if (key === 'voos')           onNavigate && onNavigate('voos')
+    else if (key === 'bolao')          onNavigate && onNavigate('bolao')
+    else if (key === 'negocios')       onNavigate && onNavigate('negocios')
+    else if (key === 'comunidades')    onNavigate && onNavigate('comunidades')
+    else if (key === 'classificados')  onNavigate && onNavigate('marketplace')
+    else if (key === 'eventos' || key === 'vagas') {
       onNavigate && onNavigate('feed')
     }
   }
@@ -120,12 +122,12 @@ export default function DiscoverScreen({ onNavigate }) {
                   {c.member_count || 0} membros · {c.post_count || 0} posts
                 </div>
               </div>
-              <button onClick={() => onNavigate && onNavigate('feed')} style={{
+              <button onClick={() => onNavigate && onNavigate('comunidades')} style={{
                 background: 'transparent', color: C.green, border: '1.5px solid ' + C.green,
                 borderRadius: 16, padding: '5px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 fontFamily: FONT.sans,
               }}>
-                Entrar
+                Ver
               </button>
             </div>
           ))}

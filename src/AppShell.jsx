@@ -260,8 +260,9 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
         <PostButton variant="sidebar" />
       </div>
       {sectionTitle('Navegação')}
-      {item(tab === 'feed',     '⌂', 'Feed',     () => setTab('feed'))}
-      {item(tab === 'discover', '⌕', 'Buscar',   () => setTab('discover'))}
+      {item(tab === 'feed',         '⌂', 'Feed',        () => setTab('feed'))}
+      {item(tab === 'discover',     '⌕', 'Buscar',      () => setTab('discover'))}
+      {item(tab === 'comunidades',  '🌐','Comunidades', () => setTab('comunidades'))}
 
       {user && myCommunities.length > 0 && (
         <>

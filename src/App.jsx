@@ -9,6 +9,7 @@ import { useAuth } from './AuthModal'
 const BolaoScreen        = lazy(() => import('./BolaoScreen'))
 const AgendaApp          = lazy(() => import('./AgendaApp'))
 const MarketplaceScreen  = lazy(() => import('./MarketplaceScreen'))
+const ComunidadesScreen  = lazy(() => import('./ComunidadesScreen'))
 
 function TabFallback() {
   return (
@@ -1322,6 +1323,12 @@ export default function App() {
           : <LoginGate emoji="🛍️" title="Entre pra usar o Marketplace"
               message="Compre, venda e doe entre brasileiros na sua cidade. Móveis, eletrônicos, roupa, carro, serviços — direto com gente da comunidade."
               perks={['Anunciar é grátis', 'Sem comissão por venda', 'Chat direto com vendedor']} />
+        )}
+        {tab === 'comunidades' && (user
+          ? <Suspense fallback={<TabFallback />}><ComunidadesScreen onNavigate={setTab} /></Suspense>
+          : <LoginGate emoji="🌐" title="Entre pra ver as Comunidades"
+              message="Comunidades por interesse, cidade ou estado. Entre nas que você curte pra acompanhar posts, perguntas e eventos no Feed."
+              perks={['75+ comunidades brasileiras nos EUA', 'Posts e perguntas só pros membros', 'Notificações de quem comenta']} />
         )}
       </AppShell>
       <PushPrompt />
