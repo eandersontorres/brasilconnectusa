@@ -22,7 +22,7 @@
       label: 'Restaurante',
       emoji: '🍽️',
       tagline: 'Cardápio online + pedidos com pagamento.',
-      blurb: 'Aceite pedidos pela web com cardápio, modificadores e pagamento via Stripe. Cobramos só 2.5% por pedido (DoorDash cobra 30%).',
+      blurb: 'Aceite pedidos pela web com cardápio, modificadores e pagamento via Stripe. Sem comissão por pedido — você paga só o plano mensal. O que vender é seu.',
       tabs: [
         { key: 'negocio',  label: 'Meu Negócio' },
         { key: 'cardapio', label: 'Cardápio' },
@@ -30,7 +30,7 @@
       ],
       features: {
         free:    ['Perfil público', 'Cardápio com até 20 itens'],
-        pro:     ['Cardápio ilimitado', 'Modificadores', 'Pedidos online', 'Stripe Connect'],
+        pro:     ['Cardápio ilimitado', 'Modificadores', 'Pedidos online sem comissão', 'Stripe Connect'],
         premium: ['Tudo do Pro', 'Destaque na busca', 'Badge verificado', 'Analytics'],
       },
     },
@@ -39,8 +39,8 @@
       key: 'grocery',
       label: 'Mercado',
       emoji: '🛒',
-      tagline: 'Catálogo de produtos + pedidos.',
-      blurb: 'Coloque seu mercado online — produtos com foto, preço e estoque, pedidos com entrega ou retirada. Mesmo motor do Cardápio, otimizado pra itens de mercearia.',
+      tagline: 'Catálogo de produtos + pedidos sem comissão.',
+      blurb: 'Coloque seu mercado online — produtos com foto, preço e estoque, pedidos com entrega ou retirada. Sem comissão por venda. Mesmo motor do Cardápio, otimizado pra mercearia.',
       tabs: [
         { key: 'negocio',  label: 'Meu Negócio' },
         { key: 'cardapio', label: 'Catálogo' },
@@ -48,7 +48,7 @@
       ],
       features: {
         free:    ['Perfil público', 'Catálogo com até 30 itens'],
-        pro:     ['Catálogo ilimitado', 'Pedidos online', 'Stripe Connect'],
+        pro:     ['Catálogo ilimitado', 'Pedidos online sem comissão', 'Stripe Connect'],
         premium: ['Tudo do Pro', 'Destaque na busca', 'Badge verificado', 'Analytics'],
       },
     },
@@ -57,8 +57,8 @@
       key: 'retail',
       label: 'Loja (Retail)',
       emoji: '🛍️',
-      tagline: 'Vitrine de produtos + pedidos.',
-      blurb: 'Vitrine pra lojas físicas — roupas, artesanato, importados. Cliente vê estoque, faz pedido com pagamento online e retira ou recebe entrega.',
+      tagline: 'Vitrine de produtos + pedidos sem comissão.',
+      blurb: 'Vitrine pra lojas físicas — roupas, artesanato, importados. Cliente vê estoque, faz pedido com pagamento online. Sem comissão por venda — só mensalidade.',
       tabs: [
         { key: 'negocio',  label: 'Meu Negócio' },
         { key: 'cardapio', label: 'Catálogo' },
@@ -66,7 +66,7 @@
       ],
       features: {
         free:    ['Perfil público', 'Catálogo com até 20 itens'],
-        pro:     ['Catálogo ilimitado', 'Pedidos online', 'Stripe Connect'],
+        pro:     ['Catálogo ilimitado', 'Pedidos online sem comissão', 'Stripe Connect'],
         premium: ['Tudo do Pro', 'Destaque na busca', 'Badge verificado', 'Analytics'],
       },
     },
@@ -76,14 +76,14 @@
       label: 'AgendaPro',
       emoji: '📅',
       tagline: 'Agendamento online com calendário.',
-      blurb: 'Pra profissionais que vendem horários — cabeleireira, massagista, dentista, personal. Cliente vê disponibilidade e agenda direto no seu calendário.',
+      blurb: 'Pra profissionais que vendem horários — cabeleireira, massagista, dentista, personal. Cliente vê disponibilidade e agenda direto no seu calendário. Sem comissão por agendamento.',
       tabs: [
         { key: 'negocio',      label: 'Meu Negócio' },
         { key: 'profissional', label: 'Profissional (AgendaPro)' },
       ],
       features: {
         free:    ['Perfil público', 'Até 20 agendamentos/mês'],
-        pro:     ['Agendamentos ilimitados', 'Lembretes por SMS/email', 'Pagamento online'],
+        pro:     ['Agendamentos ilimitados', 'Lembretes por SMS/email', 'Pagamento online sem comissão'],
         premium: ['Tudo do Pro', 'Multi-profissional', 'Reviews pós-atendimento', 'Analytics'],
       },
     },

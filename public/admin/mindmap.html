@@ -650,7 +650,7 @@
           { type: 'done',    text: 'CRUD completo do menu (categorias, items, fotos com upload, toggle disponivel)' },
           { type: 'done',    text: 'Cardapio publico em /negocio/:slug/cardapio com carrinho client-side' },
           { type: 'done',    text: 'Checkout com Stripe Elements + PaymentIntent com transfer_data.destination (split automatico)' },
-          { type: 'done',    text: 'Plataforma fee 2.5% (vs DoorDash 30%) — cobra so do subtotal, nao da gorjeta' },
+          { type: 'done',    text: 'Plataforma fee 2.5% (vs DoorDash 30%) — DEPRECATED 2026-05-17: pivot pra mensalidade fixa sem comissao por pedido. Codigo ainda calcula 2.5%, copy nas landing ja foi atualizada. TODO tecnico: zerar application_fee_amount + criar Stripe Billing pra plano mensal.' },
           { type: 'done',    text: 'Painel de pedidos no /assinante com fila tipo iFood + som de alerta + polling 30s' },
           { type: 'done',    text: 'Status flow: confirmed → preparing → ready → delivered (1 clique)' },
           { type: 'done',    text: 'Email pro cliente em cada mudanca de status via Resend' },
