@@ -186,6 +186,7 @@
             <button class="tab-btn ${currentTab==='bolao'?'active':''}" onclick="switchTab('bolao')">Bolão Copa</button>
             <button class="tab-btn ${currentTab==='users'?'active':''}" onclick="switchTab('users')">Usuários</button>
             <button class="tab-btn ${currentTab==='sponsors'?'active':''}" onclick="switchTab('sponsors')">Patrocinadores</button>
+            <button class="tab-btn ${currentTab==='usage'?'active':''}" onclick="switchTab('usage')">Uso & Limites</button>
           </div>
           <div id="tab-content"><p class="muted">Carregando…</p></div>
         </div>
@@ -206,6 +207,7 @@
         else if (tab === 'bolao')      await loadBolao(c)
         else if (tab === 'users')      await loadUsers(c)
         else if (tab === 'sponsors')   await loadSponsors(c)
+        else if (tab === 'usage')      await loadUsage(c)
       } catch (e) {
         c.innerHTML = '<div class="err-banner">' + escapeHtml(e.message) + '</div>'
       }
@@ -1765,6 +1767,219 @@
       })
       if (!r.ok) { alert('Erro'); return }
       loadSponsors(document.getElementById('tab-content'))
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    // TAB USO & LIMITES — dashboard de capacidade Supabase Pro + Vercel Pro
+    // ═════════════════════════════════════════════════════════════════════
+    let _usageTimer = null
+
+    function fmtBytes(n) {
+      n = Number(n) || 0
+      if (n < 1024) return n + ' B'
+      if (n < 1024 ** 2) return (n / 1024).toFixed(1) + ' KB'
+      if (n < 1024 ** 3) return (n / 1024 ** 2).toFixed(1) + ' MB'
+      if (n < 1024 ** 4) return (n / 1024 ** 3).toFixed(2) + ' GB'
+      return (n / 1024 ** 4).toFixed(2) + ' TB'
+    }
+    function fmtNum(n) {
+      return Number(n || 0).toLocaleString('pt-BR')
+    }
+    function pctColor(p) {
+      if (p >= 85) return '#DC2626'        // vermelho — perto do limite
+      if (p >= 60) return '#F59E0B'        // amarelo
+      return '#16A34A'                      // verde
+    }
+
+    function gaugeCard(label, value, limit, formatter, sub) {
+      const fmt = formatter || fmtNum
+      const v = Number(value) || 0
+      const lim = Number(limit) || 0
+      const pct = lim > 0 ? Math.min(100, (v / lim) * 100) : 0
+      const color = pctColor(pct)
+      return `
+        <div style="background:var(--paper-elevated);border:1px solid var(--line);border-radius:12px;padding:16px;">
+          <div style="font-size:11px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">
+            ${escapeHtml(label)}
+          </div>
+          <div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px;">
+            <div style="font-family:var(--font-display);font-size:24px;font-weight:600;color:var(--ink);">
+              ${fmt(v)}
+            </div>
+            ${lim ? `<div style="font-size:12px;color:var(--ink-muted);">/ ${fmt(lim)}</div>` : ''}
+          </div>
+          ${lim ? `
+            <div style="height:6px;background:#F3F4F6;border-radius:3px;overflow:hidden;">
+              <div style="height:100%;background:${color};width:${pct.toFixed(1)}%;transition:width 0.3s;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:10px;color:${color};font-weight:600;">
+              <span>${pct.toFixed(1)}%</span>
+              <span>${sub || ''}</span>
+            </div>
+          ` : (sub ? `<div style="font-size:11px;color:var(--ink-muted);">${escapeHtml(sub)}</div>` : '')}
+        </div>
+      `
+    }
+
+    function statCard(label, value, sub) {
+      return `
+        <div style="background:var(--paper-elevated);border:1px solid var(--line);border-radius:10px;padding:14px;">
+          <div style="font-size:10px;font-weight:700;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:4px;">
+            ${escapeHtml(label)}
+          </div>
+          <div style="font-family:var(--font-display);font-size:22px;font-weight:600;color:var(--ink);">
+            ${fmtNum(value)}
+          </div>
+          ${sub ? `<div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">${escapeHtml(sub)}</div>` : ''}
+        </div>
+      `
+    }
+
+    async function loadUsage(c) {
+      c.innerHTML = '<p class="muted" style="padding:20px;">Carregando métricas…</p>'
+      let data
+      try {
+        const r = await fetch('/api/admin/usage', { headers: { 'x-admin-secret': getSecret() } })
+        if (!r.ok) {
+          const d = await r.json().catch(() => ({}))
+          c.innerHTML = '<div class="err-banner">Erro: ' + escapeHtml(d.error || ('HTTP ' + r.status)) + '</div>'
+          return
+        }
+        data = await r.json()
+      } catch (e) {
+        c.innerHTML = '<div class="err-banner">Erro de rede: ' + escapeHtml(e.message) + '</div>'
+        return
+      }
+
+      const sb = data.supabase || {}
+      const vc = data.vercel || {}
+      const rs = data.resend || {}
+      const app = data.app || {}
+
+      const ts = new Date(data.timestamp).toLocaleString('pt-BR')
+
+      // Storage por bucket
+      const bucketsHtml = (sb.storage_by_bucket || []).map(b => `
+        <tr>
+          <td><code>${escapeHtml(b.bucket_id)}</code></td>
+          <td style="text-align:right;">${fmtBytes(b.total_bytes)}</td>
+          <td style="text-align:right;font-size:11px;color:var(--ink-muted);">${fmtNum(b.file_count)} arquivos</td>
+        </tr>
+      `).join('') || '<tr><td colspan="3" style="text-align:center;padding:14px;color:var(--ink-muted);font-style:italic;">Nenhum arquivo armazenado</td></tr>'
+
+      c.innerHTML = `
+        <div class="panel">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+            <div>
+              <div class="panel-eyebrow">CAPACIDADE</div>
+              <h3>Uso & Limites</h3>
+              <p class="panel-sub" style="margin-bottom:0;">Snapshot dos planos atuais (Supabase Pro + Vercel Pro + Resend Pro). Janela: ${escapeHtml(data.window || '30d')} · atualizado em ${escapeHtml(ts)}</p>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft);cursor:pointer;">
+                <input type="checkbox" id="usage-auto-refresh" /> Auto-refresh 60s
+              </label>
+              <button class="btn-mini btn-mark" onclick="loadUsage(document.getElementById('tab-content'))">🔄 Atualizar</button>
+            </div>
+          </div>
+
+          <!-- Supabase Pro -->
+          <div style="font-size:12px;font-weight:700;color:var(--brand-green,#009C3B);text-transform:uppercase;letter-spacing:0.12em;margin:18px 0 10px;">
+            Supabase Pro
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:18px;">
+            ${gaugeCard('Monthly Active Users', sb.mau?.value, sb.mau?.limit, fmtNum, 'login últimos 30d')}
+            ${gaugeCard('Database size', sb.db_size?.value, sb.db_size?.limit, fmtBytes)}
+            ${gaugeCard('Storage', sb.storage?.value, sb.storage?.limit, fmtBytes)}
+            ${gaugeCard('Bandwidth (egress)', 0, sb.bandwidth?.limit, fmtBytes, 'ver no dashboard')}
+            ${gaugeCard('Connection pool', '—', sb.connections?.limit, fmtNum, 'só visível no Supavisor')}
+          </div>
+
+          <details style="background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;margin-bottom:18px;">
+            <summary style="cursor:pointer;font-weight:600;font-size:13px;">Storage por bucket</summary>
+            <table style="width:100%;margin-top:10px;font-size:12px;">
+              <thead>
+                <tr style="border-bottom:1px solid var(--line);">
+                  <th style="text-align:left;padding:6px 4px;font-size:10px;color:var(--ink-muted);">Bucket</th>
+                  <th style="text-align:right;padding:6px 4px;font-size:10px;color:var(--ink-muted);">Tamanho</th>
+                  <th style="text-align:right;padding:6px 4px;font-size:10px;color:var(--ink-muted);">Arquivos</th>
+                </tr>
+              </thead>
+              <tbody>${bucketsHtml}</tbody>
+            </table>
+          </details>
+
+          <!-- Vercel Pro -->
+          <div style="font-size:12px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:0.12em;margin:18px 0 10px;">
+            Vercel Pro
+          </div>
+          <div style="background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:18px;">
+            ${vc.configured && vc.raw && !vc.error
+              ? `<div style="font-size:12px;color:var(--ink-soft);margin-bottom:10px;">Dados via Vercel API:</div>
+                 <pre style="font-size:11px;background:var(--paper-soft);padding:10px;border-radius:6px;overflow:auto;max-height:200px;">${escapeHtml(JSON.stringify(vc.raw, null, 2))}</pre>`
+              : `<div style="font-size:12px;color:var(--ink-muted);line-height:1.55;">
+                  ${vc.error
+                    ? '<strong>API erro:</strong> ' + escapeHtml(vc.error) + (vc.hint ? '<br/>' + escapeHtml(vc.hint) : '')
+                    : '<strong>Vercel API não configurado.</strong> Setar <code>VERCEL_TOKEN</code> em env do Vercel pra ler bandwidth/invocations programaticamente.'}
+                </div>`
+            }
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:14px;">
+              ${gaugeCard('Bandwidth (mês)', 0, vc.bandwidth_limit_bytes, fmtBytes, 'ver dashboard')}
+              ${gaugeCard('Function invocations (dia)', 0, vc.invocations_limit_daily, fmtNum, 'ver dashboard')}
+              ${gaugeCard('GB-hours funções (mês)', 0, vc.gb_hours_limit, fmtNum, 'ver dashboard')}
+              ${gaugeCard('Build minutes (mês)', 0, vc.build_minutes_limit, fmtNum, 'ver dashboard')}
+            </div>
+            <div style="margin-top:10px;font-size:11px;">
+              <a href="${vc.external_link || 'https://vercel.com/dashboard/usage'}" target="_blank" style="color:var(--brand-green,#009C3B);">→ Abrir Vercel Dashboard</a>
+            </div>
+          </div>
+
+          <!-- Resend -->
+          <div style="font-size:12px;font-weight:700;color:#0E1F39;text-transform:uppercase;letter-spacing:0.12em;margin:18px 0 10px;">
+            Resend Pro
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:8px;">
+            ${gaugeCard('Emails enviados (30d)', rs.emails_30d?.value, rs.emails_30d?.limit, fmtNum, 'via bc_drip_log')}
+          </div>
+          <div style="margin-bottom:18px;font-size:11px;">
+            <a href="${rs.external_link || 'https://resend.com/emails'}" target="_blank" style="color:var(--brand-green,#009C3B);">→ Abrir Resend Dashboard</a>
+          </div>
+
+          <!-- App Stats -->
+          <div style="font-size:12px;font-weight:700;color:var(--brand-gold-dark,#B8860B);text-transform:uppercase;letter-spacing:0.12em;margin:18px 0 10px;">
+            Conteúdo & Atividade da App
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;">
+            ${statCard('Usuários totais', app.total_users)}
+            ${statCard('MAU', app.mau, 'login 30d')}
+            ${statCard('Comunidades', app.communities_total, app.communities_active + ' com membros')}
+            ${statCard('Posts total', app.posts_total, app.posts_30d + ' nos últimos 30d')}
+            ${statCard('Comentários', app.comments_total, app.comments_30d + ' (30d)')}
+            ${statCard('Negócios', app.businesses_total, app.businesses_approved + ' aprovados · ' + app.businesses_pending + ' pendentes')}
+            ${statCard('Push subscriptions', app.push_subscriptions, 'ativas')}
+            ${statCard('Sponsors ativos', app.sponsors_active)}
+            ${statCard('Pedidos restaurante', app.orders_total, app.orders_30d + ' (30d)')}
+            ${statCard('Bolão membros', app.bolao_members)}
+            ${statCard('Event RSVPs', app.event_rsvps)}
+            ${statCard('Denúncias pendentes', app.reports_pending)}
+            ${statCard('Fale conosco', app.contact_unanswered, 'sem resposta')}
+            ${statCard('Enterprise leads', app.enterprise_leads)}
+            ${statCard('Waitlist signups', app.waitlist)}
+          </div>
+        </div>
+      `
+
+      // Auto-refresh
+      const cb = document.getElementById('usage-auto-refresh')
+      if (cb) cb.onchange = () => {
+        if (_usageTimer) { clearInterval(_usageTimer); _usageTimer = null }
+        if (cb.checked) {
+          _usageTimer = setInterval(() => {
+            if (currentTab === 'usage') loadUsage(document.getElementById('tab-content'))
+            else { clearInterval(_usageTimer); _usageTimer = null }
+          }, 60000)
+        }
+      }
     }
 
     if (getSecret()) renderDashboard()
