@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { C, FONT } from './lib/colors'
 import { useAuth } from './AuthModal'
 import { apiFetch } from './lib/apiFetch'
+import { SHOW_BUSINESS } from './lib/features'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   SettingsScreen — página de configurações (inspirado no Nextdoor)
@@ -104,11 +105,13 @@ export default function SettingsScreen({ onNavigate }) {
           onClick={() => onNavigate && onNavigate('comunidades')}
         />
 
-        {/* MEU NEGÓCIO */}
-        <Row
-          icon={Icons.store} label="Meu negócio" sub="Painel do assinante, cardápio, pedidos"
-          onClick={() => { window.location.href = '/assinante' }}
-        />
+        {/* MEU NEGÓCIO — escondido por feature flag até lançar essa parte */}
+        {SHOW_BUSINESS && (
+          <Row
+            icon={Icons.store} label="Meu negócio" sub="Painel do assinante, cardápio, pedidos"
+            onClick={() => { window.location.href = '/assinante' }}
+          />
+        )}
 
         {/* AJUDA */}
         <Row

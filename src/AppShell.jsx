@@ -6,6 +6,7 @@ import NotificationBell from './NotificationBell'
 import PostButton from './PostButton'
 import FeedbackButton from './FeedbackButton'
 import { apiFetch } from './lib/apiFetch'
+import { SHOW_BUSINESS } from './lib/features'
 
 // ─── Ícones monocromáticos Lucide-style (currentColor, sidebar 18px) ────────
 const ICP = {
@@ -329,7 +330,7 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
       {item(tab === 'eventos',    SIcons.calendar, 'Eventos',    () => setTab('eventos'))}
       {item(tab === 'remessas',   SIcons.dollar,   'Câmbio',     () => setTab('remessas'))}
       {item(tab === 'voos',       SIcons.plane,    'Voos',       () => setTab('voos'))}
-      {item(false,                SIcons.store,    'Negócios',   () => { window.location.href = '/negocio' })}
+      {SHOW_BUSINESS && item(false, SIcons.store, 'Negócios', () => { window.location.href = '/negocio' })}
       {item(tab === 'bolao',      SIcons.trophy,   'Bolão',      () => setTab('bolao'))}
       {item(tab === 'marketplace',SIcons.tag,      'Marketplace',() => setTab('marketplace'))}
 

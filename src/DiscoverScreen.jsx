@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { C, FONT } from './lib/colors'
 import { apiFetch } from './lib/apiFetch'
+import { SHOW_BUSINESS } from './lib/features'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   DiscoverScreen — tela de busca + descoberta de categorias
@@ -12,7 +13,7 @@ const TRENDING_SEARCHES = [
   'Restaurante brasileiro', 'Igreja', 'Pediatra', 'Imóveis',
 ]
 
-const CATEGORIES = [
+const ALL_CATEGORIES = [
   { key: 'comunidades',   title: 'Comunidades',         sub: '75+ grupos pra participar',     emoji: '👥', accent: C.navy,  cta: 'Explorar'  },
   { key: 'eventos',       title: 'Eventos',             sub: 'Festas, encontros, esportes',   emoji: '🎉', accent: C.gold,  cta: 'Ver agenda' },
   { key: 'classificados', title: 'Marketplace',         sub: 'Compre, venda, doe',            emoji: '🛍️', accent: C.green, cta: 'Navegar'   },
@@ -22,6 +23,8 @@ const CATEGORIES = [
   { key: 'voos',          title: 'Voos pro Brasil',     sub: 'A partir de $480',              emoji: '✈️', accent: C.navy,  cta: 'Buscar'    },
   { key: 'bolao',         title: 'Bolão Copa 2026',     sub: 'Crie ou entre num bolão',       emoji: '⚽', accent: C.gold,  cta: 'Participar' },
 ]
+
+const CATEGORIES = ALL_CATEGORIES.filter(c => SHOW_BUSINESS || c.key !== 'negocios')
 
 export default function DiscoverScreen({ onNavigate }) {
   const [search, setSearch] = useState('')
