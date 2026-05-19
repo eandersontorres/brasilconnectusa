@@ -182,6 +182,7 @@
             <button class="tab-btn ${currentTab==='enterprise'?'active':''}" onclick="switchTab('enterprise')">Leads Enterprise</button>
             <button class="tab-btn ${currentTab==='reports'?'active':''}" onclick="switchTab('reports')">Moderação</button>
             <button class="tab-btn ${currentTab==='agent'?'active':''}" onclick="switchTab('agent')">Moderação IA</button>
+            <button class="tab-btn ${currentTab==='feedback'?'active':''}" onclick="switchTab('feedback')">Feedback</button>
             <button class="tab-btn ${currentTab==='businesses'?'active':''}" onclick="switchTab('businesses')">Negócios</button>
             <button class="tab-btn ${currentTab==='restaurant-orders'?'active':''}" onclick="switchTab('restaurant-orders')">Pedidos Restaurante</button>
             <button class="tab-btn ${currentTab==='bolao'?'active':''}" onclick="switchTab('bolao')">Bolão Copa</button>
@@ -204,6 +205,7 @@
         else if (tab === 'enterprise') await loadEnterprise(c)
         else if (tab === 'reports')    await loadReports(c)
         else if (tab === 'agent')      await loadAgent(c)
+        else if (tab === 'feedback')   await loadFeedback(c)
         else if (tab === 'businesses') await loadBusinesses(c)
         else if (tab === 'restaurant-orders') await loadRestaurantOrders(c)
         else if (tab === 'bolao')      await loadBolao(c)
@@ -613,6 +615,117 @@
         const d = await r.json()
         if (!r.ok) throw new Error(d.error || 'Erro')
         loadTab('agent')
+      } catch (e) { alert(e.message) }
+    }
+
+    // ─── Feedback in-app (botão flutuante do app SPA) ──────────────────
+    let _fbFilter = { status: 'open', type: 'all' }
+
+    async function loadFeedback(c) {
+      try {
+        const qs = new URLSearchParams()
+        if (_fbFilter.status !== 'all') qs.set('status', _fbFilter.status)
+        if (_fbFilter.type !== 'all')   qs.set('type', _fbFilter.type)
+
+        const r = await fetch('/api/admin/feedback?' + qs.toString(), { headers: { 'x-admin-secret': getSecret() } })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        const items = d.items || []
+
+        const typeMeta = {
+          bug:        { emoji: '🐛', label: 'Bug',       color: '#991B1B', bg: '#FEE2E2' },
+          suggestion: { emoji: '💡', label: 'Sugestão',  color: '#854D0E', bg: '#FEF3C7' },
+          question:   { emoji: '❓', label: 'Dúvida',    color: '#1E40AF', bg: '#DBEAFE' },
+        }
+        const statusMeta = {
+          open:       { label: 'aberto',     color: '#991B1B' },
+          reviewing:  { label: 'analisando', color: '#854D0E' },
+          resolved:   { label: 'resolvido',  color: '#166534' },
+          dismissed:  { label: 'descartado', color: '#6B7280' },
+        }
+
+        const filters = `
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;font-size:12px;">
+            <span style="color:var(--ink-muted);align-self:center;">Status:</span>
+            ${['open','reviewing','resolved','dismissed','all'].map(st => `
+              <button class="btn-mini" onclick="_fbFilter.status='${st}';loadTab('feedback')"
+                style="background:${_fbFilter.status===st?'var(--ink)':'var(--paper-soft)'};color:${_fbFilter.status===st?'#fff':'var(--ink-soft)'};">
+                ${st === 'all' ? 'todos' : (statusMeta[st]?.label || st)}
+              </button>`).join('')}
+            <span style="color:var(--ink-muted);align-self:center;margin-left:8px;">Tipo:</span>
+            ${['all','bug','suggestion','question'].map(t => `
+              <button class="btn-mini" onclick="_fbFilter.type='${t}';loadTab('feedback')"
+                style="background:${_fbFilter.type===t?'var(--ink)':'var(--paper-soft)'};color:${_fbFilter.type===t?'#fff':'var(--ink-soft)'};">
+                ${t === 'all' ? 'todos' : (typeMeta[t]?.emoji + ' ' + typeMeta[t]?.label)}
+              </button>`).join('')}
+          </div>`
+
+        if (items.length === 0) {
+          c.innerHTML = `
+            <div class="panel">
+              <div class="panel-eyebrow">FEEDBACK IN-APP</div>
+              <h3>Mensagens da galera</h3>
+              <p class="panel-sub">Botão flutuante no app, com URL e navegador anexados pra debug.</p>
+              ${filters}
+              <div class="empty">✅ Nada com esse filtro.</div>
+            </div>`
+          return
+        }
+
+        c.innerHTML = `
+          <div class="panel">
+            <div class="panel-eyebrow">FEEDBACK IN-APP</div>
+            <h3>${items.length} mensagem${items.length===1?'':'ns'}</h3>
+            <p class="panel-sub">Botão flutuante no app captura bugs, sugestões e dúvidas com contexto.</p>
+            ${filters}
+            ${items.map(f => {
+              const t = typeMeta[f.type] || typeMeta.bug
+              const st = statusMeta[f.status] || statusMeta.open
+              const urlShort = f.url ? f.url.replace(/^https?:\/\/[^/]+/, '') : '—'
+              const uaShort = (f.user_agent || '').match(/(Chrome|Firefox|Safari|Edge|Mobile)[^\s;)]*/g)?.slice(0,2).join(' · ') || (f.user_agent || '').slice(0,60)
+              return `
+                <div class="item" style="border-left:3px solid ${t.color};">
+                  <div class="head">
+                    <div>
+                      <div class="name">
+                        <span style="background:${t.bg};color:${t.color};padding:2px 8px;border-radius:4px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;">${t.emoji} ${t.label}</span>
+                        <span style="background:var(--paper-soft);color:${st.color};padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-left:4px;text-transform:uppercase;letter-spacing:.05em;">${st.label}</span>
+                      </div>
+                      <div class="meta" style="margin-top:4px;">
+                        ${f.user_email ? escapeHtml(f.user_email) : (f.user_id ? 'user ' + escapeHtml(f.user_id.slice(0,8)) : 'anônimo')}
+                        · ${new Date(f.created_at).toLocaleString('pt-BR')}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="answer" style="white-space:pre-wrap;">${escapeHtml(f.message)}</div>
+                  <div style="font-size:11px;color:var(--ink-muted);margin-top:8px;">
+                    <b>onde:</b> ${escapeHtml(urlShort)} · <b>navegador:</b> ${escapeHtml(uaShort)}
+                  </div>
+                  ${f.admin_notes ? '<div style="background:#FEF7E0;border-left:3px solid #B45309;padding:8px 12px;border-radius:4px;font-size:12px;color:#7A4A0E;margin-top:8px;"><b>Nota:</b> ' + escapeHtml(f.admin_notes) + '</div>' : ''}
+                  <div class="actions" style="margin-top:10px;">
+                    ${f.status !== 'reviewing' ? '<button class="btn-mini btn-mark" onclick="actFeedback(\'' + f.id + '\',\'reviewing\')">📋 Analisando</button>' : ''}
+                    ${f.status !== 'resolved'  ? '<button class="btn-mini btn-approve" onclick="actFeedback(\'' + f.id + '\',\'resolved\',true)">✓ Resolvido</button>' : ''}
+                    ${f.status !== 'dismissed' ? '<button class="btn-mini btn-reject" onclick="actFeedback(\'' + f.id + '\',\'dismissed\')">✗ Descartar</button>' : ''}
+                  </div>
+                </div>`
+            }).join('')}
+          </div>`
+      } catch (e) {
+        c.innerHTML = '<div class="err-banner">' + escapeHtml(e.message) + '</div>'
+      }
+    }
+
+    async function actFeedback(id, status, askNotes) {
+      const notes = askNotes ? prompt('Nota interna (opcional, ex: como foi resolvido):') : null
+      try {
+        const r = await fetch('/api/admin/feedback?action=resolve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+          body: JSON.stringify({ id, status, admin_notes: notes }),
+        })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        loadTab('feedback')
       } catch (e) { alert(e.message) }
     }
 

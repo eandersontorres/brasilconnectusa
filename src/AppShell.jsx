@@ -4,6 +4,7 @@ import { useAuth } from './AuthModal'
 import OnboardingFlow from './OnboardingFlow'
 import NotificationBell from './NotificationBell'
 import PostButton from './PostButton'
+import FeedbackButton from './FeedbackButton'
 import { apiFetch } from './lib/apiFetch'
 
 // ─── Ícones monocromáticos Lucide-style (currentColor, sidebar 18px) ────────
@@ -631,6 +632,7 @@ export default function AppShell({ tab, setTab, children }) {
         </div>
         <MobileBottomNav tab={tab} setTab={setTab} />
         <PostButton variant="fab" />
+        <FeedbackButton />
         {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
         {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} onDismiss={handleOnboardingDismiss} />}
       </div>
@@ -659,6 +661,7 @@ export default function AppShell({ tab, setTab, children }) {
         <RightSidebar rate={rate} setTab={setTab} upcomingEvents={upcomingEvents} />
       </div>
 
+      <FeedbackButton />
       {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
       {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} onDismiss={handleOnboardingDismiss} />}
     </div>
