@@ -543,60 +543,82 @@ function CommunityCard({ community: c, isJoining, onJoin, onOpen }) {
   return (
     <article onClick={onOpen} style={{
       background: C.white, border: '1px solid ' + C.line, borderRadius: 14,
-      padding: 18, display: 'flex', flexDirection: 'column', gap: 12,
+      display: 'flex', flexDirection: 'column',
       transition: 'border-color 0.15s ease, box-shadow 0.15s ease',
       cursor: onOpen ? 'pointer' : 'default',
+      overflow: 'hidden',
     }}
       onMouseEnter={e => { if (onOpen) { e.currentTarget.style.borderColor = C.gold } }}
       onMouseLeave={e => { if (onOpen) { e.currentTarget.style.borderColor = C.line } }}
     >
-      {/* Avatar circular */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <div style={{
-          width: 56, height: 56, borderRadius: '50%', background: bgColor,
-          color: fgColor, display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: c.icon ? 26 : 22, fontWeight: 700, flexShrink: 0,
-          fontFamily: FONT.serif,
-        }}>{c.icon || initial}</div>
-        <div style={{ flex: 1, minWidth: 0 }}>
+      {/* Banner de capa */}
+      <div style={{
+        height: 90,
+        background: c.cover_image
+          ? `url("${c.cover_image}") center/cover no-repeat`
+          : `linear-gradient(135deg, ${bgColor} 0%, ${fgColor}33 100%)`,
+        position: 'relative',
+      }}>
+        {c.is_official && (
+          <div style={{
+            position: 'absolute', top: 8, right: 8,
+            background: 'rgba(255,255,255,0.95)', color: C.green,
+            fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 10,
+            letterSpacing: 0.4, textTransform: 'uppercase',
+          }}>✓ Oficial</div>
+        )}
+      </div>
+
+      {/* Conteúdo */}
+      <div style={{ padding: '0 18px 16px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
+        {/* Avatar sobrepondo o banner */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginTop: -28 }}>
+          <div style={{
+            width: 56, height: 56, borderRadius: '50%', background: bgColor,
+            color: fgColor, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: c.icon ? 26 : 22, fontWeight: 700, flexShrink: 0,
+            fontFamily: FONT.serif, border: '3px solid ' + C.white,
+            boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+          }}>{c.icon || initial}</div>
+        </div>
+
+        <div style={{ minWidth: 0 }}>
           <div style={{
             fontSize: 10, fontWeight: 700, color: fgColor,
             textTransform: 'uppercase', letterSpacing: 1, marginBottom: 2,
           }}>
             {typeLabel}{geo ? ' · ' + geo : ''}
-            {c.is_official && ' · ✓ Oficial'}
           </div>
           <h3 style={{
             fontFamily: FONT.serif, fontSize: 17, fontWeight: 600, color: C.ink,
             margin: 0, lineHeight: 1.25,
           }}>{c.name}</h3>
         </div>
-      </div>
 
-      {/* Descrição */}
-      <p style={{
-        fontSize: 13, color: C.inkMuted, lineHeight: 1.55, margin: 0,
-        display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-        overflow: 'hidden',
-      }}>
-        {c.description || 'Comunidade brasileira no BrasilConnect.'}
-      </p>
+        <p style={{
+          fontSize: 13, color: C.inkMuted, lineHeight: 1.55, margin: 0,
+          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+        }}>
+          {c.description || 'Comunidade brasileira no BrasilConnect.'}
+        </p>
 
-      {/* Stats + Join */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        marginTop: 'auto', paddingTop: 8, borderTop: '1px dashed ' + C.line,
-      }}>
-        <div style={{ fontSize: 12, color: C.inkMuted, fontWeight: 500 }}>
-          <b style={{ color: C.ink, fontWeight: 700 }}>{c.member_count || 0}</b> membros
-          {c.post_count > 0 && <> · {c.post_count} posts</>}
+        {/* Stats + Join */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          marginTop: 'auto', paddingTop: 8, borderTop: '1px dashed ' + C.line,
+        }}>
+          <div style={{ fontSize: 12, color: C.inkMuted, fontWeight: 500 }}>
+            <b style={{ color: C.ink, fontWeight: 700 }}>{c.member_count || 0}</b> membros
+            {c.post_count > 0 && <> · {c.post_count} posts</>}
+          </div>
+          <button onClick={e => { e.stopPropagation(); onJoin() }} disabled={isJoining} style={{
+            background: C.green, color: C.white, border: 'none',
+            padding: '8px 18px', borderRadius: 18, fontSize: 13, fontWeight: 700,
+            cursor: isJoining ? 'wait' : 'pointer', fontFamily: FONT.sans,
+            opacity: isJoining ? 0.6 : 1,
+          }}>{isJoining ? '…' : 'Entrar'}</button>
         </div>
-        <button onClick={e => { e.stopPropagation(); onJoin() }} disabled={isJoining} style={{
-          background: C.green, color: C.white, border: 'none',
-          padding: '8px 18px', borderRadius: 18, fontSize: 13, fontWeight: 700,
-          cursor: isJoining ? 'wait' : 'pointer', fontFamily: FONT.sans,
-          opacity: isJoining ? 0.6 : 1,
-        }}>{isJoining ? '…' : 'Entrar'}</button>
       </div>
     </article>
   )
