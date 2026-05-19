@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { C, FONT } from './lib/colors'
 import { useAuth } from './AuthModal'
 import { PostCard, CreatePostModal } from './FeedScreen'
+import { compressImage } from './ComunidadesScreen'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   CommunityDetailScreen — página de 1 comunidade (header + posts)
@@ -33,6 +34,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
   const [showCreate, setShowCreate] = useState(false)
   const [pendingRequests, setPendingRequests] = useState([])
   const [reviewing, setReviewing] = useState(null) // id do request em ação
+  const [showEdit, setShowEdit] = useState(false)
 
   const load = useCallback(async () => {
     if (!slug) { setError('slug obrigatório'); setLoading(false); return }
@@ -167,6 +169,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
           if (!user) { window.dispatchEvent(new CustomEvent('bc-open-auth')); return }
           setShowCreate(true)
         }}
+        onEdit={isAdmin ? () => setShowEdit(true) : null}
       />
 
       {/* Painel de admin: pedidos pendentes */}
@@ -213,6 +216,18 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
           }}
         />
       )}
+
+      {showEdit && isAdmin && (
+        <EditCommunityModal
+          user={user}
+          community={community}
+          onClose={() => setShowEdit(false)}
+          onSaved={(updated) => {
+            setCommunity(updated)
+            setShowEdit(false)
+          }}
+        />
+      )}
     </div>
   )
 }
@@ -220,7 +235,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
 // ────────────────────────────────────────────────────────────────────────────
 //   Header
 // ────────────────────────────────────────────────────────────────────────────
-function Header({ community: c, myMembership, actionBusy, onBack, onJoin, onLeave, onPost }) {
+function Header({ community: c, myMembership, actionBusy, onBack, onJoin, onLeave, onPost, onEdit }) {
   const [bgColor, fgColor] = TYPE_BG[c.type] || TYPE_BG.default
   const initial = (c.icon || c.name || '?').trim().charAt(0).toUpperCase()
   const typeLabel = TYPE_LABEL[c.type] || c.type || 'Geral'
@@ -289,7 +304,15 @@ function Header({ community: c, myMembership, actionBusy, onBack, onJoin, onLeav
                   background: C.green, color: C.white, border: 'none',
                   padding: '8px 16px', borderRadius: 18, fontSize: 13, fontWeight: 700,
                   cursor: 'pointer', fontFamily: FONT.sans,
-                }}>✏️ Postar</button>
+                }}>Postar</button>
+                {onEdit && (
+                  <button onClick={onEdit} title="Editar comunidade (admin)" style={{
+                    background: 'transparent', color: C.inkSoft,
+                    border: '1px solid ' + C.line,
+                    padding: '8px 12px', borderRadius: 18, fontSize: 12, fontWeight: 600,
+                    cursor: 'pointer', fontFamily: FONT.sans,
+                  }}>⚙️ Editar</button>
+                )}
                 <button onClick={onLeave} disabled={actionBusy} style={{
                   background: 'transparent', color: C.inkMuted,
                   border: '1px solid ' + C.line,
@@ -335,6 +358,197 @@ function Header({ community: c, myMembership, actionBusy, onBack, onJoin, onLeav
 // ────────────────────────────────────────────────────────────────────────────
 //   PendingRequestsPanel — só admins veem
 // ────────────────────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────────────────────
+//   EditCommunityModal — só admins
+// ────────────────────────────────────────────────────────────────────────────
+function EditCommunityModal({ user, community: c, onClose, onSaved }) {
+  const [name, setName] = useState(c.name || '')
+  const [description, setDescription] = useState(c.description || '')
+  const [icon, setIcon] = useState(c.icon || '')
+  const [coverImage, setCoverImage] = useState(c.cover_image || '')
+  const [rules, setRules] = useState(c.rules || '')
+  const [requiresApproval, setRequiresApproval] = useState(!!c.requires_approval)
+  const [uploading, setUploading] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function handleCoverFile(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setError(null); setUploading(true)
+    try {
+      const dataUrl = await compressImage(file, 1200, 0.82)
+      const r = await fetch('/api/upload', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file_data: dataUrl, folder: 'communities', email: user.email }),
+      })
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error)
+      setCoverImage(d.url)
+    } catch (err) { setError('Upload falhou: ' + err.message) }
+    finally { setUploading(false); e.target.value = '' }
+  }
+
+  async function handleSave() {
+    if (name.trim().length < 3) { setError('Nome muito curto'); return }
+    setError(null); setSaving(true)
+    try {
+      const r = await fetch('/api/social?action=update-community', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: user.id,
+          community_id: c.id,
+          name: name.trim(),
+          description: description.trim() || null,
+          icon: icon.trim() || null,
+          cover_image: coverImage || null,
+          rules: rules.trim() || null,
+          requires_approval: requiresApproval,
+        }),
+      })
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error || 'Erro')
+      onSaved(d.community)
+    } catch (err) { setError(err.message) }
+    finally { setSaving(false) }
+  }
+
+  const inp = {
+    width: '100%', padding: '10px 12px', borderRadius: 8,
+    border: '1px solid ' + C.line, fontSize: 14, outline: 'none',
+    background: C.white, boxSizing: 'border-box', fontFamily: FONT.sans, color: C.ink,
+  }
+
+  return (
+    <div onClick={onClose} style={{
+      position: 'fixed', inset: 0, background: 'rgba(11,25,40,0.7)', zIndex: 2100,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: C.white, borderRadius: 16, maxWidth: 560, width: '100%',
+        maxHeight: '90vh', overflow: 'auto', fontFamily: FONT.sans,
+      }}>
+        <div style={{
+          padding: '20px 24px', borderBottom: '1px solid ' + C.line,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: C.green, textTransform: 'uppercase', letterSpacing: 1 }}>
+              Configurações
+            </div>
+            <div style={{ fontFamily: FONT.serif, fontSize: 22, fontWeight: 600, color: C.ink, marginTop: 2 }}>
+              Editar comunidade
+            </div>
+          </div>
+          <button onClick={onClose} style={{
+            background: 'transparent', border: 'none', fontSize: 24, color: C.inkMuted,
+            cursor: 'pointer', padding: 4, lineHeight: 1,
+          }}>×</button>
+        </div>
+
+        <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+              Capa
+            </label>
+            {coverImage ? (
+              <div style={{ position: 'relative', marginBottom: 8 }}>
+                <img src={coverImage} alt="" style={{
+                  width: '100%', height: 120, objectFit: 'cover', borderRadius: 10,
+                  border: '1px solid ' + C.line,
+                }} />
+                <button type="button" onClick={() => setCoverImage('')} style={{
+                  position: 'absolute', top: 8, right: 8,
+                  background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none',
+                  width: 28, height: 28, borderRadius: '50%', cursor: 'pointer', fontSize: 16, lineHeight: 1,
+                }}>×</button>
+              </div>
+            ) : null}
+            <input value={coverImage} onChange={e => setCoverImage(e.target.value)}
+              placeholder="https://... ou faça upload abaixo" style={inp} />
+            <input type="file" accept="image/*" onChange={handleCoverFile}
+              disabled={uploading} style={{ marginTop: 6, fontSize: 12 }} />
+            {uploading && <div style={{ fontSize: 11, color: C.inkMuted, marginTop: 4 }}>Enviando…</div>}
+          </div>
+
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+              Nome *
+            </label>
+            <input value={name} onChange={e => setName(e.target.value)} maxLength={60} style={inp} />
+          </div>
+
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+              Ícone (emoji)
+            </label>
+            <input value={icon} onChange={e => setIcon(e.target.value.slice(0, 4))}
+              maxLength={4} style={{ ...inp, fontSize: 20, width: 100, textAlign: 'center' }} />
+          </div>
+
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+              Descrição
+            </label>
+            <textarea value={description} onChange={e => setDescription(e.target.value)}
+              maxLength={500} rows={3} style={{ ...inp, resize: 'vertical', minHeight: 70 }} />
+          </div>
+
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+              Regras da comunidade
+            </label>
+            <textarea value={rules} onChange={e => setRules(e.target.value)}
+              maxLength={5000} rows={4}
+              placeholder="1. Respeito mútuo&#10;2. Sem spam&#10;3. ..."
+              style={{ ...inp, resize: 'vertical', minHeight: 90, fontFamily: 'inherit' }} />
+          </div>
+
+          <label style={{
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+            padding: 12, background: '#F0FDF4', border: '1px solid #BBF7D0',
+            borderRadius: 8, cursor: 'pointer',
+          }}>
+            <input type="checkbox" checked={requiresApproval}
+              onChange={e => setRequiresApproval(e.target.checked)}
+              style={{ marginTop: 2, accentColor: C.green }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: C.ink }}>Aprovar novos membros manualmente</div>
+              <div style={{ fontSize: 11, color: C.inkMuted, marginTop: 3, lineHeight: 1.5 }}>
+                Quando alguém pedir pra entrar, você aprova/rejeita aqui.
+              </div>
+            </div>
+          </label>
+
+          {error && (
+            <div style={{
+              background: '#FEE2E2', border: '1px solid #FCA5A5', color: '#991B1B',
+              padding: '10px 12px', borderRadius: 8, fontSize: 13,
+            }}>{error}</div>
+          )}
+        </div>
+
+        <div style={{
+          padding: '14px 20px', borderTop: '1px solid ' + C.line,
+          display: 'flex', gap: 10, justifyContent: 'flex-end',
+        }}>
+          <button onClick={onClose} style={{
+            background: 'transparent', border: '1px solid ' + C.line, color: C.ink,
+            padding: '10px 18px', borderRadius: 8, fontSize: 13, fontWeight: 600,
+            cursor: 'pointer', fontFamily: FONT.sans,
+          }}>Cancelar</button>
+          <button onClick={handleSave} disabled={saving || uploading} style={{
+            background: C.green, color: C.white, border: 'none',
+            padding: '10px 20px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+            cursor: saving ? 'wait' : 'pointer', fontFamily: FONT.sans,
+            opacity: (saving || uploading) ? 0.6 : 1,
+          }}>{saving ? 'Salvando…' : 'Salvar'}</button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function PendingRequestsPanel({ requests, reviewing, onReview }) {
   return (
     <div style={{

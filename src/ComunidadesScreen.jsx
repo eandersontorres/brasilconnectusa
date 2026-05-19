@@ -275,9 +275,30 @@ function CreateCommunityModal({ user, onClose, onCreated }) {
   const [geoCity, setGeoCity] = useState('')
   const [icon, setIcon] = useState('')
   const [description, setDescription] = useState('')
+  const [coverImage, setCoverImage] = useState('')
+  const [uploadingCover, setUploadingCover] = useState(false)
   const [requiresApproval, setRequiresApproval] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
+
+  async function handleCoverFile(e) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setError(null); setUploadingCover(true)
+    try {
+      // Comprime via canvas se grande (max 800px largura, JPEG 80%)
+      const dataUrl = await compressImage(file, 1200, 0.82)
+      const r = await fetch('/api/upload', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file_data: dataUrl, folder: 'communities', email: user.email }),
+      })
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error)
+      setCoverImage(d.url)
+    } catch (err) {
+      setError('Upload falhou: ' + (err.message || ''))
+    } finally { setUploadingCover(false); e.target.value = '' }
+  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -302,6 +323,7 @@ function CreateCommunityModal({ user, onClose, onCreated }) {
           geo_city: geoCity.trim() || null,
           description: description.trim() || null,
           icon: icon.trim() || null,
+          cover_image: coverImage || null,
           requires_approval: requiresApproval,
         }),
       })
@@ -398,6 +420,32 @@ function CreateCommunityModal({ user, onClose, onCreated }) {
             <input value={icon} onChange={e => setIcon(e.target.value.slice(0, 4))}
               placeholder="🍷 ou 🍼 ou 💻" maxLength={4}
               style={{ ...inputStyle, fontSize: 20, width: 100, textAlign: 'center' }} />
+          </div>
+
+          <div>
+            <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, display: 'block', marginBottom: 5 }}>
+              Capa (opcional)
+            </label>
+            {coverImage ? (
+              <div style={{ position: 'relative', marginBottom: 6 }}>
+                <img src={coverImage} alt="" style={{
+                  width: '100%', height: 100, objectFit: 'cover', borderRadius: 8,
+                  border: '1px solid ' + C.line,
+                }} />
+                <button type="button" onClick={() => setCoverImage('')} style={{
+                  position: 'absolute', top: 6, right: 6,
+                  background: 'rgba(0,0,0,0.6)', color: '#fff', border: 'none',
+                  width: 24, height: 24, borderRadius: '50%', cursor: 'pointer',
+                  fontSize: 14, lineHeight: 1,
+                }}>×</button>
+              </div>
+            ) : null}
+            <input value={coverImage} onChange={e => setCoverImage(e.target.value)}
+              placeholder="https://... ou faça upload abaixo" style={inputStyle} />
+            <input type="file" accept="image/*" onChange={handleCoverFile}
+              disabled={uploadingCover}
+              style={{ marginTop: 6, fontSize: 12 }} />
+            {uploadingCover && <div style={{ fontSize: 11, color: C.inkMuted, marginTop: 4 }}>Enviando…</div>}
           </div>
 
           <div>
@@ -581,4 +629,30 @@ function MyRow({ community: c, isLast, onOpen }) {
       <span style={{ fontSize: 16, color: C.inkMuted }}>→</span>
     </button>
   )
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//   compressImage — exportado pra reuso (CommunityDetailScreen edit modal)
+// ────────────────────────────────────────────────────────────────────────────
+export function compressImage(file, maxWidth = 1200, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onerror = () => reject(new Error('Falha ao ler arquivo'))
+    reader.onload = e => {
+      const img = new Image()
+      img.onerror = () => reject(new Error('Imagem inválida'))
+      img.onload = () => {
+        const ratio = img.width > maxWidth ? maxWidth / img.width : 1
+        const w = Math.round(img.width * ratio)
+        const h = Math.round(img.height * ratio)
+        const canvas = document.createElement('canvas')
+        canvas.width = w; canvas.height = h
+        const ctx = canvas.getContext('2d')
+        ctx.drawImage(img, 0, 0, w, h)
+        resolve(canvas.toDataURL('image/jpeg', quality))
+      }
+      img.src = e.target.result
+    }
+    reader.readAsDataURL(file)
+  })
 }

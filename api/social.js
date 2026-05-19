@@ -430,6 +430,46 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, request })
     }
 
+    // ══════════ POST: update-community (admin da comunidade) ═════════════
+    if (req.method === 'POST' && action === 'update-community') {
+      const b = req.body || {}
+      if (!b.user_id || !b.community_id) return err(res, 400, 'user_id e community_id obrigatórios')
+      if (!(await isCommunityAdmin(b.user_id, b.community_id))) {
+        return err(res, 403, 'Apenas admins da comunidade podem editar')
+      }
+
+      // Whitelist de campos editaveis (admin nao pode mudar tipo/slug/created_by)
+      const EDITABLE = ['name', 'description', 'icon', 'cover_image', 'rules', 'requires_approval', 'geo_state', 'geo_city']
+      const patch = {}
+      for (const k of EDITABLE) {
+        if (k in b) {
+          let v = b[k]
+          if (k === 'name') {
+            if (!v || String(v).trim().length < 3) return err(res, 400, 'name minimo 3 chars')
+            v = String(v).trim().slice(0, 60)
+          }
+          if (k === 'description') v = v ? String(v).trim().slice(0, 500) : null
+          if (k === 'icon')        v = v ? String(v).trim().slice(0, 4)   : null
+          if (k === 'cover_image') v = v ? String(v).trim().slice(0, 500) : null
+          if (k === 'rules')       v = v ? String(v).trim().slice(0, 5000): null
+          if (k === 'geo_state')   v = v ? String(v).toUpperCase().slice(0, 2) : null
+          if (k === 'geo_city')    v = v ? String(v).trim().slice(0, 60)  : null
+          if (k === 'requires_approval') v = !!v
+          patch[k] = v
+        }
+      }
+      if (Object.keys(patch).length === 0) return err(res, 400, 'nenhum campo enviado')
+      patch.updated_at = new Date().toISOString()
+
+      const { data, error } = await supabase
+        .from('bc_communities')
+        .update(patch).eq('id', b.community_id)
+        .select().single()
+      if (error) throw error
+
+      return res.status(200).json({ success: true, community: data })
+    }
+
     // ══════════ POST: leave ════════════════════════════════════════════════
     if (req.method === 'POST' && action === 'leave') {
       const { user_id, community_id } = req.body || {}
@@ -495,6 +535,8 @@ export default async function handler(req, res) {
         geo_city: b.geo_city ? String(b.geo_city).trim().slice(0, 60) : null,
         description: b.description ? String(b.description).trim().slice(0, 500) : null,
         icon: b.icon ? String(b.icon).trim().slice(0, 4) : null,
+        cover_image: b.cover_image ? String(b.cover_image).trim().slice(0, 500) : null,
+        rules: b.rules ? String(b.rules).trim().slice(0, 5000) : null,
         created_by: b.user_id,
         member_count: 1, // o criador entra como membro automaticamente
         // Default: TODA comunidade nova requer aprovacao do admin (Nextdoor-style).
