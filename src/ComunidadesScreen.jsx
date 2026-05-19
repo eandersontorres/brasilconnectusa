@@ -572,13 +572,14 @@ function CommunityCard({ community: c, isJoining, onJoin, onOpen }) {
       {/* Conteúdo */}
       <div style={{ padding: '0 18px 16px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
         {/* Avatar sobrepondo o banner */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginTop: -28 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginTop: -32, position: 'relative', zIndex: 2 }}>
           <div style={{
-            width: 56, height: 56, borderRadius: '50%', background: bgColor,
+            width: 60, height: 60, borderRadius: '50%', background: bgColor,
             color: fgColor, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: c.icon ? 26 : 22, fontWeight: 700, flexShrink: 0,
-            fontFamily: FONT.serif, border: '3px solid ' + C.white,
-            boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+            fontSize: c.icon ? 28 : 24, fontWeight: 700, flexShrink: 0,
+            fontFamily: FONT.serif,
+            border: '4px solid ' + C.white,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.04)',
           }}>{c.icon || initial}</div>
         </div>
 
