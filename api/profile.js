@@ -229,7 +229,27 @@ export default async function handler(req, res) {
 
     return err(res, 405, 'action ou método inválido')
   } catch (e) {
-    console.error('profile api error:', e.message)
-    return err(res, 500, 'Erro interno: ' + e.message)
+    // Log completo no servidor pra debug, mas resposta pro client é amigável
+    // (não vaza message do banco, schema, ou detalhe técnico)
+    console.error('profile api error:', e.code || '', e.message)
+
+    // Erros conhecidos do Postgres — surface mensagens amigáveis
+    if (e.code === '23505') {
+      // unique_violation: ex. email já em outro user_id, slug duplicado, etc
+      return err(res, 409, 'Esse dado já está em uso por outra conta.')
+    }
+    if (e.code === '23503') {
+      // foreign_key_violation
+      return err(res, 400, 'Referência inválida.')
+    }
+    if (e.code === '23514') {
+      // check_violation
+      return err(res, 400, 'Dado fora dos valores permitidos.')
+    }
+    if (e.code === '23502') {
+      // not_null_violation
+      return err(res, 400, 'Campo obrigatório faltando.')
+    }
+    return err(res, 500, 'Não conseguimos salvar agora. Tenta de novo em alguns segundos.')
   }
 }

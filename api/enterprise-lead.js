@@ -37,19 +37,48 @@ export default async function handler(req, res) {
       { auth: { persistSession: false } }
     )
 
-    const { data, error } = await supabase
+    // Checa se já existe lead com esse email — se sim, atualiza a mensagem e
+    // incrementa o contador `touches` (lead voltando = sinal forte).
+    const { data: existing } = await supabase
       .from('bc_enterprise_leads')
-      .insert([{
-        name, email, whatsapp, company, sector, team_size, interest, message,
-        source_url: req.headers.referer || '/agenda/planos',
-        status: 'new',
-      }])
-      .select()
-      .single()
+      .select('id, touches, status')
+      .eq('email', email)
+      .maybeSingle()
+
+    const nowIso = new Date().toISOString()
+    let data, error, isReturning = false
+
+    if (existing) {
+      isReturning = true
+      ;({ data, error } = await supabase
+        .from('bc_enterprise_leads')
+        .update({
+          name, whatsapp, company, sector, team_size, interest, message,
+          source_url: req.headers.referer || '/agenda/planos',
+          touches: (existing.touches || 1) + 1,
+          last_contact_at: nowIso,
+          updated_at: nowIso,
+        })
+        .eq('id', existing.id)
+        .select()
+        .single())
+    } else {
+      ;({ data, error } = await supabase
+        .from('bc_enterprise_leads')
+        .insert([{
+          name, email, whatsapp, company, sector, team_size, interest, message,
+          source_url: req.headers.referer || '/agenda/planos',
+          status: 'new',
+          touches: 1,
+          last_contact_at: nowIso,
+        }])
+        .select()
+        .single())
+    }
 
     if (error) {
-      console.error('insert lead error:', error.message)
-      return res.status(500).json({ error: 'Erro ao salvar' })
+      console.error('save lead error:', error.message)
+      return res.status(500).json({ error: 'Não conseguimos salvar agora. Tenta de novo em alguns segundos.' })
     }
 
     // Notifica equipe via Resend (best effort)
@@ -67,8 +96,8 @@ export default async function handler(req, res) {
             from: fromAddr,
             to: [notifyTo],
             reply_to: email,
-            subject: '[Enterprise Lead] ' + name + ' - ' + (company || sector || 'sem empresa'),
-            html: '<h2>Novo lead Enterprise</h2>'
+            subject: (isReturning ? '[Lead retornou] ' : '[Enterprise Lead] ') + name + ' - ' + (company || sector || 'sem empresa'),
+            html: '<h2>' + (isReturning ? 'Lead voltou (' + ((existing?.touches || 1) + 1) + 'ª vez)' : 'Novo lead Enterprise') + '</h2>'
               + '<p><b>Nome:</b> ' + name + '</p>'
               + '<p><b>Email:</b> ' + email + '</p>'
               + (whatsapp ? '<p><b>WhatsApp:</b> ' + whatsapp + '</p>' : '')
