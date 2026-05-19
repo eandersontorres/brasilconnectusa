@@ -59,7 +59,7 @@ export default async function handler(req, res) {
     if (req.method === 'GET' && action === 'communities') {
       const { type, state } = req.query
       let q = supabase.from('bc_communities')
-        .select('id, slug, name, type, geo_state, geo_city, description, icon, member_count, post_count, is_official')
+        .select('id, slug, name, type, geo_state, geo_city, description, icon, cover_image, member_count, post_count, is_official')
         .order('member_count', { ascending: false })
       if (type) q = q.eq('type', type)
       if (state) q = q.eq('geo_state', state.toUpperCase())
@@ -260,7 +260,7 @@ export default async function handler(req, res) {
 
       const { data, error } = await supabase
         .from('bc_community_members')
-        .select('community_id, role, joined_at, bc_communities(id, slug, name, type, icon, member_count)')
+        .select('community_id, role, joined_at, bc_communities(id, slug, name, type, icon, cover_image, member_count)')
         .eq('user_id', user_id)
       if (error) throw error
 
