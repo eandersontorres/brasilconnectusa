@@ -13,38 +13,14 @@ const TRENDING_SEARCHES = [
 ]
 
 const CATEGORIES = [
-  {
-    key: 'comunidades', title: 'Comunidades', sub: '75+ grupos pra participar',
-    bg: '#E0F2FE', color: '#075985', cta: 'Explorar',
-  },
-  {
-    key: 'eventos', title: 'Eventos', sub: 'Festas, encontros, esportes',
-    bg: '#FEF3C7', color: '#92400E', cta: 'Ver agenda',
-  },
-  {
-    key: 'classificados', title: 'Marketplace', sub: 'Compre, venda, doe',
-    bg: '#FECACA', color: '#991B1B', cta: 'Navegar',
-  },
-  {
-    key: 'vagas', title: 'Vagas de Emprego', sub: 'Limpeza, construção, baby-sitter',
-    bg: '#D1FAE5', color: '#065F46', cta: 'Ver vagas',
-  },
-  {
-    key: 'negocios', title: 'Negócios Brasileiros', sub: 'Restaurantes, mercados, salões',
-    bg: '#EDE9FE', color: '#5B21B6', cta: 'Explorar',
-  },
-  {
-    key: 'cambio', title: 'Câmbio & Remessas', sub: 'Compare 5 parceiros ao vivo',
-    bg: '#DBEAFE', color: '#1E40AF', cta: 'Comparar',
-  },
-  {
-    key: 'voos', title: 'Voos pro Brasil', sub: 'A partir de $480',
-    bg: '#FCE7F3', color: '#9D174D', cta: 'Buscar',
-  },
-  {
-    key: 'bolao', title: 'Bolão Copa 2026', sub: 'Crie ou entre num bolão',
-    bg: '#FEF3C7', color: '#92400E', cta: 'Participar',
-  },
+  { key: 'comunidades',   title: 'Comunidades',         sub: '75+ grupos pra participar',     emoji: '👥', accent: C.navy,  cta: 'Explorar'  },
+  { key: 'eventos',       title: 'Eventos',             sub: 'Festas, encontros, esportes',   emoji: '🎉', accent: C.gold,  cta: 'Ver agenda' },
+  { key: 'classificados', title: 'Marketplace',         sub: 'Compre, venda, doe',            emoji: '🛍️', accent: C.green, cta: 'Navegar'   },
+  { key: 'vagas',         title: 'Jobs',                sub: 'Cleaning, construção, baby-sitter', emoji: '💼', accent: C.navy,  cta: 'Ver vagas' },
+  { key: 'negocios',      title: 'Negócios Brasileiros', sub: 'Restaurantes, mercados, salões', emoji: '🏪', accent: C.gold,  cta: 'Explorar'  },
+  { key: 'cambio',        title: 'Câmbio & Remessas',   sub: 'Compare 5 parceiros ao vivo',   emoji: '💰', accent: C.green, cta: 'Comparar'  },
+  { key: 'voos',          title: 'Voos pro Brasil',     sub: 'A partir de $480',              emoji: '✈️', accent: C.navy,  cta: 'Buscar'    },
+  { key: 'bolao',         title: 'Bolão Copa 2026',     sub: 'Crie ou entre num bolão',       emoji: '⚽', accent: C.gold,  cta: 'Participar' },
 ]
 
 export default function DiscoverScreen({ onNavigate }) {
@@ -162,24 +138,36 @@ export default function DiscoverScreen({ onNavigate }) {
           }}>
             {CATEGORIES.map(cat => (
               <button key={cat.key} onClick={() => handleCategoryClick(cat.key)} style={{
-                background: cat.bg, border: 'none', borderRadius: 14,
-                padding: '20px 16px', textAlign: 'left', cursor: 'pointer',
+                background: C.white, border: '1px solid ' + C.line, borderRadius: 14,
+                padding: '18px 16px 16px', textAlign: 'left', cursor: 'pointer',
                 fontFamily: FONT.sans, position: 'relative', overflow: 'hidden',
-                minHeight: 130, display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-                transition: 'transform .15s',
+                minHeight: 140, display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
+                transition: 'transform .15s, border-color .15s, box-shadow .15s',
               }}
-              onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+                e.currentTarget.style.borderColor = C.navy
+                e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,26,94,.08)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.borderColor = C.line
+                e.currentTarget.style.boxShadow = 'none'
+              }}
               >
+                {/* accent vertical no canto esquerdo */}
+                <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: cat.accent }} />
+
                 <div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: cat.color, marginBottom: 4, lineHeight: 1.2 }}>
+                  <div style={{ fontSize: 26, lineHeight: 1, marginBottom: 10 }}>{cat.emoji}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: C.ink, marginBottom: 4, lineHeight: 1.25 }}>
                     {cat.title}
                   </div>
-                  <div style={{ fontSize: 12, color: cat.color, opacity: 0.8, lineHeight: 1.4 }}>
+                  <div style={{ fontSize: 12, color: C.inkSoft, lineHeight: 1.45 }}>
                     {cat.sub}
                   </div>
                 </div>
-                <div style={{ fontSize: 11, color: cat.color, fontWeight: 600, marginTop: 12 }}>
+                <div style={{ fontSize: 11, color: C.green, fontWeight: 700, marginTop: 12, letterSpacing: '.02em' }}>
                   {cat.cta} →
                 </div>
               </button>
