@@ -31,6 +31,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [myMembership, setMyMembership] = useState(null) // null = não membro, obj = membro
+  const [systemRole, setSystemRole] = useState(null)      // bc_profiles.role do user logado (super-admin)
   const [actionBusy, setActionBusy] = useState(false)
   const [showCreate, setShowCreate] = useState(false)
   const [pendingRequests, setPendingRequests] = useState([])
@@ -62,6 +63,17 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
       setMyMembership(found || null)
     } catch (_) { setMyMembership(null) }
   }, [user, community])
+
+  // Pega role de sistema do user (super-admin pode entrar em qualquer grupo sem ser membro)
+  useEffect(() => {
+    if (!user) { setSystemRole(null); return }
+    apiFetch('/api/profile?user_id=' + user.id)
+      .then(r => r.json())
+      .then(d => setSystemRole(d.profile?.role || null))
+      .catch(() => setSystemRole(null))
+  }, [user])
+
+  const isSystemAdmin = systemRole === 'admin'
 
   // Carrega pedidos pendentes se o user for admin da comunidade
   const isAdmin = myMembership?.role === 'admin'
@@ -162,6 +174,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
       <Header
         community={community}
         myMembership={myMembership}
+        isSystemAdmin={isSystemAdmin}
         actionBusy={actionBusy}
         onBack={() => onNavigate && onNavigate('comunidades')}
         onJoin={handleJoin}
@@ -236,18 +249,39 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
 // ────────────────────────────────────────────────────────────────────────────
 //   Header
 // ────────────────────────────────────────────────────────────────────────────
-function Header({ community: c, myMembership, actionBusy, onBack, onJoin, onLeave, onPost, onEdit }) {
+function Header({ community: c, myMembership, isSystemAdmin, actionBusy, onBack, onJoin, onLeave, onPost, onEdit }) {
   const [bgColor, fgColor] = TYPE_BG[c.type] || TYPE_BG.default
   const initial = (c.icon || c.name || '?').trim().charAt(0).toUpperCase()
   const typeLabel = TYPE_LABEL[c.type] || c.type || 'Geral'
   const geo = c.geo_city ? `${c.geo_city}${c.geo_state ? ' / ' + c.geo_state : ''}` : c.geo_state || null
   const isMember = !!myMembership
+  const showAdminBanner = isSystemAdmin && !isMember
 
   return (
     <div style={{
       background: C.white, border: '1px solid ' + C.line, borderRadius: 14,
       overflow: 'hidden', marginBottom: 4,
     }}>
+      {/* Banner de super-admin: aparece quando admin de sistema vê grupo sem ser membro */}
+      {showAdminBanner && (
+        <div style={{
+          background: '#FEF3C7',
+          borderBottom: '1px solid #F59E0B',
+          padding: '10px 16px',
+          fontSize: 12,
+          fontWeight: 600,
+          color: '#7A4A0E',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          fontFamily: FONT.sans,
+        }}>
+          <span style={{ fontSize: 16 }}>👁️</span>
+          <span>
+            <b>Visualizando como admin</b> — você não é membro deste grupo. Pra postar ou comentar, precisa entrar normalmente.
+          </span>
+        </div>
+      )}
       {/* Faixa colorida ou foto de capa */}
       <div style={{
         height: c.cover_image ? 140 : 64,
