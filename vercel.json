@@ -156,6 +156,10 @@
     {
       "path": "/api/agenda/reminders?secret=__CRON__",
       "schedule": "0 17 * * *"
+    },
+    {
+      "path": "/api/cron/moderation?secret=__CRON__",
+      "schedule": "*/5 * * * *"
     }
   ],
   "headers": [

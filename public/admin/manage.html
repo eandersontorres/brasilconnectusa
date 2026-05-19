@@ -181,6 +181,7 @@
             <button class="tab-btn ${currentTab==='contact'?'active':''}" onclick="switchTab('contact')">Fale Conosco</button>
             <button class="tab-btn ${currentTab==='enterprise'?'active':''}" onclick="switchTab('enterprise')">Leads Enterprise</button>
             <button class="tab-btn ${currentTab==='reports'?'active':''}" onclick="switchTab('reports')">Moderação</button>
+            <button class="tab-btn ${currentTab==='agent'?'active':''}" onclick="switchTab('agent')">Moderação IA</button>
             <button class="tab-btn ${currentTab==='businesses'?'active':''}" onclick="switchTab('businesses')">Negócios</button>
             <button class="tab-btn ${currentTab==='restaurant-orders'?'active':''}" onclick="switchTab('restaurant-orders')">Pedidos Restaurante</button>
             <button class="tab-btn ${currentTab==='bolao'?'active':''}" onclick="switchTab('bolao')">Bolão Copa</button>
@@ -202,6 +203,7 @@
         else if (tab === 'contact')    await loadContact(c)
         else if (tab === 'enterprise') await loadEnterprise(c)
         else if (tab === 'reports')    await loadReports(c)
+        else if (tab === 'agent')      await loadAgent(c)
         else if (tab === 'businesses') await loadBusinesses(c)
         else if (tab === 'restaurant-orders') await loadRestaurantOrders(c)
         else if (tab === 'bolao')      await loadBolao(c)
@@ -487,6 +489,130 @@
         })
         if (!r.ok) throw new Error((await r.json()).error || 'Erro')
         loadTab('reports')
+      } catch (e) { alert(e.message) }
+    }
+
+    // ─── Moderação IA — fila do agente Claude ─────────────────────────
+    let _agentFilter = { severity: 'all', category: 'all' }
+
+    async function loadAgent(c) {
+      try {
+        const headers = { 'x-admin-secret': getSecret() }
+        const qs = new URLSearchParams()
+        if (_agentFilter.severity !== 'all') qs.set('severity', _agentFilter.severity)
+        if (_agentFilter.category !== 'all') qs.set('category', _agentFilter.category)
+
+        const [statsR, itemsR] = await Promise.all([
+          fetch('/api/admin/moderation-queue?stats=1', { headers }),
+          fetch('/api/admin/moderation-queue?' + qs.toString(), { headers }),
+        ])
+        const statsD = await statsR.json()
+        const itemsD = await itemsR.json()
+        if (!statsR.ok) throw new Error(statsD.error || 'Erro')
+        if (!itemsR.ok) throw new Error(itemsD.error || 'Erro')
+
+        const s = statsD.stats || { last_24h: {}, queue: {} }
+        const items = itemsD.items || []
+
+        const sevColor = { critical: '#991B1B', high: '#B45309', medium: '#854D0E', low: '#166534' }
+        const sevBg    = { critical: '#FECACA', high: '#FED7AA', medium: '#FEF08A', low: '#DCFCE7' }
+        const catEmoji = { scam: '🎣', illegal: '⚖️', spam: '📧', toxic: '☠️' }
+
+        const filters = `
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;font-size:12px;">
+            <span style="color:var(--ink-muted);align-self:center;">Severity:</span>
+            ${['all','critical','high','medium'].map(sv => `
+              <button class="btn-mini" onclick="_agentFilter.severity='${sv}';loadTab('agent')"
+                style="background:${_agentFilter.severity===sv?'var(--ink)':'var(--paper-soft)'};color:${_agentFilter.severity===sv?'#fff':'var(--ink-soft)'};">
+                ${sv === 'all' ? 'todos' : sv}${s.queue?.[sv]!=null && sv!=='all' ? ' ('+s.queue[sv]+')' : ''}
+              </button>`).join('')}
+            <span style="color:var(--ink-muted);align-self:center;margin-left:8px;">Categoria:</span>
+            ${['all','scam','illegal','spam','toxic'].map(cat => `
+              <button class="btn-mini" onclick="_agentFilter.category='${cat}';loadTab('agent')"
+                style="background:${_agentFilter.category===cat?'var(--ink)':'var(--paper-soft)'};color:${_agentFilter.category===cat?'#fff':'var(--ink-soft)'};">
+                ${cat === 'all' ? 'todas' : (catEmoji[cat]||'') + ' ' + cat}
+              </button>`).join('')}
+          </div>`
+
+        const statsBar = `
+          <div style="display:flex;gap:14px;flex-wrap:wrap;padding:14px 16px;background:var(--paper-soft);border:1px solid var(--line);border-radius:10px;margin-bottom:14px;font-size:12px;">
+            <div><b style="color:#991B1B;">${s.queue?.critical||0}</b> críticos</div>
+            <div><b style="color:#B45309;">${s.queue?.high||0}</b> alto risco</div>
+            <div><b style="color:#854D0E;">${s.queue?.medium||0}</b> médio</div>
+            <div style="margin-left:auto;color:var(--ink-muted);">
+              últimas 24h: <b>${s.last_24h?.total||0}</b> itens · custo <b>$${(s.last_24h?.cost_usd||0).toFixed(4)}</b>
+            </div>
+          </div>`
+
+        if (items.length === 0) {
+          c.innerHTML = `
+            <div class="panel">
+              <div class="panel-eyebrow">AGENTE IA · CLAUDE HAIKU 4.5</div>
+              <h3>Fila de moderação automática</h3>
+              <p class="panel-sub">Roda a cada 5 minutos vigiando posts, comments, negócios e bios.</p>
+              ${statsBar}
+              ${filters}
+              <div class="empty">✅ Nada na fila com esse filtro.</div>
+            </div>`
+          return
+        }
+
+        c.innerHTML = `
+          <div class="panel">
+            <div class="panel-eyebrow">AGENTE IA · CLAUDE HAIKU 4.5</div>
+            <h3>${items.length} item${items.length===1?'':'s'} na fila</h3>
+            <p class="panel-sub">Cada item foi flagado pelo agente. Aprove (libera), confirme ocultação ou bane o user.</p>
+            ${statsBar}
+            ${filters}
+            ${items.map(it => {
+              const sev = it.agent_severity || 'low'
+              const cats = it.agent_categories || []
+              const hidden = it.agent_status === 'auto_hidden'
+              return `
+                <div class="item" style="border-left:3px solid ${sevColor[sev]||'#888'};">
+                  <div class="head">
+                    <div>
+                      <div class="name">
+                        <span style="background:${sevBg[sev]};color:${sevColor[sev]};padding:2px 8px;border-radius:4px;font-size:10px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;">${sev}</span>
+                        ${hidden ? '<span style="background:#FECACA;color:#991B1B;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-left:4px;">AUTO-ESCONDIDO</span>' : ''}
+                        <span style="color:var(--ink);margin-left:6px;">${escapeHtml(it.target_type)}</span>
+                        ${it.title ? '<span style="color:var(--ink-soft);font-weight:500;"> · ' + escapeHtml(it.title.slice(0,80)) + '</span>' : ''}
+                      </div>
+                      <div class="meta">
+                        ${cats.map(cat => (catEmoji[cat]||'') + ' ' + cat).join(' · ') || 'sem categoria'}
+                        · checado ${it.agent_checked_at ? new Date(it.agent_checked_at).toLocaleString('pt-BR') : '?'}
+                        · id ${escapeHtml((it.target_id||'').slice(0,8))}
+                      </div>
+                    </div>
+                  </div>
+                  ${it.content ? '<div class="answer" style="max-height:120px;overflow:auto;">' + escapeHtml(it.content.slice(0,500)) + (it.content.length>500?'…':'') + '</div>' : ''}
+                  ${it.agent_reasoning ? '<div style="background:#FEF7E0;border-left:3px solid #B45309;padding:8px 12px;border-radius:4px;font-size:12px;color:#7A4A0E;margin-top:8px;"><b>Agente:</b> ' + escapeHtml(it.agent_reasoning) + '</div>' : ''}
+                  <div class="actions" style="margin-top:10px;">
+                    <button class="btn-mini btn-approve" onclick="actAgent('${it.target_type}','${it.target_id}','approve')">✓ Aprovar (liberar)</button>
+                    <button class="btn-mini btn-mark"    onclick="actAgent('${it.target_type}','${it.target_id}','hide')">🚫 Confirmar ocultação</button>
+                    <button class="btn-mini btn-reject"  onclick="actAgent('${it.target_type}','${it.target_id}','ban_user')">⛔ Banir user</button>
+                  </div>
+                </div>`
+            }).join('')}
+          </div>`
+      } catch (e) {
+        c.innerHTML = '<div class="err-banner">' + escapeHtml(e.message) + '</div>'
+      }
+    }
+
+    async function actAgent(target_type, target_id, action) {
+      const labels = { approve: 'aprovar e liberar', hide: 'confirmar ocultação', ban_user: 'BANIR o usuário' }
+      if (!confirm('Confirmar: ' + labels[action] + '?')) return
+      const notes = action === 'ban_user' ? prompt('Motivo do ban (opcional):') : null
+      try {
+        const r = await fetch('/api/admin/moderation-action', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+          body: JSON.stringify({ target_type, target_id, action, admin_notes: notes }),
+        })
+        const d = await r.json()
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        loadTab('agent')
       } catch (e) { alert(e.message) }
     }
 
