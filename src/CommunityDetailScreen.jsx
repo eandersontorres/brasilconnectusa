@@ -247,11 +247,11 @@ function Header({ community: c, myMembership, actionBusy, onBack, onJoin, onLeav
       background: C.white, border: '1px solid ' + C.line, borderRadius: 14,
       overflow: 'hidden', marginBottom: 4,
     }}>
-      {/* Faixa colorida no topo */}
+      {/* Faixa colorida ou foto de capa */}
       <div style={{
-        height: 64,
+        height: c.cover_image ? 140 : 64,
         background: c.cover_image
-          ? `url(${c.cover_image}) center/cover`
+          ? `url("${c.cover_image}") center/cover no-repeat`
           : `linear-gradient(135deg, ${bgColor} 0%, ${fgColor}22 100%)`,
         position: 'relative',
       }}>
