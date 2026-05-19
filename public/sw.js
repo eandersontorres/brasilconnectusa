@@ -1,17 +1,17 @@
-/* BrasilConnect Service Worker
-   3 estratégias de cache:
+/* BrasilConnect Service Worker — v6
+   Estratégias de cache (refatorado pra evitar stale asset hash):
    - Network First → APIs (sempre dados frescos)
-   - Cache First   → fontes, imagens, ícones
-   - Stale While Revalidate → HTML, JS, CSS (rápido, atualiza em background)
+   - Network First → HTML (deploy novo pega imediato; fallback offline)
+   - Cache First (imutável) → /assets/* (Vite gera com content hash)
+   - Cache First → fontes, imagens (mudam pouco; revalida em background)
+   - Stale While Revalidate → JS/CSS legacy fora de /assets/
 */
-// IMPORTANTE: bumpa CACHE_NAME a cada deploy que renomeia/move arquivos do
-// dist/ (ex: rename de index.html -> app.html no PR #12 deixou cache antigo
-// servindo links pra assets/index-XXX.css que nao existem mais, quebrando o
-// /app/bolao com pagina em branco). Trocar de versao forca activate handler
-// a deletar caches antigos e re-precache os arquivos atuais.
-const CACHE_NAME = 'bc-v5-modules-icons-2026-05-19';
+// IMPORTANTE: bumpa CACHE_NAME a cada deploy estrutural (rename de arquivos).
+// Vite hash-based assets nao precisam disso, mas mudancas em /sw.js sim.
+const CACHE_NAME = 'bc-v6-network-first-html-2026-05-19';
 const OFFLINE_URL = '/offline.html';
-const PRECACHE = ['/', '/offline.html', '/css/premium.css', '/js/site.js', '/img/logo.svg', '/img/logo-mark.svg', '/favicon.svg'];
+// Precache minimo — so o offline fallback e assets que nunca mudam de path
+const PRECACHE = ['/offline.html', '/favicon.svg', '/img/logo-mark.svg'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -24,30 +24,93 @@ self.addEventListener('activate', e => {
   );
 });
 
+// Heuristica: HTML = path raiz, terminado em /, .html, ou sem extensao
+function isHtmlRequest(url, req) {
+  const accept = req.headers.get('accept') || ''
+  if (accept.includes('text/html')) return true
+  const p = url.pathname
+  if (p === '/' || p.endsWith('/')) return true
+  if (p.endsWith('.html')) return true
+  if (!/\.\w{1,8}$/.test(p)) return true   // sem extensao = HTML virtual route (ex: /app/feed)
+  return false
+}
+
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET') return;
+  // So intercepta same-origin (evita problemas com cross-origin opaque)
+  if (url.origin !== self.location.origin) {
+    // Exceto pras fontes (Cache First)
+    if (url.hostname.includes('fonts.gstatic.com') || url.hostname.includes('fonts.googleapis.com')) {
+      e.respondWith(
+        caches.match(e.request).then(c => c || fetch(e.request).then(r => {
+          const copy = r.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, copy));
+          return r;
+        }))
+      );
+    }
+    return;
+  }
 
-  // Network First — APIs
+  // ── 1. APIs — Network First (dados frescos) ──────────────────────────
   if (url.pathname.startsWith('/api/')) {
     e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
     return;
   }
 
-  // Cache First — fontes, imagens, fonts.googleapis
-  if (/\.(?:woff2?|ttf|otf|png|jpg|jpeg|svg|webp|gif|ico)$/.test(url.pathname) ||
-      url.hostname.includes('fonts.gstatic.com') || url.hostname.includes('fonts.googleapis.com')) {
+  // ── 2. HTML — Network First (deploy novo pega imediato) ──────────────
+  // Era o bug: SWR servia HTML antigo com referencias a /assets/*.js que
+  // nao existem mais, quebrando o app. Agora HTML sempre vai pra rede;
+  // cache so vira fallback offline.
+  if (isHtmlRequest(url, e.request)) {
+    e.respondWith(
+      fetch(e.request).then(r => {
+        if (r.ok) {
+          const copy = r.clone();
+          caches.open(CACHE_NAME).then(c => c.put(e.request, copy));
+        }
+        return r;
+      }).catch(() =>
+        caches.match(e.request).then(c => c || caches.match(OFFLINE_URL))
+      )
+    );
+    return;
+  }
+
+  // ── 3. Hashed assets (Vite build) — Cache First imutavel ─────────────
+  // Vite gera /assets/*-<hash>.js que sao content-addressed e imutaveis.
+  // Cache forever — se HTML novo pedir um hash que nao temos, vai pra
+  // rede e adiciona ao cache.
+  if (url.pathname.startsWith('/assets/')) {
     e.respondWith(
       caches.match(e.request).then(c => c || fetch(e.request).then(r => {
-        const copy = r.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(e.request, copy));
+        if (r.ok) {
+          const copy = r.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, copy));
+        }
         return r;
       }))
     );
     return;
   }
 
-  // Stale While Revalidate — HTML/JS/CSS
+  // ── 4. Fontes / imagens — Cache First ───────────────────────────────
+  if (/\.(?:woff2?|ttf|otf|png|jpg|jpeg|svg|webp|gif|ico)$/.test(url.pathname)) {
+    e.respondWith(
+      caches.match(e.request).then(c => c || fetch(e.request).then(r => {
+        if (r.ok) {
+          const copy = r.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(e.request, copy));
+        }
+        return r;
+      }))
+    );
+    return;
+  }
+
+  // ── 5. JS/CSS fora de /assets/ — Stale While Revalidate ─────────────
+  // Cobre /css/premium.css, /js/site.js, /js/bc-modules.js que nao tem hash
   e.respondWith(
     caches.open(CACHE_NAME).then(cache =>
       cache.match(e.request).then(cached => {
