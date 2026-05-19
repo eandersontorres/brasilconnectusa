@@ -314,8 +314,24 @@ export default async function handler(req, res) {
   if (req.method === 'GET' && action === 'my-predictions') {
     const { member_id } = req.query
     if (!member_id) return res.status(400).json({ error: 'member_id é obrigatório' })
+
+    // Auth obrigatorio: confirma que o member_id pertence ao usuario
+    const authUser = await getUserFromAuth(req)
+    if (!authUser) return res.status(401).json({ error: 'Login obrigatório' })
+
     try {
       const supabase = getSupabase()
+      // Verifica que o member pertence ao authUser (user_id OU email)
+      const { data: member } = await supabase
+        .from('bc_bolao_members')
+        .select('user_id, email')
+        .eq('id', member_id)
+        .maybeSingle()
+      if (!member) return res.status(404).json({ error: 'Membro não encontrado' })
+      const owns = (member.user_id && member.user_id === authUser.id)
+        || (member.email && member.email.toLowerCase() === (authUser.email || '').toLowerCase())
+      if (!owns) return res.status(403).json({ error: 'Este membro não pertence a você' })
+
       const { data, error } = await supabase
         .from('bc_bolao_predictions')
         .select('match_id, home_score, away_score')
@@ -476,8 +492,23 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Placar inválido (0–30)' })
     }
 
+    // Auth obrigatorio: confirma ownership do member_id
+    const authUser = await getUserFromAuth(req)
+    if (!authUser) return res.status(401).json({ error: 'Login obrigatório' })
+
     try {
       const supabase = getSupabase()
+
+      // Verifica ownership do member
+      const { data: member } = await supabase
+        .from('bc_bolao_members')
+        .select('user_id, email')
+        .eq('id', member_id)
+        .maybeSingle()
+      if (!member) return res.status(404).json({ error: 'Membro não encontrado' })
+      const owns = (member.user_id && member.user_id === authUser.id)
+        || (member.email && member.email.toLowerCase() === (authUser.email || '').toLowerCase())
+      if (!owns) return res.status(403).json({ error: 'Este membro não pertence a você' })
 
       // 1) Deadline global — não pode mexer em palpite após 1 dia antes da Copa
       const deadline = await getDeadline(supabase)
@@ -520,8 +551,12 @@ export default async function handler(req, res) {
 
   // ══ POST: update-prize (admin do grupo) ═════════════════════════════════════
   if (req.method === 'POST' && action === 'update-prize') {
-    const { group_id, admin_email, prize_title, prize_description, prize_first, prize_second, prize_third } = req.body || {}
-    if (!group_id || !admin_email) return res.status(400).json({ error: 'group_id e admin_email obrigatórios' })
+    const { group_id, prize_title, prize_description, prize_first, prize_second, prize_third } = req.body || {}
+    if (!group_id) return res.status(400).json({ error: 'group_id obrigatório' })
+
+    // Auth obrigatorio: confirma que e admin do grupo via token (nao body email)
+    const authUser = await getUserFromAuth(req)
+    if (!authUser) return res.status(401).json({ error: 'Login obrigatório' })
 
     try {
       const supabase = getSupabase()
@@ -533,7 +568,7 @@ export default async function handler(req, res) {
         .single()
       if (gErr || !group) return res.status(404).json({ error: 'Grupo não encontrado' })
 
-      if (String(group.admin_email).toLowerCase() !== String(admin_email).toLowerCase()) {
+      if (String(group.admin_email).toLowerCase() !== String(authUser.email || '').toLowerCase()) {
         return res.status(403).json({ error: 'Apenas o admin do grupo pode editar a premiação' })
       }
 

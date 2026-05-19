@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import PushOptInBanner from './PushOptInBanner'
 import { supabase } from './lib/supabase'
 import { useAuth } from './AuthModal'
+import { apiFetch } from './lib/apiFetch'
 
 // Header Authorization Bearer com o token da sessao atual do Supabase.
 // Backend (api/bolao.js) usa pra setar bc_bolao_members.user_id.
@@ -772,7 +773,7 @@ function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
     if (!name || !email || !fullName || !state) return
     setLoading(true)
     try {
-      const res = await fetch('/api/bolao?action=create-group', {
+      const res = await apiFetch('/api/bolao?action=create-group', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
         body: JSON.stringify({
@@ -857,7 +858,7 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
   useEffect(() => {
     if (!prefilledCode) return
     let alive = true
-    fetch('/api/bolao?action=group&code=' + prefilledCode)
+    apiFetch('/api/bolao?action=group&code=' + prefilledCode)
       .then(r => r.json())
       .then(d => {
         if (!alive) return
@@ -880,7 +881,7 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
     if (!code || !nickname || !email || !fullName || !state) return
     setLoading(true)
     try {
-      const res = await fetch('/api/bolao?action=join', {
+      const res = await apiFetch('/api/bolao?action=join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
         body: JSON.stringify({
@@ -1012,7 +1013,7 @@ function PrizeEditor({ group, onClose, onSaved, setToast, adminEmail }) {
   async function handleSave() {
     setSaving(true)
     try {
-      const res = await fetch('/api/bolao?action=update-prize', {
+      const res = await apiFetch('/api/bolao?action=update-prize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1172,7 +1173,7 @@ function CrossSellPanel() {
   const [rate, setRate] = useState(null)
 
   useEffect(() => {
-    fetch('/api/rates').then(r => r.json()).then(d => {
+    apiFetch('/api/rates').then(r => r.json()).then(d => {
       if (d?.success && d.mid_rate) setRate(d.mid_rate)
     }).catch(() => {})
   }, [])
@@ -1317,7 +1318,7 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, onSwit
 
   useEffect(() => {
     if (!group) return
-    fetch('/api/bolao?action=group&code=' + group.join_code)
+    apiFetch('/api/bolao?action=group&code=' + group.join_code)
       .then(r => r.json())
       .then(d => { if (d.members) setMembers(d.members) })
       .catch(() => {})
@@ -1514,8 +1515,8 @@ function PredictionsView({ member, onBack, setToast, deadline }) {
     setLoading(true)
     try {
       const [mRes, pRes] = await Promise.all([
-        fetch('/api/bolao?action=matches'),
-        fetch('/api/bolao?action=my-predictions&member_id=' + member.id),
+        apiFetch('/api/bolao?action=matches'),
+        apiFetch('/api/bolao?action=my-predictions&member_id=' + member.id),
       ])
       const mData = await mRes.json()
       const pData = await pRes.json()
@@ -1542,7 +1543,7 @@ function PredictionsView({ member, onBack, setToast, deadline }) {
     if (h === '' || a === '' || isNaN(h) || isNaN(a)) return
     setSaving(s => ({ ...s, [matchId]: true }))
     try {
-      const res = await fetch('/api/bolao?action=predict', {
+      const res = await apiFetch('/api/bolao?action=predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ member_id: member.id, match_id: matchId, home_score: Number(h), away_score: Number(a) }),
@@ -1644,13 +1645,13 @@ function StandingsView({ group, member, onBack, setToast }) {
 
   useEffect(() => {
     if (tab === 'group' && !groupStand && group) {
-      fetch('/api/bolao?action=standings&group_id=' + group.id).then(r => r.json()).then(d => setGroupStand(d.standings || [])).catch(() => setGroupStand([]))
+      apiFetch('/api/bolao?action=standings&group_id=' + group.id).then(r => r.json()).then(d => setGroupStand(d.standings || [])).catch(() => setGroupStand([]))
     }
     if (tab === 'state' && !stateStand && member.state) {
-      fetch('/api/bolao?action=standings-state&state=' + member.state).then(r => r.json()).then(d => setStateStand(d.standings || [])).catch(() => setStateStand([]))
+      apiFetch('/api/bolao?action=standings-state&state=' + member.state).then(r => r.json()).then(d => setStateStand(d.standings || [])).catch(() => setStateStand([]))
     }
     if (tab === 'global' && !globalStand) {
-      fetch('/api/bolao?action=standings-global').then(r => r.json()).then(d => setGlobalStand(d.standings || [])).catch(() => setGlobalStand([]))
+      apiFetch('/api/bolao?action=standings-global').then(r => r.json()).then(d => setGlobalStand(d.standings || [])).catch(() => setGlobalStand([]))
     }
   }, [tab, group, member, groupStand, stateStand, globalStand])
 
@@ -1766,7 +1767,7 @@ export default function BolaoScreen() {
   }, [authUser, memberships])
 
   useEffect(() => {
-    fetch('/api/bolao?action=config').then(r => r.json()).then(d => setConfig(d.config || {})).catch(() => setConfig({}))
+    apiFetch('/api/bolao?action=config').then(r => r.json()).then(d => setConfig(d.config || {})).catch(() => setConfig({}))
   }, [])
 
   // ─── Sync com Supabase auth ────────────────────────────────────────────
@@ -1779,7 +1780,7 @@ export default function BolaoScreen() {
       if (authUser.id === lastSyncedUserId) return  // ja sincronizado
       ;(async () => {
         try {
-          const res = await fetch('/api/bolao?action=my-memberships', {
+          const res = await apiFetch('/api/bolao?action=my-memberships', {
             headers: { ...(await getAuthHeader()) },
           })
           if (!res.ok) return
@@ -1808,7 +1809,7 @@ export default function BolaoScreen() {
   }, [authUser?.id])
 
   function loadGroupForMembership(m, { silent = false } = {}) {
-    fetch('/api/bolao?action=group&code=' + m.join_code).then(r => r.json()).then(d => {
+    apiFetch('/api/bolao?action=group&code=' + m.join_code).then(r => r.json()).then(d => {
       if (d.group) {
         setGroup(d.group)
         const me = (d.members || []).find(x => x.id === m.member_id)
@@ -1834,7 +1835,7 @@ export default function BolaoScreen() {
 
   function refreshGroup() {
     if (!group) return
-    fetch('/api/bolao?action=group&code=' + group.join_code).then(r => r.json()).then(d => { if (d.group) setGroup(d.group) }).catch(() => {})
+    apiFetch('/api/bolao?action=group&code=' + group.join_code).then(r => r.json()).then(d => { if (d.group) setGroup(d.group) }).catch(() => {})
   }
 
   function handleCreated(g, m) {

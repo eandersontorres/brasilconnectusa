@@ -219,7 +219,7 @@
     }
 
     async function loadRequests(c) {
-      const r = await fetch('/api/social?action=pending-requests&admin_secret=' + encodeURIComponent(getSecret()))
+      const r = await fetch('/api/social?action=pending-requests', { headers: { 'x-admin-secret': getSecret() } })
       const data = await r.json()
       if (!r.ok) throw new Error(data.error || 'Erro')
       const reqs = data.requests || []
@@ -246,8 +246,9 @@
     window.approve = async function(id) {
       if (!confirm('Aprovar este pedido?')) return
       const r = await fetch('/api/social?action=approve-request', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ request_id: id, admin_secret: getSecret() })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+        body: JSON.stringify({ request_id: id })
       })
       if (r.ok) { document.getElementById('req-' + id).remove() }
       else alert('Erro: ' + ((await r.json()).error || ''))
@@ -256,8 +257,9 @@
     window.reject = async function(id) {
       const reason = prompt('Razão da rejeição (opcional):')
       const r = await fetch('/api/social?action=reject-request', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ request_id: id, admin_secret: getSecret(), notes: reason || '' })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+        body: JSON.stringify({ request_id: id, notes: reason || '' })
       })
       if (r.ok) document.getElementById('req-' + id).remove()
       else alert('Erro')

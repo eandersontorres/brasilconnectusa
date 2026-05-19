@@ -37,9 +37,11 @@ export default function ProfileApp() {
   async function save() {
     setSaving(true); setSavedMsg('')
     try {
-      const r = await fetch('/api/profile/update', {
+      // Usa endpoint seguro com JWT (apiFetch adiciona Authorization header)
+      const { apiFetch } = await import('./lib/apiFetch')
+      const r = await apiFetch('/api/profile?action=upsert', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...profile, privacy })
+        body: JSON.stringify(profile)
       })
       if (!r.ok) throw new Error()
       setSavedMsg('✓ Salvo!')

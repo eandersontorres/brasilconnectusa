@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { C, FONT } from './lib/colors'
+import { apiFetch } from './lib/apiFetch'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   GetStartedChecklist — cards horizontais de "primeiros passos"
@@ -50,7 +51,7 @@ export default function GetStartedChecklist({ user, onAction }) {
 
   useEffect(() => {
     if (!user?.id) return
-    fetch('/api/profile?user_id=' + user.id)
+    apiFetch('/api/profile?user_id=' + user.id)
       .then(r => r.json())
       .then(d => {
         const done = new Set((d.checklist || []).map(c => c.step_key))
@@ -86,7 +87,7 @@ export default function GetStartedChecklist({ user, onAction }) {
   }
 
   function markDone(stepKey) {
-    fetch('/api/profile?action=checklist-mark', {
+    apiFetch('/api/profile?action=checklist-mark', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: user.id, step_key: stepKey }),
     }).then(() => setCompleted(s => new Set([...s, stepKey])))

@@ -3,6 +3,7 @@ import { C, FONT } from './lib/colors'
 import { useAuth } from './AuthModal'
 import { PostCard, CreatePostModal } from './FeedScreen'
 import { compressImage } from './ComunidadesScreen'
+import { apiFetch } from './lib/apiFetch'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   CommunityDetailScreen — página de 1 comunidade (header + posts)
@@ -40,7 +41,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
     if (!slug) { setError('slug obrigatório'); setLoading(false); return }
     setLoading(true); setError(null)
     try {
-      const r = await fetch('/api/social?action=community&slug=' + encodeURIComponent(slug))
+      const r = await apiFetch('/api/social?action=community&slug=' + encodeURIComponent(slug))
       const d = await r.json()
       if (!r.ok) throw new Error(d.error || 'Erro')
       setCommunity(d.community)
@@ -55,7 +56,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
   const loadMembership = useCallback(async () => {
     if (!user || !community) { setMyMembership(null); return }
     try {
-      const r = await fetch('/api/social?action=my-communities&user_id=' + user.id)
+      const r = await apiFetch('/api/social?action=my-communities&user_id=' + user.id)
       const d = await r.json()
       const found = (d.communities || []).find(c => c.id === community.id)
       setMyMembership(found || null)
@@ -67,7 +68,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
   const loadPending = useCallback(async () => {
     if (!isAdmin || !user || !community) { setPendingRequests([]); return }
     try {
-      const r = await fetch(`/api/social?action=community-pending-requests&user_id=${user.id}&community_id=${community.id}`)
+      const r = await apiFetch(`/api/social?action=community-pending-requests&community_id=${community.id}`)
       const d = await r.json()
       if (!r.ok) throw new Error(d.error)
       setPendingRequests(d.requests || [])
@@ -82,7 +83,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
     setReviewing(request.id)
     try {
       const action = approve ? 'community-approve-request' : 'community-reject-request'
-      const r = await fetch('/api/social?action=' + action, {
+      const r = await apiFetch('/api/social?action=' + action, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id, request_id: request.id }),
       })
@@ -106,7 +107,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
     if (!user) { window.dispatchEvent(new CustomEvent('bc-open-auth')); return }
     setActionBusy(true)
     try {
-      const r = await fetch('/api/social?action=join', {
+      const r = await apiFetch('/api/social?action=join', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id, community_id: community.id }),
       })
@@ -123,7 +124,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
     if (!confirm(`Sair da comunidade "${community.name}"?`)) return
     setActionBusy(true)
     try {
-      const r = await fetch('/api/social?action=leave', {
+      const r = await apiFetch('/api/social?action=leave', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id, community_id: community.id }),
       })
@@ -378,7 +379,7 @@ function EditCommunityModal({ user, community: c, onClose, onSaved }) {
     setError(null); setUploading(true)
     try {
       const dataUrl = await compressImage(file, 1200, 0.82)
-      const r = await fetch('/api/upload', {
+      const r = await apiFetch('/api/upload', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ file_data: dataUrl, folder: 'communities', email: user.email }),
       })
@@ -393,7 +394,7 @@ function EditCommunityModal({ user, community: c, onClose, onSaved }) {
     if (name.trim().length < 3) { setError('Nome muito curto'); return }
     setError(null); setSaving(true)
     try {
-      const r = await fetch('/api/social?action=update-community', {
+      const r = await apiFetch('/api/social?action=update-community', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: user.id,

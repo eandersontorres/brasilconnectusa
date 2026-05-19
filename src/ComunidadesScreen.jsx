@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { C, FONT } from './lib/colors'
 import { useAuth } from './AuthModal'
+import { apiFetch } from './lib/apiFetch'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   ComunidadesScreen — descoberta de comunidades estilo Nextdoor
@@ -50,7 +51,7 @@ export default function ComunidadesScreen({ onNavigate }) {
   const loadAll = useCallback(async () => {
     setLoading(true)
     try {
-      const r = await fetch('/api/social?action=communities')
+      const r = await apiFetch('/api/social?action=communities')
       const d = await r.json()
       setAll(d.communities || [])
     } catch (_) { setAll([]) }
@@ -60,7 +61,7 @@ export default function ComunidadesScreen({ onNavigate }) {
   const loadMine = useCallback(async () => {
     if (!user) { setMine([]); return }
     try {
-      const r = await fetch('/api/social?action=my-communities&user_id=' + user.id)
+      const r = await apiFetch('/api/social?action=my-communities&user_id=' + user.id)
       const d = await r.json()
       setMine(d.communities || [])
     } catch (_) { setMine([]) }
@@ -99,7 +100,7 @@ export default function ComunidadesScreen({ onNavigate }) {
     }
     setJoining(community.id)
     try {
-      const r = await fetch('/api/social?action=join', {
+      const r = await apiFetch('/api/social?action=join', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id, community_id: community.id }),
@@ -288,7 +289,7 @@ function CreateCommunityModal({ user, onClose, onCreated }) {
     try {
       // Comprime via canvas se grande (max 800px largura, JPEG 80%)
       const dataUrl = await compressImage(file, 1200, 0.82)
-      const r = await fetch('/api/upload', {
+      const r = await apiFetch('/api/upload', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ file_data: dataUrl, folder: 'communities', email: user.email }),
       })
@@ -312,7 +313,7 @@ function CreateCommunityModal({ user, onClose, onCreated }) {
     }
     setSubmitting(true)
     try {
-      const r = await fetch('/api/social?action=create-community', {
+      const r = await apiFetch('/api/social?action=create-community', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from './AuthModal'
 import { C, FONT } from './lib/colors'
+import { apiFetch } from './lib/apiFetch'
 
 // ────────────────────────────────────────────────────────────────────────────
 //   MarketplaceScreen — aba dedicada ao classified em grid visual
@@ -222,7 +223,7 @@ export default function MarketplaceScreen() {
       const base = user
         ? `/api/social?action=feed&user_id=${user.id}&type=classified`
         : '/api/social?action=feed-public&type=classified'
-      const res = await fetch(base)
+      const res = await apiFetch(base)
       const data = await res.json()
       setItems(data.posts || [])
     } catch (_) { setItems([]) }

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from './AuthModal'
 import GetStartedChecklist from './GetStartedChecklist'
 import { C, FONT, useIsMobile } from './lib/colors'
+import { apiFetch } from './lib/apiFetch'
 
 // ────────────────────────────────────────────────────────────────────────────
 //   FeedScreen — feed social estilo Reddit/Nextdoor
@@ -80,7 +81,7 @@ export function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold 
     if (!currentUser || !isAuthor || marking) return
     setMarking(true)
     try {
-      const res = await fetch('/api/social?action=classified-status', {
+      const res = await apiFetch('/api/social?action=classified-status', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ post_id: post.id, user_id: currentUser.id, status: 'sold' }),
       })
@@ -98,7 +99,7 @@ export function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold 
     const newValue = voted === value ? 0 : value
     setVoted(newValue)
     try {
-      await fetch('/api/social?action=vote', {
+      await apiFetch('/api/social?action=vote', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: currentUser.id, target_type: 'post', target_id: post.id, value: newValue,
@@ -248,7 +249,7 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    fetch('/api/social?action=my-communities&user_id=' + user.id)
+    apiFetch('/api/social?action=my-communities&user_id=' + user.id)
       .then(r => r.json())
       .then(d => {
         const list = d.communities || []
@@ -260,7 +261,7 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
           setCommunityId(preferred)
         } else {
           // sem comunidades ainda — busca todas
-          fetch('/api/social?action=communities').then(r => r.json()).then(d2 => {
+          apiFetch('/api/social?action=communities').then(r => r.json()).then(d2 => {
             const all = (d2.communities || []).slice(0, 60)
             setCommunities(all)
             const preferred = defaultCommunityId && all.find(c => c.id === defaultCommunityId)
@@ -293,7 +294,7 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
         payload.event_date = new Date(eventDate).toISOString()
         payload.event_location = eventLocation.trim() || null
       }
-      const res = await fetch('/api/social?action=create-post', {
+      const res = await apiFetch('/api/social?action=create-post', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       })

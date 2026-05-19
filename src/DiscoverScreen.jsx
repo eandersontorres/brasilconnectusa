@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { C, FONT } from './lib/colors'
+import { apiFetch } from './lib/apiFetch'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   DiscoverScreen — tela de busca + descoberta de categorias
@@ -52,7 +53,7 @@ export default function DiscoverScreen({ onNavigate }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/social?action=communities')
+    apiFetch('/api/social?action=communities')
       .then(r => r.json())
       .then(d => setCommunities(d.communities || []))
       .catch(() => {})

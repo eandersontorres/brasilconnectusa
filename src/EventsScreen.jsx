@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { C, FONT } from './lib/colors'
 import { useAuth } from './AuthModal'
+import { apiFetch } from './lib/apiFetch'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   EventsScreen — lista de eventos da rede do user
@@ -33,7 +34,7 @@ export default function EventsScreen({ onNavigate }) {
     if (!user) return
     setLoading(true); setError(null)
     try {
-      const r = await fetch('/api/social?action=feed&user_id=' + user.id + '&type=event&limit=100')
+      const r = await apiFetch('/api/social?action=feed&user_id=' + user.id + '&type=event&limit=100')
       const d = await r.json()
       if (!r.ok) throw new Error(d.error || 'Erro')
       setEvents(d.posts || [])

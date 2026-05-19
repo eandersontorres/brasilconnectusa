@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { C, FONT } from './lib/colors'
+import { apiFetch } from './lib/apiFetch'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   OnboardingFlow — wizard 5 steps (estilo Nextdoor)
@@ -139,7 +140,7 @@ function StepLocation({ data, setData, onBack, onNext }) {
             const city = e.target.value.trim()
             if (!city || !data.state || data.radius_miles != null) return
             try {
-              const r = await fetch('/api/suggest-radius?city=' + encodeURIComponent(city) + '&state=' + data.state)
+              const r = await apiFetch('/api/suggest-radius?city=' + encodeURIComponent(city) + '&state=' + data.state)
               const d = await r.json()
               if (d.suggested_miles != null) setData(prev => ({ ...prev, radius_miles: d.suggested_miles }))
             } catch (_) {}
@@ -406,7 +407,7 @@ export default function OnboardingFlow({ user, onComplete, onDismiss }) {
 
   // Busca comunidades pra mostrar no Step 3
   useEffect(() => {
-    fetch('/api/social?action=communities')
+    apiFetch('/api/social?action=communities')
       .then(r => r.json())
       .then(d => setAllCommunities(d.communities || []))
       .catch(() => {})
@@ -415,7 +416,7 @@ export default function OnboardingFlow({ user, onComplete, onDismiss }) {
   // Carrega perfil existente (caso usuário tenha começado e parado)
   useEffect(() => {
     if (!user?.id) return
-    fetch('/api/profile?user_id=' + user.id)
+    apiFetch('/api/profile?user_id=' + user.id)
       .then(r => r.json())
       .then(d => {
         if (d.profile) {
@@ -436,7 +437,7 @@ export default function OnboardingFlow({ user, onComplete, onDismiss }) {
   async function saveStep(stepNum, payload) {
     setLoading(true); setError(null)
     try {
-      const res = await fetch('/api/profile?action=onboarding-step', {
+      const res = await apiFetch('/api/profile?action=onboarding-step', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id, step: stepNum, data: payload }),
       })
@@ -469,7 +470,7 @@ export default function OnboardingFlow({ user, onComplete, onDismiss }) {
         for (const slug of data.interests) {
           const comm = allCommunities.find(c => c.slug === slug)
           if (comm) {
-            fetch('/api/social?action=join', {
+            apiFetch('/api/social?action=join', {
               method: 'POST', headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ user_id: user.id, community_id: comm.id }),
             }).catch(() => {})
@@ -490,11 +491,11 @@ export default function OnboardingFlow({ user, onComplete, onDismiss }) {
   async function handleAccept() {
     setLoading(true); setError(null)
     try {
-      await fetch('/api/profile?action=accept-guidelines', {
+      await apiFetch('/api/profile?action=accept-guidelines', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id }),
       })
-      await fetch('/api/profile?action=complete-onboarding', {
+      await apiFetch('/api/profile?action=complete-onboarding', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id }),
       })

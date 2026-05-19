@@ -30,7 +30,7 @@ export default async function handler(req, res) {
   if (!name || !email || !reason || !message) {
     return res.status(400).json({ error: 'Todos os campos são obrigatórios' })
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!/^[^\s@<>"'`\\;()]+@[^\s@<>"'`\\;()]+\.[^\s@<>"'`\\;()]{2,}$/.test(email) || email.length > 254) {
     return res.status(400).json({ error: 'Email inválido' })
   }
   if (!VALID_REASONS.has(reason)) {

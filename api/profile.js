@@ -15,6 +15,14 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAuthOnly } from './_lib/businessAuth.js'
+
+// Allowlist explícito de colunas editaveis via onboarding-step (anti-mass-assignment)
+const ONBOARDING_STEP_FIELDS = new Set([
+  'full_name', 'display_name', 'avatar_url', 'bio',
+  'city', 'state', 'whatsapp', 'instagram', 'interests',
+  'country', 'avatar_color',
+])
 
 const VALID_STATES = new Set([
   'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD',
@@ -45,8 +53,9 @@ export default async function handler(req, res) {
   try {
     // ══════════ GET: perfil + checklist ═══════════════════════════════════
     if (req.method === 'GET') {
-      const { user_id } = req.query
-      if (!user_id) return err(res, 400, 'user_id é obrigatório')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
 
       const { data: profile } = await supabase
         .from('bc_profiles')
@@ -69,8 +78,9 @@ export default async function handler(req, res) {
 
     // ══════════ POST: upsert (cria ou atualiza) ════════════════════════════
     if (req.method === 'POST' && action === 'upsert') {
-      const b = req.body || {}
-      if (!b.user_id) return err(res, 400, 'user_id é obrigatório')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const b = { ...(req.body || {}), user_id: auth.user.id }
 
       // Validações
       if (b.state && !VALID_STATES.has(String(b.state).toUpperCase())) {
@@ -79,9 +89,10 @@ export default async function handler(req, res) {
 
       const update = {
         user_id: b.user_id,
+        // email SEMPRE vem do token (nunca do body) — previne spoof de identidade
+        email: auth.user.email ? auth.user.email.toLowerCase() : null,
         updated_at: new Date().toISOString(),
       }
-      if (b.email !== undefined)        update.email = b.email ? String(b.email).toLowerCase() : null
       if (b.full_name !== undefined)    update.full_name = b.full_name ? String(b.full_name).trim().slice(0, 100) : null
       if (b.display_name !== undefined) update.display_name = b.display_name ? String(b.display_name).trim().slice(0, 50) : null
       if (b.avatar_url !== undefined)   update.avatar_url = b.avatar_url || null
@@ -104,17 +115,27 @@ export default async function handler(req, res) {
 
     // ══════════ POST: onboarding-step (salva progresso) ════════════════════
     if (req.method === 'POST' && action === 'onboarding-step') {
-      const { user_id, step, data: stepData } = req.body || {}
-      if (!user_id || step === undefined) return err(res, 400, 'user_id e step obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { step, data: stepData } = req.body || {}
+      if (step === undefined) return err(res, 400, 'step obrigatório')
 
       const stepNum = Number(step)
       if (stepNum < 0 || stepNum > 10) return err(res, 400, 'step inválido')
+
+      // ALLOWLIST: só campos seguros podem vir em stepData (anti mass-assignment).
+      // Bloqueia role, email, onboarding_completed, timestamps, etc.
+      const safeStepData = {}
+      for (const [k, v] of Object.entries(stepData || {})) {
+        if (ONBOARDING_STEP_FIELDS.has(k)) safeStepData[k] = v
+      }
 
       const update = {
         user_id,
         onboarding_step: stepNum,
         updated_at: new Date().toISOString(),
-        ...(stepData || {}),
+        ...safeStepData,
       }
       // Se incluiu state, valida
       if (update.state) {
@@ -148,8 +169,9 @@ export default async function handler(req, res) {
 
     // ══════════ POST: complete-onboarding ══════════════════════════════════
     if (req.method === 'POST' && action === 'complete-onboarding') {
-      const { user_id } = req.body || {}
-      if (!user_id) return err(res, 400, 'user_id obrigatório')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
 
       const { data, error } = await supabase
         .from('bc_profiles')
@@ -168,8 +190,9 @@ export default async function handler(req, res) {
 
     // ══════════ POST: accept-guidelines ════════════════════════════════════
     if (req.method === 'POST' && action === 'accept-guidelines') {
-      const { user_id } = req.body || {}
-      if (!user_id) return err(res, 400, 'user_id obrigatório')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
 
       const { data, error } = await supabase
         .from('bc_profiles')
@@ -187,8 +210,11 @@ export default async function handler(req, res) {
 
     // ══════════ POST: checklist-mark ════════════════════════════════════════
     if (req.method === 'POST' && action === 'checklist-mark') {
-      const { user_id, step_key } = req.body || {}
-      if (!user_id || !step_key) return err(res, 400, 'user_id e step_key obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { step_key } = req.body || {}
+      if (!step_key) return err(res, 400, 'step_key obrigatório')
       if (!VALID_CHECKLIST_STEPS.has(step_key)) return err(res, 400, 'step_key inválido')
 
       const { data, error } = await supabase

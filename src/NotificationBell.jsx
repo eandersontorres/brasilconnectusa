@@ -1,6 +1,7 @@
 // NotificationBell.jsx — Sino com badge + lista dropdown
 // Fetcha /api/notifications a cada 60s e quando user clica no sino.
 import { useEffect, useState } from 'react'
+import { apiFetch } from './lib/apiFetch'
 
 const C = { navy: '#002776', green: '#009c3b', white: '#fff', line: '#e5e7eb', ink: '#0b1928', inkSoft: '#374151', inkMuted: '#6b7280', red: '#dc2626' }
 
@@ -23,7 +24,7 @@ export default function NotificationBell({ user }) {
     if (!user?.id && !user?.email) return
     try {
       const param = user.id ? 'user_id=' + user.id : 'email=' + encodeURIComponent(user.email)
-      const r = await fetch('/api/notifications?' + param + '&limit=20')
+      const r = await apiFetch('/api/notifications?' + param + '&limit=20')
       const d = await r.json()
       if (d.success) {
         setItems(d.notifications || [])
@@ -42,7 +43,7 @@ export default function NotificationBell({ user }) {
   async function markAllRead() {
     if (!user?.id && !user?.email) return
     try {
-      await fetch('/api/notifications?action=mark-read', {
+      await apiFetch('/api/notifications?action=mark-read', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_id: user.id, email: user.email, all: true }),
@@ -54,7 +55,7 @@ export default function NotificationBell({ user }) {
 
   function handleClick(notif) {
     // Marca lido + navega
-    fetch('/api/notifications?action=mark-read', {
+    apiFetch('/api/notifications?action=mark-read', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: user?.id, email: user?.email, ids: [notif.id] }),

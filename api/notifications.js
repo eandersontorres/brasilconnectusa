@@ -6,6 +6,7 @@
  */
 import { createClient } from '@supabase/supabase-js'
 import { rateLimit } from './_lib/rateLimit.js'
+import { requireAuthOnly } from './_lib/businessAuth.js'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
@@ -21,17 +22,17 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET') {
-      const { user_id, email, limit = 30, unread_only } = req.query
-      if (!user_id && !email) return res.status(400).json({ error: 'user_id ou email obrigatorio' })
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
+      const user_id = auth.user.id
+      const { limit = 30, unread_only } = req.query
 
       let q = supabase
         .from('bc_notifications')
         .select('id, type, title, body, url, icon, metadata, read_at, created_at')
         .order('created_at', { ascending: false })
         .limit(Number(limit))
-
-      if (user_id) q = q.eq('user_id', user_id)
-      else q = q.eq('user_email', String(email).toLowerCase().trim())
+        .eq('user_id', user_id)
       if (unread_only === '1') q = q.is('read_at', null)
 
       const { data, error } = await q
@@ -43,12 +44,13 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST' && action === 'mark-read') {
-      const { user_id, email, ids, all } = req.body || {}
-      if (!user_id && !email) return res.status(400).json({ error: 'user_id ou email obrigatorio' })
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
+      const user_id = auth.user.id
+      const { ids, all } = req.body || {}
 
       let q = supabase.from('bc_notifications').update({ read_at: new Date().toISOString() })
-      if (user_id) q = q.eq('user_id', user_id)
-      else q = q.eq('user_email', String(email).toLowerCase().trim())
+        .eq('user_id', user_id)
       if (!all) {
         if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'ids ou all=true obrigatorio' })
         q = q.in('id', ids)

@@ -21,6 +21,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAuthOnly } from './_lib/businessAuth.js'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, {
@@ -274,8 +275,11 @@ export default async function handler(req, res) {
 
     // ══════════ POST: join (verifica se requires_approval) ═══════════════
     if (req.method === 'POST' && action === 'join') {
-      const { user_id, community_id, answer } = req.body || {}
-      if (!user_id || !community_id) return err(res, 400, 'user_id e community_id obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { community_id, answer } = req.body || {}
+      if (!community_id) return err(res, 400, 'community_id obrigatório')
 
       // Checa se a comunidade requer aprovacao
       const { data: community } = await supabase
@@ -317,7 +321,7 @@ export default async function handler(req, res) {
 
     // ══════════ GET: pending join requests (admin) ═══════════════════════
     if (req.method === 'GET' && action === 'pending-requests') {
-      const { admin_secret } = req.query
+      const admin_secret = req.headers['x-admin-secret'] || req.query.admin_secret
       if (admin_secret !== process.env.ADMIN_SECRET) return err(res, 401, 'Unauthorized')
 
       const { data, error } = await supabase
@@ -332,8 +336,9 @@ export default async function handler(req, res) {
 
     // ══════════ POST: approve / reject (admin) ═══════════════════════════
     if (req.method === 'POST' && (action === 'approve-request' || action === 'reject-request')) {
-      const { request_id, admin_secret, notes } = req.body || {}
-      if (admin_secret !== process.env.ADMIN_SECRET) return err(res, 401, 'Unauthorized')
+      const adminSecret = req.headers['x-admin-secret'] || (req.body && req.body.admin_secret)
+      if (adminSecret !== process.env.ADMIN_SECRET) return err(res, 401, 'Unauthorized')
+      const { request_id, notes } = req.body || {}
       if (!request_id) return err(res, 400, 'request_id obrigatório')
 
       const newStatus = action === 'approve-request' ? 'approved' : 'rejected'
@@ -371,8 +376,11 @@ export default async function handler(req, res) {
 
     // ══════════ GET: pedidos pendentes da comunidade (admin da comm) ═════
     if (req.method === 'GET' && action === 'community-pending-requests') {
-      const { user_id, community_id } = req.query
-      if (!user_id || !community_id) return err(res, 400, 'user_id e community_id obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { community_id } = req.query
+      if (!community_id) return err(res, 400, 'community_id obrigatório')
       if (!(await isCommunityAdmin(user_id, community_id))) return err(res, 403, 'Apenas admins da comunidade podem ver pedidos')
 
       const { data, error } = await supabase
@@ -388,8 +396,11 @@ export default async function handler(req, res) {
 
     // ══════════ POST: approve / reject (admin da comunidade) ═════════════
     if (req.method === 'POST' && (action === 'community-approve-request' || action === 'community-reject-request')) {
-      const { user_id, request_id, notes } = req.body || {}
-      if (!user_id || !request_id) return err(res, 400, 'user_id e request_id obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { request_id, notes } = req.body || {}
+      if (!request_id) return err(res, 400, 'request_id obrigatório')
 
       // Busca o request pra saber qual comunidade
       const { data: existingReq, error: e0 } = await supabase
@@ -432,8 +443,10 @@ export default async function handler(req, res) {
 
     // ══════════ POST: update-community (admin da comunidade) ═════════════
     if (req.method === 'POST' && action === 'update-community') {
-      const b = req.body || {}
-      if (!b.user_id || !b.community_id) return err(res, 400, 'user_id e community_id obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const b = { ...(req.body || {}), user_id: auth.user.id }
+      if (!b.community_id) return err(res, 400, 'community_id obrigatório')
       if (!(await isCommunityAdmin(b.user_id, b.community_id))) {
         return err(res, 403, 'Apenas admins da comunidade podem editar')
       }
@@ -472,8 +485,11 @@ export default async function handler(req, res) {
 
     // ══════════ POST: leave ════════════════════════════════════════════════
     if (req.method === 'POST' && action === 'leave') {
-      const { user_id, community_id } = req.body || {}
-      if (!user_id || !community_id) return err(res, 400, 'user_id e community_id obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { community_id } = req.body || {}
+      if (!community_id) return err(res, 400, 'community_id obrigatório')
 
       const { data: existing } = await supabase
         .from('bc_community_members').select('id')
@@ -495,9 +511,11 @@ export default async function handler(req, res) {
 
     // ══════════ POST: create-community ════════════════════════════════════
     if (req.method === 'POST' && action === 'create-community') {
-      const b = req.body || {}
-      if (!b.user_id || !b.name || !b.type) {
-        return err(res, 400, 'user_id, name e type obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const b = { ...(req.body || {}), user_id: auth.user.id }
+      if (!b.name || !b.type) {
+        return err(res, 400, 'name e type obrigatórios')
       }
       const validTypes = ['general', 'city', 'state', 'interest']
       if (!validTypes.includes(b.type)) {
@@ -568,9 +586,11 @@ export default async function handler(req, res) {
 
     // ══════════ POST: create-post ══════════════════════════════════════════
     if (req.method === 'POST' && action === 'create-post') {
-      const b = req.body || {}
-      if (!b.user_id || !b.community_id || !b.type || !b.title) {
-        return err(res, 400, 'user_id, community_id, type e title obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const b = { ...(req.body || {}), user_id: auth.user.id }
+      if (!b.community_id || !b.type || !b.title) {
+        return err(res, 400, 'community_id, type e title obrigatórios')
       }
       if (!VALID_POST_TYPES.has(b.type)) return err(res, 400, 'Tipo de post inválido')
 
@@ -624,8 +644,11 @@ export default async function handler(req, res) {
 
     // ══════════ POST: create-comment ═══════════════════════════════════════
     if (req.method === 'POST' && action === 'create-comment') {
-      const { user_id, post_id, parent_id, body } = req.body || {}
-      if (!user_id || !post_id || !body) return err(res, 400, 'user_id, post_id e body obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { post_id, parent_id, body } = req.body || {}
+      if (!post_id || !body) return err(res, 400, 'post_id e body obrigatórios')
 
       // Verifica que o post não está locked nem deletado
       const { data: post } = await supabase.from('bc_posts').select('is_locked, is_deleted, comment_count').eq('id', post_id).single()
@@ -712,8 +735,11 @@ export default async function handler(req, res) {
 
     // ══════════ POST: vote ═════════════════════════════════════════════════
     if (req.method === 'POST' && action === 'vote') {
-      const { user_id, target_type, target_id, value } = req.body || {}
-      if (!user_id || !target_type || !target_id) return err(res, 400, 'user_id, target_type, target_id obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { target_type, target_id, value } = req.body || {}
+      if (!target_type || !target_id) return err(res, 400, 'target_type, target_id obrigatórios')
       if (!['post', 'comment'].includes(target_type)) return err(res, 400, 'target_type deve ser post ou comment')
       const v = Number(value)
       if (![1, -1, 0].includes(v)) return err(res, 400, 'value deve ser 1, -1 ou 0')
@@ -753,8 +779,11 @@ export default async function handler(req, res) {
 
     // ══════════ POST: rsvp ═════════════════════════════════════════════════
     if (req.method === 'POST' && action === 'rsvp') {
-      const { user_id, post_id, status } = req.body || {}
-      if (!user_id || !post_id || !status) return err(res, 400, 'user_id, post_id, status obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { post_id, status } = req.body || {}
+      if (!post_id || !status) return err(res, 400, 'post_id, status obrigatórios')
       if (!VALID_RSVP.has(status)) return err(res, 400, 'status inválido')
 
       const { data, error } = await supabase
@@ -775,8 +804,11 @@ export default async function handler(req, res) {
 
     // ══════════ POST: report ═══════════════════════════════════════════════
     if (req.method === 'POST' && action === 'report') {
-      const { reporter_id, target_type, target_id, reason, details } = req.body || {}
-      if (!reporter_id || !target_type || !target_id || !reason) return err(res, 400, 'campos obrigatórios faltando')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const reporter_id = auth.user.id
+      const { target_type, target_id, reason, details } = req.body || {}
+      if (!target_type || !target_id || !reason) return err(res, 400, 'campos obrigatórios faltando')
       if (!VALID_REPORT_REASONS.has(reason)) return err(res, 400, 'reason inválido')
 
       const { data, error } = await supabase.from('bc_reports')
@@ -798,8 +830,11 @@ export default async function handler(req, res) {
 
     // ══════════ POST: classified-status (apenas autor pode marcar) ═════════
     if (req.method === 'POST' && action === 'classified-status') {
-      const { post_id, user_id, status } = req.body || {}
-      if (!post_id || !user_id || !status) return err(res, 400, 'post_id, user_id e status obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { post_id, status } = req.body || {}
+      if (!post_id || !status) return err(res, 400, 'post_id e status obrigatórios')
       if (!['available', 'sold', 'reserved'].includes(status)) return err(res, 400, 'status inválido')
 
       const { data: post } = await supabase.from('bc_posts').select('author_id, type').eq('id', post_id).single()
@@ -817,8 +852,11 @@ export default async function handler(req, res) {
 
     // ══════════ DELETE: post (soft, só autor) ══════════════════════════════
     if (req.method === 'DELETE' && action === 'delete-post') {
-      const { id, user_id } = req.query
-      if (!id || !user_id) return err(res, 400, 'id e user_id obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { id } = req.query
+      if (!id) return err(res, 400, 'id obrigatório')
 
       const { data: post } = await supabase.from('bc_posts').select('author_id').eq('id', id).single()
       if (!post) return err(res, 404, 'Post não encontrado')
@@ -831,8 +869,11 @@ export default async function handler(req, res) {
 
     // ══════════ DELETE: comment (soft, só autor) ═══════════════════════════
     if (req.method === 'DELETE' && action === 'delete-comment') {
-      const { id, user_id } = req.query
-      if (!id || !user_id) return err(res, 400, 'id e user_id obrigatórios')
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+      const { id } = req.query
+      if (!id) return err(res, 400, 'id obrigatório')
 
       const { data: comment } = await supabase.from('bc_comments').select('author_id').eq('id', id).single()
       if (!comment) return err(res, 404, 'Comentário não encontrado')

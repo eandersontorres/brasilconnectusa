@@ -8,6 +8,11 @@ export default async function handler(req, res) {
   if (!name || !category || !city || !state || !submitted_email) {
     return res.status(400).json({ error: 'name, category, city, state e submitted_email obrigatórios' })
   }
+  // Validacao de email — previne payloads maliciosos (XSS via admin UI, etc)
+  const emailStr = String(submitted_email).trim()
+  if (!/^[^\s@<>"'`\\;()]+@[^\s@<>"'`\\;()]+\.[^\s@<>"'`\\;()]{2,}$/.test(emailStr) || emailStr.length > 254) {
+    return res.status(400).json({ error: 'Email inválido' })
+  }
   // Se cliente nao mandou module valido, deriva da categoria
   const module_ = normalizeModule(moduleInput, category)
   try {

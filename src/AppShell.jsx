@@ -4,6 +4,7 @@ import { useAuth } from './AuthModal'
 import OnboardingFlow from './OnboardingFlow'
 import NotificationBell from './NotificationBell'
 import PostButton from './PostButton'
+import { apiFetch } from './lib/apiFetch'
 
 // ─── Ícones monocromáticos Lucide-style (currentColor, sidebar 18px) ────────
 const ICP = {
@@ -359,7 +360,7 @@ function SponsorSlot({ placement = 'sidebar' }) {
   // Carrega estado do user pra targeting (se logado)
   useEffect(() => {
     if (!user) { setProfileState(null); return }
-    fetch('/api/profile?user_id=' + user.id)
+    apiFetch('/api/profile?user_id=' + user.id)
       .then(r => r.json())
       .then(d => setProfileState(d.profile?.state || null))
       .catch(() => {})
@@ -368,7 +369,7 @@ function SponsorSlot({ placement = 'sidebar' }) {
   useEffect(() => {
     const qs = new URLSearchParams({ placement })
     if (profileState) qs.set('state', profileState)
-    fetch('/api/sponsors?' + qs.toString())
+    apiFetch('/api/sponsors?' + qs.toString())
       .then(r => r.json())
       .then(d => setSponsor(d.picked || null))
       .catch(() => setSponsor(null))
@@ -559,8 +560,8 @@ export default function AppShell({ tab, setTab, children }) {
   const [upcomingEvents, setUpcomingEvents] = useState([])
 
   useEffect(() => {
-    fetch('/api/rates').then(r => r.json()).then(d => { if (d.mid_rate) setRate(d.mid_rate) }).catch(() => {})
-    fetch('/api/events/list?limit=5').then(r => r.json()).then(d => setUpcomingEvents(d.events || [])).catch(() => {})
+    apiFetch('/api/rates').then(r => r.json()).then(d => { if (d.mid_rate) setRate(d.mid_rate) }).catch(() => {})
+    apiFetch('/api/events/list?limit=5').then(r => r.json()).then(d => setUpcomingEvents(d.events || [])).catch(() => {})
   }, [])
 
   // LoginGate (em App.jsx) e outras telas pedem o modal via CustomEvent
@@ -581,13 +582,13 @@ export default function AppShell({ tab, setTab, children }) {
     } catch (_) {}
 
     if (!snoozed) {
-      fetch('/api/profile?user_id=' + user.id)
+      apiFetch('/api/profile?user_id=' + user.id)
         .then(r => r.json())
         .then(d => { if (d.needs_onboarding) setShowOnboarding(true) })
         .catch(() => {})
     }
 
-    fetch('/api/social?action=my-communities&user_id=' + user.id)
+    apiFetch('/api/social?action=my-communities&user_id=' + user.id)
       .then(r => r.json())
       .then(d => setMyCommunities(d.communities || []))
       .catch(() => {})
@@ -597,7 +598,7 @@ export default function AppShell({ tab, setTab, children }) {
     setShowOnboarding(false)
     try { localStorage.removeItem('onboarding_snoozed_until') } catch (_) {}
     if (user) {
-      fetch('/api/social?action=my-communities&user_id=' + user.id)
+      apiFetch('/api/social?action=my-communities&user_id=' + user.id)
         .then(r => r.json())
         .then(d => setMyCommunities(d.communities || []))
         .catch(() => {})

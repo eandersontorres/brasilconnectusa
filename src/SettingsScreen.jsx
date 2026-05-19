@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { C, FONT } from './lib/colors'
 import { useAuth } from './AuthModal'
+import { apiFetch } from './lib/apiFetch'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   SettingsScreen — página de configurações (inspirado no Nextdoor)
@@ -40,7 +41,7 @@ export default function SettingsScreen({ onNavigate }) {
     if (!user) return
     setLoading(true)
     try {
-      const r = await fetch('/api/profile?user_id=' + user.id)
+      const r = await apiFetch('/api/profile?user_id=' + user.id)
       const d = await r.json()
       setProfile(d.profile || {})
     } catch (_) { setProfile({}) }
@@ -209,7 +210,7 @@ function ContaPanel({ user, profile, loading, onSaved }) {
   async function handleSave() {
     setError(null); setSaving(true)
     try {
-      const r = await fetch('/api/profile?action=upsert', {
+      const r = await apiFetch('/api/profile?action=upsert', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: user.id,
@@ -272,7 +273,7 @@ function LocalPanel({ user, profile, onSaved }) {
   async function handleSave() {
     setError(null); setSaving(true)
     try {
-      const r = await fetch('/api/profile?action=upsert', {
+      const r = await apiFetch('/api/profile?action=upsert', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           user_id: user.id,
