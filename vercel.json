@@ -20,6 +20,10 @@
       "destination": "/api/bolao-invite?code=:code"
     },
     {
+      "source": "/go/sponsor/:id",
+      "destination": "/api/sponsor-click?id=:id"
+    },
+    {
       "source": "/go/:partner",
       "destination": "/api/go?partner=:partner"
     },

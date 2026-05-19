@@ -185,6 +185,7 @@
             <button class="tab-btn ${currentTab==='restaurant-orders'?'active':''}" onclick="switchTab('restaurant-orders')">Pedidos Restaurante</button>
             <button class="tab-btn ${currentTab==='bolao'?'active':''}" onclick="switchTab('bolao')">Bolão Copa</button>
             <button class="tab-btn ${currentTab==='users'?'active':''}" onclick="switchTab('users')">Usuários</button>
+            <button class="tab-btn ${currentTab==='sponsors'?'active':''}" onclick="switchTab('sponsors')">Patrocinadores</button>
           </div>
           <div id="tab-content"><p class="muted">Carregando…</p></div>
         </div>
@@ -204,6 +205,7 @@
         else if (tab === 'restaurant-orders') await loadRestaurantOrders(c)
         else if (tab === 'bolao')      await loadBolao(c)
         else if (tab === 'users')      await loadUsers(c)
+        else if (tab === 'sponsors')   await loadSponsors(c)
       } catch (e) {
         c.innerHTML = '<div class="err-banner">' + escapeHtml(e.message) + '</div>'
       }
@@ -1576,6 +1578,191 @@
         sta.style.color = '#ef4444'; sta.textContent = 'Erro de rede: ' + e.message
         btn.disabled = false; btn.textContent = 'Enviar →'
       }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    // TAB PATROCINADORES — CRUD de sponsors (sidebar / feed / etc)
+    // ═════════════════════════════════════════════════════════════════════
+    const _sponsorState = { list: [], editing: null }
+
+    async function loadSponsors(c) {
+      const r = await fetch('/api/admin/sponsors', { headers: { 'x-admin-secret': getSecret() } })
+      if (!r.ok) {
+        const d = await r.json().catch(() => ({}))
+        c.innerHTML = '<div class="err-banner">Erro: ' + escapeHtml(d.error || ('HTTP ' + r.status)) + '</div>'
+        return
+      }
+      const data = await r.json()
+      _sponsorState.list = data.sponsors || []
+      renderSponsorsTab(c)
+    }
+
+    function renderSponsorsTab(c) {
+      const list = _sponsorState.list
+      const editing = _sponsorState.editing
+
+      c.innerHTML = '<div class="panel">' +
+        '<div class="panel-eyebrow">MONETIZAÇÃO</div>' +
+        '<h3>Patrocinadores</h3>' +
+        '<p class="panel-sub">Marcas e negócios que pagam pra aparecer no app. Filtra por geo, interesse e placement.</p>' +
+        '<div style="margin:14px 0;display:flex;gap:8px;flex-wrap:wrap;">' +
+          '<button class="btn-mini btn-approve" onclick="startSponsorEdit(null)">+ Novo patrocinador</button>' +
+          '<span class="filter-pill">' + list.length + ' total · ' + list.filter(s => s.active && s.status === 'approved').length + ' ativos</span>' +
+        '</div>' +
+        (editing !== null ? renderSponsorForm(editing) : '') +
+        renderSponsorsTable(list) +
+      '</div>'
+    }
+
+    function renderSponsorsTable(list) {
+      if (list.length === 0) return '<div class="empty">Nenhum patrocinador cadastrado ainda.</div>'
+      return `
+        <table class="users-table" style="font-size:12px;">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>Placement</th>
+              <th>Geo</th>
+              <th>Status</th>
+              <th>Stats</th>
+              <th>Período</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${list.map(s => `
+              <tr>
+                <td>
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    ${s.logo_url ? `<img src="${escapeHtml(s.logo_url)}" style="width:24px;height:24px;border-radius:4px;object-fit:cover;" />` : ''}
+                    <div>
+                      <b>${escapeHtml(s.name)}</b>
+                      <div style="font-size:10px;color:var(--ink-muted);">${escapeHtml(s.website_url || '')}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>${(s.placement || []).map(p => `<span class="badge b-biz">${escapeHtml(p)}</span>`).join(' ')}</td>
+                <td style="font-size:11px;">${(s.geo_state || []).join(', ') || '<i style="color:var(--ink-muted);">nacional</i>'}</td>
+                <td>
+                  <span class="badge ${s.active && s.status === 'approved' ? 'b-onb' : 'b-noonb'}">${s.active ? escapeHtml(s.status) : 'pausado'}</span>
+                </td>
+                <td style="font-size:11px;color:var(--ink-muted);">
+                  ${s.impressions_count || 0} views · ${s.clicks_count || 0} clicks
+                </td>
+                <td style="font-size:10px;color:var(--ink-muted);">
+                  ${s.start_date ? escapeHtml(s.start_date) : '—'} → ${s.end_date ? escapeHtml(s.end_date) : '∞'}
+                </td>
+                <td style="white-space:nowrap;">
+                  <button class="btn-mini btn-mark" onclick="startSponsorEdit('${s.id}')">Editar</button>
+                  <button class="btn-mini" onclick="toggleSponsor('${s.id}', ${!s.active})" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);">${s.active ? 'Pausar' : 'Ativar'}</button>
+                  <button class="btn-mini btn-reject" onclick="deleteSponsor('${s.id}','${escapeHtml(s.name)}')">×</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `
+    }
+
+    function renderSponsorForm(s) {
+      const isEdit = !!s.id
+      return `
+        <form id="sponsor-form" onsubmit="saveSponsor(event)" style="background:var(--paper-soft);border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:700;color:var(--brand-gold-dark,#B8860B);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:10px;">
+            ${isEdit ? 'Editando patrocinador' : 'Novo patrocinador'}
+          </div>
+          ${isEdit ? `<input type="hidden" name="id" value="${escapeHtml(s.id)}" />` : ''}
+          <div class="edit-grid">
+            <label>Nome *<input name="name" required value="${escapeHtml(s.name || '')}" /></label>
+            <label>Website URL *<input name="website_url" type="url" required value="${escapeHtml(s.website_url || '')}" /></label>
+            <label>Logo URL<input name="logo_url" value="${escapeHtml(s.logo_url || '')}" placeholder="https://..." /></label>
+            <label>CTA Label<input name="cta_label" value="${escapeHtml(s.cta_label || 'Saiba mais')}" maxlength="30" /></label>
+            <label class="span2">Blurb (1-2 linhas)<textarea name="blurb" maxlength="200">${escapeHtml(s.blurb || '')}</textarea></label>
+            <label>Estados (CSV ex: MA,NY)<input name="geo_state" value="${(s.geo_state || []).join(', ')}" /></label>
+            <label>Interesses (CSV)<input name="interests" value="${(s.interests || []).join(', ')}" placeholder="tech,imigracao" /></label>
+            <label>Módulo (opcional)
+              <select name="module">
+                <option value="">Todos</option>
+                <option value="restaurant" ${s.module==='restaurant'?'selected':''}>Restaurant</option>
+                <option value="grocery" ${s.module==='grocery'?'selected':''}>Grocery</option>
+                <option value="retail" ${s.module==='retail'?'selected':''}>Retail</option>
+                <option value="agenda_pro" ${s.module==='agenda_pro'?'selected':''}>AgendaPro</option>
+                <option value="showcase" ${s.module==='showcase'?'selected':''}>Showcase</option>
+              </select>
+            </label>
+            <label>Placement (CSV)
+              <input name="placement" value="${(s.placement || ['sidebar']).join(', ')}" placeholder="sidebar, feed" />
+            </label>
+            <label>Status
+              <select name="status">
+                <option value="approved" ${s.status==='approved'?'selected':''}>Approved</option>
+                <option value="pending" ${s.status==='pending'?'selected':''}>Pending</option>
+                <option value="paused" ${s.status==='paused'?'selected':''}>Paused</option>
+                <option value="expired" ${s.status==='expired'?'selected':''}>Expired</option>
+              </select>
+            </label>
+            <label>Início (YYYY-MM-DD)<input name="start_date" type="date" value="${s.start_date || ''}" /></label>
+            <label>Fim (YYYY-MM-DD)<input name="end_date" type="date" value="${s.end_date || ''}" /></label>
+            <label>Preço mensal $ (interno)<input name="monthly_price" type="number" step="0.01" min="0" value="${s.monthly_price || ''}" /></label>
+            <label class="span2">Notas internas<textarea name="notes">${escapeHtml(s.notes || '')}</textarea></label>
+            <label class="span2" style="display:flex;align-items:center;gap:8px;flex-direction:row;">
+              <input type="checkbox" name="active" ${s.active !== false ? 'checked' : ''} /> Ativo
+            </label>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px;">
+            <button type="submit" class="btn-mini btn-approve">${isEdit ? 'Salvar' : 'Criar'}</button>
+            <button type="button" class="btn-mini" onclick="_sponsorState.editing=null;renderSponsorsTab(document.getElementById('tab-content'))" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);">Cancelar</button>
+          </div>
+        </form>
+      `
+    }
+
+    window.startSponsorEdit = function(id) {
+      _sponsorState.editing = id ? (_sponsorState.list.find(s => s.id === id) || {}) : {}
+      renderSponsorsTab(document.getElementById('tab-content'))
+    }
+
+    window.saveSponsor = async function(ev) {
+      ev.preventDefault()
+      const fd = new FormData(ev.target)
+      const body = Object.fromEntries(fd)
+      // Parse arrays CSV
+      body.geo_state = body.geo_state ? body.geo_state.split(',').map(s => s.trim().toUpperCase()).filter(Boolean) : null
+      body.interests = body.interests ? body.interests.split(',').map(s => s.trim()).filter(Boolean) : null
+      body.placement = body.placement ? body.placement.split(',').map(s => s.trim()).filter(Boolean) : ['sidebar']
+      body.active = ev.target.elements.active.checked
+      body.monthly_price = body.monthly_price ? Number(body.monthly_price) : null
+
+      const r = await fetch('/api/admin/sponsors?action=upsert', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+        body: JSON.stringify(body),
+      })
+      const d = await r.json()
+      if (!r.ok) { alert('Erro: ' + (d.error || '')); return }
+      _sponsorState.editing = null
+      loadSponsors(document.getElementById('tab-content'))
+    }
+
+    window.toggleSponsor = async function(id, active) {
+      const r = await fetch('/api/admin/sponsors?action=toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+        body: JSON.stringify({ id, active }),
+      })
+      if (!r.ok) { alert('Erro'); return }
+      loadSponsors(document.getElementById('tab-content'))
+    }
+
+    window.deleteSponsor = async function(id, name) {
+      if (!confirm('Deletar patrocinador "' + name + '"? Histórico de eventos será mantido em logs.')) return
+      const r = await fetch('/api/admin/sponsors?action=delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+        body: JSON.stringify({ id }),
+      })
+      if (!r.ok) { alert('Erro'); return }
+      loadSponsors(document.getElementById('tab-content'))
     }
 
     if (getSecret()) renderDashboard()

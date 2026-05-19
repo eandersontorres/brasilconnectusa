@@ -348,6 +348,81 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
 // ────────────────────────────────────────────────────────────────────────────
 //   Sidebar Direita (desktop)
 // ────────────────────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────────────────────
+//   SponsorSlot — card de patrocinador (fetch + render + tracking)
+// ────────────────────────────────────────────────────────────────────────────
+function SponsorSlot({ placement = 'sidebar' }) {
+  const { user } = useAuth()
+  const [sponsor, setSponsor] = useState(null)
+  const [profileState, setProfileState] = useState(null)
+
+  // Carrega estado do user pra targeting (se logado)
+  useEffect(() => {
+    if (!user) { setProfileState(null); return }
+    fetch('/api/profile?user_id=' + user.id)
+      .then(r => r.json())
+      .then(d => setProfileState(d.profile?.state || null))
+      .catch(() => {})
+  }, [user])
+
+  useEffect(() => {
+    const qs = new URLSearchParams({ placement })
+    if (profileState) qs.set('state', profileState)
+    fetch('/api/sponsors?' + qs.toString())
+      .then(r => r.json())
+      .then(d => setSponsor(d.picked || null))
+      .catch(() => setSponsor(null))
+  }, [placement, profileState])
+
+  // Track impression (1x quando montar com sponsor resolvido)
+  useEffect(() => {
+    if (!sponsor) return
+    const img = new Image()
+    const params = new URLSearchParams({ id: sponsor.id, type: 'impression', placement })
+    if (user?.id) params.set('user_id', user.id)
+    img.src = '/api/sponsors?action=track&' + params.toString()
+  }, [sponsor, placement, user])
+
+  if (!sponsor) return null
+
+  const clickUrl = '/go/sponsor/' + sponsor.id + '?placement=' + placement + (user?.id ? '&user_id=' + user.id : '')
+
+  return (
+    <a href={clickUrl} target="_blank" rel="noopener sponsored" style={{
+      background: C.white, border: '1px solid ' + C.line, borderRadius: 12,
+      padding: '14px 16px', textDecoration: 'none', color: C.ink, display: 'block',
+      fontFamily: FONT.sans,
+    }}>
+      <div style={{
+        fontSize: 10, fontWeight: 700, color: C.inkMuted,
+        textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8,
+      }}>Patrocinado</div>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+        {sponsor.logo_url && (
+          <img src={sponsor.logo_url} alt="" style={{
+            width: 40, height: 40, borderRadius: 8, objectFit: 'cover', flexShrink: 0,
+          }} />
+        )}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{
+            fontFamily: FONT.serif, fontSize: 15, fontWeight: 600, color: C.ink,
+            lineHeight: 1.25, marginBottom: 2,
+          }}>{sponsor.name}</div>
+          {sponsor.blurb && (
+            <div style={{
+              fontSize: 11, color: C.inkSoft, lineHeight: 1.4,
+              display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
+            }}>{sponsor.blurb}</div>
+          )}
+        </div>
+      </div>
+      <div style={{
+        fontSize: 11, fontWeight: 600, color: C.green, marginTop: 8,
+      }}>{sponsor.cta_label || 'Saiba mais'} →</div>
+    </a>
+  )
+}
+
 function RightSidebar({ rate, setTab, upcomingEvents }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, position: 'sticky', top: 80, alignSelf: 'start' }}>
@@ -432,6 +507,8 @@ function RightSidebar({ rate, setTab, upcomingEvents }) {
           })
         )}
       </div>
+
+      <SponsorSlot placement="sidebar" />
 
       <div style={{
         background: C.greenSoft, border: '1px solid ' + C.green, borderRadius: 12, padding: '14px 16px',
