@@ -50,9 +50,7 @@
     function renderForm() {
       root.innerHTML = `
         <main><div class="container-narrow" style="padding-top:64px; padding-bottom:64px;">
-          <div style="text-align:center;">
-            <img src="/img/logo.svg" alt="BrasilConnect" style="height:48px;" />
-          </div>
+          <div class="bc-logo" style="text-align:center; font-size:28px;">Brasil<em>Connect</em></div>
           <h1 style="font-family:var(--font-display); text-align:center; margin-top:32px;">Como foi sua experiência com ${escapeHtml(info.provider_name)}?</h1>
           <p class="muted" style="text-align:center;">Sua avaliação ajuda outras brasileiras a encontrar bons profissionais.</p>
           <div class="star-row" id="stars">
