@@ -701,7 +701,7 @@ function HomeView({ onCreateClick, onJoinClick, config, setToast, memberships, o
         }}>
           <div style={{ fontSize: 22, marginBottom: 4 }}>➕</div>
           <div style={{ fontSize: 16, fontWeight: 800 }}>Criar meu bolão</div>
-          <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>Você é o admin · escolhe a premiação</div>
+          <div style={{ fontSize: 12, opacity: 0.9, marginTop: 2 }}>Você é o admin · define o combinado</div>
         </button>
 
         <button onClick={onJoinClick} style={{
@@ -735,7 +735,7 @@ function HomeView({ onCreateClick, onJoinClick, config, setToast, memberships, o
           ['🎯', 'Placar exato: 3 pontos'],
           ['✅', 'Acertou só o vencedor (ou empate): 1 ponto'],
           ['🏆', '3 rankings: seu grupo, seu estado e nacional (USA)'],
-          ['🎁', 'Cada admin define a premiação do próprio grupo'],
+          ['🎁', 'Cada admin define o combinado do próprio grupo'],
           ['⏰', 'Prazo: até 1 dia antes da Copa começar'],
         ].map(([icon, text]) => (
           <div key={text} style={{ display: 'flex', gap: 8, marginBottom: 4, alignItems: 'flex-start' }}>
@@ -805,7 +805,7 @@ function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
       </button>
       <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Criar bolão ⚽</div>
       <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16 }}>
-        Você vira o admin: define a premiação e recebe um código de convite.
+        Você vira o admin: define o combinado e recebe um código de convite.
       </div>
       {prefill && (
         <div style={{
@@ -980,7 +980,7 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//   View: Premiação (modal/edit)
+//   View: Combinado do grupo (modal/edit) — antiga "Premiação"
 // ════════════════════════════════════════════════════════════════════════════
 // Limites sincronizados com backend (api/bolao.js update-prize). Trocar nos
 // dois lugares juntos — divergencia causa truncamento silencioso no servidor.
@@ -1024,7 +1024,7 @@ function PrizeEditor({ group, onClose, onSaved, setToast, adminEmail }) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
-      setToast({ msg: 'Premiação salva!', type: 'success' })
+      setToast({ msg: 'Combinado salvo!', type: 'success' })
       onSaved(data.prize)
       onClose()
     } catch (e) {
@@ -1036,11 +1036,14 @@ function PrizeEditor({ group, onClose, onSaved, setToast, adminEmail }) {
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'flex-end' }} onClick={onClose}>
       <div style={{ background: '#fff', borderRadius: '20px 20px 0 0', padding: '24px 20px 32px', width: '100%', maxWidth: 480, margin: '0 auto', maxHeight: '90vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
         <div style={{ width: 36, height: 4, background: '#e5e7eb', borderRadius: 4, margin: '0 auto 16px' }} />
-        <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>🏆 Editar Premiação</div>
-        <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 16 }}>Visível para todos os membros do grupo</div>
+        <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 4 }}>📋 Editar combinado do grupo</div>
+        <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Visível para todos os membros do grupo</div>
+        <div style={{ fontSize: 11, color: '#92400E', background: '#FEF3C7', padding: '6px 10px', borderRadius: 6, marginBottom: 16, lineHeight: 1.5 }}>
+          O combinado é entre os membros — a BrasilConnect não recebe nem repassa dinheiro. Sugerimos prêmios simbólicos (pizza, cerveja, troféu).
+        </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div>
-            <Input label="Título da premiação" value={title} onChange={e => setTitle(e.target.value)}
+            <Input label="Título do combinado" value={title} onChange={e => setTitle(e.target.value)}
               placeholder="Ex: Pizza pro vencedor!" maxLength={PRIZE_LIMITS.title} />
             <CharCounter value={title} max={PRIZE_LIMITS.title} />
           </div>
@@ -1048,7 +1051,7 @@ function PrizeEditor({ group, onClose, onSaved, setToast, adminEmail }) {
             <label style={{ fontSize: 13, fontWeight: 500, color: '#374151', display: 'block', marginBottom: 6 }}>Descrição / regras</label>
             <textarea value={desc} onChange={e => setDesc(e.target.value)} rows={5}
               maxLength={PRIZE_LIMITS.description}
-              placeholder="Ex: Quem fizer mais pontos ganha uma pizza família e uma cerveja. Em caso de empate, o desempate é pela quantidade de placares exatos. Premio entregue até 1 semana após a final."
+              placeholder="Ex: Quem fizer mais pontos ganha uma pizza família. Em caso de empate, o desempate é pela quantidade de placares exatos. Combinado entregue até 1 semana após a final."
               style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e5e7eb', fontSize: 14, outline: 'none', background: '#fff', boxSizing: 'border-box', fontFamily: 'inherit', resize: 'vertical', minHeight: 90 }}
             />
             <CharCounter value={desc} max={PRIZE_LIMITS.description} />
@@ -1075,7 +1078,7 @@ function PrizeEditor({ group, onClose, onSaved, setToast, adminEmail }) {
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
             <Btn outline color="#6b7280" onClick={onClose} type="button" style={{ flex: 1 }}>Cancelar</Btn>
-            <Btn onClick={handleSave} disabled={saving} type="button" style={{ flex: 2 }}>{saving ? 'Salvando…' : 'Salvar premiação'}</Btn>
+            <Btn onClick={handleSave} disabled={saving} type="button" style={{ flex: 2 }}>{saving ? 'Salvando…' : 'Salvar combinado'}</Btn>
           </div>
         </div>
       </div>
@@ -1185,18 +1188,7 @@ function CrossSellPanel() {
       <div style={{ fontSize: 11, fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>
         BrasilConnect também tem
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <a href={'/go/wise' + utm + '&utm_campaign=cross_sell'} target="_blank" rel="noopener noreferrer" style={{
-          display: 'block', padding: '12px 14px', background: '#fff',
-          border: '1px solid #e5e7eb', borderRadius: 12, textDecoration: 'none',
-        }}>
-          <div style={{ fontSize: 18, marginBottom: 2 }}>💸</div>
-          <div style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 17, fontWeight: 700, color: GREEN, lineHeight: 1, marginBottom: 2 }}>
-            {rate ? 'R$' + rate.toFixed(2) : '...'}
-          </div>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#374151' }}>Mandar dinheiro</div>
-          <div style={{ fontSize: 10, color: '#9ca3af' }}>USD → BRL · Wise, Remitly</div>
-        </a>
+      <div>
         <a href={'/app/voos' + utm} style={{
           display: 'block', padding: '12px 14px', background: '#fff',
           border: '1px solid #e5e7eb', borderRadius: 12, textDecoration: 'none',
@@ -1432,9 +1424,9 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, onSwit
 
       <div style={{ background: hasPrize ? '#FFFBEB' : '#F9FAFB', border: '1.5px solid ' + (hasPrize ? GOLD : '#e5e7eb'), borderRadius: 12, padding: '14px 16px', marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-          <div style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }}>🏆</div>
+          <div style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }}>📋</div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#92400E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Premiação</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#92400E', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Combinado do grupo</div>
             {hasPrize ? (
               <>
                 {group.prize_title && <div style={{ fontSize: 16, fontWeight: 800, color: '#78350F', marginBottom: 4 }}>{group.prize_title}</div>}
@@ -1449,14 +1441,14 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, onSwit
               </>
             ) : (
               <div style={{ fontSize: 13, color: '#6b7280', fontStyle: 'italic' }}>
-                {isAdmin ? 'Defina a premiação do seu grupo abaixo 👇' : 'Aguardando o admin definir a premiação…'}
+                {isAdmin ? 'Defina o combinado do seu grupo abaixo 👇' : 'Aguardando o admin definir o combinado…'}
               </div>
             )}
           </div>
         </div>
         {isAdmin && (
           <button onClick={() => setEditPrize(true)} style={{ marginTop: 10, width: '100%', background: 'transparent', border: '1px solid ' + GOLD, color: '#8C6D3D', borderRadius: 8, padding: '8px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-            ✏️ {hasPrize ? 'Editar premiação' : 'Definir premiação'}
+            ✏️ {hasPrize ? 'Editar combinado' : 'Definir combinado'}
           </button>
         )}
       </div>
