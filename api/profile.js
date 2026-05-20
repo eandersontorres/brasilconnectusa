@@ -188,6 +188,30 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, profile: data })
     }
 
+    // ══════════ POST: accept-bolao-terms (paper trail legal) ══════════════
+    if (req.method === 'POST' && action === 'accept-bolao-terms') {
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const user_id = auth.user.id
+
+      const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || null
+      const ua = req.headers['user-agent'] || null
+
+      const { data, error } = await supabase
+        .from('bc_profiles')
+        .upsert({
+          user_id,
+          bolao_terms_accepted_at: new Date().toISOString(),
+          bolao_terms_accepted_ip: ip,
+          bolao_terms_accepted_ua: ua,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: 'user_id' })
+        .select()
+        .single()
+      if (error) throw error
+      return res.status(200).json({ success: true, profile: data })
+    }
+
     // ══════════ POST: accept-guidelines ════════════════════════════════════
     if (req.method === 'POST' && action === 'accept-guidelines') {
       const auth = await requireAuthOnly(req, supabase)

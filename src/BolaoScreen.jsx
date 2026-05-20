@@ -1730,6 +1730,9 @@ function StandingsView({ group, member, onBack, setToast }) {
 // ════════════════════════════════════════════════════════════════════════════
 //   APP PRINCIPAL
 // ════════════════════════════════════════════════════════════════════════════
+// Estados onde o Bolão é bloqueado por regulação local (gambling laws estritas)
+const BOLAO_BLOCKED_STATES = new Set(['HI', 'UT', 'WA'])
+
 export default function BolaoScreen() {
   // Lê ?join=ABC123 da URL — convite via /bolao/<código> joga aqui
   const initialJoinCode = (() => {
@@ -1749,6 +1752,32 @@ export default function BolaoScreen() {
   const [memberships, setMemberships] = useState(() => loadMemberships())
   const { user: authUser } = useAuth()
   const [lastSyncedUserId, setLastSyncedUserId] = useState(null)
+  const [profile, setProfile] = useState(null)
+  const [profileLoaded, setProfileLoaded] = useState(false)
+  const [acceptingTerms, setAcceptingTerms] = useState(false)
+
+  // Carrega profile pra checar state + aceite dos termos
+  useEffect(() => {
+    if (!authUser?.id) { setProfile(null); setProfileLoaded(true); return }
+    apiFetch('/api/profile').then(r => r.json()).then(d => {
+      setProfile(d.profile || {})
+      setProfileLoaded(true)
+    }).catch(() => { setProfile({}); setProfileLoaded(true) })
+  }, [authUser?.id])
+
+  async function handleAcceptTerms() {
+    setAcceptingTerms(true)
+    try {
+      const r = await apiFetch('/api/profile?action=accept-bolao-terms', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+      if (!r.ok) throw new Error()
+      const d = await r.json()
+      setProfile(d.profile || profile)
+    } catch (e) {
+      setToast({ msg: 'Erro ao registrar aceite. Tenta de novo.', type: 'error' })
+    } finally {
+      setAcceptingTerms(false)
+    }
+  }
 
   // Prefill do CreateGroupView quando user esta logado:
   //  - email vem do Supabase user (lockado — admin_email tem que casar)
@@ -1866,8 +1895,21 @@ export default function BolaoScreen() {
     setGroup(null); setMember(null); setView('home')
   }
 
+  // ─── Gate legal: bloqueio por estado + aceite dos termos ────────────────
+  // Só aplica pra usuario logado e profile carregado (anonimos veem o bolao
+  // normalmente — o aceite vem quando entram pra criar/joinar).
+  if (authUser && profileLoaded) {
+    if (profile?.state && BOLAO_BLOCKED_STATES.has(profile.state)) {
+      return <BolaoBlockedView state={profile.state} />
+    }
+    if (!profile?.bolao_terms_accepted_at) {
+      return <BolaoConsentView profile={profile} loading={acceptingTerms} onAccept={handleAcceptTerms} authUser={authUser} />
+    }
+  }
+
   return (
     <div style={{ padding: '0 0 16px' }}>
+      <BolaoLegalBanner />
       {toast && <Toast msg={toast.msg} type={toast.type} onClose={() => setToast(null)} />}
       {view === 'home'      && <HomeView onCreateClick={() => setView('create')} onJoinClick={() => setView('join')} config={config} setToast={setToast} memberships={memberships} onPickMembership={handlePickMembership} />}
       {view === 'create'    && <CreateGroupView onBack={() => setView('home')} onCreated={handleCreated} setToast={setToast} prefill={createPrefill} />}
@@ -1876,6 +1918,122 @@ export default function BolaoScreen() {
       {view === 'group'     && <GroupDashboard group={group} member={member} onPredict={() => setView('predict')} onStandings={() => setView('standings')} onLeave={handleLeave} onSwitch={handleSwitch} setToast={setToast} refreshGroup={refreshGroup} deadline={config?.predictions_deadline} />}
       {view === 'predict'   && <PredictionsView member={member} onBack={() => setView('group')} setToast={setToast} deadline={config?.predictions_deadline} />}
       {view === 'standings' && <StandingsView group={group} member={member} onBack={() => setView('group')} setToast={setToast} />}
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//   Componentes de compliance legal
+// ════════════════════════════════════════════════════════════════════════════
+
+function BolaoLegalBanner() {
+  return (
+    <div style={{
+      background: '#FEF3C7', border: '1px solid #FBBF24', borderRadius: 8,
+      padding: '8px 12px', marginBottom: 12, fontSize: 11, color: '#78350F',
+      display: 'flex', alignItems: 'center', gap: 8, lineHeight: 1.4,
+    }}>
+      <span style={{ fontSize: 14 }}>🎯</span>
+      <span style={{ flex: 1 }}>
+        Bolão grátis de habilidade (predição). Não é casino. Plataforma não aceita apostas nem repassa dinheiro. <a href="/termos#bolao" target="_blank" style={{ color: '#78350F', textDecoration: 'underline', fontWeight: 600 }}>Saiba mais →</a>
+      </span>
+    </div>
+  )
+}
+
+function BolaoBlockedView({ state }) {
+  const STATE_NAMES = { HI: 'Hawaii', UT: 'Utah', WA: 'Washington' }
+  return (
+    <div style={{
+      background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12,
+      padding: 40, textAlign: 'center', maxWidth: 480, margin: '32px auto',
+      fontFamily: "'Sora', -apple-system, sans-serif",
+    }}>
+      <div style={{ fontSize: 48, marginBottom: 12 }}>🚫</div>
+      <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 24, fontWeight: 600, margin: '0 0 12px', color: '#1a1a1a' }}>
+        Bolão indisponível no seu estado
+      </h2>
+      <p style={{ fontSize: 14, color: '#4B5563', lineHeight: 1.6, margin: '0 0 18px' }}>
+        Por regulação local de <b>{STATE_NAMES[state] || state}</b>, o BrasilConnect não oferece o Bolão pra residentes desse estado.
+      </p>
+      <p style={{ fontSize: 12, color: '#9CA3AF', lineHeight: 1.6, margin: '0 0 24px' }}>
+        Você ainda pode usar todos os outros recursos do app — Feed, Comunidades, Marketplace, Câmbio, Voos e Negócios.
+      </p>
+      <a href="/app/feed" style={{
+        display: 'inline-block', background: '#009C3B', color: '#fff',
+        padding: '10px 22px', borderRadius: 8, fontSize: 13, fontWeight: 700,
+        textDecoration: 'none',
+      }}>← Voltar pro Feed</a>
+    </div>
+  )
+}
+
+function BolaoConsentView({ profile, loading, onAccept, authUser }) {
+  const [checked, setChecked] = useState(false)
+  const stateMissing = !profile?.state
+  return (
+    <div style={{
+      background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12,
+      padding: 28, maxWidth: 560, margin: '24px auto',
+      fontFamily: "'Sora', -apple-system, sans-serif",
+    }}>
+      <div style={{
+        fontSize: 11, fontWeight: 700, color: '#92400E',
+        textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8,
+      }}>Antes de começar</div>
+      <h2 style={{
+        fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 26, fontWeight: 600,
+        margin: '0 0 16px', color: '#1a1a1a', lineHeight: 1.2,
+      }}>Termos do Bolão BrasilConnect</h2>
+
+      <ul style={{ paddingLeft: 18, margin: '0 0 18px', color: '#374151', fontSize: 14, lineHeight: 1.7 }}>
+        <li>O Bolão é um <b>jogo de habilidade</b> (predição esportiva) <b>gratuito</b>.</li>
+        <li>A BrasilConnect <b>não aceita apostas nem repassa dinheiro</b>. Qualquer prêmio é combinação entre você e os outros participantes do seu grupo.</li>
+        <li>Indisponível pra residentes de <b>Hawaii, Utah e Washington</b> (regulação local).</li>
+        <li>Você confirma ter <b>18 anos ou mais</b>.</li>
+        <li>Você é responsável por cumprir as leis do seu estado.</li>
+        <li>Se sentir que tem problema com jogo, ligue <a href="tel:1-800-426-2537" style={{ color: '#009C3B', fontWeight: 600 }}>1-800-GAMBLER</a>.</li>
+      </ul>
+
+      {stateMissing && (
+        <div style={{
+          background: '#FEF3C7', border: '1px solid #FBBF24', borderRadius: 8,
+          padding: '10px 12px', marginBottom: 16, fontSize: 12, color: '#78350F',
+        }}>
+          ⚠️ Você ainda não definiu seu estado. <a href="/app/settings" style={{ color: '#78350F', textDecoration: 'underline', fontWeight: 600 }}>Configure em Settings</a> antes de continuar.
+        </div>
+      )}
+
+      <label style={{
+        display: 'flex', alignItems: 'flex-start', gap: 10,
+        padding: 12, background: '#F0FDF4', border: '1px solid #BBF7D0',
+        borderRadius: 8, cursor: 'pointer', marginBottom: 16,
+      }}>
+        <input type="checkbox" checked={checked} onChange={e => setChecked(e.target.checked)}
+          style={{ marginTop: 2, accentColor: '#009C3B' }} />
+        <span style={{ fontSize: 13, color: '#1a1a1a', lineHeight: 1.5 }}>
+          Confirmo que tenho <b>18 anos ou mais</b>, li os termos acima e concordo. Entendo que a BrasilConnect não repassa dinheiro nem cobra comissão.
+        </span>
+      </label>
+
+      <div style={{ display: 'flex', gap: 10 }}>
+        <button onClick={onAccept} disabled={!checked || loading || stateMissing} style={{
+          flex: 1, background: '#009C3B', color: '#fff', border: 'none',
+          padding: '12px 20px', borderRadius: 8, fontSize: 14, fontWeight: 700,
+          cursor: (!checked || loading || stateMissing) ? 'not-allowed' : 'pointer',
+          fontFamily: 'inherit', opacity: (!checked || loading || stateMissing) ? 0.5 : 1,
+        }}>{loading ? 'Salvando…' : 'Continuar pro Bolão →'}</button>
+      </div>
+
+      <div style={{ marginTop: 14, fontSize: 11, color: '#9CA3AF', textAlign: 'center' }}>
+        <a href="/termos#bolao" target="_blank" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>
+          Termos completos
+        </a>
+        {' · '}
+        <a href="/privacidade" target="_blank" style={{ color: '#9CA3AF', textDecoration: 'underline' }}>
+          Política de privacidade
+        </a>
+      </div>
     </div>
   )
 }
