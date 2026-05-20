@@ -236,18 +236,17 @@ const FLIGHT_DESTINATIONS = [
 function resolveAirport(input, list) {
   if (!input) return ''
   const txt = String(input).trim()
-  // Se ja parece um codigo IATA puro
+  // Codigo IATA puro (3 letras) — aceita qualquer aeroporto, nao apenas
+  // os da lista de sugestoes. Permite buscar destinos arbitrarios (ex: CDG, NRT).
   if (/^[A-Za-z]{3}$/.test(txt)) {
-    const upper = txt.toUpperCase()
-    return list.some(a => a.code === upper) ? upper : ''
+    return txt.toUpperCase()
   }
-  // Tenta extrair codigo entre parenteses: "Miami (MIA)"
-  const parens = txt.match(/\(([A-Za-z]{3})\)/)
+  // Codigo entre parenteses: "Paris (CDG)" — tambem aceita qualquer IATA
+  const parens = txt.match(/\(([A-Za-z]{3})\)\s*$/)
   if (parens) {
-    const upper = parens[1].toUpperCase()
-    if (list.some(a => a.code === upper)) return upper
+    return parens[1].toUpperCase()
   }
-  // Match por nome de cidade (case-insensitive, comeca com)
+  // Match por nome de cidade na lista de sugestoes (case-insensitive)
   const lower = txt.toLowerCase()
   const exact = list.find(a => a.city.toLowerCase() === lower)
   if (exact) return exact.code
@@ -1000,11 +999,11 @@ function VoosScreen({ affiliateLinks }) {
     e.preventDefault()
     if (!departDate) return
     if (!origin) {
-      setToast({ msg: 'Aeroporto de origem inválido. Escolha da lista.', type: 'error' })
+      setToast({ msg: 'Origem inválida. Use código IATA (ex: MIA) ou escolha da lista.', type: 'error' })
       return
     }
     if (!destination) {
-      setToast({ msg: 'Aeroporto de destino inválido. Escolha da lista.', type: 'error' })
+      setToast({ msg: 'Destino inválido. Use código IATA (ex: GRU) ou escolha da lista.', type: 'error' })
       return
     }
     setLoading(true)
@@ -1058,8 +1057,8 @@ function VoosScreen({ affiliateLinks }) {
         background: 'linear-gradient(135deg, #1e3a5f 0%, #0f2340 100%)',
         borderRadius: 14, padding: '20px 18px', marginBottom: 20, color: '#fff',
       }}>
-        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>✈️ Voos para o Brasil</div>
-        <div style={{ fontSize: 13, opacity: 0.85 }}>Encontre as melhores tarifas de volta pro Brasil</div>
+        <div style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>✈️ Voos</div>
+        <div style={{ fontSize: 13, opacity: 0.85 }}>Pesquise qualquer rota — Brasil, EUA ou outros destinos. Comparamos as melhores tarifas.</div>
       </div>
 
       <form onSubmit={handleSearch} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -1083,7 +1082,7 @@ function VoosScreen({ affiliateLinks }) {
               list="dl-origins"
               value={originText}
               onChange={e => setOriginText(e.target.value)}
-              placeholder="Cidade ou código (ex: MIA)"
+              placeholder="Código IATA ou cidade (ex: MIA, JFK, CDG)"
               autoComplete="off"
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 9,
@@ -1101,7 +1100,7 @@ function VoosScreen({ affiliateLinks }) {
               list="dl-destinations"
               value={destinationText}
               onChange={e => setDestinationText(e.target.value)}
-              placeholder="Cidade ou código (ex: GRU)"
+              placeholder="Código IATA ou cidade (ex: GRU, GIG, LIS)"
               autoComplete="off"
               style={{
                 width: '100%', padding: '10px 12px', borderRadius: 9,
