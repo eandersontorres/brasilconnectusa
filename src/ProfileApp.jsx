@@ -24,10 +24,10 @@ const COLORS = ['#009c3b','#1B2845','#B89968','#8C6D3D','#7C3F3F','#3F5F7C','#4A
 export default function ProfileApp() {
   const [tab, setTab] = useState('perfil')
   const [profile, setProfile] = useState({
-    full_name:'Anderson Torres', display_name:'Anderson T.',
+    full_name:'', display_name:'',
     bio:'Brasileiro em Round Rock TX há 4 anos. Tech & viagem.',
     city:'Round Rock', state:'TX', whatsapp:'', instagram:'',
-    avatar_color:'#009c3b', email:'eanderson.torres@gmail.com',
+    avatar_color:'#009c3b', email:'',
   })
   const [privacy, setPrivacy] = useState(Object.fromEntries(PRIVACY_FIELDS.map(f => [f.key, f.default])))
   const [saving, setSaving] = useState(false)

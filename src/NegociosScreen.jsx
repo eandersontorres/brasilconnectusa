@@ -4,36 +4,9 @@ import { useState } from 'react'
 
 const CATEGORIES = ['Todos', 'Restaurante', 'Mercado', 'Salão & Beleza', 'Serviços', 'Saúde']
 
-const BUSINESSES = [
-  {
-    id: 1,
-    name: 'TorresBee Brazilian Cafe & Restaurant',
-    short_name: 'TorresBee',
-    category: 'Restaurante',
-    short_desc: 'Sabores autênticos do Brasil com ingredientes importados diretamente do Brasil. Picanha, pizzas, coxinha e muito mais.',
-    address: '1901 Town Centre Dr, Ste 150',
-    city: 'Round Rock',
-    state: 'TX',
-    zip: '78664',
-    phone: '(512) 987-2578',
-    website: 'https://www.torresbeebrazil.com',
-    doordash: 'https://www.doordash.com/en/store/torresbee-brazilian-cafe-&-restaurant-round-rock-29864021/',
-    ubereats: 'https://www.ubereats.com/store/torresbee-brazilian-cafe-&-restaurant/jgk0XjAeSHyCcubTazo8Bw',
-    hours: [
-      { day: 'Segunda', time: 'Fechado' },
-      { day: 'Terça–Quinta', time: '11h–21h' },
-      { day: 'Sexta–Sábado', time: '11h–22h' },
-      { day: 'Domingo', time: '11h–21h' },
-    ],
-    plan: 'pro',
-    tags: ['Picanha', 'Pizza', 'Coxinha', 'Churrasco', 'Sobremesas', 'Delivery'],
-    rating: 4.5,
-    reviews: 71,
-    featured: true,
-    emoji: '🐝',
-    color: '#f59e0b',
-  },
-]
+// NOTA: dados reais foram removidos pre-lancamento. Esta tela e legacy/dead code —
+// a versao ao vivo usa /api/businesses/list que busca do Supabase.
+const BUSINESSES = []
 
 const PLANS = [
   {

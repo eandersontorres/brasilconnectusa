@@ -818,7 +818,7 @@ function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
         </div>
       )}
       <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        <Input label="Nome do bolão" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Bolão da TorresBee" required />
+        <Input label="Nome do bolão" type="text" value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Bolão dos amigos" required />
         <Input label="Seu nome completo" type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="João Silva" required />
         <Input label="Seu e-mail" type="email" value={email}
           onChange={e => emailLocked ? null : setEmail(e.target.value)}
