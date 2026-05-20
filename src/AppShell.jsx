@@ -598,19 +598,14 @@ export default function AppShell({ tab, setTab, children }) {
   useEffect(() => {
     if (!user) { setMyCommunities([]); setShowOnboarding(false); return }
 
-    // Respeita snooze de 7 dias (user pulou onboarding)
-    let snoozed = false
-    try {
-      const until = localStorage.getItem('onboarding_snoozed_until')
-      if (until && Date.now() < parseInt(until, 10)) snoozed = true
-    } catch (_) {}
+    // Onboarding e bloqueante: enquanto needs_onboarding=true, modal aparece sempre.
+    // Limpa snooze legado caso exista no localStorage de usuarios antigos.
+    try { localStorage.removeItem('onboarding_snoozed_until') } catch (_) {}
 
-    if (!snoozed) {
-      apiFetch('/api/profile?user_id=' + user.id)
-        .then(r => r.json())
-        .then(d => { if (d.needs_onboarding) setShowOnboarding(true) })
-        .catch(() => {})
-    }
+    apiFetch('/api/profile?user_id=' + user.id)
+      .then(r => r.json())
+      .then(d => { if (d.needs_onboarding) setShowOnboarding(true) })
+      .catch(e => console.error('[onboarding] falha ao checar profile:', e))
 
     apiFetch('/api/social?action=my-communities&user_id=' + user.id)
       .then(r => r.json())
@@ -620,22 +615,12 @@ export default function AppShell({ tab, setTab, children }) {
 
   function handleOnboardingComplete() {
     setShowOnboarding(false)
-    try { localStorage.removeItem('onboarding_snoozed_until') } catch (_) {}
     if (user) {
       apiFetch('/api/social?action=my-communities&user_id=' + user.id)
         .then(r => r.json())
         .then(d => setMyCommunities(d.communities || []))
         .catch(() => {})
     }
-  }
-
-  function handleOnboardingDismiss() {
-    // Pula por 7 dias — modal nao aparece de novo nesse navegador ate la
-    try {
-      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000
-      localStorage.setItem('onboarding_snoozed_until', String(Date.now() + sevenDaysMs))
-    } catch (_) {}
-    setShowOnboarding(false)
   }
 
   const baseStyle = {
@@ -657,7 +642,7 @@ export default function AppShell({ tab, setTab, children }) {
         <PostButton variant="fab" />
         <FeedbackButton />
         {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
-        {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} onDismiss={handleOnboardingDismiss} />}
+        {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
       </div>
     )
   }
@@ -686,7 +671,7 @@ export default function AppShell({ tab, setTab, children }) {
 
       <FeedbackButton />
       {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
-      {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} onDismiss={handleOnboardingDismiss} />}
+      {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
     </div>
   )
 }
