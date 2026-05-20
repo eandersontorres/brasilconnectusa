@@ -30,6 +30,28 @@ const SIcons = {
   settings: <svg {...ICP}><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
 }
 
+// Avatar circular pequeno por tipo de comunidade — usado no sidebar
+const COMMUNITY_TYPE_COLORS = {
+  general:  { bg: '#DBEAFE', fg: '#1E40AF' },
+  city:     { bg: '#FEF3C7', fg: '#92400E' },
+  state:    { bg: '#D1FAE5', fg: '#065F46' },
+  interest: { bg: '#EDE9FE', fg: '#5B21B6' },
+}
+function communityAvatar(c) {
+  const t = COMMUNITY_TYPE_COLORS[c.type] || { bg: '#F3F4F6', fg: '#374151' }
+  const icon = (c.icon || '').trim()
+  const initial = icon || (c.name || '?').trim().charAt(0).toUpperCase()
+  return (
+    <div style={{
+      width: 20, height: 20, borderRadius: '50%',
+      background: t.bg, color: t.fg,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: icon ? 12 : 10, fontWeight: 700,
+      lineHeight: 1, flexShrink: 0,
+    }}>{icon || initial}</div>
+  )
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 //   AppShell — layout responsivo (mobile bottom nav + desktop 3 colunas)
 // ────────────────────────────────────────────────────────────────────────────
@@ -321,7 +343,7 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
         <>
           {sectionTitle('Suas comunidades')}
           {myCommunities.slice(0, 8).map(c =>
-            item(false, c.icon || SIcons.hash, c.name, () => setTab('community', c.slug))
+            item(false, communityAvatar(c), c.name, () => setTab('community', c.slug))
           )}
         </>
       )}
