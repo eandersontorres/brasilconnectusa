@@ -11,6 +11,8 @@
  *   - set_role          { role }                                 → bc_profiles.role = role
  *   - update_profile    { patch: { field: value, ... } }         → bc_profiles update (whitelist abaixo)
  *   - update_auth_email { new_email }                            → auth.admin.updateUserById
+ *   - delete            { confirm_email }                        → HARD DELETE: apaga auth + profile + relacionados
+ *                                                                  Bloqueia se user tem negocios ativos (transferir antes)
  *
  * Headers: x-admin-secret
  */
@@ -113,6 +115,57 @@ export default async function handler(req, res) {
       const { data, error } = await supabase.from('bc_profiles').update(clean).eq('user_id', user_id).select().single()
       if (error) throw error
       return res.status(200).json({ success: true, action: 'update_profile', user_id, profile: data })
+    }
+
+    if (action === 'delete') {
+      const { confirm_email } = payload
+      if (!confirm_email) {
+        return res.status(400).json({ error: 'confirm_email obrigatorio (anti acidente)' })
+      }
+
+      // Safety check 1: confirm_email tem que bater com bc_profiles.email
+      const { data: prof } = await supabase.from('bc_profiles').select('email').eq('user_id', user_id).maybeSingle()
+      const profEmail = (prof?.email || '').toLowerCase()
+      const typed = String(confirm_email).trim().toLowerCase()
+      if (!profEmail || profEmail !== typed) {
+        return res.status(400).json({ error: 'confirm_email nao bate com profile (esperado: ' + (profEmail || 'sem profile') + ')' })
+      }
+
+      // Safety check 2: bloqueia se tem negocios — exige transferir/apagar antes
+      const { data: bizList } = await supabase.from('bc_businesses').select('id, name').eq('owner_user_id', user_id)
+      if (bizList && bizList.length > 0) {
+        return res.status(409).json({
+          error: 'Usuario tem ' + bizList.length + ' negocio(s) ativos. Transfira ou apague antes de deletar o user.',
+          businesses: bizList,
+        })
+      }
+
+      // Hard delete em ordem (filhas -> pais). Tabelas referenciadas em user-detail.js.
+      // Erros em tabelas opcionais sao logados mas nao bloqueiam (Promise.allSettled).
+      await Promise.allSettled([
+        supabase.from('bc_profile_checklist').delete().eq('user_id', user_id),
+        supabase.from('bc_banned_users').delete().eq('user_id', user_id),
+        supabase.from('bc_referral_codes').delete().eq('user_id', user_id),
+        supabase.from('bc_referral_uses').delete().or(`referrer_id.eq.${user_id},used_by.eq.${user_id}`),
+        supabase.from('bc_community_members').delete().eq('user_id', user_id),
+        supabase.from('bc_notifications').delete().eq('user_id', user_id),
+        supabase.from('bc_reports').delete().eq('reporter_id', user_id),
+        supabase.from('bc_comments').delete().eq('author_id', user_id),
+        supabase.from('bc_posts').delete().eq('author_id', user_id),
+        supabase.from('bc_orders').delete().eq('customer_user_id', user_id),
+        profEmail ? supabase.from('bc_drip_log').delete().eq('email', profEmail) : Promise.resolve(),
+        profEmail ? supabase.from('bc_waitlist').delete().eq('email', profEmail) : Promise.resolve(),
+      ])
+
+      // Apaga bc_profiles
+      const { error: profErr } = await supabase.from('bc_profiles').delete().eq('user_id', user_id)
+      if (profErr) throw profErr
+
+      // Por ultimo: auth.users (trigger nao roda em delete, sem chance de recriar profile)
+      const { error: authErr } = await supabase.auth.admin.deleteUser(user_id)
+      if (authErr) throw authErr
+
+      return res.status(200).json({ success: true, action: 'delete', user_id, email: profEmail })
     }
 
     if (action === 'update_auth_email') {

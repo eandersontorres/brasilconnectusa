@@ -1525,6 +1525,7 @@
           <button onclick="userAction('reset_onboarding')">Resetar onboarding</button>
           <button onclick="userAction('set_role')">Mudar role…</button>
           <button onclick="userAction('update_auth_email')">Mudar email…</button>
+          <button class="danger" onclick="userAction('delete')" style="margin-left:auto;">🗑 Deletar usuário</button>
         </div>
       `
 
@@ -1725,6 +1726,17 @@
         const new_email = prompt('Novo email (auth + profile):', _userState.current.profile?.email || '')
         if (!new_email) return
         payload.new_email = new_email.trim()
+      } else if (action === 'delete') {
+        const email = _userState.current.profile?.email || ''
+        if (!email) { alert('Sem email no profile — delete não suportado por este caminho.'); return }
+        const c1 = confirm(`Deletar PERMANENTEMENTE ${email}?\n\nApaga: profile, posts, comentários, comunidades, pedidos, notificações.\nBloqueia se tiver negócios ativos.\n\nIRREVERSÍVEL.`)
+        if (!c1) return
+        const typed = prompt(`Para confirmar, digite o email completo:\n${email}`)
+        if (!typed || typed.trim().toLowerCase() !== email.toLowerCase()) {
+          alert('Email não confere. Operação cancelada.')
+          return
+        }
+        payload.confirm_email = typed.trim()
       }
 
       const r = await fetch('/api/admin/user-action', {
@@ -1733,7 +1745,21 @@
         body: JSON.stringify(payload)
       })
       const d = await r.json()
-      if (!r.ok) { alert('Erro: ' + (d.error || '')); return }
+      if (!r.ok) {
+        // Erro de delete com businesses bloqueando: lista os nomes pra ajudar o admin
+        if (action === 'delete' && d.businesses?.length) {
+          alert('Erro: ' + d.error + '\n\nNegócios: ' + d.businesses.map(b => b.name).join(', '))
+        } else {
+          alert('Erro: ' + (d.error || ''))
+        }
+        return
+      }
+      if (action === 'delete') {
+        // Drawer não pode mais carregar (user não existe). Fecha e recarrega lista.
+        closeDrawer()
+        loadUsers(document.getElementById('tab-content'))
+        return
+      }
       openUserDetail(uid)
       loadUsers(document.getElementById('tab-content'))
     }
