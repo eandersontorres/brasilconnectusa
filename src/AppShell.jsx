@@ -69,9 +69,13 @@ const TABS = [
 //   Logo
 // ────────────────────────────────────────────────────────────────────────────
 function Logo({ size = 22 }) {
+  const iconSize = Math.round(size * 1.25)
   return (
     <a href="/?preview=brasil2026" style={{
       textDecoration: 'none',
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: 8,
       fontFamily: FONT.serif,
       fontSize: size,
       fontWeight: 600,
@@ -79,7 +83,11 @@ function Logo({ size = 22 }) {
       letterSpacing: '-0.01em',
       flexShrink: 0,
     }}>
-      Brasil<em style={{ color: C.gold, fontStyle: 'normal', fontWeight: 600 }}>Connect</em>
+      <img src="/favicon.svg" alt="" width={iconSize} height={iconSize}
+        style={{ borderRadius: Math.round(iconSize * 0.18), display: 'block' }} />
+      <span>
+        Brasil<em style={{ color: C.gold, fontStyle: 'normal', fontWeight: 600 }}>Connect</em>
+      </span>
     </a>
   )
 }
