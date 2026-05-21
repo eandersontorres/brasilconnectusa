@@ -64,6 +64,43 @@ function whatsappLink(contact, postTitle) {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+//   AuthorBadge — mini avatar + @username (ou "Anônimo")
+//   Usado nos PostCard pra exibir quem postou de forma compacta.
+// ────────────────────────────────────────────────────────────────────────────
+function AuthorBadge({ post }) {
+  if (post.is_anonymous) {
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: C.inkMuted, fontStyle: 'italic' }}>
+        <span style={{
+          width: 16, height: 16, borderRadius: '50%', background: C.inkLight,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 10, color: C.white,
+        }}>👤</span>
+        Anônimo
+      </span>
+    )
+  }
+  const a = post.author
+  if (!a || !a.username) return null
+  const initial = (a.display_name || a.username).charAt(0).toUpperCase()
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: C.inkSoft, fontWeight: 500 }}>
+      {a.avatar_url ? (
+        <img src={a.avatar_url} alt="" style={{ width: 16, height: 16, borderRadius: '50%', objectFit: 'cover' }} />
+      ) : (
+        <span style={{
+          width: 16, height: 16, borderRadius: '50%',
+          background: a.avatar_color || C.green, color: C.white,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+          fontSize: 10, fontWeight: 700,
+        }}>{initial}</span>
+      )}
+      @{a.username}
+    </span>
+  )
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 //   PostCard — exportado pra reuso em CommunityDetailScreen
 // ────────────────────────────────────────────────────────────────────────────
 export function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold }) {
@@ -124,6 +161,7 @@ export function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold 
         }}>
           {t.icon} {t.label}
         </span>
+        <AuthorBadge post={post} />
         {post.community && (
           <span style={{ color: C.inkSoft, fontWeight: 500 }}>
             {post.community.name}
@@ -245,6 +283,8 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
   // Campos específicos de event
   const [eventDate, setEventDate] = useState('')
   const [eventLocation, setEventLocation] = useState('')
+  // Privacidade
+  const [isAnonymous, setIsAnonymous] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
 
@@ -283,7 +323,7 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
     }
     setSubmitting(true); setError(null)
     try {
-      const payload = { user_id: user.id, community_id: communityId, type, title, body }
+      const payload = { user_id: user.id, community_id: communityId, type, title, body, is_anonymous: isAnonymous }
       if (type === 'classified') {
         payload.classified_price = classifiedPrice ? Number(classifiedPrice) : null
         payload.classified_kind = classifiedKind
@@ -458,6 +498,27 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
               </div>
             </div>
           )}
+
+          {/* Privacidade — postar como anônimo */}
+          <label style={{
+            display: 'flex', alignItems: 'flex-start', gap: 10,
+            padding: '10px 12px', borderRadius: 8,
+            background: isAnonymous ? '#FEF3C7' : C.paper,
+            border: '1px solid ' + (isAnonymous ? '#FCD34D' : C.line),
+            cursor: 'pointer', fontSize: 13, color: C.ink,
+          }}>
+            <input
+              type="checkbox" checked={isAnonymous}
+              onChange={e => setIsAnonymous(e.target.checked)}
+              style={{ marginTop: 2 }}
+            />
+            <span>
+              <b>Postar como anônimo</b>
+              <div style={{ fontSize: 11, color: C.inkMuted, marginTop: 2 }}>
+                Esconde seu @username pra outros usuários. Admins ainda veem quem postou (pra moderação).
+              </div>
+            </span>
+          </label>
 
           {error && (
             <div style={{ padding: '8px 12px', borderRadius: 6, background: '#FEE2E2', color: '#991B1B', fontSize: 12 }}>

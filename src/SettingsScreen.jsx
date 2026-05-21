@@ -66,7 +66,7 @@ export default function SettingsScreen({ onNavigate }) {
       }}>
         {/* CONTA */}
         <Row
-          icon={Icons.user} label="Conta" sub={profile?.full_name || profile?.display_name || user.email}
+          icon={Icons.user} label="Conta" sub={profile?.username ? '@' + profile.username : (profile?.full_name || user.email)}
           expanded={openPanel === 'conta'}
           onClick={() => setOpenPanel(openPanel === 'conta' ? null : 'conta')}
         />

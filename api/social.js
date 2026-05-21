@@ -48,6 +48,36 @@ function extractMentionUsernames(text) {
   return [...new Set(out)]
 }
 
+// Enriquece lista de items (post/comment) com info do autor pra exibicao publica.
+// Respeita is_anonymous: zera author_id e devolve author: null pra esconder.
+async function attachAuthors(supabase, items) {
+  if (!items?.length) return items
+  const ids = [...new Set(items.filter(i => !i.is_anonymous).map(i => i.author_id).filter(Boolean))]
+  if (!ids.length) {
+    return items.map(i => i.is_anonymous
+      ? { ...i, author_id: null, author: null }
+      : { ...i, author: null })
+  }
+  const { data: profiles } = await supabase
+    .from('bc_profiles')
+    .select('user_id, username, display_name, avatar_url, avatar_color')
+    .in('user_id', ids)
+  const map = new Map((profiles || []).map(p => [p.user_id, p]))
+  return items.map(i => {
+    if (i.is_anonymous) return { ...i, author_id: null, author: null }
+    const p = map.get(i.author_id)
+    return {
+      ...i,
+      author: p ? {
+        username: p.username || null,
+        display_name: p.display_name || null,
+        avatar_url: p.avatar_url || null,
+        avatar_color: p.avatar_color || null,
+      } : null,
+    }
+  })
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   const action = req.query?.action
@@ -82,7 +112,7 @@ export default async function handler(req, res) {
       if (ce || !community) return err(res, 404, 'Comunidade não encontrada')
 
       let pq = supabase.from('bc_posts')
-        .select('id, type, title, body, image_urls, event_date, event_location, event_rsvp_count, classified_price, classified_kind, classified_status, classified_contact, job_category, job_pay, upvotes, downvotes, comment_count, view_count, is_pinned, author_id, created_at')
+        .select('id, type, title, body, image_urls, event_date, event_location, event_rsvp_count, classified_price, classified_kind, classified_status, classified_contact, job_category, job_pay, upvotes, downvotes, comment_count, view_count, is_pinned, is_anonymous, author_id, created_at')
         .eq('community_id', community.id)
         .eq('is_deleted', false)
         .limit(Number(limit))
@@ -100,7 +130,8 @@ export default async function handler(req, res) {
       const { data: posts, error: pe } = await pq
       if (pe) throw pe
 
-      return res.status(200).json({ success: true, community, posts: posts || [] })
+      const postsWithAuthor = await attachAuthors(supabase, posts || [])
+      return res.status(200).json({ success: true, community, posts: postsWithAuthor })
     }
 
     // ══════════ GET: feed do user (comunidades que segue) ══════════════════
@@ -135,7 +166,7 @@ export default async function handler(req, res) {
 
       let feedQ = supabase
         .from('bc_posts')
-        .select('id, community_id, type, title, body, image_urls, event_date, event_location, classified_price, classified_kind, classified_status, classified_contact, job_category, upvotes, downvotes, comment_count, author_id, created_at')
+        .select('id, community_id, type, title, body, image_urls, event_date, event_location, classified_price, classified_kind, classified_status, classified_contact, job_category, upvotes, downvotes, comment_count, is_anonymous, author_id, created_at')
         .in('community_id', communityIds)
         .eq('is_deleted', false)
         .order('created_at', { ascending: false })
@@ -199,10 +230,11 @@ export default async function handler(req, res) {
       const enriched = (posts || [])
         .map(p => ({ ...p, community: cMap[p.community_id] || null }))
         .filter(p => communityMatches(p.community))
+      const enrichedWithAuthor = await attachAuthors(supabase, enriched)
 
       return res.status(200).json({
         success: true,
-        posts: enriched,
+        posts: enrichedWithAuthor,
         filter: {
           radius_miles: radius,
           has_location: userLat != null,
@@ -219,14 +251,16 @@ export default async function handler(req, res) {
 
       const { data: posts, error } = await supabase
         .from('bc_posts')
-        .select('id, type, title, body, upvotes, downvotes, comment_count, author_id, created_at')
+        .select('id, type, title, body, upvotes, downvotes, comment_count, is_anonymous, author_id, created_at')
         .eq('community_id', general.id)
         .eq('is_deleted', false)
         .order('created_at', { ascending: false })
         .limit(Number(limit))
       if (error) throw error
 
-      return res.status(200).json({ success: true, posts: (posts || []).map(p => ({ ...p, community: general })) })
+      const withCommunity = (posts || []).map(p => ({ ...p, community: general }))
+      const withAuthor = await attachAuthors(supabase, withCommunity)
+      return res.status(200).json({ success: true, posts: withAuthor })
     }
 
     // ══════════ GET: post + comentários ════════════════════════════════════
@@ -244,14 +278,18 @@ export default async function handler(req, res) {
 
       const { data: comments } = await supabase
         .from('bc_comments')
-        .select('id, parent_id, author_id, body, upvotes, downvotes, is_deleted, created_at')
+        .select('id, parent_id, author_id, body, upvotes, downvotes, is_deleted, is_anonymous, created_at')
         .eq('post_id', id)
         .order('created_at', { ascending: true })
 
       const { data: community } = await supabase
         .from('bc_communities').select('id, slug, name, icon').eq('id', post.community_id).single()
 
-      return res.status(200).json({ success: true, post, community, comments: comments || [] })
+      const commentsWithAuthor = await attachAuthors(supabase, comments || [])
+      // Esconde author_id do proprio post se for anonimo
+      const safePost = post.is_anonymous ? { ...post, author_id: null } : post
+      const postWithAuthor = (await attachAuthors(supabase, [safePost]))[0]
+      return res.status(200).json({ success: true, post: postWithAuthor, community, comments: commentsWithAuthor })
     }
 
     // ══════════ GET: minhas comunidades ════════════════════════════════════
@@ -601,6 +639,7 @@ export default async function handler(req, res) {
         title:        String(b.title).trim().slice(0, 200),
         body:         b.body ? String(b.body).slice(0, 5000) : null,
         image_urls:   Array.isArray(b.image_urls) ? b.image_urls.slice(0, 10) : null,
+        is_anonymous: b.is_anonymous === true,
       }
 
       // Campos específicos por tipo
@@ -647,7 +686,7 @@ export default async function handler(req, res) {
       const auth = await requireAuthOnly(req, supabase)
       if (!auth.ok) return err(res, auth.status, auth.error)
       const user_id = auth.user.id
-      const { post_id, parent_id, body } = req.body || {}
+      const { post_id, parent_id, body, is_anonymous } = req.body || {}
       if (!post_id || !body) return err(res, 400, 'post_id e body obrigatórios')
 
       // Verifica que o post não está locked nem deletado
@@ -657,7 +696,13 @@ export default async function handler(req, res) {
 
       const { data, error } = await supabase
         .from('bc_comments')
-        .insert({ post_id, parent_id: parent_id || null, author_id: user_id, body: String(body).slice(0, 3000) })
+        .insert({
+          post_id,
+          parent_id: parent_id || null,
+          author_id: user_id,
+          body: String(body).slice(0, 3000),
+          is_anonymous: is_anonymous === true,
+        })
         .select()
         .single()
       if (error) throw error
@@ -671,8 +716,11 @@ export default async function handler(req, res) {
 
         // 1. Pega autor do post + autor da resposta + autor do comentario novo
         const { data: postFull } = await supabase.from('bc_posts').select('author_id, title').eq('id', post_id).single()
-        const { data: commenter } = await supabase.from('bc_profiles').select('display_name, full_name').eq('user_id', user_id).maybeSingle()
-        const commenterName = commenter?.display_name || commenter?.full_name || 'Alguem'
+        const { data: commenter } = await supabase.from('bc_profiles').select('username, display_name, full_name').eq('user_id', user_id).maybeSingle()
+        // Padrao publico: @username > display_name > "Alguem". Nunca expor full_name em notif.
+        const commenterName = commenter?.username
+          ? '@' + commenter.username
+          : (commenter?.display_name || 'Alguem')
 
         // 2. Notif pro autor do post (se nao for o proprio comentando)
         if (postFull?.author_id && postFull.author_id !== user_id) {
