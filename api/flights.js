@@ -6,6 +6,11 @@
  * Docs: https://support.travelpayouts.com/hc/en-us/articles/203956163
  */
 
+// KAYAK so monta link real se a env nao for placeholder
+function isKayakConfigured(base) {
+  return base && /^https?:\/\//i.test(base) && !/placeholder/i.test(base)
+}
+
 // Gera deep link de busca para cada plataforma
 function buildFlightLinks(origin, destination, departDate, returnDate, marker, kayakBase) {
   const dep = departDate.slice(0, 7).replace('-', '') // YYYYMM
@@ -24,21 +29,17 @@ function buildFlightLinks(origin, destination, departDate, returnDate, marker, k
   }
 
   // Google Flights (sem afiliado, mas boa UX)
-  const gfl = `https://www.google.com/travel/flights/search?tfs=CBwQAhooEgoyMDI1LTA3LTE1agcIARIDQVVTagcIARIDR1JVGgoyMDI1LTA3LTMwKABAAUgBcAGCAQsI____________AZABAg`
-  // Gerar URL correta para Google Flights
-  const gDep = departDate
-  const gRet = returnDate || ''
   const googleUrl = returnDate
-    ? `https://www.google.com/travel/flights/search?q=Flights+${origin}+to+${destination}+${gDep}+${gRet}`
-    : `https://www.google.com/travel/flights/search?q=Flights+${origin}+to+${destination}+${gDep}`
-
+    ? `https://www.google.com/travel/flights/search?q=Flights+${origin}+to+${destination}+${departDate}+${returnDate}`
+    : `https://www.google.com/travel/flights/search?q=Flights+${origin}+to+${destination}+${departDate}`
   links.push({ provider: 'Google Flights', url: googleUrl })
 
-  // KAYAK
-  if (kayakBase) {
+  // KAYAK — pula se env nao foi configurada (evita URL quebrada com "placeholder")
+  if (isKayakConfigured(kayakBase)) {
+    const base = kayakBase.endsWith('/') ? kayakBase : kayakBase + '/'
     const kayakUrl = returnDate
-      ? `${kayakBase}flights/${origin}-${destination}/${departDate}/${returnDate}`
-      : `${kayakBase}flights/${origin}-${destination}/${departDate}`
+      ? `${base}flights/${origin}-${destination}/${departDate}/${returnDate}`
+      : `${base}flights/${origin}-${destination}/${departDate}`
     links.push({ provider: 'KAYAK', url: kayakUrl })
   }
 

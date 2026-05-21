@@ -210,13 +210,23 @@ export function lookupAirline(iata) {
 
 /**
  * Constrói deep link de busca pra cia + rota.
+ * Sempre retorna URL: se a cia tem deep_link proprio, usa ele;
+ * senao cai pra Google Flights filtrado pelo nome da cia (garante CTA clicavel).
  */
 export function buildAirlineDeepLink(iata, origin, destination, date, returnDate) {
   const airline = AIRLINE_BY_IATA[iata]
-  if (!airline?.deep_link) return null
-  return airline.deep_link
-    .replace('{origin}', origin)
-    .replace('{destination}', destination)
-    .replace('{date}', date)
-    .replace('{return_date}', returnDate || date)
+  if (airline?.deep_link) {
+    return airline.deep_link
+      .replace('{origin}', origin)
+      .replace('{destination}', destination)
+      .replace('{date}', date)
+      .replace('{return_date}', returnDate || date)
+  }
+  // Fallback generico: Google Flights com filtro por nome da cia.
+  // Cobre cias retornadas por Travelpayouts/Amadeus que ainda nao estao no registry.
+  const name = airline?.name || iata
+  const q = returnDate
+    ? `Flights ${name} ${origin} to ${destination} ${date} ${returnDate}`
+    : `Flights ${name} ${origin} to ${destination} ${date}`
+  return `https://www.google.com/travel/flights/search?q=${encodeURIComponent(q)}`
 }

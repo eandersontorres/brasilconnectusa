@@ -1036,12 +1036,23 @@ function VoosScreen({ affiliateLinks }) {
     }
   }
 
-  async function handleFlightClick(provider_id, link) {
+  // Normaliza nome do parceiro pra slug consistente no tracking.
+  // Ex: "LATAM" -> "latam", "Google Flights" -> "google_flights", "Açores" -> "acores".
+  function slugifyProvider(name) {
+    return String(name || 'unknown')
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      || 'unknown'
+  }
+
+  async function handleFlightClick(providerName, link) {
     try {
       await fetch('/api/track', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ provider: `flight_${provider_id}` }),
+        body: JSON.stringify({ provider: `flight_${slugifyProvider(providerName)}` }),
       })
     } catch (_) {}
     window.open(link, '_blank', 'noopener')
