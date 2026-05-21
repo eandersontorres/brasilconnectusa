@@ -57,6 +57,26 @@ function isValidEmail(s) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || '').trim())
 }
 
+// Valida + normaliza nickname do bolao.
+// Aceita 2 formatos:
+//   1. "@anderson_t" (handle do profile) — valida regex de username
+//   2. "Gremista42" (apelido livre) — 2-30 chars, sem caracteres HTML/control
+// Retorna a string normalizada (mantendo o @ se houver) ou null se invalido.
+function normalizeBolaoNickname(input) {
+  const raw = String(input || '').trim()
+  if (!raw) return null
+  if (raw.length > 30) return null
+  if (raw.startsWith('@')) {
+    const handle = raw.slice(1).toLowerCase()
+    if (!/^[a-z0-9_]{3,20}$/.test(handle)) return null
+    return '@' + handle
+  }
+  if (raw.length < 2) return null
+  // Bloqueia HTML/control chars (prevenir injection no ranking publico)
+  if (/[<>"&\x00-\x1f]/.test(raw)) return null
+  return raw
+}
+
 // Extrai o user do Supabase auth a partir do header Authorization: Bearer <jwt>.
 // Retorna null se nao tem token ou se token e invalido — operacao sem auth
 // continua funcionando (membro fica anonimo com user_id = NULL).
@@ -354,6 +374,11 @@ export default async function handler(req, res) {
     if (!isValidEmail(admin_email)) return res.status(400).json({ error: 'Email inválido' })
     if (!VALID_STATES.has(String(admin_state).toUpperCase())) return res.status(400).json({ error: 'Estado (USA) inválido' })
 
+    // Valida nickname (admin escolhe @username ou apelido livre).
+    // Se nao veio, fallback pro primeiro nome do full_name (compat com fluxo antigo).
+    const finalNick = normalizeBolaoNickname(admin_nickname) || normalizeBolaoNickname(String(admin_full_name).trim().split(' ')[0])
+    if (!finalNick) return res.status(400).json({ error: 'Apelido inválido (2-30 chars, ou @username válido)' })
+
     try {
       const supabase = getSupabase()
 
@@ -385,7 +410,7 @@ export default async function handler(req, res) {
         .from('bc_bolao_members')
         .insert({
           group_id: group.id,
-          nickname: String(admin_nickname || admin_full_name).trim().slice(0, 30),
+          nickname: finalNick,
           email: String(admin_email).toLowerCase().trim(),
           full_name: String(admin_full_name).trim(),
           state: String(admin_state).toUpperCase(),
@@ -425,6 +450,9 @@ export default async function handler(req, res) {
     if (!isValidEmail(email)) return res.status(400).json({ error: 'Email inválido' })
     if (!VALID_STATES.has(String(state).toUpperCase())) return res.status(400).json({ error: 'Estado (USA) inválido' })
 
+    const finalNick = normalizeBolaoNickname(nickname)
+    if (!finalNick) return res.status(400).json({ error: 'Apelido inválido (2-30 chars, ou @username válido)' })
+
     try {
       const supabase = getSupabase()
 
@@ -442,7 +470,7 @@ export default async function handler(req, res) {
         .from('bc_bolao_members')
         .select('id')
         .eq('group_id', group.id)
-        .eq('nickname', String(nickname).trim())
+        .eq('nickname', finalNick)
         .maybeSingle()
       if (existing) return res.status(409).json({ error: 'Este apelido já está em uso neste grupo' })
 
@@ -450,7 +478,7 @@ export default async function handler(req, res) {
         .from('bc_bolao_members')
         .insert({
           group_id: group.id,
-          nickname: String(nickname).trim().slice(0, 30),
+          nickname: finalNick,
           email: String(email).toLowerCase().trim(),
           full_name: String(full_name).trim(),
           state: String(state).toUpperCase(),

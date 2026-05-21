@@ -755,6 +755,77 @@ function HomeView({ onCreateClick, onJoinClick, config, setToast, memberships, o
 }
 
 // ════════════════════════════════════════════════════════════════════════════
+//   IdentityChoice — Compartilhado: escolher como aparecer no bolao
+//   Opcoes:
+//     - "username": usa @username (do profile) → ranking mostra @anderson_t
+//     - "custom": apelido livre por bolao    → ranking mostra "Gremista42"
+//   Se user nao tem username no profile, mostra so o custom.
+// ════════════════════════════════════════════════════════════════════════════
+function IdentityChoice({ profileUsername, nickname, setNickname, mode, setMode }) {
+  const hasUsername = !!profileUsername
+
+  return (
+    <div style={{ marginBottom: 12 }}>
+      <label style={{ fontSize: 12, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 6 }}>
+        Como você quer aparecer no ranking?
+      </label>
+
+      {hasUsername && (
+        <label style={{
+          display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px',
+          borderRadius: 8, marginBottom: 6, cursor: 'pointer', fontSize: 13,
+          background: mode === 'username' ? '#ECFDF5' : '#fff',
+          border: '1.5px solid ' + (mode === 'username' ? '#10B981' : '#E5E7EB'),
+        }}>
+          <input
+            type="radio" name="bolao-identity" checked={mode === 'username'}
+            onChange={() => { setMode('username'); setNickname('@' + profileUsername) }}
+            style={{ marginTop: 2 }}
+          />
+          <span>
+            <b>Meu @{profileUsername}</b>
+            <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>
+              Aparece nos posts e no ranking — fica consistente em toda a plataforma.
+            </div>
+          </span>
+        </label>
+      )}
+
+      <label style={{
+        display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 12px',
+        borderRadius: 8, cursor: 'pointer', fontSize: 13,
+        background: mode === 'custom' ? '#FEF3C7' : '#fff',
+        border: '1.5px solid ' + (mode === 'custom' ? '#F59E0B' : '#E5E7EB'),
+      }}>
+        <input
+          type="radio" name="bolao-identity" checked={mode === 'custom'}
+          onChange={() => { setMode('custom'); setNickname('') }}
+          style={{ marginTop: 2 }}
+        />
+        <span style={{ flex: 1 }}>
+          <b>Apelido personalizado pra esse bolão</b>
+          <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2, marginBottom: 6 }}>
+            Tipo "Gremista42" — só aparece nesse bolão, não revela seu @username.
+          </div>
+          {mode === 'custom' && (
+            <input
+              type="text" value={nickname} onChange={e => setNickname(e.target.value.slice(0, 30))}
+              placeholder="Ex: Gremista42" maxLength={30}
+              autoFocus
+              style={{
+                width: '100%', padding: '8px 10px', borderRadius: 6,
+                border: '1px solid #D1D5DB', fontSize: 13, outline: 'none',
+                background: '#fff', boxSizing: 'border-box',
+              }}
+            />
+          )}
+        </span>
+      </label>
+    </div>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 //   View: Criar Grupo (com cadastro completo)
 // ════════════════════════════════════════════════════════════════════════════
 function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
@@ -765,12 +836,23 @@ function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
   const [email, setEmail]     = useState(prefill?.email || '')
   const [state, setState]     = useState(prefill?.state || '')
   const [whatsapp, setWhatsapp] = useState(prefill?.whatsapp || '')
+  // Identidade no ranking: 'username' (default se tem profile) ou 'custom'
+  const [identityMode, setIdentityMode] = useState(prefill?.username ? 'username' : 'custom')
+  const [nickname, setNickname] = useState(prefill?.username ? '@' + prefill.username : '')
   const [loading, setLoading] = useState(false)
   const emailLocked = !!prefill?.locked_email
+
+  // Resolve nickname final: username escolhido vira "@user", custom vira o texto livre.
+  function resolvedNickname() {
+    if (identityMode === 'username' && prefill?.username) return '@' + prefill.username
+    return nickname.trim()
+  }
 
   async function handleCreate(e) {
     e.preventDefault()
     if (!name || !email || !fullName || !state) return
+    const nick = resolvedNickname()
+    if (!nick || nick.length < 2) return
     setLoading(true)
     try {
       const res = await apiFetch('/api/bolao?action=create-group', {
@@ -782,7 +864,7 @@ function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
           admin_full_name: fullName.trim(),
           admin_state: state,
           admin_whatsapp: whatsapp.trim() || null,
-          admin_nickname: fullName.trim().split(' ')[0],
+          admin_nickname: nick,
         }),
       })
       const data = await res.json()
@@ -796,7 +878,8 @@ function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
     }
   }
 
-  const valid = name && email && fullName && state
+  const nickValid = identityMode === 'username' ? !!prefill?.username : (nickname.trim().length >= 2)
+  const valid = name && email && fullName && state && nickValid
 
   return (
     <div style={{ padding: '0 0 16px' }}>
@@ -828,6 +911,11 @@ function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
           hint={emailLocked ? 'Email da sua conta — não pode ser alterado aqui' : 'Usado para login admin e notificações'} />
         <StateSelect value={state} onChange={setState} required />
         <Input label="WhatsApp (opcional)" type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+1 (555) 555-5555" hint="Para o admin te avisar do prêmio" />
+        <IdentityChoice
+          profileUsername={prefill?.username || null}
+          nickname={nickname} setNickname={setNickname}
+          mode={identityMode} setMode={setIdentityMode}
+        />
         <Btn type="submit" disabled={loading || !valid}>
           {loading ? 'Criando…' : 'Criar bolão →'}
         </Btn>
@@ -844,15 +932,17 @@ function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
 // ════════════════════════════════════════════════════════════════════════════
 //   View: Entrar no Grupo (cadastro completo)
 // ════════════════════════════════════════════════════════════════════════════
-function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
+function JoinGroupView({ onBack, onJoined, setToast, prefilledCode, prefill }) {
   const [code, setCode]         = useState(prefilledCode || '')
-  const [nickname, setNickname] = useState('')
-  const [fullName, setFullName] = useState('')
-  const [email, setEmail]       = useState('')
-  const [state, setState]       = useState('')
-  const [whatsapp, setWhatsapp] = useState('')
+  const [nickname, setNickname] = useState(prefill?.username ? '@' + prefill.username : '')
+  const [identityMode, setIdentityMode] = useState(prefill?.username ? 'username' : 'custom')
+  const [fullName, setFullName] = useState(prefill?.full_name || '')
+  const [email, setEmail]       = useState(prefill?.email || '')
+  const [state, setState]       = useState(prefill?.state || '')
+  const [whatsapp, setWhatsapp] = useState(prefill?.whatsapp || '')
   const [loading, setLoading]   = useState(false)
   const [groupPreview, setGroupPreview] = useState(null) // { name, member_count } se code válido
+  const emailLocked = !!prefill?.locked_email
 
   // Quando vem com código pré-preenchido (deep-link /bolao/<code>), busca dados do grupo
   useEffect(() => {
@@ -876,9 +966,15 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
     return () => { alive = false }
   }, [prefilledCode])
 
+  function resolvedNickname() {
+    if (identityMode === 'username' && prefill?.username) return '@' + prefill.username
+    return nickname.trim()
+  }
+
   async function handleJoin(e) {
     e.preventDefault()
-    if (!code || !nickname || !email || !fullName || !state) return
+    const nick = resolvedNickname()
+    if (!code || !nick || nick.length < 2 || !email || !fullName || !state) return
     setLoading(true)
     try {
       const res = await apiFetch('/api/bolao?action=join', {
@@ -886,7 +982,7 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
         headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
         body: JSON.stringify({
           code: code.toUpperCase().trim(),
-          nickname: nickname.trim(),
+          nickname: nick,
           email: email.trim(),
           full_name: fullName.trim(),
           state,
@@ -904,7 +1000,8 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
     }
   }
 
-  const valid = code && nickname && email && fullName && state
+  const nickValid = identityMode === 'username' ? !!prefill?.username : (nickname.trim().length >= 2)
+  const valid = code && nickValid && email && fullName && state
   const isInvited = !!(prefilledCode && groupPreview && !groupPreview.error)
 
   return (
@@ -964,10 +1061,19 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode }) {
           </div>
         )}
         <Input label="Seu nome completo" type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="João Silva" required />
-        <Input label="Apelido no ranking" type="text" value={nickname} onChange={e => setNickname(e.target.value)} placeholder="Ex: João" required hint="Como vai aparecer pros outros do grupo" />
-        <Input label="Seu e-mail" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="voce@email.com" required hint="Pra avisar quando palpites estiverem prestes a fechar" />
+        <Input label="Seu e-mail" type="email" value={email}
+          onChange={e => emailLocked ? null : setEmail(e.target.value)}
+          placeholder="voce@email.com" required
+          readOnly={emailLocked}
+          style={emailLocked ? { background: '#f3f4f6', color: '#6b7280', cursor: 'not-allowed' } : {}}
+          hint={emailLocked ? 'Email da sua conta — não pode ser alterado aqui' : 'Pra avisar quando palpites estiverem prestes a fechar'} />
         <StateSelect value={state} onChange={setState} required />
         <Input label="WhatsApp (opcional)" type="tel" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+1 (555) 555-5555" />
+        <IdentityChoice
+          profileUsername={prefill?.username || null}
+          nickname={nickname} setNickname={setNickname}
+          mode={identityMode} setMode={setIdentityMode}
+        />
         <Btn type="submit" disabled={loading || !valid}>
           {loading ? 'Entrando…' : (isInvited ? `Entrar em ${groupPreview.name} →` : 'Entrar no grupo →')}
         </Btn>
@@ -1771,8 +1877,9 @@ export default function BolaoScreen() {
     }
   }
 
-  // Prefill do CreateGroupView quando user esta logado:
+  // Prefill do CreateGroupView/JoinGroupView quando user esta logado:
   //  - email vem do Supabase user (lockado — admin_email tem que casar)
+  //  - username/display_name vem do profile (pra opcao "usar @username")
   //  - full_name, state, whatsapp vem da membership mais recente (cache local
   //    populado por my-memberships no login). Membros mais novos primeiro.
   const createPrefill = useMemo(() => {
@@ -1780,12 +1887,14 @@ export default function BolaoScreen() {
     const latest = (memberships || []).find(m => m.email?.toLowerCase() === authUser.email.toLowerCase()) || memberships?.[0]
     return {
       email:        authUser.email,
-      full_name:    latest?.full_name || '',
-      state:        latest?.state    || '',
-      whatsapp:     latest?.whatsapp || '',
+      full_name:    profile?.full_name || latest?.full_name || '',
+      username:     profile?.username || null,
+      display_name: profile?.display_name || null,
+      state:        profile?.state || latest?.state || '',
+      whatsapp:     profile?.whatsapp || latest?.whatsapp || '',
       locked_email: true,
     }
-  }, [authUser, memberships])
+  }, [authUser, memberships, profile])
 
   useEffect(() => {
     apiFetch('/api/bolao?action=config').then(r => r.json()).then(d => setConfig(d.config || {})).catch(() => setConfig({}))
@@ -1906,7 +2015,7 @@ export default function BolaoScreen() {
       {view === 'home'      && <HomeView onCreateClick={() => setView('create')} onJoinClick={() => setView('join')} config={config} setToast={setToast} memberships={memberships} onPickMembership={handlePickMembership} />}
       {view === 'create'    && <CreateGroupView onBack={() => setView('home')} onCreated={handleCreated} setToast={setToast} prefill={createPrefill} />}
       {view === 'created-success' && <CreatedSuccessView group={group} onContinue={() => setView('group')} setToast={setToast} />}
-      {view === 'join'      && <JoinGroupView onBack={() => setView('home')} onJoined={handleJoined} setToast={setToast} prefilledCode={joinCode} />}
+      {view === 'join'      && <JoinGroupView onBack={() => setView('home')} onJoined={handleJoined} setToast={setToast} prefilledCode={joinCode} prefill={createPrefill} />}
       {view === 'group'     && <GroupDashboard group={group} member={member} onPredict={() => setView('predict')} onStandings={() => setView('standings')} onLeave={handleLeave} onSwitch={handleSwitch} setToast={setToast} refreshGroup={refreshGroup} deadline={config?.predictions_deadline} />}
       {view === 'predict'   && <PredictionsView member={member} onBack={() => setView('group')} setToast={setToast} deadline={config?.predictions_deadline} />}
       {view === 'standings' && <StandingsView group={group} member={member} onBack={() => setView('group')} setToast={setToast} />}
