@@ -21,8 +21,29 @@ import { requireAuthOnly } from './_lib/businessAuth.js'
 const ONBOARDING_STEP_FIELDS = new Set([
   'full_name', 'display_name', 'avatar_url', 'bio',
   'city', 'state', 'whatsapp', 'instagram', 'interests',
-  'country', 'avatar_color',
+  'country', 'avatar_color', 'username',
 ])
+
+const USERNAME_RX = /^[a-z0-9_]{3,20}$/
+const USERNAME_RESERVED = new Set([
+  'admin', 'administrator', 'mod', 'moderator', 'support', 'help',
+  'brasilconnect', 'bc', 'oficial', 'official', 'system', 'null', 'undefined',
+  'api', 'app', 'www', 'mail', 'root', 'user',
+])
+
+// Normaliza e valida. Retorna { ok, value?, reason? }
+function validateUsername(input) {
+  if (input == null) return { ok: true, value: null } // permite limpar (NULL)
+  const v = String(input).trim().toLowerCase()
+  if (!v) return { ok: true, value: null }
+  if (!USERNAME_RX.test(v)) {
+    return { ok: false, reason: 'use 3-20 caracteres, apenas letras minúsculas, números e _' }
+  }
+  if (USERNAME_RESERVED.has(v)) {
+    return { ok: false, reason: 'username reservado, escolha outro' }
+  }
+  return { ok: true, value: v }
+}
 
 const VALID_STATES = new Set([
   'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD',
@@ -102,15 +123,53 @@ export default async function handler(req, res) {
       if (b.whatsapp !== undefined)     update.whatsapp = b.whatsapp || null
       if (b.instagram !== undefined)    update.instagram = b.instagram || null
       if (b.interests !== undefined)    update.interests = Array.isArray(b.interests) ? b.interests.slice(0, 20) : null
+      if (b.username !== undefined) {
+        const v = validateUsername(b.username)
+        if (!v.ok) return err(res, 400, 'username: ' + v.reason)
+        update.username = v.value
+      }
 
       const { data, error } = await supabase
         .from('bc_profiles')
         .upsert(update, { onConflict: 'user_id' })
         .select()
         .single()
-      if (error) throw error
+      if (error) {
+        // Conflict de unique index lowercase em username
+        if (error.code === '23505' && /username/i.test(error.message || '')) {
+          return res.status(409).json({ error: 'username já está em uso, escolha outro' })
+        }
+        throw error
+      }
 
       return res.status(200).json({ success: true, profile: data })
+    }
+
+    // ══════════ GET: check-username?u=foo  (publico, pre-onboarding) ════════
+    if (req.method === 'GET' && action === 'check-username') {
+      const u = req.query?.u
+      const v = validateUsername(u)
+      if (!v.ok) return res.status(200).json({ available: false, reason: v.reason })
+      if (!v.value) return res.status(200).json({ available: false, reason: 'vazio' })
+
+      const { data, error } = await supabase
+        .from('bc_profiles')
+        .select('user_id')
+        .ilike('username', v.value)
+        .maybeSingle()
+      if (error) throw error
+
+      // Pode estar tomado por OUTRO usuario, ou pelo proprio caller.
+      // Se vier auth header, ignora o proprio user_id (assim "check-username"
+      // do meu username atual nao retorna "indisponivel").
+      let selfId = null
+      try {
+        const auth = await requireAuthOnly(req, supabase)
+        if (auth.ok) selfId = auth.user.id
+      } catch (_) {}
+
+      const available = !data || data.user_id === selfId
+      return res.status(200).json({ available, username: v.value })
     }
 
     // ══════════ POST: onboarding-step (salva progresso) ════════════════════
@@ -143,6 +202,13 @@ export default async function handler(req, res) {
         update.state = String(update.state).toUpperCase()
       }
 
+      // Se incluiu username, valida + normaliza
+      if (update.username !== undefined) {
+        const v = validateUsername(update.username)
+        if (!v.ok) return err(res, 400, 'username: ' + v.reason)
+        update.username = v.value
+      }
+
       // Auto-geocode se setou city + state (best effort, nao bloqueia)
       if (update.city && update.state) {
         try {
@@ -162,7 +228,12 @@ export default async function handler(req, res) {
         .upsert(update, { onConflict: 'user_id' })
         .select()
         .single()
-      if (error) throw error
+      if (error) {
+        if (error.code === '23505' && /username/i.test(error.message || '')) {
+          return res.status(409).json({ error: 'username já está em uso, escolha outro' })
+        }
+        throw error
+      }
 
       return res.status(200).json({ success: true, profile: data })
     }

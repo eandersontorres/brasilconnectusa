@@ -705,13 +705,13 @@ export default async function handler(req, res) {
           }
         }
 
-        // 4. Mentions: @username → busca user com display_name = username e notifica
+        // 4. Mentions: @username → busca user com username = handle e notifica
         const mentions = extractMentionUsernames(body)
         if (mentions.length > 0) {
           const { data: mentionedUsers } = await supabase
             .from('bc_profiles')
-            .select('user_id, display_name')
-            .in('display_name', mentions)
+            .select('user_id, username')
+            .in('username', mentions)
             .neq('user_id', user_id)                            // nao notifica voce mesmo
           for (const u of mentionedUsers || []) {
             await createNotification({

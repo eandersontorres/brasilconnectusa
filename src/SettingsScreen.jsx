@@ -199,31 +199,74 @@ function SectionDivider() {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-//   ContaPanel — edita full_name, display_name, bio, whatsapp, instagram
+//   ContaPanel — edita full_name, username, display_name, bio, whatsapp, instagram
 // ────────────────────────────────────────────────────────────────────────────
+const USERNAME_RX_SETTINGS = /^[a-z0-9_]{3,20}$/
+
 function ContaPanel({ user, profile, loading, onSaved }) {
   const [fullName, setFullName] = useState(profile.full_name || '')
+  const [username, setUsername] = useState(profile.username || '')
   const [displayName, setDisplayName] = useState(profile.display_name || '')
   const [bio, setBio] = useState(profile.bio || '')
   const [whatsapp, setWhatsapp] = useState(profile.whatsapp || '')
   const [instagram, setInstagram] = useState(profile.instagram || '')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+  const [unameStatus, setUnameStatus] = useState('idle') // idle|checking|available|taken|invalid
+  const [unameReason, setUnameReason] = useState('')
+
+  // Re-popula campos se profile mudar (ex: salvou em outro lugar)
+  useEffect(() => {
+    setUsername(profile.username || '')
+  }, [profile.username])
+
+  // Debounced check de disponibilidade. Pula se for o username atual do user.
+  useEffect(() => {
+    const u = (username || '').trim().toLowerCase()
+    if (!u) { setUnameStatus('idle'); setUnameReason(''); return }
+    if (u === (profile.username || '').toLowerCase()) {
+      setUnameStatus('available'); setUnameReason(''); return
+    }
+    if (!USERNAME_RX_SETTINGS.test(u)) {
+      setUnameStatus('invalid')
+      setUnameReason('use 3-20 caracteres, só letras minúsculas, números e _')
+      return
+    }
+    setUnameStatus('checking'); setUnameReason('')
+    const t = setTimeout(async () => {
+      try {
+        const r = await apiFetch('/api/profile?action=check-username&u=' + encodeURIComponent(u))
+        const d = await r.json()
+        if (d.available) { setUnameStatus('available'); setUnameReason('') }
+        else { setUnameStatus('taken'); setUnameReason(d.reason || 'já está em uso') }
+      } catch (_) { setUnameStatus('idle') }
+    }, 400)
+    return () => clearTimeout(t)
+  }, [username, profile.username])
 
   async function handleSave() {
     setError(null); setSaving(true)
     try {
+      // Não envia username se status inválido (deixa só os outros campos passarem)
+      const payload = {
+        user_id: user.id,
+        email: user.email,
+        full_name: fullName.trim(),
+        display_name: displayName.trim(),
+        bio: bio.trim(),
+        whatsapp: whatsapp.trim(),
+        instagram: instagram.trim().replace(/^@/, ''),
+      }
+      const u = username.trim().toLowerCase()
+      if (u && (unameStatus === 'available' || u === (profile.username || '').toLowerCase())) {
+        payload.username = u
+      } else if (u && unameStatus !== 'available') {
+        throw new Error('Resolva o username antes de salvar')
+      }
+
       const r = await apiFetch('/api/profile?action=upsert', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: user.id,
-          email: user.email,
-          full_name: fullName.trim(),
-          display_name: displayName.trim(),
-          bio: bio.trim(),
-          whatsapp: whatsapp.trim(),
-          instagram: instagram.trim().replace(/^@/, ''),
-        }),
+        body: JSON.stringify(payload),
       })
       const d = await r.json()
       if (!r.ok) throw new Error(d.error || 'Erro')
@@ -233,6 +276,11 @@ function ContaPanel({ user, profile, loading, onSaved }) {
     } finally { setSaving(false) }
   }
 
+  const unameBorderColor =
+    unameStatus === 'available' ? '#10B981' :
+    unameStatus === 'taken' || unameStatus === 'invalid' ? '#EF4444' :
+    C.line
+
   return (
     <PanelWrap>
       {loading ? <div style={{ color: C.inkMuted, fontSize: 13 }}>Carregando…</div> : (
@@ -240,11 +288,33 @@ function ContaPanel({ user, profile, loading, onSaved }) {
           <Field label="Email" sub="Não pode ser alterado aqui (use o link mágico)">
             <input value={user.email} disabled style={{ ...inputStyle, opacity: 0.6, cursor: 'not-allowed' }} />
           </Field>
-          <Field label="Nome completo">
+          <Field label="Nome completo" sub="Privado. Só você e administradores veem.">
             <input value={fullName} onChange={e => setFullName(e.target.value)} maxLength={80} style={inputStyle} placeholder="Seu nome" />
           </Field>
-          <Field label="Display name" sub="Aparece nos posts e comentários">
-            <input value={displayName} onChange={e => setDisplayName(e.target.value)} maxLength={40} style={inputStyle} placeholder="Apelido público" />
+          <Field label="@username" sub="Nome público — aparece em posts e comentários. Pode trocar (afeta @menções).">
+            <div style={{ position: 'relative' }}>
+              <span style={{
+                position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+                fontSize: 14, color: C.inkMuted, pointerEvents: 'none',
+              }}>@</span>
+              <input
+                value={username}
+                onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20))}
+                maxLength={20}
+                style={{ ...inputStyle, paddingLeft: 26, borderColor: unameBorderColor }}
+                placeholder="seu_username"
+                autoComplete="off"
+              />
+            </div>
+            <div style={{ fontSize: 11, marginTop: 4, minHeight: 14 }}>
+              {unameStatus === 'checking'  && <span style={{ color: C.inkMuted }}>Verificando…</span>}
+              {unameStatus === 'available' && username !== (profile.username || '') && <span style={{ color: '#10B981', fontWeight: 600 }}>✓ disponível</span>}
+              {unameStatus === 'taken'     && <span style={{ color: '#EF4444' }}>✗ {unameReason}</span>}
+              {unameStatus === 'invalid'   && <span style={{ color: '#EF4444' }}>{unameReason}</span>}
+            </div>
+          </Field>
+          <Field label="Como te chamar" sub="Mostrado junto com @username em alguns lugares (opcional)">
+            <input value={displayName} onChange={e => setDisplayName(e.target.value)} maxLength={40} style={inputStyle} placeholder="João" />
           </Field>
           <Field label="Bio" sub="Curta, aparece no perfil (até 200 chars)">
             <textarea value={bio} onChange={e => setBio(e.target.value)} maxLength={200} rows={3}

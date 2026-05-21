@@ -43,17 +43,76 @@ function ProgressBar({ current, total }) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-//   Step 1: Nome
+//   Step 1: Nome + @username
 // ════════════════════════════════════════════════════════════════════════════
+const USERNAME_RX = /^[a-z0-9_]{3,20}$/
+
+function sanitizeUsernameSeed(seed) {
+  return String(seed || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '') // remove acentos
+    .toLowerCase()
+    .replace(/[^a-z0-9_]+/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .replace(/_+/g, '_')
+    .slice(0, 17)
+}
+
 function StepName({ data, setData, onNext }) {
+  // status: 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
+  const [unameStatus, setUnameStatus] = useState('idle')
+  const [unameReason, setUnameReason] = useState('')
+
+  // Auto-sugere username baseado em full_name quando o user termina de digitar
+  // (so se username ainda nao foi tocado pelo user)
+  function suggestFromName(name) {
+    if (data.username || !name) return
+    const seed = sanitizeUsernameSeed(name)
+    if (seed.length >= 3) setData(d => ({ ...d, username: seed }))
+  }
+
+  // Debounced check de disponibilidade
+  useEffect(() => {
+    const u = (data.username || '').trim().toLowerCase()
+    if (!u) { setUnameStatus('idle'); setUnameReason(''); return }
+    if (!USERNAME_RX.test(u)) {
+      setUnameStatus('invalid')
+      setUnameReason('use 3-20 caracteres, só letras minúsculas, números e _')
+      return
+    }
+    setUnameStatus('checking'); setUnameReason('')
+    const timer = setTimeout(async () => {
+      try {
+        const r = await apiFetch('/api/profile?action=check-username&u=' + encodeURIComponent(u))
+        const d = await r.json()
+        if (d.available) { setUnameStatus('available'); setUnameReason('') }
+        else { setUnameStatus('taken'); setUnameReason(d.reason || 'já está em uso') }
+      } catch (_) {
+        setUnameStatus('idle')
+      }
+    }, 400)
+    return () => clearTimeout(timer)
+  }, [data.username])
+
+  const unameValid = unameStatus === 'available' || (unameStatus === 'idle' && !data.username)
+  // username é obrigatório agora — bloqueia o avanço sem ele
+  const canAdvance = data.full_name && data.full_name.trim().length >= 2
+    && data.username && USERNAME_RX.test(data.username)
+    && unameStatus === 'available'
+
+  const unameBorderColor =
+    unameStatus === 'available' ? '#10B981' :
+    unameStatus === 'taken' || unameStatus === 'invalid' ? '#EF4444' :
+    C.line
+
   return (
     <div>
       <div style={{ fontFamily: FONT.serif, fontSize: 28, fontWeight: 600, color: C.ink, marginBottom: 8, lineHeight: 1.2 }}>
         Como você se chama?
       </div>
       <div style={{ fontSize: 14, color: C.inkSoft, marginBottom: 24, lineHeight: 1.5 }}>
-        Use o nome real que seus amigos brasileiros conhecem. Cria mais confiança na comunidade.
+        Seu nome real fica privado. O <b>@username</b> é o que aparece em posts e comentários.
       </div>
+
       <div style={{ marginBottom: 14 }}>
         <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 6 }}>
           Nome completo
@@ -61,6 +120,7 @@ function StepName({ data, setData, onNext }) {
         <input
           type="text" value={data.full_name || ''}
           onChange={e => setData({ ...data, full_name: e.target.value })}
+          onBlur={e => suggestFromName(e.target.value)}
           placeholder="João Silva" autoFocus
           style={{
             width: '100%', padding: '12px 14px', borderRadius: 10,
@@ -69,10 +129,50 @@ function StepName({ data, setData, onNext }) {
             color: C.ink,
           }}
         />
+        <div style={{ fontSize: 11, color: C.inkMuted, marginTop: 4 }}>
+          Só visível pra você e administradores.
+        </div>
       </div>
+
+      <div style={{ marginBottom: 14 }}>
+        <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 6 }}>
+          @username (nome público)
+        </label>
+        <div style={{ position: 'relative' }}>
+          <span style={{
+            position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)',
+            fontSize: 15, color: C.inkMuted, pointerEvents: 'none', fontFamily: FONT.sans,
+          }}>@</span>
+          <input
+            type="text" value={data.username || ''}
+            onChange={e => {
+              const v = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20)
+              setData({ ...data, username: v })
+            }}
+            placeholder="joao_silva"
+            autoComplete="off"
+            style={{
+              width: '100%', padding: '12px 14px 12px 30px', borderRadius: 10,
+              border: '1.5px solid ' + unameBorderColor, fontSize: 15, outline: 'none',
+              background: C.white, boxSizing: 'border-box', fontFamily: FONT.sans,
+              color: C.ink,
+            }}
+          />
+        </div>
+        <div style={{ fontSize: 11, marginTop: 4, minHeight: 14 }}>
+          {unameStatus === 'checking'  && <span style={{ color: C.inkMuted }}>Verificando…</span>}
+          {unameStatus === 'available' && <span style={{ color: '#10B981', fontWeight: 600 }}>✓ disponível</span>}
+          {unameStatus === 'taken'     && <span style={{ color: '#EF4444' }}>✗ {unameReason}</span>}
+          {unameStatus === 'invalid'   && <span style={{ color: '#EF4444' }}>{unameReason}</span>}
+          {unameStatus === 'idle' && !data.username && (
+            <span style={{ color: C.inkMuted }}>3-20 caracteres: letras minúsculas, números e _</span>
+          )}
+        </div>
+      </div>
+
       <div style={{ marginBottom: 24 }}>
         <label style={{ fontSize: 12, fontWeight: 600, color: C.inkMuted, textTransform: 'uppercase', letterSpacing: 1, display: 'block', marginBottom: 6 }}>
-          Apelido (como aparece nos posts)
+          Como te chamar (opcional)
         </label>
         <input
           type="text" value={data.display_name || ''}
@@ -85,13 +185,17 @@ function StepName({ data, setData, onNext }) {
             color: C.ink,
           }}
         />
+        <div style={{ fontSize: 11, color: C.inkMuted, marginTop: 4 }}>
+          Mostrado junto com @username em alguns lugares. Pode deixar em branco.
+        </div>
       </div>
-      <button onClick={onNext} disabled={!data.full_name || data.full_name.trim().length < 2}
+
+      <button onClick={onNext} disabled={!canAdvance}
         style={{
           width: '100%', padding: '13px 0', borderRadius: 10,
-          background: (!data.full_name || data.full_name.trim().length < 2) ? C.inkLight : C.navy,
+          background: !canAdvance ? C.inkLight : C.navy,
           color: C.white, fontSize: 15, fontWeight: 600, border: 'none',
-          cursor: (!data.full_name || data.full_name.trim().length < 2) ? 'default' : 'pointer',
+          cursor: !canAdvance ? 'default' : 'pointer',
           fontFamily: FONT.sans,
         }}>
         Próximo →
@@ -423,6 +527,7 @@ export default function OnboardingFlow({ user, onComplete, onDismiss }) {
           setData({
             full_name:    d.profile.full_name    || '',
             display_name: d.profile.display_name || '',
+            username:     d.profile.username     || '',
             state:        d.profile.state        || '',
             city:         d.profile.city         || '',
             avatar_url:   d.profile.avatar_url   || '',
@@ -450,7 +555,12 @@ export default function OnboardingFlow({ user, onComplete, onDismiss }) {
 
   async function handleNext1() {
     try {
-      await saveStep(1, { email: user.email, full_name: data.full_name, display_name: data.display_name || data.full_name.split(' ')[0] })
+      await saveStep(1, {
+        email: user.email,
+        full_name: data.full_name,
+        display_name: data.display_name || data.full_name.split(' ')[0],
+        username: data.username,
+      })
       setStep(2)
     } catch (_) {}
   }
