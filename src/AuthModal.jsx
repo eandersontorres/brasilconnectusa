@@ -59,10 +59,8 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
   async function handleSubmitCode(e) {
     e.preventDefault()
     const digits = code.replace(/\D/g, '')
-    // Supabase manda OTP de 6 OU 8 digitos dependendo da configuracao do
-    // projeto (default mudou em algumas versoes). Aceitamos a faixa toda.
-    if (digits.length < 6 || digits.length > 10) {
-      setError('O código tem entre 6 e 8 dígitos')
+    if (digits.length !== 6) {
+      setError('O código tem 6 dígitos')
       return
     }
     setLoading(true); setError(null)
@@ -130,10 +128,26 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
 
         {mode === 'signin' && (
           <>
-            <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Entrar ou criar conta</div>
-            <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 16, lineHeight: 1.5 }}>
-              Sem senha. Mandamos um <strong>código de 6 dígitos</strong> no seu email — você cola aqui e entra na hora.
+            <div style={{ fontSize: 19, fontWeight: 700, marginBottom: 6 }}>Bora entrar na conversa?</div>
+            <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 14, lineHeight: 1.5 }}>
+              Criando conta você pode:
             </div>
+
+            {/* Benefícios concretos — o que o user GANHA cadastrando */}
+            <div style={{ marginBottom: 18, display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                ['💬', 'Postar perguntas e comentar nas comunidades'],
+                ['⚽', 'Criar ou entrar em bolões da Copa 2026'],
+                ['🏷️', 'Anunciar no marketplace e ver contatos completos'],
+                ['🔔', 'Notificações de eventos brasileiros perto de você'],
+              ].map(([icon, text]) => (
+                <div key={text} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#374151' }}>
+                  <span style={{ fontSize: 16, flexShrink: 0 }}>{icon}</span>
+                  <span>{text}</span>
+                </div>
+              ))}
+            </div>
+
             <form onSubmit={handleSubmitEmail}>
               <input
                 type="email" value={email}
@@ -163,8 +177,20 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
                 {loading ? 'Enviando código…' : 'Receber código por email →'}
               </button>
             </form>
-            <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 12, lineHeight: 1.6 }}>
-              Ao entrar você aceita nossos termos. Sem spam, prometemos.
+            <div style={{ fontSize: 11, color: '#9ca3af', textAlign: 'center', marginTop: 10, lineHeight: 1.6 }}>
+              Sem senha · Sem spam · Você decide quem vê o seu perfil
+            </div>
+
+            {/* Opt-out: continuar navegando sem conta */}
+            <div style={{ textAlign: 'center', marginTop: 16, paddingTop: 14, borderTop: '1px solid #F3F4F6' }}>
+              <button type="button" onClick={onClose} style={{
+                background: 'transparent', border: 'none', cursor: 'pointer',
+                fontSize: 12, color: '#6b7280', padding: '4px 8px',
+                textDecoration: 'underline', textDecorationColor: '#D1D5DB',
+                fontFamily: 'inherit',
+              }}>
+                Continuar navegando sem conta
+              </button>
             </div>
           </>
         )}
@@ -178,11 +204,11 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
             <form onSubmit={handleSubmitCode}>
               <input
                 type="text" value={code}
-                onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                placeholder="00000000"
+                onChange={e => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="000000"
                 autoFocus required
-                inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6,10}"
-                maxLength={10}
+                inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}"
+                maxLength={6}
                 style={{
                   width: '100%', padding: '14px 10px', borderRadius: 10,
                   border: '1.5px solid #e5e7eb', fontSize: 24, outline: 'none',
@@ -199,11 +225,11 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
                   {error}
                 </div>
               )}
-              <button type="submit" disabled={loading || code.length < 6} style={{
+              <button type="submit" disabled={loading || code.length !== 6} style={{
                 width: '100%', marginTop: 12, padding: '12px 0', borderRadius: 10,
-                background: (loading || code.length < 6) ? '#9ca3af' : GREEN, color: '#fff',
+                background: (loading || code.length !== 6) ? '#9ca3af' : GREEN, color: '#fff',
                 fontSize: 15, fontWeight: 600, border: 'none',
-                cursor: (loading || code.length < 6) ? 'default' : 'pointer',
+                cursor: (loading || code.length !== 6) ? 'default' : 'pointer',
               }}>
                 {loading ? 'Verificando…' : 'Entrar →'}
               </button>
