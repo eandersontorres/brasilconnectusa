@@ -13,6 +13,11 @@
 -- Idempotente — pode rodar de novo, ON CONFLICT DO NOTHING.
 -- ═════════════════════════════════════════════════════════════════════════════
 
+-- ── 0. Garante colunas que o INSERT depende (defensivo) ────────────────────
+-- avatar_color nao tava em todas as migrations antigas. Adiciona se faltar.
+ALTER TABLE bc_profiles
+  ADD COLUMN IF NOT EXISTS avatar_color TEXT DEFAULT '#009C3B';
+
 DO $$
 DECLARE
   -- UUID fixo pro @brasilconnect — sempre o mesmo, idempotente
