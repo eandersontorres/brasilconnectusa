@@ -198,6 +198,31 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
         />
       )}
 
+      {/* Banner CTA pra visitor (nao logado) — explica preview */}
+      {!user && posts.length > 0 && (
+        <div style={{
+          marginTop: 18,
+          background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+          border: '1px solid #F59E0B', borderRadius: 12,
+          padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <span style={{ fontSize: 20 }}>👋</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#7A4A0E' }}>
+              Você tá vendo uma prévia
+            </div>
+            <div style={{ fontSize: 11, color: '#92560E', lineHeight: 1.4 }}>
+              Mostramos os 5 posts mais recentes. Crie sua conta grátis pra ver tudo, postar e comentar.
+            </div>
+          </div>
+          <button onClick={() => window.dispatchEvent(new CustomEvent('bc-open-auth'))} style={{
+            background: '#92400E', color: '#fff', border: 'none',
+            padding: '8px 14px', borderRadius: 8, fontSize: 12, fontWeight: 700,
+            cursor: 'pointer', fontFamily: FONT.sans, flexShrink: 0,
+          }}>Criar conta →</button>
+        </div>
+      )}
+
       {/* Lista de posts */}
       <div style={{ marginTop: 18 }}>
         {posts.length === 0 ? (
@@ -211,12 +236,58 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
             <div>Seja a primeira pessoa a postar aqui!</div>
           </div>
         ) : (
-          posts.map(p => (
-            <PostCard key={p.id} post={p} currentUser={user}
-              onClick={() => alert('Detalhe do post — em breve')}
-              onVote={() => {}} onClassifiedSold={() => load()}
-            />
-          ))
+          <>
+            {(!user ? posts.slice(0, 5) : posts).map(p => (
+              <PostCard key={p.id} post={p} currentUser={user}
+                onClick={() => alert('Detalhe do post — em breve')}
+                onVote={r => { if (r === 'need-auth') window.dispatchEvent(new CustomEvent('bc-open-auth')) }}
+                onClassifiedSold={() => load()}
+              />
+            ))}
+            {/* Footer CTA: visitor com mais de 5 posts */}
+            {!user && posts.length > 5 && (
+              <div style={{
+                background: C.white, border: '2px dashed ' + C.green, borderRadius: 12,
+                padding: '20px 18px', textAlign: 'center', marginTop: 4,
+              }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.ink, marginBottom: 4 }}>
+                  + {posts.length - 5} posts esperando você
+                </div>
+                <div style={{ fontSize: 12, color: C.inkMuted, marginBottom: 12 }}>
+                  Crie sua conta em 30 segundos pra continuar lendo e participar.
+                </div>
+                <button onClick={() => window.dispatchEvent(new CustomEvent('bc-open-auth'))} style={{
+                  background: C.green, color: C.white, border: 'none',
+                  padding: '10px 24px', borderRadius: 20, fontSize: 13, fontWeight: 700,
+                  cursor: 'pointer', fontFamily: FONT.sans,
+                }}>Criar conta grátis →</button>
+              </div>
+            )}
+            {/* Footer CTA: logged mas nao-membro */}
+            {user && !myMembership && !isSystemAdmin && (
+              <div style={{
+                background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: 12,
+                padding: '14px 16px', textAlign: 'center', marginTop: 4,
+                display: 'flex', alignItems: 'center', gap: 10,
+              }}>
+                <span style={{ fontSize: 18 }}>🤝</span>
+                <div style={{ flex: 1, textAlign: 'left' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#166534' }}>
+                    Curtiu? Entra na comunidade pra postar e comentar
+                  </div>
+                  <div style={{ fontSize: 11, color: '#15803D', marginTop: 2 }}>
+                    Você só lê enquanto não entrar.
+                  </div>
+                </div>
+                <button onClick={handleJoin} disabled={actionBusy} style={{
+                  background: C.green, color: C.white, border: 'none',
+                  padding: '8px 16px', borderRadius: 18, fontSize: 12, fontWeight: 700,
+                  cursor: actionBusy ? 'wait' : 'pointer', fontFamily: FONT.sans,
+                  flexShrink: 0, opacity: actionBusy ? 0.6 : 1,
+                }}>{actionBusy ? '…' : 'Entrar'}</button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
