@@ -637,7 +637,7 @@ export default function OnboardingFlow({ user, onComplete, onDismiss }) {
               <button
                 onClick={onDismiss}
                 aria-label="Fechar onboarding"
-                title="Fechar — você pode completar depois"
+                title="Voltar pra navegar — completar quando for postar/comentar"
                 style={{
                   background: 'transparent', border: 'none', cursor: 'pointer',
                   fontSize: 22, lineHeight: 1, color: C.inkMuted, padding: 0,
@@ -684,7 +684,7 @@ export default function OnboardingFlow({ user, onComplete, onDismiss }) {
                 fontFamily: FONT.sans, textDecoration: 'underline',
               }}
             >
-              Pular por enquanto — completar depois
+              Voltar pra navegar — completar depois
             </button>
           </div>
         )}

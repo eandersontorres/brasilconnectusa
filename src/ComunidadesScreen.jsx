@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react'
 import { C, FONT } from './lib/colors'
 import { useAuth } from './AuthModal'
 import { apiFetch } from './lib/apiFetch'
+import { requireOnboarding } from './lib/onboardingGate'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   ComunidadesScreen — descoberta de comunidades estilo Nextdoor
@@ -98,6 +99,8 @@ export default function ComunidadesScreen({ onNavigate }) {
       window.dispatchEvent(new CustomEvent('bc-open-auth'))
       return
     }
+    // Gate: precisa profile completo pra entrar em comunidade
+    if (!(await requireOnboarding(user))) return
     setJoining(community.id)
     try {
       const r = await apiFetch('/api/social?action=join', {

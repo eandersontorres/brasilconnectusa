@@ -598,22 +598,23 @@ export default function AppShell({ tab, setTab, children }) {
 
   // LoginGate (em App.jsx) e outras telas pedem o modal via CustomEvent
   useEffect(() => {
-    const handler = () => setShowAuth(true)
-    window.addEventListener('bc-open-auth', handler)
-    return () => window.removeEventListener('bc-open-auth', handler)
+    const openAuth = () => setShowAuth(true)
+    const openOnboarding = () => setShowOnboarding(true)
+    window.addEventListener('bc-open-auth', openAuth)
+    window.addEventListener('bc-require-onboarding', openOnboarding)
+    return () => {
+      window.removeEventListener('bc-open-auth', openAuth)
+      window.removeEventListener('bc-require-onboarding', openOnboarding)
+    }
   }, [])
 
   useEffect(() => {
     if (!user) { setMyCommunities([]); setShowOnboarding(false); return }
 
-    // Onboarding e bloqueante: enquanto needs_onboarding=true, modal aparece sempre.
+    // Onboarding agora e sob demanda — dispara via requireOnboarding() helper
+    // quando user tenta uma acao de criacao (postar, votar, entrar em comunidade).
     // Limpa snooze legado caso exista no localStorage de usuarios antigos.
     try { localStorage.removeItem('onboarding_snoozed_until') } catch (_) {}
-
-    apiFetch('/api/profile?user_id=' + user.id)
-      .then(r => r.json())
-      .then(d => { if (d.needs_onboarding) setShowOnboarding(true) })
-      .catch(e => console.error('[onboarding] falha ao checar profile:', e))
 
     apiFetch('/api/social?action=my-communities&user_id=' + user.id)
       .then(r => r.json())
@@ -623,12 +624,19 @@ export default function AppShell({ tab, setTab, children }) {
 
   function handleOnboardingComplete() {
     setShowOnboarding(false)
+    // Notifica o helper pra invalidar cache + reabilitar acoes
+    try { window.dispatchEvent(new CustomEvent('bc-onboarding-done')) } catch (_) {}
     if (user) {
       apiFetch('/api/social?action=my-communities&user_id=' + user.id)
         .then(r => r.json())
         .then(d => setMyCommunities(d.communities || []))
         .catch(() => {})
     }
+  }
+
+  function handleOnboardingDismiss() {
+    // Fecha modal mas SEM marcar snooze. Proxima acao critica reabre.
+    setShowOnboarding(false)
   }
 
   const baseStyle = {
@@ -650,7 +658,7 @@ export default function AppShell({ tab, setTab, children }) {
         <PostButton variant="fab" />
         <FeedbackButton />
         {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
-        {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
+        {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} onDismiss={handleOnboardingDismiss} />}
       </div>
     )
   }
@@ -679,7 +687,7 @@ export default function AppShell({ tab, setTab, children }) {
 
       <FeedbackButton />
       {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
-      {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} />}
+      {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} onDismiss={handleOnboardingDismiss} />}
     </div>
   )
 }

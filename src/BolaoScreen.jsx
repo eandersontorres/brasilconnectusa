@@ -3,6 +3,7 @@ import PushOptInBanner from './PushOptInBanner'
 import { supabase } from './lib/supabase'
 import { useAuth } from './AuthModal'
 import { apiFetch } from './lib/apiFetch'
+import { requireOnboarding } from './lib/onboardingGate'
 
 // Header Authorization Bearer com o token da sessao atual do Supabase.
 // Backend (api/bolao.js) usa pra setar bc_bolao_members.user_id.
@@ -829,6 +830,7 @@ function IdentityChoice({ profileUsername, nickname, setNickname, mode, setMode 
 //   View: Criar Grupo (com cadastro completo)
 // ════════════════════════════════════════════════════════════════════════════
 function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
+  const { user: viewerAuthUser } = useAuth()
   const [name, setName]       = useState('')
   // Pre-fill com dados do user logado + ultima membership. Email fica
   // bloqueado quando logado (admin_email tem que casar com o user_id).
@@ -853,6 +855,8 @@ function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
     if (!name || !email || !fullName || !state) return
     const nick = resolvedNickname()
     if (!nick || nick.length < 2) return
+    // Gate: se logado, exige profile completo antes de criar bolao
+    if (viewerAuthUser && !(await requireOnboarding(viewerAuthUser))) return
     setLoading(true)
     try {
       const res = await apiFetch('/api/bolao?action=create-group', {
@@ -933,6 +937,7 @@ function CreateGroupView({ onBack, onCreated, setToast, prefill }) {
 //   View: Entrar no Grupo (cadastro completo)
 // ════════════════════════════════════════════════════════════════════════════
 function JoinGroupView({ onBack, onJoined, setToast, prefilledCode, prefill }) {
+  const { user: viewerAuthUser } = useAuth()
   const [code, setCode]         = useState(prefilledCode || '')
   const [nickname, setNickname] = useState(prefill?.username ? '@' + prefill.username : '')
   const [identityMode, setIdentityMode] = useState(prefill?.username ? 'username' : 'custom')
@@ -975,6 +980,8 @@ function JoinGroupView({ onBack, onJoined, setToast, prefilledCode, prefill }) {
     e.preventDefault()
     const nick = resolvedNickname()
     if (!code || !nick || nick.length < 2 || !email || !fullName || !state) return
+    // Gate: se logado, exige profile completo antes de entrar em bolao
+    if (viewerAuthUser && !(await requireOnboarding(viewerAuthUser))) return
     setLoading(true)
     try {
       const res = await apiFetch('/api/bolao?action=join', {

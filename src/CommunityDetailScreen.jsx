@@ -4,6 +4,7 @@ import { useAuth } from './AuthModal'
 import { PostCard, CreatePostModal } from './FeedScreen'
 import { compressImage } from './ComunidadesScreen'
 import { apiFetch } from './lib/apiFetch'
+import { requireOnboarding } from './lib/onboardingGate'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   CommunityDetailScreen — página de 1 comunidade (header + posts)
@@ -117,6 +118,8 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
 
   async function handleJoin() {
     if (!user) { window.dispatchEvent(new CustomEvent('bc-open-auth')); return }
+    // Gate: precisa profile completo pra entrar em comunidade
+    if (!(await requireOnboarding(user))) return
     setActionBusy(true)
     try {
       const r = await apiFetch('/api/social?action=join', {

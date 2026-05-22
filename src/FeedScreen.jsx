@@ -3,6 +3,7 @@ import { useAuth } from './AuthModal'
 import GetStartedChecklist from './GetStartedChecklist'
 import { C, FONT, useIsMobile } from './lib/colors'
 import { apiFetch } from './lib/apiFetch'
+import { requireOnboarding } from './lib/onboardingGate'
 
 // ────────────────────────────────────────────────────────────────────────────
 //   FeedScreen — feed social estilo Reddit/Nextdoor
@@ -133,6 +134,8 @@ export function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold 
   async function handleVote(e, value) {
     e.stopPropagation()
     if (!currentUser) { onVote && onVote('need-auth'); return }
+    // Gate: precisa profile completo pra votar
+    if (!(await requireOnboarding(currentUser))) return
     const newValue = voted === value ? 0 : value
     setVoted(newValue)
     try {
@@ -321,6 +324,8 @@ export function CreatePostModal({ user, onClose, onCreated, defaultType = 'quest
     if (type === 'event' && !eventDate) {
       setError('Data do evento obrigatória'); return
     }
+    // Gate: precisa profile completo pra postar
+    if (!(await requireOnboarding(user))) { onClose(); return }
     setSubmitting(true); setError(null)
     try {
       const payload = { user_id: user.id, community_id: communityId, type, title, body, is_anonymous: isAnonymous }
