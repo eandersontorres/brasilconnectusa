@@ -1414,6 +1414,8 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, onSwit
   const [members, setMembers] = useState([])
   const [editPrize, setEditPrize] = useState(false)
   const [showInvite, setShowInvite] = useState(false)
+  const [anonRanking, setAnonRanking] = useState(!!group.anonymous_ranking)
+  const [anonBusy, setAnonBusy] = useState(false)
   // Admin do grupo ativo: derivado da membership salva (não global)
   const activeMembership = getActiveMembership()
   const adminEmailLocal = activeMembership && activeMembership.member_id === member?.id
@@ -1446,6 +1448,27 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, onSwit
       await navigator.clipboard.writeText(inviteUrl)
       setToast({ msg: 'Link copiado!', type: 'success' })
     } catch (_) {}
+  }
+
+  async function toggleAnonRanking() {
+    const next = !anonRanking
+    setAnonRanking(next)        // otimista
+    setAnonBusy(true)
+    try {
+      const r = await apiFetch('/api/bolao?action=toggle-anonymous-ranking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
+        body: JSON.stringify({ group_id: group.id, anonymous: next }),
+      })
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error)
+      setToast({ msg: next ? 'Ranking anônimo ligado 🔒' : 'Nomes visíveis de novo', type: 'success' })
+    } catch (e) {
+      setAnonRanking(!next)     // reverte
+      setToast({ msg: e.message || 'Erro ao salvar', type: 'error' })
+    } finally {
+      setAnonBusy(false)
+    }
   }
 
   const deadlineDate = deadline ? new Date(deadline) : null
@@ -1566,6 +1589,32 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, onSwit
         )}
       </div>
 
+      {/* ── Toggle: ranking anônimo (só admin) ───────────────────────── */}
+      {isAdmin && (
+        <div style={{ background: '#fff', border: '1.5px solid #e5e7eb', borderRadius: 12, padding: '12px 14px', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ fontSize: 20, flexShrink: 0 }}>{anonRanking ? '🔒' : '👀'}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#374151' }}>Ranking anônimo</div>
+            <div style={{ fontSize: 11, color: '#6b7280', lineHeight: 1.4 }}>
+              {anonRanking
+                ? 'Ligado — só aparece "Participante #N" e a quantidade. Cada um vê só a própria posição.'
+                : 'Desligado — todos veem os nomes no ranking e na lista de participantes.'}
+            </div>
+          </div>
+          <button onClick={toggleAnonRanking} disabled={anonBusy} aria-label="Alternar ranking anônimo" style={{
+            flexShrink: 0, width: 46, height: 26, borderRadius: 13, border: 'none',
+            background: anonRanking ? GREEN : '#d1d5db', position: 'relative',
+            cursor: anonBusy ? 'wait' : 'pointer', transition: 'background .2s', opacity: anonBusy ? 0.6 : 1,
+          }}>
+            <span style={{
+              position: 'absolute', top: 3, left: anonRanking ? 23 : 3,
+              width: 20, height: 20, borderRadius: '50%', background: '#fff',
+              transition: 'left .2s', boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+            }} />
+          </button>
+        </div>
+      )}
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
         <button onClick={onPredict} style={{ background: '#fff', border: '2px solid ' + BLUE, borderRadius: 12, padding: '16px', textAlign: 'left', cursor: 'pointer' }}>
           <div style={{ fontSize: 20, marginBottom: 4 }}>📝</div>
@@ -1584,15 +1633,26 @@ function GroupDashboard({ group, member, onPredict, onStandings, onLeave, onSwit
       {members.length > 0 && (
         <div style={{ marginBottom: 16 }}>
           <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 8 }}>Participantes ({members.length})</div>
-          <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, overflow: 'hidden' }}>
-            {members.map((m, i) => (
-              <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: i < members.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
-                <div style={{ width: 30, height: 30, borderRadius: '50%', background: m.id === member.id ? GREEN : '#e5e7eb', color: m.id === member.id ? '#fff' : '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{m.nickname.charAt(0).toUpperCase()}</div>
-                <span style={{ flex: 1, fontSize: 14, fontWeight: m.id === member.id ? 700 : 400 }}>{m.nickname}{m.id === member.id && <span style={{ color: GREEN, fontSize: 11 }}> (você)</span>}</span>
-                {m.state && <span style={{ fontSize: 10, fontWeight: 700, color: '#6b7280', background: '#f3f4f6', padding: '2px 6px', borderRadius: 4 }}>{m.state}</span>}
+          {anonRanking ? (
+            // Ranking anônimo: esconde nomes, mostra só a contagem (a propria pessoa fica visivel)
+            <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 20 }}>🔒</span>
+              <div style={{ fontSize: 13, color: '#6b7280', lineHeight: 1.4 }}>
+                <b style={{ color: '#374151' }}>{members.length} participante{members.length !== 1 ? 's' : ''}</b> nesse bolão.
+                Os nomes estão ocultos (ranking anônimo ligado pelo admin).
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 10, overflow: 'hidden' }}>
+              {members.map((m, i) => (
+                <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderBottom: i < members.length - 1 ? '1px solid #f3f4f6' : 'none' }}>
+                  <div style={{ width: 30, height: 30, borderRadius: '50%', background: m.id === member.id ? GREEN : '#e5e7eb', color: m.id === member.id ? '#fff' : '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{m.nickname.charAt(0).toUpperCase()}</div>
+                  <span style={{ flex: 1, fontSize: 14, fontWeight: m.id === member.id ? 700 : 400 }}>{m.nickname}{m.id === member.id && <span style={{ color: GREEN, fontSize: 11 }}> (você)</span>}</span>
+                  {m.state && <span style={{ fontSize: 10, fontWeight: 700, color: '#6b7280', background: '#f3f4f6', padding: '2px 6px', borderRadius: 4 }}>{m.state}</span>}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -1810,8 +1870,10 @@ function StandingsView({ group, member, onBack, setToast }) {
                 <div style={{ fontSize: 20, width: 30, textAlign: 'center', flexShrink: 0, fontWeight: 700, color: i < 3 ? undefined : '#9ca3af' }}>{medals[i] || (i + 1) + 'º'}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.nickname}</span>
-                    {isMe && <span style={{ color: GREEN, fontSize: 10, fontWeight: 700 }}>(você)</span>}
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: s.nickname ? undefined : '#9ca3af', fontStyle: s.nickname ? undefined : 'italic' }}>
+                      {s.nickname || (isMe ? 'Você' : 'Participante ' + (i + 1) + 'º')}
+                    </span>
+                    {isMe && s.nickname && <span style={{ color: GREEN, fontSize: 10, fontWeight: 700 }}>(você)</span>}
                     {tab !== 'group' && s.state && <span style={{ fontSize: 9, fontWeight: 700, color: '#6b7280', background: '#f3f4f6', padding: '1px 5px', borderRadius: 3 }}>{s.state}</span>}
                   </div>
                   <div style={{ fontSize: 10, color: '#9ca3af', marginTop: 2 }}>

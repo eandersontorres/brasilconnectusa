@@ -137,7 +137,7 @@ export default async function handler(req, res) {
       const supabase = getSupabase()
       const { data: group, error } = await supabase
         .from('bc_bolao_groups')
-        .select('id, name, join_code, admin_email, prize_title, prize_description, prize_first, prize_second, prize_third, created_at')
+        .select('id, name, join_code, admin_email, prize_title, prize_description, prize_first, prize_second, prize_third, anonymous_ranking, created_at')
         .eq('join_code', code.toUpperCase())
         .single()
 
@@ -188,6 +188,15 @@ export default async function handler(req, res) {
 
     try {
       const supabase = getSupabase()
+
+      // Checa se o grupo tem ranking anonimo ligado (config do admin)
+      const { data: grp } = await supabase
+        .from('bc_bolao_groups')
+        .select('anonymous_ranking')
+        .eq('id', group_id)
+        .maybeSingle()
+      const anon = !!grp?.anonymous_ranking
+
       const { data, error } = await supabase
         .from('bc_bolao_global_standings')
         .select('member_id, nickname, state, total_pts, exact_count, correct_count, played')
@@ -195,16 +204,18 @@ export default async function handler(req, res) {
         .order('total_pts', { ascending: false })
       if (error) throw error
 
+      // Ranking anonimo: zera nickname/state (front mostra "Participante #N").
+      // Mantem member_id pro front marcar a linha do proprio viewer como "Voce".
       const standings = (data || []).map(s => ({
         member_id: s.member_id,
-        nickname: s.nickname,
-        state: s.state,
+        nickname: anon ? null : s.nickname,
+        state: anon ? null : s.state,
         total_pts: s.total_pts,
         exact: s.exact_count,
         correct: s.correct_count,
         played: s.played,
       }))
-      return res.status(200).json({ success: true, standings })
+      return res.status(200).json({ success: true, standings, anonymous_ranking: anon })
     } catch (e) {
       console.error('bolao/standings error:', e.message)
       return res.status(500).json({ error: 'Erro ao calcular standings' })
@@ -625,6 +636,44 @@ export default async function handler(req, res) {
     } catch (e) {
       console.error('bolao/update-prize error:', e.message)
       return res.status(500).json({ error: 'Erro ao salvar premiação' })
+    }
+  }
+
+  // ══ POST: toggle-anonymous-ranking (admin do grupo) ════════════════════════
+  if (req.method === 'POST' && action === 'toggle-anonymous-ranking') {
+    const { group_id, anonymous } = req.body || {}
+    if (!group_id) return res.status(400).json({ error: 'group_id obrigatório' })
+
+    // Auth obrigatorio: so o admin do grupo pode mudar (valida via token)
+    const authUser = await getUserFromAuth(req)
+    if (!authUser) return res.status(401).json({ error: 'Login obrigatório' })
+
+    try {
+      const supabase = getSupabase()
+
+      const { data: group, error: gErr } = await supabase
+        .from('bc_bolao_groups')
+        .select('id, admin_email')
+        .eq('id', group_id)
+        .single()
+      if (gErr || !group) return res.status(404).json({ error: 'Grupo não encontrado' })
+
+      if (String(group.admin_email).toLowerCase() !== String(authUser.email || '').toLowerCase()) {
+        return res.status(403).json({ error: 'Apenas o admin do grupo pode mudar isso' })
+      }
+
+      const { data, error } = await supabase
+        .from('bc_bolao_groups')
+        .update({ anonymous_ranking: anonymous === true })
+        .eq('id', group_id)
+        .select('id, anonymous_ranking')
+        .single()
+      if (error) throw error
+
+      return res.status(200).json({ success: true, anonymous_ranking: data.anonymous_ranking })
+    } catch (e) {
+      console.error('bolao/toggle-anonymous-ranking error:', e.message)
+      return res.status(500).json({ error: 'Erro ao salvar configuração' })
     }
   }
 
