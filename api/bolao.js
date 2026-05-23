@@ -135,9 +135,11 @@ export default async function handler(req, res) {
 
     try {
       const supabase = getSupabase()
+      // select('*') em vez de lista explicita: tolera colunas novas que ainda
+      // nao foram migradas (ex: anonymous_ranking antes de rodar o SQL).
       const { data: group, error } = await supabase
         .from('bc_bolao_groups')
-        .select('id, name, join_code, admin_email, prize_title, prize_description, prize_first, prize_second, prize_third, anonymous_ranking, created_at')
+        .select('*')
         .eq('join_code', code.toUpperCase())
         .single()
 
