@@ -1072,14 +1072,84 @@
 
     async function loadBolao(c) {
       try {
-        const r = await fetch('/api/bolao?action=admin-matches', { headers: { 'x-admin-secret': getSecret() } })
-        const d = await r.json()
-        if (!r.ok) throw new Error(d.error || 'Erro ao carregar partidas')
+        // Carrega stats + partidas em paralelo
+        const [statsRes, matchesRes] = await Promise.all([
+          fetch('/api/admin/bolao-stats', { headers: { 'x-admin-secret': getSecret() } }),
+          fetch('/api/bolao?action=admin-matches', { headers: { 'x-admin-secret': getSecret() } }),
+        ])
+        const stats = statsRes.ok ? await statsRes.json() : null
+        const d = await matchesRes.json()
+        if (!matchesRes.ok) throw new Error(d.error || 'Erro ao carregar partidas')
         const matches = d.matches || []
-        if (matches.length === 0) { c.innerHTML = '<div class="panel"><div class="empty">Nenhuma partida cadastrada. Rode supabase/bolao_schema.sql primeiro.</div></div>'; return }
         const finished = matches.filter(m => m.status === 'finished').length
         const upcoming = matches.length - finished
-        c.innerHTML = '<div class="panel"><div class="panel-eyebrow">BOLAO COPA 2026</div><h3>' + matches.length + ' partidas (' + finished + ' finalizadas, ' + upcoming + ' pendentes)</h3>' +
+
+        // ─── Bloco de stats (novo) ──────────────────────────────────────
+        let statsHtml = ''
+        if (stats?.success) {
+          const f = stats.funnel, g = stats.groups, p = stats.predictions
+          const pct = (n, d) => d > 0 ? Math.round((n / d) * 100) + '%' : '—'
+          statsHtml = `
+            <div class="panel" style="margin-bottom:12px;">
+              <div class="panel-eyebrow">FUNIL DO BOLAO</div>
+              <h3>Quantas pessoas chegaram em cada etapa</h3>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:14px;">
+                ${statCard('Signups total', f.total_signups, 'no auth.users')}
+                ${statCard('Aceitaram termos', f.accepted_terms, pct(f.accepted_terms, f.total_signups) + ' dos signups')}
+                ${statCard('Em algum bolão', f.distinct_participants, pct(f.distinct_participants, f.total_signups) + ' dos signups')}
+                ${statCard('Fizeram palpite', f.fizeram_algum_palpite, pct(f.fizeram_algum_palpite, f.members_total) + ' dos membros')}
+              </div>
+            </div>
+            <div class="panel" style="margin-bottom:12px;">
+              <div class="panel-eyebrow">GRUPOS</div>
+              <h3>${g.total} bolões criados · ${g.distinct_creators} criadores únicos</h3>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:14px;">
+                ${statCard('Com pelo menos 1 membro', g.with_member)}
+                ${statCard('Membros total', f.members_total, 'soma de todos os grupos')}
+                ${statCard('Média de membros/grupo', g.avg_members_per_group)}
+                ${statCard('Logados no Supabase', f.logged_in_bolao, 'resto entrou anônimo')}
+              </div>
+            </div>
+            <div class="panel" style="margin-bottom:12px;">
+              <div class="panel-eyebrow">PALPITES (de ${p.total_matches} partidas)</div>
+              <h3>Distribuição de quem palpitou</h3>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:14px;">
+                ${statCard('🏆 100% das partidas', p.palpite_100pct)}
+                ${statCard('80% ou mais', p.palpite_80pct)}
+                ${statCard('Parcial (1-79%)', p.palpite_parcial)}
+                ${statCard('Zero palpites', p.zero_palpite, 'membros sem nenhum')}
+              </div>
+            </div>
+            ${stats.top_groups?.length ? `
+              <div class="panel" style="margin-bottom:12px;">
+                <div class="panel-eyebrow">TOP GRUPOS (por membros)</div>
+                <h3>${stats.top_groups.length} maiores grupos ativos</h3>
+                <div style="display:flex;flex-direction:column;gap:6px;margin-top:12px;">
+                  ${stats.top_groups.map((g, i) => `
+                    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;">
+                      <span style="font-weight:700;color:var(--ink-muted);min-width:20px;">${i + 1}º</span>
+                      <div style="flex:1;min-width:0;">
+                        <div style="font-weight:600;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(g.name)}${g.anonymous_ranking ? ' 🔒' : ''}</div>
+                        <div style="font-size:11px;color:var(--ink-muted);">código ${escapeHtml(g.join_code)}</div>
+                      </div>
+                      <div style="text-align:right;flex-shrink:0;">
+                        <div style="font-weight:700;color:var(--ink);">${g.member_count} membro${g.member_count !== 1 ? 's' : ''}</div>
+                        <div style="font-size:11px;color:var(--ink-muted);">${g.prediction_count} palpites</div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+          `
+        }
+
+        if (matches.length === 0) {
+          c.innerHTML = statsHtml + '<div class="panel"><div class="empty">Nenhuma partida cadastrada. Rode supabase/bolao_schema.sql primeiro.</div></div>'
+          return
+        }
+
+        c.innerHTML = statsHtml + '<div class="panel"><div class="panel-eyebrow">PARTIDAS</div><h3>' + matches.length + ' partidas (' + finished + ' finalizadas, ' + upcoming + ' pendentes)</h3>' +
           '<p class="panel-sub">Atualize o placar de uma partida e o ranking se ajusta automaticamente.</p>' +
           matches.map(m => `
             <div class="item">
