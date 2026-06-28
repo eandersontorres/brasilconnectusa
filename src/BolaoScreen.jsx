@@ -582,7 +582,7 @@ function sortedGroupKeys(grouped) {
 }
 
 function phaseLabel(phase) {
-  const map = { group: 'Fase de Grupos', r32: 'Oitavas', r16: 'Oitavas de Final', qf: 'Quartas de Final', sf: 'Semifinal', final: 'Final' }
+  const map = { group: 'Fase de Grupos', r32: '16-avos de Final', r16: 'Oitavas de Final', qf: 'Quartas de Final', sf: 'Semifinal', final: 'Final' }
   return map[phase] || phase
 }
 
@@ -1782,11 +1782,15 @@ function PredictionsView({ member, onBack, setToast, deadline }) {
                 {isFinished && match.home_score !== null && (
                   <div style={{ fontSize: 12, color: '#6b7280', textAlign: 'center', marginTop: 8, paddingTop: 8, borderTop: '1px solid #f3f4f6' }}>
                     Resultado: {match.home_score} – {match.away_score}
-                    {pred.h !== undefined && (
-                      <span style={{ marginLeft: 8, fontWeight: 700, color: GREEN }}>
-                        {pred.h === match.home_score && pred.a === match.away_score ? '🎯 +3 pts' : Math.sign(pred.h - pred.a) === Math.sign(match.home_score - match.away_score) ? '✅ +1 pt' : '❌ 0 pts'}
-                      </span>
-                    )}
+                    {pred.h !== undefined && (() => {
+                      const exact = pred.h === match.home_score && pred.a === match.away_score
+                      // Mata-mata (phase != group): SÓ placar exato pontua.
+                      // Fase de grupos: 3 (exato) / 1 (só vencedor) / 0.
+                      const label = match.phase && match.phase !== 'group'
+                        ? (exact ? '🎯 +3 pts' : '❌ 0 pts')
+                        : (exact ? '🎯 +3 pts' : Math.sign(pred.h - pred.a) === Math.sign(match.home_score - match.away_score) ? '✅ +1 pt' : '❌ 0 pts')
+                      return <span style={{ marginLeft: 8, fontWeight: 700, color: GREEN }}>{label}</span>
+                    })()}
                   </div>
                 )}
               </div>
@@ -1804,21 +1808,27 @@ function PredictionsView({ member, onBack, setToast, deadline }) {
 // ════════════════════════════════════════════════════════════════════════════
 function StandingsView({ group, member, onBack, setToast }) {
   const [tab, setTab]                 = useState('group')
+  const [season, setSeason]           = useState('fase1') // fase1 = grupos · fase2 = mata-mata
   const [groupStand, setGroupStand]   = useState(null)
   const [stateStand, setStateStand]   = useState(null)
   const [globalStand, setGlobalStand] = useState(null)
 
+  // Trocar de temporada invalida os 3 caches → re-fetch da aba ativa.
+  useEffect(() => { setGroupStand(null); setStateStand(null); setGlobalStand(null) }, [season])
+
+  const seasonParam = season === 'fase2' ? '&season=fase2' : ''
+
   useEffect(() => {
     if (tab === 'group' && !groupStand && group) {
-      apiFetch('/api/bolao?action=standings&group_id=' + group.id).then(r => r.json()).then(d => setGroupStand(d.standings || [])).catch(() => setGroupStand([]))
+      apiFetch('/api/bolao?action=standings&group_id=' + group.id + seasonParam).then(r => r.json()).then(d => setGroupStand(d.standings || [])).catch(() => setGroupStand([]))
     }
     if (tab === 'state' && !stateStand && member.state) {
-      apiFetch('/api/bolao?action=standings-state&state=' + member.state).then(r => r.json()).then(d => setStateStand(d.standings || [])).catch(() => setStateStand([]))
+      apiFetch('/api/bolao?action=standings-state&state=' + member.state + seasonParam).then(r => r.json()).then(d => setStateStand(d.standings || [])).catch(() => setStateStand([]))
     }
     if (tab === 'global' && !globalStand) {
-      apiFetch('/api/bolao?action=standings-global').then(r => r.json()).then(d => setGlobalStand(d.standings || [])).catch(() => setGlobalStand([]))
+      apiFetch('/api/bolao?action=standings-global' + seasonParam).then(r => r.json()).then(d => setGlobalStand(d.standings || [])).catch(() => setGlobalStand([]))
     }
-  }, [tab, group, member, groupStand, stateStand, globalStand])
+  }, [tab, season, seasonParam, group, member, groupStand, stateStand, globalStand])
 
   const handleShare = async () => {
     const r = await shareNative({ title: 'Ranking do Bolão Copa 2026', text: '🏆 Confere meu ranking no Bolão Copa 2026! https://brasilconnectusa.com' })
@@ -1842,6 +1852,15 @@ function StandingsView({ group, member, onBack, setToast }) {
         <button onClick={handleShare} style={{ background: 'transparent', border: '1px solid ' + GREEN, color: GREEN, borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>📤 Compartilhar</button>
       </div>
 
+      {/* Toggle de temporada: Fase de Grupos x Mata-mata (disputas separadas) */}
+      <div style={{ display: 'flex', gap: 4, background: '#eef2ff', borderRadius: 10, padding: 3, marginBottom: 10 }}>
+        {[{ id: 'fase1', label: '⚽ Fase de Grupos' }, { id: 'fase2', label: '🔥 Mata-mata' }].map(s => (
+          <button key={s.id} onClick={() => setSeason(s.id)} style={{ flex: 1, padding: '8px 4px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: season === s.id ? '#fff' : 'transparent', color: season === s.id ? BLUE : '#6b7280', border: 'none', cursor: 'pointer', boxShadow: season === s.id ? '0 1px 4px rgba(0,0,0,0.1)' : 'none' }}>
+            {s.label}
+          </button>
+        ))}
+      </div>
+
       <div style={{ display: 'flex', gap: 4, background: '#f3f4f6', borderRadius: 10, padding: 3, marginBottom: 14 }}>
         {tabConfig.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{ flex: 1, padding: '8px 4px', borderRadius: 8, fontSize: 12, fontWeight: 700, background: tab === t.id ? '#fff' : 'transparent', color: tab === t.id ? '#111827' : '#6b7280', border: 'none', cursor: 'pointer', boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,0.1)' : 'none' }}>
@@ -1851,7 +1870,7 @@ function StandingsView({ group, member, onBack, setToast }) {
       </div>
 
       <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 12, textAlign: 'center' }}>
-        {tabConfig.find(t => t.id === tab)?.sub} · pontos baseados em jogos encerrados
+        {tabConfig.find(t => t.id === tab)?.sub} · {season === 'fase2' ? 'mata-mata: só placar exato vale (3 pts)' : 'pontos baseados em jogos encerrados'}
       </div>
 
       {loading ? <Spinner /> : standings.length === 0 ? (

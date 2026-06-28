@@ -34,6 +34,13 @@ const VALID_STATES = new Set([
   'SD','TN','TX','UT','VT','VA','WA','WV','WI','WY','DC','PR'
 ])
 
+// Escolhe a view de ranking conforme a "temporada":
+//   season=fase2 → mata-mata (bc_bolao_fase2_standings, pontua só placar exato)
+//   default      → fase de grupos / geral (bc_bolao_global_standings, 3/1/0)
+function standingsView(season) {
+  return season === 'fase2' ? 'bc_bolao_fase2_standings' : 'bc_bolao_global_standings'
+}
+
 function calcPoints(pred_home, pred_away, real_home, real_away) {
   if (real_home === null || real_away === null) return 0
   if (pred_home === real_home && pred_away === real_away) return 3
@@ -184,12 +191,14 @@ export default async function handler(req, res) {
   }
 
   // ══ GET: standings por GRUPO ═══════════════════════════════════════════════
+  // ?season=fase2 → ranking do mata-mata (view própria, pontua só placar exato).
   if (req.method === 'GET' && action === 'standings') {
     const { group_id } = req.query
     if (!group_id) return res.status(400).json({ error: 'group_id é obrigatório' })
 
     try {
       const supabase = getSupabase()
+      const view = standingsView(req.query.season)
 
       // Checa se o grupo tem ranking anonimo ligado (config do admin)
       const { data: grp } = await supabase
@@ -200,7 +209,7 @@ export default async function handler(req, res) {
       const anon = !!grp?.anonymous_ranking
 
       const { data, error } = await supabase
-        .from('bc_bolao_global_standings')
+        .from(view)
         .select('member_id, nickname, state, total_pts, exact_count, correct_count, played')
         .eq('group_id', group_id)
         .order('total_pts', { ascending: false })
@@ -233,7 +242,7 @@ export default async function handler(req, res) {
     try {
       const supabase = getSupabase()
       const { data, error } = await supabase
-        .from('bc_bolao_global_standings')
+        .from(standingsView(req.query.season))
         .select('member_id, nickname, state, group_name, total_pts, exact_count, correct_count, played')
         .eq('state', state.toUpperCase())
         .order('total_pts', { ascending: false })
@@ -262,7 +271,7 @@ export default async function handler(req, res) {
     try {
       const supabase = getSupabase()
       const { data, error } = await supabase
-        .from('bc_bolao_global_standings')
+        .from(standingsView(req.query.season))
         .select('member_id, nickname, state, group_name, total_pts, exact_count, correct_count, played')
         .order('total_pts', { ascending: false })
         .limit(100)
