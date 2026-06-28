@@ -63,10 +63,10 @@ function escapeHtml(str) {
 function invitePageHtml({ group, memberCount }) {
   const groupName = escapeHtml(group.name)
   const code = escapeHtml(group.join_code)
-  const ogTitle = `Você foi convidado pro Bolão Copa 2026: ${groupName}`
+  const ogTitle = `Bolão Copa 2026 — Mata-mata: ${groupName}`
   const ogDesc = memberCount > 1
-    ? `${memberCount} brasileiros já estão palpitando. Entre no grupo e dispute o ranking estadual e nacional dos EUA.`
-    : `Bolão da Copa 2026 — entre, palpite e dispute o ranking estadual e nacional dos EUA.`
+    ? `Começou o mata-mata! Brasil x Japão nos 16-avos (29/jun). ${memberCount} brasileiros já palpitando — entre e dispute o ranking estadual e nacional dos EUA.`
+    : `Começou o mata-mata da Copa! Palpite no Brasil x Japão (16-avos, 29/jun) e dispute o ranking estadual e nacional dos EUA.`
   const ogImage = 'https://brasilconnectusa.com/og-image.svg'
   const url = `https://brasilconnectusa.com/bolao/${code}`
   const prizeLine = group.prize_title || group.prize_first
@@ -159,10 +159,10 @@ a{text-decoration:none;color:inherit;}
   <div class="brand"><div class="brand-logo">Brasil<em>Connect</em></div></div>
 
   <div class="hero">
-    <div class="hero-tag">⚽ Bolão Copa 2026</div>
+    <div class="hero-tag">🔥 Bolão Copa 2026 · Mata-mata</div>
     <div class="hero-ball">🏆</div>
     <h1 class="hero-h1">Você foi convidado<br/>pra <em>palpitar.</em></h1>
-    <p class="hero-sub">Os jogos começam em <strong style="color:#fff;">11 de junho</strong>. O Brasil estreia <strong style="color:#fff;">13/jun</strong>. Não fica de fora.</p>
+    <p class="hero-sub">Começou o mata-mata! O Brasil encara o <strong style="color:#fff;">Japão</strong> nos 16-avos, <strong style="color:#fff;">29/jun, 12h (CT)</strong>. Agora só vale o placar exato. Não fica de fora.</p>
   </div>
 
   <div class="card">
@@ -176,12 +176,12 @@ a{text-decoration:none;color:inherit;}
         <div class="meta-lbl">${memberCount === 1 ? 'participante' : 'participantes'}</div>
       </div>
       <div class="metaitem">
-        <div class="meta-num">48</div>
-        <div class="meta-lbl">seleções</div>
+        <div class="meta-num">29/jun</div>
+        <div class="meta-lbl">Brasil × Japão</div>
       </div>
       <div class="metaitem">
-        <div class="meta-num">5⭐</div>
-        <div class="meta-lbl">do Brasil</div>
+        <div class="meta-num">🎯</div>
+        <div class="meta-lbl">placar exato</div>
       </div>
     </div>
     <a class="cta" href="/app/bolao?join=${code}">Entrar no Bolão →</a>

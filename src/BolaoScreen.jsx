@@ -617,8 +617,9 @@ function ScrollTabs({ keys, active, onSelect, color = BLUE }) {
 //   View: Home (com TODAS as features interativas)
 // ════════════════════════════════════════════════════════════════════════════
 function HomeView({ onCreateClick, onJoinClick, config, setToast, memberships, onPickMembership }) {
-  const copaStart = config?.copa_start_date || '2026-06-11T19:00:00Z'
-  const brasilFirst = config?.brasil_first_match || '2026-06-13T22:00:00Z'
+  // Próximo jogo do Brasil no mata-mata. Config-driven p/ trocar por round sem
+  // mexer no código; fallback = Brasil x Japão (16-avos, 29/jun 12h CT).
+  const nextMatch = config?.next_match_date || '2026-06-29T17:00:00Z'
 
   const handleShare = async () => {
     const r = await shareNative({
@@ -680,17 +681,11 @@ function HomeView({ onCreateClick, onJoinClick, config, setToast, memberships, o
         </div>
       </div>
 
-      {/* Countdown */}
+      {/* Countdown — próximo jogo do Brasil no mata-mata */}
       <CountdownBlock
-        targetDate={copaStart}
-        label="Faltam para a abertura da Copa"
-        sub="11 de Junho de 2026 · México vs África do Sul"
-        gradient={'linear-gradient(135deg, ' + GREEN + ' 0%, #006428 100%)'}
-      />
-      <CountdownBlock
-        targetDate={brasilFirst}
-        label="🇧🇷 1º jogo do Brasil"
-        sub="13 de Junho · Brasil × Marrocos · MetLife Stadium NJ"
+        targetDate={nextMatch}
+        label="🔥 Mata-mata · próximo jogo do Brasil"
+        sub="29 de Junho · Brasil × Japão · 16-avos · 12h (horário central)"
         gradient="linear-gradient(135deg, #FBBF24 0%, #D97706 100%)"
       />
 
@@ -1685,7 +1680,10 @@ function PredictionsView({ member, onBack, setToast, deadline }) {
       ])
       const mData = await mRes.json()
       const pData = await pRes.json()
-      const matchList = mData.matches || []
+      // Mostra só os jogos do MATA-MATA (phase != group). A fase de grupos já
+      // acabou e foi travada — exibir os 72 jogos antigos só polui a tela.
+      // Hoje isso = só Brasil x Japão; jogos futuros do mata-mata entram sozinhos.
+      const matchList = (mData.matches || []).filter(m => m.phase && m.phase !== 'group')
       setMatches(matchList)
       if (matchList.length > 0) {
         const grouped = groupByPhaseAndGroup(matchList)
