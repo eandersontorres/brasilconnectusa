@@ -15,6 +15,12 @@ const NAVY  = '#0B1928'
 
 const REDIRECT_TO = (typeof window !== 'undefined' ? window.location.origin : '') + '/app/feed'
 
+// Botão "Continuar com Google" só aparece quando o provider estiver habilitado
+// no Supabase (Auth → Providers → Google, com credenciais OAuth do Google Cloud).
+// Enquanto não estiver, virar false evita mostrar um botão que sempre erra.
+// Pra religar: trocar pra true depois de configurar o provider no painel.
+const GOOGLE_LOGIN_ENABLED = false
+
 function GoogleIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true" style={{ flexShrink: 0 }}>
@@ -197,22 +203,26 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
               Pra criar/entrar em bolões, postar e ver contatos do marketplace.
             </div>
 
-            {/* 1. Google */}
-            <button type="button" onClick={handleGoogle} disabled={loading} style={{
-              width: '100%', padding: '12px 0', borderRadius: 10, background: '#fff',
-              border: '1.5px solid #d1d5db', cursor: loading ? 'default' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
-              fontSize: 15, fontWeight: 600, color: '#1f2937', fontFamily: 'inherit',
-            }}>
-              <GoogleIcon /> Continuar com Google
-            </button>
+            {/* 1. Google (escondido enquanto GOOGLE_LOGIN_ENABLED = false) */}
+            {GOOGLE_LOGIN_ENABLED && (
+              <>
+                <button type="button" onClick={handleGoogle} disabled={loading} style={{
+                  width: '100%', padding: '12px 0', borderRadius: 10, background: '#fff',
+                  border: '1.5px solid #d1d5db', cursor: loading ? 'default' : 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                  fontSize: 15, fontWeight: 600, color: '#1f2937', fontFamily: 'inherit',
+                }}>
+                  <GoogleIcon /> Continuar com Google
+                </button>
 
-            {/* divisor */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '16px 0' }}>
-              <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
-              <span style={{ fontSize: 11, color: '#9ca3af' }}>ou com email</span>
-              <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
-            </div>
+                {/* divisor */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '16px 0' }}>
+                  <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
+                  <span style={{ fontSize: 11, color: '#9ca3af' }}>ou com email</span>
+                  <div style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
+                </div>
+              </>
+            )}
 
             {/* 2. Email + senha */}
             <form onSubmit={handlePassword}>
