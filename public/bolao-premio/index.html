@@ -372,23 +372,53 @@
 
     var msg = buildMessage(d);
 
-    if (ADMIN_WHATSAPP) {
-      var url = 'https://wa.me/' + ADMIN_WHATSAPP + '?text=' + encodeURIComponent(msg);
-      window.open(url, '_blank', 'noopener');
-      showToast('🎉 Abrindo o WhatsApp… é só apertar enviar!');
-    } else {
-      // Sem número configurado: copia a mensagem pro clipboard
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(msg).then(function(){
-          showToast('📋 Mensagem copiada! Cole no WhatsApp do organizador.');
-        }, function(){
-          showToast('Copie a mensagem manualmente: ' + msg.slice(0, 40) + '…');
-        });
-      } else {
-        showToast('WhatsApp do organizador ainda não configurado.');
-      }
-    }
+    // 1) Salva o resgate no servidor (não depende do envio manual do WhatsApp).
+    // 2) Depois abre o WhatsApp já preenchido. Mesmo se o save falhar, deixa
+    //    a pessoa enviar pelo WhatsApp pra não travar o resgate.
+    var btn = $('submitBtn'), lbl = $('submitLabel');
+    btn.disabled = true; lbl.textContent = 'Salvando…';
+
+    var payload = {
+      position: parseInt(d.pos, 10),
+      prize_label: (PRIZE_BY_POS[d.pos] || {}).freq || '',
+      nickname: d.nick,
+      full_name: d.fullname,
+      email: d.email,
+      whatsapp: d.whatsapp,
+      delivery_address: d.address || null,
+      companion_name: d.companion || null,
+      notes: d.notes || null,
+      accepted_terms: true
+    };
+
+    fetch('/api/bolao?action=prize-claim', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function(r){ return r.json().then(function(j){ return { ok: r.ok, j: j }; }); })
+      .then(function(res){
+        if (!res.ok) throw new Error(res.j && res.j.error || 'Falha ao salvar');
+        openWhatsapp(msg, '🎉 Resgate registrado! Abrindo o WhatsApp — é só apertar enviar.');
+      })
+      .catch(function(){
+        // Save falhou: ainda assim abre o WhatsApp como plano B.
+        openWhatsapp(msg, '⚠️ Não consegui salvar automático, mas dá pra enviar pelo WhatsApp abaixo.');
+      })
+      .then(function(){ btn.disabled = false; lbl.textContent = 'Enviar pelo WhatsApp'; });
   });
+
+  function openWhatsapp(msg, okToast){
+    if (ADMIN_WHATSAPP) {
+      window.open('https://wa.me/' + ADMIN_WHATSAPP + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+      showToast(okToast);
+    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg).then(function(){
+        showToast('📋 Resgate registrado e mensagem copiada! Cole no WhatsApp do organizador.');
+      }, function(){ showToast('Resgate registrado.'); });
+    } else {
+      showToast('✅ Resgate registrado!');
+    }
+  }
 </script>
 </body>
 </html>

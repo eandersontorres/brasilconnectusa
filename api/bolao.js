@@ -751,5 +751,75 @@ export default async function handler(req, res) {
     }
   }
 
+  // ══ POST: prize-claim (vencedor do Top 3 preenche a página /bolao-premio) ══
+  // Público (sem login) — os vencedores acessam por link com token client-side.
+  // Salva o resgate pra não depender do envio manual do WhatsApp.
+  if (req.method === 'POST' && action === 'prize-claim') {
+    const b = req.body || {}
+    const position = parseInt(b.position, 10)
+    const nickname = String(b.nickname || '').trim()
+    const full_name = String(b.full_name || '').trim()
+    const email = String(b.email || '').trim()
+    const whatsapp = String(b.whatsapp || '').trim()
+
+    if (![1, 2, 3].includes(position)) return res.status(400).json({ error: 'Posição inválida' })
+    if (nickname.length < 2 || nickname.length > 40) return res.status(400).json({ error: 'Apelido inválido' })
+    if (full_name.length < 2 || full_name.length > 80) return res.status(400).json({ error: 'Nome inválido' })
+    if (!isValidEmail(email)) return res.status(400).json({ error: 'E-mail inválido' })
+    if (whatsapp.replace(/\D/g, '').length < 8) return res.status(400).json({ error: 'WhatsApp inválido' })
+    if (!b.accepted_terms) return res.status(400).json({ error: 'É preciso aceitar o regulamento' })
+
+    try {
+      const supabase = getSupabase()
+      const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || null
+      const ua = req.headers['user-agent'] ? String(req.headers['user-agent']).slice(0, 400) : null
+
+      const { data, error } = await supabase
+        .from('bc_bolao_prize_claims')
+        .insert({
+          position,
+          prize_label:      b.prize_label ? String(b.prize_label).slice(0, 120) : null,
+          nickname:         nickname.slice(0, 40),
+          full_name:        full_name.slice(0, 80),
+          email:            email.slice(0, 120),
+          whatsapp:         whatsapp.slice(0, 30),
+          delivery_address: b.delivery_address ? String(b.delivery_address).slice(0, 300) : null,
+          companion_name:   b.companion_name ? String(b.companion_name).slice(0, 80) : null,
+          notes:            b.notes ? String(b.notes).slice(0, 200) : null,
+          accepted_terms:   true,
+          accepted_ip:      ip,
+          accepted_ua:      ua,
+        })
+        .select('id, created_at')
+        .single()
+      if (error) throw error
+
+      return res.status(201).json({ success: true, id: data.id })
+    } catch (e) {
+      console.error('bolao/prize-claim error:', e.message)
+      return res.status(500).json({ error: 'Erro ao salvar o resgate' })
+    }
+  }
+
+  // ══ GET: prize-claims (admin lista os resgates) — header x-admin-secret ════
+  if (req.method === 'GET' && action === 'prize-claims') {
+    const adminSecret = req.headers['x-admin-secret']
+    if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
+    try {
+      const supabase = getSupabase()
+      const { data, error } = await supabase
+        .from('bc_bolao_prize_claims')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return res.status(200).json({ success: true, claims: data || [] })
+    } catch (e) {
+      console.error('bolao/prize-claims error:', e.message)
+      return res.status(500).json({ error: 'Erro ao listar resgates' })
+    }
+  }
+
   return res.status(405).json({ error: 'Method not allowed' })
 }
