@@ -33,6 +33,14 @@
     /* ── Bolão · resgate de prêmio (escopo) ─────────────────────── */
     .prize-wrap{max-width:680px;margin:0 auto}
 
+    /* gate (link sem token) */
+    .gate{max-width:520px;margin:10px auto 40px;text-align:center;background:var(--paper-elevated);border:1px solid var(--line);border-radius:16px;padding:40px 28px;box-shadow:var(--shadow-sm)}
+    .gate-ic{font-size:2.4rem;line-height:1;margin-bottom:14px}
+    .gate h2{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:600;color:var(--ink);margin:0 0 10px}
+    .gate p{font-size:.92rem;color:var(--ink-soft);line-height:1.55;margin:0 0 22px}
+    .gate-btn{display:inline-block;font-family:'Sora',sans-serif;font-size:.88rem;font-weight:600;color:#fff;background:var(--green-deep);padding:11px 22px;border-radius:30px;text-decoration:none;transition:.18s}
+    .gate-btn:hover{background:var(--green-deep-hover)}
+
     /* pódio */
     .podium{display:flex;justify-content:center;align-items:flex-end;gap:12px;margin:6px 0 30px}
     .podium .step{flex:1;max-width:140px;border-radius:14px 14px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:14px 8px 12px;color:#fff;position:relative}
@@ -113,7 +121,16 @@
 
   <section style="padding-top:0">
     <div class="container">
-      <div class="prize-wrap">
+
+      <!-- gate: link sem token válido -->
+      <div class="gate" id="gate" style="display:none">
+        <div class="gate-ic">🔒</div>
+        <h2>Link inválido ou expirado</h2>
+        <p>Essa página de resgate é exclusiva para os vencedores do bolão. Use o link personalizado que o organizador te enviou. Em caso de dúvida, fale com quem organizou o bolão.</p>
+        <a class="gate-btn" href="/">← Voltar pro início</a>
+      </div>
+
+      <div class="prize-wrap" id="prizeWrap">
 
         <!-- pódio -->
         <div class="podium" id="podium">
@@ -237,6 +254,13 @@
   // ════════════════════════════════════════════════════════════════
   var ADMIN_WHATSAPP = '';
 
+  // ════════════════════════════════════════════════════════════════
+  //  CONFIG — código de acesso. A página só abre com ?t=CODIGO no link.
+  //  Mande o link pros vencedores assim: /bolao-premio?t=campeao26&pos=1&nick=vini
+  //  Troque o valor abaixo pelo código que quiser (qualquer texto sem espaço).
+  // ════════════════════════════════════════════════════════════════
+  var ACCESS_TOKEN = 'campeao26';
+
   var $ = function(id){ return document.getElementById(id); };
   var toast = $('toast'), toastTimer;
   function showToast(msg){
@@ -246,8 +270,18 @@
     toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 3600);
   }
 
-  // Prefill por URL: ?pos=1&nick=vini  (pro organizador mandar link personalizado)
   var params = new URLSearchParams(location.search);
+
+  // Gate de acesso: sem ?t=CODIGO válido, esconde o formulário e mostra o aviso.
+  if (params.get('t') !== ACCESS_TOKEN) {
+    $('prizeWrap').style.display = 'none';
+    $('gate').style.display = '';
+    // Esconde também a chamada do topo pra não dar parabéns a quem não tem o link.
+    var lede = document.querySelector('.hero .lede');
+    if (lede) lede.textContent = 'Página exclusiva para os vencedores do bolão.';
+  }
+
+  // Prefill por URL: ?pos=1&nick=vini  (pro organizador mandar link personalizado)
   var posPrefill = params.get('pos');
   var nickPrefill = params.get('nick');
   if (posPrefill && ['1','2','3'].indexOf(posPrefill) !== -1) $('pos').value = posPrefill;
