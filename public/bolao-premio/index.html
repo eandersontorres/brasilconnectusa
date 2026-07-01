@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://brasilconnectusa.com/bolao-premio/">
+  <title>Resgatar prêmio do Bolão · Top 3 | BrasilConnect USA</title>
+  <meta name="description" content="Ficou no Top 3 do Bolão da Copa 2026? Preencha seus dados aqui para combinar a entrega do prêmio com o organizador.">
+  <!-- Página de resgate: não precisa indexar -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#1F4D3F">
+  <meta name="author" content="BrasilConnect USA">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BrasilConnect USA">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:url" content="https://brasilconnectusa.com/bolao-premio/">
+  <meta property="og:title" content="Resgatar prêmio do Bolão · Top 3 🏆">
+  <meta property="og:description" content="Ficou no Top 3? Preencha seus dados para combinar a entrega do prêmio.">
+  <meta property="og:image" content="https://brasilconnectusa.com/og-image.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Premium design system -->
+  <link rel="stylesheet" href="/css/premium.css">
+
+  <style>
+    /* ── Bolão · resgate de prêmio (escopo) ─────────────────────── */
+    .prize-wrap{max-width:680px;margin:0 auto}
+
+    /* gate (link sem token) */
+    .gate{max-width:520px;margin:10px auto 40px;text-align:center;background:var(--paper-elevated);border:1px solid var(--line);border-radius:16px;padding:40px 28px;box-shadow:var(--shadow-sm)}
+    .gate-ic{font-size:2.4rem;line-height:1;margin-bottom:14px}
+    .gate h2{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:600;color:var(--ink);margin:0 0 10px}
+    .gate p{font-size:.92rem;color:var(--ink-soft);line-height:1.55;margin:0 0 22px}
+    .gate-btn{display:inline-block;font-family:'Sora',sans-serif;font-size:.88rem;font-weight:600;color:#fff;background:var(--green-deep);padding:11px 22px;border-radius:30px;text-decoration:none;transition:.18s}
+    .gate-btn:hover{background:var(--green-deep-hover)}
+
+    /* pódio */
+    .podium{display:flex;justify-content:center;align-items:flex-end;gap:12px;margin:6px 0 30px}
+    .podium .step{flex:1;max-width:140px;border-radius:14px 14px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:14px 8px 12px;color:#fff;position:relative}
+    .podium .step .medal{font-size:1.7rem;line-height:1;margin-bottom:6px}
+    .podium .step .pos{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem}
+    .podium .step .nick{font-family:'Sora',sans-serif;font-size:.74rem;opacity:.92;margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .podium .p1{height:128px;background:linear-gradient(180deg,#C9A227,#9A7B1C)}
+    .podium .p2{height:104px;background:linear-gradient(180deg,#9AA0A6,#6E7479)}
+    .podium .p3{height:88px;background:linear-gradient(180deg,#B07A47,#8A5A2E)}
+
+    /* card regras */
+    .rules{background:var(--paper-elevated);border:1px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:26px;box-shadow:var(--shadow-sm)}
+    .rules h2{font-family:'Fraunces',serif;font-size:1.18rem;font-weight:600;color:var(--ink);margin:0 0 4px}
+    .rules .sub{font-size:.86rem;color:var(--ink-muted);margin-bottom:14px}
+    .rules ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px}
+    .rules li{display:flex;gap:11px;align-items:flex-start;font-size:.9rem;color:var(--ink-soft);line-height:1.5}
+    .rules li .ic{flex:none;font-size:1rem;line-height:1.5}
+    .rules .fineprint{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:.78rem;color:var(--ink-muted);line-height:1.55}
+
+    /* form */
+    .form-card{background:var(--paper-elevated);border:1px solid var(--line);border-radius:16px;padding:24px;box-shadow:var(--shadow-sm)}
+    .form-card h2{font-family:'Fraunces',serif;font-size:1.18rem;font-weight:600;color:var(--ink);margin:0 0 18px}
+    .field{margin-bottom:16px}
+    .field label{display:block;font-family:'Sora',sans-serif;font-size:.82rem;font-weight:500;color:var(--ink-soft);margin-bottom:6px}
+    .field label .req{color:#C0392B}
+    .field input,.field select,.field textarea{width:100%;box-sizing:border-box;font-family:'Sora',sans-serif;font-size:.95rem;color:var(--ink);background:var(--paper);border:1px solid var(--line-strong);border-radius:11px;padding:12px 14px;outline:none;transition:.16s}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green-deep);box-shadow:0 0 0 3px var(--green-soft)}
+    .field textarea{resize:vertical;min-height:70px}
+    .field .hint{font-size:.74rem;color:var(--ink-muted);margin-top:5px}
+    .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media(max-width:520px){.row2{grid-template-columns:1fr}}
+
+    /* método de entrega (radio cards) */
+    .pick{display:flex;flex-direction:column;gap:9px}
+    .pick label{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line-strong);border-radius:11px;padding:12px 14px;cursor:pointer;transition:.16s;margin:0}
+    .pick label:hover{border-color:var(--green-deep)}
+    .pick label.on{border-color:var(--green-deep);background:var(--green-soft)}
+    .pick input{width:auto;margin-top:3px}
+    .pick .t{font-weight:500;color:var(--ink);font-size:.9rem}
+    .pick .d{font-size:.76rem;color:var(--ink-muted);margin-top:2px}
+
+    /* consentimento */
+    .consent{display:flex;gap:11px;align-items:flex-start;font-size:.84rem;color:var(--ink-soft);line-height:1.5;margin:6px 0 18px}
+    .consent input{width:auto;margin-top:3px}
+
+    .submit{width:100%;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:1rem;font-weight:600;padding:15px;border-radius:30px;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;gap:9px;transition:.18s}
+    .submit:hover{filter:brightness(.96)}
+    .submit:disabled{background:var(--line-strong);color:var(--ink-muted);cursor:not-allowed}
+    .submit svg{width:20px;height:20px;fill:currentColor}
+    .err{color:#C0392B;font-size:.82rem;margin-top:10px;text-align:center;min-height:1em}
+
+    .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:13px 22px;border-radius:30px;font-size:.88rem;font-weight:500;box-shadow:0 14px 30px -10px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:.3s;z-index:999;max-width:calc(100vw - 32px);text-align:center}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+    <nav class="site-nav">
+      <a href="/custo-de-vida/">Custo de Vida</a>
+      <a href="/guias/">Guias</a>
+      <a href="/loja/">Loja</a>
+      <a href="/?preview=brasil2026">App</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero hero-compact">
+    <div class="container-narrow">
+      <div class="eyebrow">Bolão Copa 2026 · Premiação da fase de grupos</div>
+      <h1>Você ficou no <em>Top 3</em> 🏆</h1>
+      <p class="lede">Parabéns, brazuca! Você terminou a <b>fase de grupos</b> entre os 3 primeiros. Preencha seus dados abaixo para o organizador combinar a entrega do seu prêmio. Leva menos de 1 minuto.</p>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="container">
+
+      <!-- gate: link sem token válido -->
+      <div class="gate" id="gate" style="display:none">
+        <div class="gate-ic">🔒</div>
+        <h2>Link inválido ou expirado</h2>
+        <p>Essa página de resgate é exclusiva para os vencedores do bolão. Use o link personalizado que o organizador te enviou. Em caso de dúvida, fale com quem organizou o bolão.</p>
+        <a class="gate-btn" href="/">← Voltar pro início</a>
+      </div>
+
+      <div class="prize-wrap" id="prizeWrap">
+
+        <!-- pódio -->
+        <div class="podium" id="podium">
+          <div class="step p2"><div class="medal">🥈</div><div class="pos">2º</div><div class="nick" data-pos="2">—</div></div>
+          <div class="step p1"><div class="medal">🥇</div><div class="pos">1º</div><div class="nick" data-pos="1">—</div></div>
+          <div class="step p3"><div class="medal">🥉</div><div class="pos">3º</div><div class="nick" data-pos="3">—</div></div>
+        </div>
+
+        <!-- regras -->
+        <div class="rules">
+          <h2>📋 As regras do prêmio</h2>
+          <div class="sub">O combinado do Bolão da TorresBee · fase de grupos — vale pra todo mundo do pódio.</div>
+          <ul>
+            <li><span class="ic">🏅</span><span>Premiamos os <b>3 primeiros do ranking da fase de grupos</b>. A posição é a que aparece no ranking oficial do app — não dá pra trocar.</span></li>
+            <li><span class="ic">🎯</span><span><b>Como pontuou:</b> placar exato = <b>3 pontos</b>; acertar só o vencedor (ou o empate) = <b>1 ponto</b>; errou = 0. Quem somou mais pontos nos jogos da fase de grupos venceu.</span></li>
+            <li><span class="ic">1️⃣</span><span><b>1 conta por pessoa.</b> Quem jogou com mais de um e-mail/apelido pra ganhar vantagem é <b>desclassificado</b> e perde o prêmio.</span></li>
+            <li><span class="ic">🎁</span><span>O prêmio é <b>pessoal e intransferível</b> — entregue só pra quem está no pódio.</span></li>
+            <li><span class="ic">📦</span><span><b>Pick up</b> (retirada combinada): de graça. <b>Delivery</b>: pode, mas a taxa de entrega fica por conta do ganhador.</span></li>
+            <li><span class="ic">⏰</span><span><b>Prazo pra resgatar: 90 dias.</b> Passou do prazo sem preencher e combinar, perde o direito ao prêmio.</span></li>
+          </ul>
+          <div class="fineprint">
+            O combinado é entre a galera do bolão. A plataforma <b>não recebe nem repassa dinheiro</b> — é zoeira, futebol e comunidade. 🇧🇷
+          </div>
+        </div>
+
+        <!-- formulário -->
+        <form class="form-card" id="claimForm" novalidate>
+          <h2>✍️ Seus dados pra receber o prêmio</h2>
+
+          <div class="row2">
+            <div class="field">
+              <label for="pos">Sua posição no pódio <span class="req">*</span></label>
+              <select id="pos" required>
+                <option value="">Selecione…</option>
+                <option value="1">🥇 1º lugar</option>
+                <option value="2">🥈 2º lugar</option>
+                <option value="3">🥉 3º lugar</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="nick">Seu apelido no bolão <span class="req">*</span></label>
+              <input type="text" id="nick" placeholder="Como aparece no ranking" maxlength="40" required>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="fullname">Nome completo <span class="req">*</span></label>
+            <input type="text" id="fullname" placeholder="João da Silva" maxlength="80" required>
+          </div>
+
+          <div class="row2">
+            <div class="field">
+              <label for="email">E-mail usado no bolão <span class="req">*</span></label>
+              <input type="email" id="email" placeholder="voce@email.com" maxlength="120" required>
+              <div class="hint">Usado pra conferir sua identidade no ranking.</div>
+            </div>
+            <div class="field">
+              <label for="whatsapp">WhatsApp <span class="req">*</span></label>
+              <input type="tel" id="whatsapp" placeholder="+1 (555) 555-5555" maxlength="30" required>
+              <div class="hint">Pra combinar a entrega.</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Como você quer receber? <span class="req">*</span></label>
+            <div class="pick" id="method">
+              <label class="on">
+                <input type="radio" name="method" value="Pick up (retirada combinada)" checked>
+                <span><span class="t">🤝 Pick up — retirada combinada</span><span class="d">De graça. A gente combina ponto e horário.</span></span>
+              </label>
+              <label>
+                <input type="radio" name="method" value="Delivery (taxa por conta do ganhador)">
+                <span><span class="t">🛵 Delivery</span><span class="d">A taxa de entrega fica por sua conta.</span></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="field" id="addrField" style="display:none">
+            <label for="address">Endereço pra entrega</label>
+            <textarea id="address" placeholder="Rua, número, cidade, estado, ZIP"></textarea>
+          </div>
+
+          <div class="field">
+            <label for="notes">Observação (opcional)</label>
+            <input type="text" id="notes" placeholder="Algo que o organizador precise saber" maxlength="160">
+          </div>
+
+          <label class="consent">
+            <input type="checkbox" id="agree" required>
+            <span>Li e concordo com as regras acima: 1 conta por pessoa, prêmio pessoal e intransferível, e prazo de 90 dias pra resgatar.</span>
+          </label>
+
+          <button type="submit" class="submit" id="submitBtn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.477-.911zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+            <span id="submitLabel">Enviar pelo WhatsApp</span>
+          </button>
+          <div class="err" id="err"></div>
+        </form>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+    <p class="footer-tagline">Conectando a comunidade brasileira nos Estados Unidos.</p>
+    <div class="footer-bottom">© 2026 BrasilConnect USA · <a href="/termos.html">Termos</a> · <a href="/privacidade.html">Privacidade</a></div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ════════════════════════════════════════════════════════════════
+  //  CONFIG — trocar pelo WhatsApp do organizador do bolão.
+  //  Formato: código do país + DDD + número, SÓ DÍGITOS (sem +, espaço ou traço).
+  //  Ex.: EUA "+1 (512) 555-0100"  →  '15125550100'
+  //  Se ficar vazio, o botão copia a mensagem pro clipboard em vez de abrir o WhatsApp.
+  // ════════════════════════════════════════════════════════════════
+  var ADMIN_WHATSAPP = '15129872578';
+
+  // ════════════════════════════════════════════════════════════════
+  //  CONFIG — código de acesso. A página só abre com ?t=CODIGO no link.
+  //  Mande o link pros vencedores assim: /bolao-premio?t=campeao26&pos=1&nick=vini
+  //  Troque o valor abaixo pelo código que quiser (qualquer texto sem espaço).
+  // ════════════════════════════════════════════════════════════════
+  var ACCESS_TOKEN = 'campeao26';
+
+  var $ = function(id){ return document.getElementById(id); };
+  var toast = $('toast'), toastTimer;
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.classList.remove('show'); }, 3600);
+  }
+
+  var params = new URLSearchParams(location.search);
+
+  // Gate de acesso: sem ?t=CODIGO válido, esconde o formulário e mostra o aviso.
+  if (params.get('t') !== ACCESS_TOKEN) {
+    $('prizeWrap').style.display = 'none';
+    $('gate').style.display = '';
+    // Esconde também a chamada do topo pra não dar parabéns a quem não tem o link.
+    var lede = document.querySelector('.hero .lede');
+    if (lede) lede.textContent = 'Página exclusiva para os vencedores do bolão.';
+  }
+
+  // Prefill por URL: ?pos=1&nick=vini  (pro organizador mandar link personalizado)
+  var posPrefill = params.get('pos');
+  var nickPrefill = params.get('nick');
+  if (posPrefill && ['1','2','3'].indexOf(posPrefill) !== -1) $('pos').value = posPrefill;
+  if (nickPrefill) $('nick').value = nickPrefill.slice(0, 40);
+
+  // Pódio: reflete o apelido digitado / prefill na posição certa
+  function paintPodium(){
+    var pos = $('pos').value, nick = $('nick').value.trim();
+    document.querySelectorAll('.podium .nick').forEach(function(el){
+      if (el.dataset.pos === pos && nick) el.textContent = nick;
+      else if (el.dataset.pos === pos) el.textContent = 'você';
+      else if (el.textContent === 'você' || (nick && el.textContent === nick)) {
+        // limpa se a pessoa mudou de posição
+        if (el.dataset.pos !== pos) el.textContent = '—';
+      }
+    });
+  }
+  $('pos').addEventListener('change', paintPodium);
+  $('nick').addEventListener('input', paintPodium);
+  paintPodium();
+
+  // Método de entrega: destaque visual + mostra/esconde endereço
+  var methodWrap = $('method'), addrField = $('addrField');
+  methodWrap.querySelectorAll('input[name="method"]').forEach(function(r){
+    r.addEventListener('change', function(){
+      methodWrap.querySelectorAll('label').forEach(function(l){ l.classList.remove('on'); });
+      r.closest('label').classList.add('on');
+      addrField.style.display = /Delivery/.test(r.value) ? '' : 'none';
+    });
+  });
+
+  function selectedMethod(){
+    var r = methodWrap.querySelector('input[name="method"]:checked');
+    return r ? r.value : '';
+  }
+
+  function buildMessage(d){
+    var medal = { '1':'🥇 1º lugar', '2':'🥈 2º lugar', '3':'🥉 3º lugar' }[d.pos] || d.pos;
+    var lines = [
+      '🏆 *RESGATE DE PRÊMIO — Bolão Copa 2026*',
+      '',
+      '🏅 Posição: ' + medal,
+      '🎮 Apelido no bolão: ' + d.nick,
+      '👤 Nome: ' + d.fullname,
+      '📧 E-mail: ' + d.email,
+      '📱 WhatsApp: ' + d.whatsapp,
+      '📦 Receber: ' + d.method
+    ];
+    if (/Delivery/.test(d.method) && d.address) lines.push('🏠 Endereço: ' + d.address);
+    if (d.notes) lines.push('📝 Obs: ' + d.notes);
+    lines.push('', '✅ Li e aceito as regras (1 conta por pessoa · prêmio pessoal e intransferível · 90 dias pra resgatar).');
+    return lines.join('\n');
+  }
+
+  $('claimForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var err = $('err');
+    err.textContent = '';
+
+    var d = {
+      pos: $('pos').value,
+      nick: $('nick').value.trim(),
+      fullname: $('fullname').value.trim(),
+      email: $('email').value.trim(),
+      whatsapp: $('whatsapp').value.trim(),
+      method: selectedMethod(),
+      address: $('address').value.trim(),
+      notes: $('notes').value.trim()
+    };
+
+    if (!d.pos) return (err.textContent = 'Escolha sua posição no pódio.');
+    if (d.nick.length < 2) return (err.textContent = 'Informe seu apelido no bolão.');
+    if (d.fullname.length < 2) return (err.textContent = 'Informe seu nome completo.');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) return (err.textContent = 'Informe um e-mail válido.');
+    if (d.whatsapp.replace(/\D/g,'').length < 8) return (err.textContent = 'Informe um WhatsApp válido.');
+    if (/Delivery/.test(d.method) && d.address.length < 6) return (err.textContent = 'Informe o endereço pra entrega.');
+    if (!$('agree').checked) return (err.textContent = 'Você precisa concordar com as regras.');
+
+    var msg = buildMessage(d);
+
+    if (ADMIN_WHATSAPP) {
+      var url = 'https://wa.me/' + ADMIN_WHATSAPP + '?text=' + encodeURIComponent(msg);
+      window.open(url, '_blank', 'noopener');
+      showToast('🎉 Abrindo o WhatsApp… é só apertar enviar!');
+    } else {
+      // Sem número configurado: copia a mensagem pro clipboard
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(msg).then(function(){
+          showToast('📋 Mensagem copiada! Cole no WhatsApp do organizador.');
+        }, function(){
+          showToast('Copie a mensagem manualmente: ' + msg.slice(0, 40) + '…');
+        });
+      } else {
+        showToast('WhatsApp do organizador ainda não configurado.');
+      }
+    }
+  });
+</script>
+</body>
+</html>
