@@ -1072,17 +1072,51 @@
 
     async function loadBolao(c) {
       try {
-        // Carrega stats + partidas em paralelo
-        const [statsRes, matchesRes] = await Promise.all([
+        // Carrega stats + partidas + resgates de prêmio em paralelo
+        const [statsRes, matchesRes, claimsRes] = await Promise.all([
           fetch('/api/admin/bolao-stats', { headers: { 'x-admin-secret': getSecret() } }),
           fetch('/api/bolao?action=admin-matches', { headers: { 'x-admin-secret': getSecret() } }),
+          fetch('/api/bolao?action=prize-claims', { headers: { 'x-admin-secret': getSecret() } }),
         ])
         const stats = statsRes.ok ? await statsRes.json() : null
+        const claims = claimsRes.ok ? (await claimsRes.json()).claims || [] : []
         const d = await matchesRes.json()
         if (!matchesRes.ok) throw new Error(d.error || 'Erro ao carregar partidas')
         const matches = d.matches || []
         const finished = matches.filter(m => m.status === 'finished').length
         const upcoming = matches.length - finished
+
+        // ─── Bloco de resgates de prêmio (Top 3 · pizza) ────────────────
+        const medalByPos = { 1: '🥇', 2: '🥈', 3: '🥉' }
+        let claimsHtml = ''
+        if (claims.length) {
+          claimsHtml = `
+            <div class="panel" style="margin-bottom:12px;">
+              <div class="panel-eyebrow">RESGATES DE PRÊMIO</div>
+              <h3>${claims.length} resgate${claims.length !== 1 ? 's' : ''} preenchido${claims.length !== 1 ? 's' : ''} (Top 3 · pizza)</h3>
+              <p class="panel-sub">Vencedores que preencheram a página /bolao-premio.</p>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;">
+                ${claims.map(cl => `
+                  <div style="padding:12px 14px;border:1px solid var(--line);border-radius:10px;font-size:13px;">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                      <span style="font-size:16px;">${medalByPos[cl.position] || '🏅'}</span>
+                      <span style="font-weight:700;color:var(--ink);">${escapeHtml(cl.full_name || '')}</span>
+                      <span style="color:var(--ink-muted);">· @${escapeHtml(cl.nickname || '')}</span>
+                      <span style="margin-left:auto;font-size:11px;color:var(--ink-muted);">${new Date(cl.created_at).toLocaleString('pt-BR')}</span>
+                    </div>
+                    <div style="margin-top:6px;color:var(--ink-muted);line-height:1.7;">
+                      🍕 ${escapeHtml(cl.prize_label || '—')}<br>
+                      📧 ${escapeHtml(cl.email || '')} · 📱 <a href="https://wa.me/${(cl.whatsapp||'').replace(/\D/g,'')}" target="_blank" style="color:var(--flag-green);">${escapeHtml(cl.whatsapp || '')}</a><br>
+                      ${cl.delivery_address ? '🏠 ' + escapeHtml(cl.delivery_address).replace(/\n/g, ', ') + '<br>' : '🏠 só retirada na loja<br>'}
+                      ${cl.companion_name ? '👪 Acompanhante: ' + escapeHtml(cl.companion_name) + '<br>' : ''}
+                      ${cl.notes ? '📝 ' + escapeHtml(cl.notes) : ''}
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `
+        }
 
         // ─── Bloco de stats (novo) ──────────────────────────────────────
         let statsHtml = ''
@@ -1145,11 +1179,11 @@
         }
 
         if (matches.length === 0) {
-          c.innerHTML = statsHtml + '<div class="panel"><div class="empty">Nenhuma partida cadastrada. Rode supabase/bolao_schema.sql primeiro.</div></div>'
+          c.innerHTML = claimsHtml + statsHtml + '<div class="panel"><div class="empty">Nenhuma partida cadastrada. Rode supabase/bolao_schema.sql primeiro.</div></div>'
           return
         }
 
-        c.innerHTML = statsHtml + '<div class="panel"><div class="panel-eyebrow">PARTIDAS</div><h3>' + matches.length + ' partidas (' + finished + ' finalizadas, ' + upcoming + ' pendentes)</h3>' +
+        c.innerHTML = claimsHtml + statsHtml + '<div class="panel"><div class="panel-eyebrow">PARTIDAS</div><h3>' + matches.length + ' partidas (' + finished + ' finalizadas, ' + upcoming + ' pendentes)</h3>' +
           '<p class="panel-sub">Atualize o placar de uma partida e o ranking se ajusta automaticamente.</p>' +
           matches.map(m => `
             <div class="item">
