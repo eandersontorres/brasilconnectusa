@@ -80,15 +80,7 @@
     .field .hint{font-size:.74rem;color:var(--ink-muted);margin-top:5px}
     .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     @media(max-width:520px){.row2{grid-template-columns:1fr}}
-
-    /* método de entrega (radio cards) */
-    .pick{display:flex;flex-direction:column;gap:9px}
-    .pick label{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line-strong);border-radius:11px;padding:12px 14px;cursor:pointer;transition:.16s;margin:0}
-    .pick label:hover{border-color:var(--green-deep)}
-    .pick label.on{border-color:var(--green-deep);background:var(--green-soft)}
-    .pick input{width:auto;margin-top:3px}
-    .pick .t{font-weight:500;color:var(--ink);font-size:.9rem}
-    .pick .d{font-size:.76rem;color:var(--ink-muted);margin-top:2px}
+    .info-box{background:var(--green-soft);border:1px solid rgba(31,77,63,.16);border-radius:12px;padding:13px 15px;margin-bottom:16px;font-size:.85rem;color:var(--green-deep);line-height:1.5}
 
     /* consentimento */
     .consent{display:flex;gap:11px;align-items:flex-start;font-size:.84rem;color:var(--ink-soft);line-height:1.5;margin:6px 0 18px}
@@ -219,24 +211,14 @@
             <div class="hint">1 pessoa da família que também pode retirar/consumir no local. O nome fica registrado e <b>não pode ser alterado depois</b>. Deixe em branco se não quiser nomear.</div>
           </div>
 
-          <div class="field">
-            <label>Como você prefere? <span class="req">*</span></label>
-            <div class="pick" id="method">
-              <label class="on">
-                <input type="radio" name="method" value="Retirar / consumir na loja" checked>
-                <span><span class="t">🤝 Retirar / consumir na loja</span><span class="d">Qualquer dia, no horário de funcionamento — Round Rock, TX.</span></span>
-              </label>
-              <label>
-                <input type="radio" name="method" value="Delivery (taxa de entrega cobrada)">
-                <span><span class="t">🛵 Delivery</span><span class="d">A taxa de entrega é cobrada normalmente.</span></span>
-              </label>
-            </div>
+          <div class="info-box">
+            🍕 A cada período você escolhe: <b>retirar/consumir na loja</b> (Round Rock, TX) ou <b>pedir delivery</b>. Não precisa decidir agora — o endereço abaixo só é usado nas semanas em que você pedir entrega (a taxa de entrega é cobrada normalmente).
           </div>
 
-          <div class="field" id="addrField" style="display:none">
-            <label for="address">Endereço para entrega (único)</label>
+          <div class="field">
+            <label for="address">Endereço para delivery <span style="color:var(--ink-muted);font-weight:400">(opcional)</span></label>
             <textarea id="address" placeholder="Rua, número, cidade, estado, ZIP"></textarea>
-            <div class="hint">⚠️ Vale o <b>primeiro endereço cadastrado</b> — não pode ser alterado depois.</div>
+            <div class="hint">⚠️ Vale para <b>todas</b> as entregas: o endereço cadastrado aqui <b>não pode ser alterado depois</b>. Deixe em branco se só for retirar na loja.</div>
           </div>
 
           <div class="field">
@@ -246,7 +228,7 @@
 
           <label class="consent">
             <input type="checkbox" id="agree" required>
-            <span>Li e concordo com o regulamento: prêmio pessoal e intransferível, benefício semanal não acumulativo até 31/12/2026, endereço de delivery e acompanhante únicos (sem alteração), e apresentação de documento com foto na retirada.</span>
+            <span>Li e concordo com o regulamento: prêmio pessoal e intransferível, benefício periódico não acumulativo até 31/12/2026, endereço de delivery e acompanhante únicos (sem alteração), e apresentação de documento com foto na retirada.</span>
           </label>
 
           <button type="submit" class="submit" id="submitBtn">
@@ -344,21 +326,6 @@
   $('nick').addEventListener('input', paintPodium);
   paintPodium();
 
-  // Método de entrega: destaque visual + mostra/esconde endereço
-  var methodWrap = $('method'), addrField = $('addrField');
-  methodWrap.querySelectorAll('input[name="method"]').forEach(function(r){
-    r.addEventListener('change', function(){
-      methodWrap.querySelectorAll('label').forEach(function(l){ l.classList.remove('on'); });
-      r.closest('label').classList.add('on');
-      addrField.style.display = /Delivery/.test(r.value) ? '' : 'none';
-    });
-  });
-
-  function selectedMethod(){
-    var r = methodWrap.querySelector('input[name="method"]:checked');
-    return r ? r.value : '';
-  }
-
   function buildMessage(d){
     var medal = { '1':'🥇 1º lugar', '2':'🥈 2º lugar', '3':'🥉 3º lugar' }[d.pos] || d.pos;
     var prize = (PRIZE_BY_POS[d.pos] || {}).freq || '';
@@ -370,10 +337,9 @@
       '🎮 Apelido no bolão: ' + d.nick,
       '👤 Nome: ' + d.fullname,
       '📧 E-mail: ' + d.email,
-      '📱 WhatsApp: ' + d.whatsapp,
-      '📦 Receber: ' + d.method
+      '📱 WhatsApp: ' + d.whatsapp
     ];
-    if (/Delivery/.test(d.method) && d.address) lines.push('🏠 Endereço (único): ' + d.address);
+    lines.push('🏠 Endereço p/ delivery (único): ' + (d.address || 'não informado — só retirada na loja'));
     if (d.companion) lines.push('👪 Acompanhante autorizado: ' + d.companion);
     if (d.notes) lines.push('📝 Obs: ' + d.notes);
     lines.push('', '✅ Li e aceito o regulamento (pizza não acumulativa até 31/12/2026 · pessoal e intransferível · endereço/acompanhante sem alteração · documento com foto na retirada).');
@@ -391,7 +357,6 @@
       fullname: $('fullname').value.trim(),
       email: $('email').value.trim(),
       whatsapp: $('whatsapp').value.trim(),
-      method: selectedMethod(),
       address: $('address').value.trim(),
       companion: $('companion').value.trim(),
       notes: $('notes').value.trim()
@@ -402,7 +367,7 @@
     if (d.fullname.length < 2) return (err.textContent = 'Informe seu nome completo.');
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)) return (err.textContent = 'Informe um e-mail válido.');
     if (d.whatsapp.replace(/\D/g,'').length < 8) return (err.textContent = 'Informe um WhatsApp válido.');
-    if (/Delivery/.test(d.method) && d.address.length < 6) return (err.textContent = 'Informe o endereço pra entrega.');
+    if (d.address && d.address.length < 6) return (err.textContent = 'Endereço de delivery incompleto (ou deixe em branco).');
     if (!$('agree').checked) return (err.textContent = 'Você precisa concordar com as regras.');
 
     var msg = buildMessage(d);
