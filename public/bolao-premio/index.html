@@ -47,6 +47,7 @@
     .podium .step .medal{font-size:1.7rem;line-height:1;margin-bottom:6px}
     .podium .step .pos{font-family:'Fraunces',serif;font-weight:600;font-size:1.05rem}
     .podium .step .nick{font-family:'Sora',sans-serif;font-size:.74rem;opacity:.92;margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .podium .step .freq{font-family:'Sora',sans-serif;font-size:.62rem;font-weight:600;margin-top:5px;padding:2px 7px;border-radius:10px;background:rgba(255,255,255,.22);white-space:nowrap}
     .podium .p1{height:128px;background:linear-gradient(180deg,#C9A227,#9A7B1C)}
     .podium .p2{height:104px;background:linear-gradient(180deg,#9AA0A6,#6E7479)}
     .podium .p3{height:88px;background:linear-gradient(180deg,#B07A47,#8A5A2E)}
@@ -122,7 +123,7 @@
     <div class="container-narrow">
       <div class="eyebrow">Bolão Copa 2026 · Premiação da fase de grupos</div>
       <h1>Você ficou no <em>Top 3</em> 🏆</h1>
-      <p class="lede">Parabéns, brazuca! Você terminou a <b>fase de grupos</b> no Top 3 e garantiu <b>1 pizza assada por semana até o fim do ano</b> 🍕. Preencha seus dados abaixo para combinar o resgate. Leva menos de 1 minuto.</p>
+      <p class="lede">Parabéns, brazuca! Você terminou a <b>fase de grupos</b> no Top 3 e garantiu <b>pizza assada até o fim do ano</b> 🍕 (a frequência depende da sua colocação). Preencha seus dados abaixo para combinar o resgate. Leva menos de 1 minuto.</p>
     </div>
   </section>
 
@@ -141,16 +142,16 @@
 
         <!-- pódio -->
         <div class="podium" id="podium">
-          <div class="step p2"><div class="medal">🥈</div><div class="pos">2º</div><div class="nick" data-pos="2">—</div></div>
-          <div class="step p1"><div class="medal">🥇</div><div class="pos">1º</div><div class="nick" data-pos="1">—</div></div>
-          <div class="step p3"><div class="medal">🥉</div><div class="pos">3º</div><div class="nick" data-pos="3">—</div></div>
+          <div class="step p2"><div class="medal">🥈</div><div class="pos">2º</div><div class="nick" data-pos="2">—</div><div class="freq">1 pizza / 15 dias</div></div>
+          <div class="step p1"><div class="medal">🥇</div><div class="pos">1º</div><div class="nick" data-pos="1">—</div><div class="freq">1 pizza / semana</div></div>
+          <div class="step p3"><div class="medal">🥉</div><div class="pos">3º</div><div class="nick" data-pos="3">—</div><div class="freq">1 pizza / mês</div></div>
         </div>
 
         <!-- banner do prêmio -->
         <div class="prize-banner">
           <div class="emoji">🍕🏆</div>
-          <div class="big">1 pizza assada por semana até o fim do ano</div>
-          <div class="small">Uma pizza assada por semana, à sua escolha do cardápio TorresBee, do anúncio do vencedor até <b>31 de dezembro de 2026</b>.</div>
+          <div class="big" id="prizeBig">Pizza assada até o fim do ano</div>
+          <div class="small" id="prizeSmall">Pizza assada de livre escolha do cardápio TorresBee, do anúncio do vencedor até <b>31 de dezembro de 2026</b>. A frequência depende da sua colocação no pódio.</div>
           <div class="tag">TorresBee Brazil · Round Rock, TX</div>
         </div>
 
@@ -159,9 +160,9 @@
           <h2>📋 Regulamento do prêmio</h2>
           <div class="sub">Bolão da Copa 2026 — TorresBee. Leia antes de resgatar.</div>
           <ul>
-            <li><span class="ic">🍕</span><span><b>Prêmio:</b> 1 pizza assada por semana, de livre escolha do cardápio, da data do anúncio do vencedor até <b>31/12/2026</b>.</span></li>
+            <li><span class="ic">🍕</span><span><b>Prêmio por colocação</b> (pizza assada de livre escolha do cardápio, do anúncio do vencedor até <b>31/12/2026</b>):<br>🥇 1º lugar — 1 pizza <b>por semana</b><br>🥈 2º lugar — 1 pizza <b>a cada 15 dias</b><br>🥉 3º lugar — 1 pizza <b>por mês</b></span></li>
             <li><span class="ic">📍</span><span><b>Retirada e consumo:</b> qualquer dia da semana, no horário de funcionamento, na <b>TorresBee Brazil — 1901 Town Centre Drive, Round Rock, TX</b>. Em caso de delivery, a taxa de entrega é cobrada normalmente.</span></li>
-            <li><span class="ic">📅</span><span><b>Não acumulativa:</b> o benefício é semanal e não acumula. Semana não usada é perdida, sem reposição nem crédito.</span></li>
+            <li><span class="ic">📅</span><span><b>Não acumulativa:</b> o benefício é periódico (por semana, quinzena ou mês, conforme a colocação) e não acumula. Período não usado é perdido, sem reposição nem crédito.</span></li>
             <li><span class="ic">🏠</span><span><b>Endereço de entrega:</b> em caso de delivery, vale o <b>primeiro endereço cadastrado no resgate</b>, sem alteração.</span></li>
             <li><span class="ic">👪</span><span><b>Acompanhante autorizado:</b> além do ganhador, <b>1 pessoa da família</b> pode ser nomeada para retirar ou consumir no local. O nome é registrado no resgate e não pode ser alterado.</span></li>
             <li><span class="ic">🎁</span><span><b>Intransferível:</b> prêmio pessoal — não pode ser vendido, trocado ou convertido em dinheiro.</span></li>
@@ -312,7 +313,14 @@
   if (posPrefill && ['1','2','3'].indexOf(posPrefill) !== -1) $('pos').value = posPrefill;
   if (nickPrefill) $('nick').value = nickPrefill.slice(0, 40);
 
-  // Pódio: reflete o apelido digitado / prefill na posição certa
+  // Prêmio por colocação (frequência da pizza)
+  var PRIZE_BY_POS = {
+    '1': { freq: '1 pizza assada por semana',      short: 'por semana' },
+    '2': { freq: '1 pizza assada a cada 15 dias',  short: 'a cada 15 dias' },
+    '3': { freq: '1 pizza assada por mês',         short: 'por mês' }
+  };
+
+  // Pódio + banner: reflete apelido e prêmio da posição escolhida
   function paintPodium(){
     var pos = $('pos').value, nick = $('nick').value.trim();
     document.querySelectorAll('.podium .nick').forEach(function(el){
@@ -323,6 +331,14 @@
         if (el.dataset.pos !== pos) el.textContent = '—';
       }
     });
+    var p = PRIZE_BY_POS[pos];
+    if (p) {
+      $('prizeBig').textContent = p.freq + ' até o fim do ano';
+      $('prizeSmall').innerHTML = 'Sua colocação garante <b>' + p.freq + '</b>, de livre escolha do cardápio TorresBee, do anúncio do vencedor até <b>31 de dezembro de 2026</b>.';
+    } else {
+      $('prizeBig').textContent = 'Pizza assada até o fim do ano';
+      $('prizeSmall').innerHTML = 'Pizza assada de livre escolha do cardápio TorresBee, do anúncio do vencedor até <b>31 de dezembro de 2026</b>. A frequência depende da sua colocação no pódio.';
+    }
   }
   $('pos').addEventListener('change', paintPodium);
   $('nick').addEventListener('input', paintPodium);
@@ -345,10 +361,12 @@
 
   function buildMessage(d){
     var medal = { '1':'🥇 1º lugar', '2':'🥈 2º lugar', '3':'🥉 3º lugar' }[d.pos] || d.pos;
+    var prize = (PRIZE_BY_POS[d.pos] || {}).freq || '';
     var lines = [
       '🏆 *RESGATE DE PRÊMIO — Bolão Copa 2026*',
       '',
       '🏅 Posição: ' + medal,
+      '🍕 Prêmio: ' + prize + ' (até 31/12/2026)',
       '🎮 Apelido no bolão: ' + d.nick,
       '👤 Nome: ' + d.fullname,
       '📧 E-mail: ' + d.email,
@@ -358,7 +376,7 @@
     if (/Delivery/.test(d.method) && d.address) lines.push('🏠 Endereço (único): ' + d.address);
     if (d.companion) lines.push('👪 Acompanhante autorizado: ' + d.companion);
     if (d.notes) lines.push('📝 Obs: ' + d.notes);
-    lines.push('', '✅ Li e aceito o regulamento (pizza semanal não acumulativa até 31/12/2026 · pessoal e intransferível · endereço/acompanhante sem alteração · documento com foto na retirada).');
+    lines.push('', '✅ Li e aceito o regulamento (pizza não acumulativa até 31/12/2026 · pessoal e intransferível · endereço/acompanhante sem alteração · documento com foto na retirada).');
     return lines.join('\n');
   }
 
