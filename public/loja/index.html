@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://brasilconnectusa.com/loja/">
+  <title>Loja · Camisetas, canecas e mais | BrasilConnect USA</title>
+  <meta name="description" content="A loja da brazuca: camisetas, canecas, bonés e acessórios com a marca BrasilConnect USA. Feito para a comunidade brasileira nos Estados Unidos.">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#1F4D3F">
+  <meta name="author" content="BrasilConnect USA">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BrasilConnect USA">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:url" content="https://brasilconnectusa.com/loja/">
+  <meta property="og:title" content="Loja · BrasilConnect USA">
+  <meta property="og:description" content="Camisetas, canecas, bonés e acessórios com a marca BrasilConnect USA.">
+  <meta property="og:image" content="https://brasilconnectusa.com/og-image.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Premium design system -->
+  <link rel="stylesheet" href="/css/premium.css">
+
+  <style>
+    /* ── Loja (escopo) ───────────────────────────────────────── */
+    .shop-note{background:var(--green-soft);border:1px solid rgba(31,77,63,.18);border-radius:14px;padding:16px 20px;margin:0 auto 8px;max-width:760px;display:flex;gap:14px;align-items:center;font-size:.92rem;color:var(--green-deep)}
+    .shop-note b{font-weight:600}
+    .shop-note .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--flag-green);box-shadow:0 0 0 4px rgba(0,156,59,.15)}
+
+    .filters{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:34px 0 36px}
+    .chip{font-family:'Sora',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.01em;padding:8px 18px;border-radius:30px;border:1px solid var(--line-strong);background:transparent;color:var(--ink-soft);cursor:pointer;transition:.18s}
+    .chip:hover{border-color:var(--green-deep);color:var(--ink)}
+    .chip.active{background:var(--green-deep);border-color:var(--green-deep);color:#fff}
+
+    .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:26px}
+    .product{background:var(--paper-elevated);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s}
+    .product:hover{transform:translateY(-4px);box-shadow:0 18px 40px -22px rgba(26,31,28,.35)}
+    .product .stage{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;position:relative}
+    .product .stage svg{width:86%;height:86%}
+    .ribbon{position:absolute;top:14px;left:14px;font-family:'Sora',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;background:var(--accent);color:#fff;padding:4px 10px;border-radius:20px}
+    .product .body{padding:18px 20px 20px;border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1}
+    .product .row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+    .product .body h3{font-family:'Fraunces',serif;font-size:1.18rem;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+    .product .price{font-family:'Fraunces',serif;font-size:1.18rem;font-weight:600;color:var(--green-deep);white-space:nowrap}
+    .product .desc{font-size:.82rem;color:var(--ink-muted);margin-top:5px}
+    .tags{display:flex;gap:6px;margin-top:13px;flex-wrap:wrap}
+    .tag{font-family:'Sora',sans-serif;font-size:.66rem;font-weight:500;letter-spacing:.03em;padding:4px 9px;border-radius:20px;background:var(--paper-soft);color:var(--accent-deep)}
+    .tag.dot{display:flex;align-items:center;gap:5px}
+    .tag.dot i{width:9px;height:9px;border-radius:50%;display:inline-block}
+    .buy{margin-top:16px;width:100%;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:.86rem;font-weight:600;padding:12px;border-radius:30px;background:var(--green-deep);color:#fff;transition:.18s}
+    .buy:hover{background:var(--green-deep-hover)}
+
+    .cat-label{font-family:'Sora',sans-serif;text-transform:uppercase;letter-spacing:.18em;font-size:.68rem;font-weight:600;color:var(--accent-deep);margin:48px 0 18px}
+    .cat-label:first-of-type{margin-top:0}
+
+    /* toast */
+    .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:13px 22px;border-radius:30px;font-size:.88rem;font-weight:500;box-shadow:0 14px 30px -10px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:.3s;z-index:999}
+    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    @media(max-width:600px){.product .stage svg{width:94%;height:94%}}
+  </style>
+</head>
+<body>
+
+<!-- ░ SVG: logos oficiais reutilizáveis ░ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="logoFull" viewBox="0 0 64 64"><rect width="64" height="64" rx="11" fill="#009C3B"/><path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="32" r="7" fill="#002776"/></symbol>
+  <symbol id="logoYellow" viewBox="0 0 64 64"><path d="M 16 16 L 52 32 L 16 48" fill="none" stroke="#FFDF00" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28" cy="32" r="7.5" fill="currentColor"/></symbol>
+  <symbol id="logoCurve" viewBox="0 0 100 100"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="currentColor"/></symbol>
+</defs></svg>
+
+<header class="site-header">
+  <div class="container">
+    <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+    <nav class="site-nav">
+      <a href="/custo-de-vida/">Custo de Vida</a>
+      <a href="/guias/">Guias</a>
+      <a href="/loja/" style="color:var(--ink);font-weight:600">Loja</a>
+      <a href="/?preview=brasil2026">App</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero hero-compact">
+    <div class="container-narrow">
+      <div class="eyebrow">Loja · pré-lançamento</div>
+      <h1>A loja da <em>brazuca</em></h1>
+      <p class="lede">Camisetas, canecas, bonés e acessórios com a marca BrasilConnect — feitos para quem carrega o Brasil no peito (e na caneca) aqui nos Estados Unidos.</p>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="container">
+      <div class="shop-note">
+        <span class="dot"></span>
+        <span><b>Vitrine em pré-lançamento.</b> Os produtos abaixo são finais — o pagamento online (checkout) entra em breve. Toque em “Comprar” para entrar na lista de aviso.</span>
+      </div>
+
+      <div class="filters">
+        <button class="chip active" data-cat="all">Tudo</button>
+        <button class="chip" data-cat="vestuario">Vestuário</button>
+        <button class="chip" data-cat="mesa">Mesa &amp; café</button>
+        <button class="chip" data-cat="acessorios">Acessórios</button>
+      </div>
+
+      <div class="shop-grid">
+
+        <!-- ── VESTUÁRIO ── -->
+        <div class="product" data-cat="vestuario">
+          <div class="stage" style="background:#F5F1E5">
+            <span class="ribbon">Pré-venda</span>
+            <svg viewBox="0 0 300 300">
+              <path d="M95 60 L60 78 L42 120 L70 138 L80 120 L80 240 Q80 250 90 250 L210 250 Q220 250 220 240 L220 120 L230 138 L258 120 L240 78 L205 60 Q150 92 95 60 Z" fill="#FAF7F0" stroke="#E3DCCB" stroke-width="2.5"/>
+              <path d="M95 60 Q150 92 205 60 Q150 80 95 60 Z" fill="#ECE4D2"/>
+              <use href="#logoFull" x="116" y="92" width="46" height="46"/>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="row"><h3>Tee · Olho Bandeira</h3><span class="price">$28</span></div>
+            <p class="desc">Cream · símbolo bordado no peito esquerdo</p>
+            <div class="tags"><span class="tag dot"><i style="background:#FAF7F0;border:1px solid #ccc"></i>Cream</span><span class="tag">Unissex S–XXL</span></div>
+            <button class="buy" data-name="Tee · Olho Bandeira">Comprar</button>
+          </div>
+        </div>
+
+        <div class="product" data-cat="vestuario">
+          <div class="stage" style="background:#143527">
+            <span class="ribbon">Pré-venda</span>
+            <svg viewBox="0 0 300 300">
+              <path d="M95 60 L60 78 L42 120 L70 138 L80 120 L80 240 Q80 250 90 250 L210 250 Q220 250 220 240 L220 120 L230 138 L258 120 L240 78 L205 60 Q150 92 95 60 Z" fill="#1F4D3F" stroke="#163A2F" stroke-width="2.5"/>
+              <path d="M95 60 Q150 92 205 60 Q150 80 95 60 Z" fill="#183D31"/>
+              <g style="color:#FAF7F0"><use href="#logoCurve" x="96" y="104" width="108" height="108"/></g>
+              <text x="150" y="238" text-anchor="middle" font-family="Fraunces,serif" font-size="13" font-weight="600" letter-spacing="3" fill="#F3EFE4">BRASILCONNECT</text>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="row"><h3>Tee · Olho Grande</h3><span class="price">$30</span></div>
+            <p class="desc">Verde-deep · estampa central + wordmark</p>
+            <div class="tags"><span class="tag dot"><i style="background:#1F4D3F"></i>Verde-deep</span><span class="tag">Oversized</span></div>
+            <button class="buy" data-name="Tee · Olho Grande">Comprar</button>
+          </div>
+        </div>
+
+        <div class="product" data-cat="vestuario">
+          <div class="stage" style="background:#F5F1E5">
+            <span class="ribbon">Pré-venda</span>
+            <svg viewBox="0 0 300 300">
+              <path d="M92 64 L58 84 L40 128 L70 146 L82 126 L82 248 Q82 258 92 258 L208 258 Q218 258 218 248 L218 126 L230 146 L260 128 L242 84 L208 64 L208 64 Q150 96 92 64 Z" fill="#2A3A56" stroke="#1f2c43" stroke-width="2.5"/>
+              <path d="M112 64 Q150 110 188 64 Q150 74 112 64 Z" fill="#22304a"/>
+              <path d="M120 64 Q150 104 180 64" fill="none" stroke="#1a2538" stroke-width="3"/>
+              <line x1="138" y1="120" x2="138" y2="180" stroke="#1a2538" stroke-width="4" stroke-linecap="round"/>
+              <line x1="162" y1="120" x2="162" y2="180" stroke="#1a2538" stroke-width="4" stroke-linecap="round"/>
+              <rect x="110" y="190" width="80" height="44" rx="8" fill="#22304a" stroke="#1a2538" stroke-width="2"/>
+              <g style="color:#FAF7F0"><use href="#logoCurve" x="124" y="126" width="52" height="52"/></g>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="row"><h3>Moletom Canguru</h3><span class="price">$54</span></div>
+            <p class="desc">Navy · capuz + bolso, fleece premium</p>
+            <div class="tags"><span class="tag dot"><i style="background:#002776"></i>Navy</span><span class="tag">Inverno</span></div>
+            <button class="buy" data-name="Moletom Canguru">Comprar</button>
+          </div>
+        </div>
+
+        <!-- ── MESA & CAFÉ ── -->
+        <div class="product" data-cat="mesa">
+          <div class="stage" style="background:#F5F1E5">
+            <span class="ribbon">Pré-venda</span>
+            <svg viewBox="0 0 300 300">
+              <rect x="78" y="92" width="120" height="130" rx="14" fill="#FAF7F0" stroke="#E3DCCB" stroke-width="2.5"/>
+              <path d="M198 118 Q244 118 244 156 Q244 194 198 194" fill="none" stroke="#E3DCCB" stroke-width="13" stroke-linecap="round"/>
+              <ellipse cx="138" cy="92" rx="60" ry="11" fill="#ECE4D2"/>
+              <use href="#logoFull" x="111" y="116" width="54" height="54"/>
+              <text x="138" y="206" text-anchor="middle" font-family="Fraunces,serif" font-size="11" font-weight="600" letter-spacing="2" fill="#8C6D3D">SAUDADE</text>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="row"><h3>Caneca · Saudade</h3><span class="price">$16</span></div>
+            <p class="desc">Cerâmica cream 325ml · símbolo verde</p>
+            <div class="tags"><span class="tag dot"><i style="background:#FAF7F0;border:1px solid #ccc"></i>Cream</span><span class="tag">325ml</span></div>
+            <button class="buy" data-name="Caneca · Saudade">Comprar</button>
+          </div>
+        </div>
+
+        <div class="product" data-cat="mesa">
+          <div class="stage" style="background:#F5F1E5">
+            <span class="ribbon">Pré-venda</span>
+            <svg viewBox="0 0 300 300">
+              <rect x="78" y="92" width="120" height="130" rx="14" fill="#1F4D3F" stroke="#163A2F" stroke-width="2.5"/>
+              <path d="M198 118 Q244 118 244 156 Q244 194 198 194" fill="none" stroke="#1F4D3F" stroke-width="13" stroke-linecap="round"/>
+              <ellipse cx="138" cy="92" rx="60" ry="11" fill="#173B30"/>
+              <g style="color:#FAF7F0"><use href="#logoYellow" x="110" y="120" width="56" height="56"/></g>
+              <text x="138" y="205" text-anchor="middle" font-family="Sora,sans-serif" font-size="9" font-weight="600" letter-spacing="3" fill="#E9DFC4">BRASILCONNECT · USA</text>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="row"><h3>Caneca · Esmaltada</h3><span class="price">$18</span></div>
+            <p class="desc">Verde-deep 350ml · gravação amarela</p>
+            <div class="tags"><span class="tag dot"><i style="background:#1F4D3F"></i>Verde-deep</span><span class="tag">350ml</span></div>
+            <button class="buy" data-name="Caneca · Esmaltada">Comprar</button>
+          </div>
+        </div>
+
+        <div class="product" data-cat="mesa">
+          <div class="stage" style="background:#F5F1E5">
+            <span class="ribbon">Pré-venda</span>
+            <svg viewBox="0 0 300 300">
+              <path d="M112 58 L188 58 L181 240 Q180 252 168 252 L132 252 Q120 252 119 240 Z" fill="#D9D2C4" stroke="#C3BBA9" stroke-width="2.5"/>
+              <path d="M112 58 L188 58 L186 110 L114 110 Z" fill="#E7E1D4"/>
+              <rect x="108" y="50" width="84" height="14" rx="7" fill="#1F4D3F"/>
+              <use href="#logoFull" x="123" y="138" width="52" height="52"/>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="row"><h3>Garrafa Térmica</h3><span class="price">$32</span></div>
+            <p class="desc">Aço inox 600ml · tampa verde, parede dupla</p>
+            <div class="tags"><span class="tag dot"><i style="background:#D9D2C4;border:1px solid #ccc"></i>Inox</span><span class="tag">600ml</span></div>
+            <button class="buy" data-name="Garrafa Térmica">Comprar</button>
+          </div>
+        </div>
+
+        <!-- ── ACESSÓRIOS ── -->
+        <div class="product" data-cat="acessorios">
+          <div class="stage" style="background:#F5F1E5">
+            <span class="ribbon">Pré-venda</span>
+            <svg viewBox="0 0 300 300">
+              <path d="M58 178 Q58 96 150 96 Q242 96 242 178 Q150 158 58 178 Z" fill="#1F4D3F" stroke="#163A2F" stroke-width="2.5"/>
+              <path d="M150 96 Q150 158 150 178 M104 100 Q100 150 92 172 M196 100 Q200 150 208 172" fill="none" stroke="#173B30" stroke-width="2.5"/>
+              <path d="M54 178 Q150 156 246 178 Q252 200 230 206 Q150 192 70 206 Q48 200 54 178 Z" fill="#173B30" stroke="#10271f" stroke-width="2"/>
+              <circle cx="150" cy="96" r="5" fill="#163A2F"/>
+              <g style="color:#FAF7F0"><use href="#logoYellow" x="125" y="122" width="50" height="50"/></g>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="row"><h3>Dad Hat · Bordado</h3><span class="price">$26</span></div>
+            <p class="desc">Verde-deep · símbolo bordado, fecho metal</p>
+            <div class="tags"><span class="tag dot"><i style="background:#1F4D3F"></i>Verde-deep</span><span class="tag">Ajustável</span></div>
+            <button class="buy" data-name="Dad Hat · Bordado">Comprar</button>
+          </div>
+        </div>
+
+        <div class="product" data-cat="acessorios">
+          <div class="stage" style="background:#F5F1E5">
+            <span class="ribbon">Pré-venda</span>
+            <svg viewBox="0 0 300 300">
+              <path d="M78 96 L222 96 L232 248 Q232 256 224 256 L76 256 Q68 256 68 248 Z" fill="#EDE6D6" stroke="#D8CFBC" stroke-width="2.5"/>
+              <path d="M112 100 Q112 56 150 56 Q188 56 188 100" fill="none" stroke="#D8CFBC" stroke-width="7"/>
+              <use href="#logoFull" x="120" y="126" width="60" height="60"/>
+              <text x="150" y="218" text-anchor="middle" font-family="Fraunces,serif" font-size="13" font-weight="600" letter-spacing="1" fill="#1A1F1C">Brasil<tspan fill="#B8943B">Connect</tspan></text>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="row"><h3>Ecobag Canvas</h3><span class="price">$22</span></div>
+            <p class="desc">Lona crua · alça reforçada, estampa wordmark</p>
+            <div class="tags"><span class="tag dot"><i style="background:#EDE6D6;border:1px solid #ccc"></i>Natural</span><span class="tag">Canvas 12oz</span></div>
+            <button class="buy" data-name="Ecobag Canvas">Comprar</button>
+          </div>
+        </div>
+
+        <div class="product" data-cat="acessorios">
+          <div class="stage" style="background:#F5F1E5">
+            <span class="ribbon">Pré-venda</span>
+            <svg viewBox="0 0 300 300">
+              <g transform="rotate(-8 96 110)"><rect x="62" y="78" width="68" height="68" rx="14" fill="#009C3B" stroke="#fff" stroke-width="4"/><g style="color:#002776"><use href="#logoYellow" x="74" y="90" width="44" height="44"/></g></g>
+              <g transform="rotate(7 205 100)"><rect x="172" y="70" width="74" height="44" rx="10" fill="#FAF7F0" stroke="#fff" stroke-width="4"/><text x="209" y="98" text-anchor="middle" font-family="Fraunces,serif" font-size="15" font-weight="700" fill="#1A1F1C">Brazuca</text></g>
+              <g transform="rotate(5 110 205)"><rect x="70" y="172" width="92" height="62" rx="12" fill="#1F4D3F" stroke="#fff" stroke-width="4"/><g style="color:#FAF7F0"><use href="#logoYellow" x="100" y="180" width="34" height="34"/></g><text x="116" y="224" text-anchor="middle" font-family="Sora" font-size="8" font-weight="600" letter-spacing="1.5" fill="#E9DFC4">SAUDADE APPROVED</text></g>
+              <g transform="rotate(-6 210 210)"><rect x="178" y="178" width="58" height="58" rx="29" fill="#FAF7F0" stroke="#fff" stroke-width="4"/><use href="#logoFull" x="190" y="190" width="34" height="34"/></g>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="row"><h3>Kit de Adesivos</h3><span class="price">$9</span></div>
+            <p class="desc">4 vinis à prova d'água · laptop, garrafa, carro</p>
+            <div class="tags"><span class="tag">Vinil resistente</span><span class="tag">Pack ×4</span></div>
+            <button class="buy" data-name="Kit de Adesivos">Comprar</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+    <p class="footer-tagline">Conectando a comunidade brasileira nos Estados Unidos.</p>
+    <div class="footer-bottom">© 2026 BrasilConnect USA · <a href="/termos.html">Termos</a> · <a href="/privacidade.html">Privacidade</a></div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // Filtros de categoria
+  document.querySelectorAll('.chip').forEach(function(chip){
+    chip.addEventListener('click', function(){
+      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      var cat = chip.dataset.cat;
+      document.querySelectorAll('.product').forEach(function(p){
+        p.style.display = (cat==='all' || p.dataset.cat===cat) ? '' : 'none';
+      });
+    });
+  });
+
+  // "Comprar" — checkout ainda não ligado: aviso + (hook futuro p/ waitlist)
+  var toast = document.getElementById('toast'), t;
+  document.querySelectorAll('.buy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      toast.textContent = '🛒 ' + btn.dataset.name + ' — checkout chega em breve. Você entrou na lista de aviso!';
+      toast.classList.add('show');
+      clearTimeout(t); t = setTimeout(function(){ toast.classList.remove('show'); }, 3200);
+    });
+  });
+</script>
+</body>
+</html>
