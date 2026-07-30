@@ -6,7 +6,6 @@ import DiscoverScreen from './DiscoverScreen'
 import { useAuth } from './AuthModal'
 
 // Lazy-loaded — só baixa quando o usuário troca pra essas abas
-const BolaoScreen            = lazy(() => import('./BolaoScreen'))
 const AgendaApp              = lazy(() => import('./AgendaApp'))
 const MarketplaceScreen      = lazy(() => import('./MarketplaceScreen'))
 const ComunidadesScreen      = lazy(() => import('./ComunidadesScreen'))
@@ -1244,7 +1243,7 @@ function VoosScreen({ affiliateLinks }) {
 
 // ─── App Principal (usa AppShell responsivo) ──────────────────────────────
 
-const VALID_TABS = ['feed', 'discover', 'comunidades', 'community', 'eventos', 'remessas', 'voos', 'agenda', 'bolao', 'marketplace', 'settings']
+const VALID_TABS = ['feed', 'discover', 'comunidades', 'community', 'eventos', 'remessas', 'voos', 'agenda', 'marketplace', 'settings']
 const TAB_ALIASES = { cambio: 'remessas', comparador: 'remessas', 'venda-troca': 'marketplace', classifieds: 'marketplace' }
 // Slugs antigos que agora redirecionam pra páginas estáticas (1 source of truth)
 const REDIRECT_SLUGS = { negocios: '/negocio', negocio: '/negocio' }
@@ -1350,7 +1349,6 @@ export default function App() {
         {tab === 'remessas' && <RemessasScreen affiliateLinks={affiliateLinks} />}
         {tab === 'voos'     && <VoosScreen affiliateLinks={affiliateLinks} />}
         {tab === 'agenda'   && <Suspense fallback={<TabFallback />}><AgendaApp /></Suspense>}
-        {tab === 'bolao'    && <Suspense fallback={<TabFallback />}><BolaoScreen /></Suspense>}
         {tab === 'marketplace' && (user
           ? <Suspense fallback={<TabFallback />}><MarketplaceScreen /></Suspense>
           : <LoginGate emoji="🛍️" title="Entre pra usar o Marketplace"

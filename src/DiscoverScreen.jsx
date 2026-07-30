@@ -21,7 +21,6 @@ const ALL_CATEGORIES = [
   { key: 'negocios',      title: 'Negócios Brasileiros', sub: 'Restaurantes, mercados, salões', emoji: '🏪', accent: C.gold,  cta: 'Explorar'  },
   { key: 'cambio',        title: 'Câmbio & Remessas',   sub: 'Compare 5 parceiros ao vivo',   emoji: '💰', accent: C.green, cta: 'Comparar'  },
   { key: 'voos',          title: 'Voos pro Brasil',     sub: 'A partir de $480',              emoji: '✈️', accent: C.navy,  cta: 'Buscar'    },
-  { key: 'bolao',         title: 'Bolão Copa 2026',     sub: 'Crie ou entre num bolão',       emoji: '⚽', accent: C.gold,  cta: 'Participar' },
 ]
 
 const CATEGORIES = ALL_CATEGORIES.filter(c => SHOW_BUSINESS || c.key !== 'negocios')
@@ -48,7 +47,6 @@ export default function DiscoverScreen({ onNavigate }) {
     // Mapeia categoria para tab existente do app
     if (key === 'cambio')              onNavigate && onNavigate('remessas')
     else if (key === 'voos')           onNavigate && onNavigate('voos')
-    else if (key === 'bolao')          onNavigate && onNavigate('bolao')
     else if (key === 'negocios')       onNavigate && onNavigate('negocios')
     else if (key === 'comunidades')    onNavigate && onNavigate('comunidades')
     else if (key === 'classificados')  onNavigate && onNavigate('marketplace')

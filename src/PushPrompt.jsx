@@ -13,10 +13,9 @@ const TOPICS = [
   { id: 'community',         label: 'Mensagens na comunidade',       emoji: '💬' },
   { id: 'events',            label: 'Eventos perto de mim',          emoji: '📅' },
   { id: 'cambio',            label: 'Câmbio bater taxa alvo',        emoji: '💵' },
-  { id: 'bolao',             label: 'Bolão (palpite/resultado)',     emoji: '⚽' },
 ]
 
-const DEFAULT_TOPICS = ['orders', 'community', 'events', 'bolao']
+const DEFAULT_TOPICS = ['orders', 'community', 'events']
 
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - base64String.length % 4) % 4)
