@@ -1,0 +1,6 @@
+<svg width="1000" height="1000" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BrasilConnect USA — símbolo">
+  <!-- Símbolo oficial, cor cheia (badge). Fundo transparente. -->
+  <rect width="64" height="64" rx="11" fill="#009C3B"/>
+  <path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="27" cy="32" r="7" fill="#002776"/>
+</svg>

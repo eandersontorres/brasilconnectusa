@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --navy:#001A5E; --navy2:#0A2548; --green:#009C3B; --greenl:#00B34D;
+    --gold:#FFD700; --goldl:#FFDF00; --cream:#FAF7F0; --creamd:#F1ECDF;
+    --muted:#6B6E68; --border:#E5E1D6; --ink:#1A1F1C;
+  }
+  @page{ size:A4; margin:0; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ width:210mm; height:297mm; }
+  body{
+    font-family:'Sora',-apple-system,Segoe UI,sans-serif;
+    color:var(--ink); background:var(--cream);
+    -webkit-font-smoothing:antialiased; font-size:10px; line-height:1.45;
+  }
+  .serif{ font-family:'Fraunces',Georgia,serif; }
+  .page{ width:210mm; height:297mm; padding:13mm 12mm 0; display:flex; flex-direction:column; }
+
+  /* HEADER */
+  header{ display:flex; align-items:center; gap:10px; border-bottom:2px solid var(--navy); padding-bottom:8px; }
+  .logo{ width:42px; height:42px; border-radius:9px; background:var(--green); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; }
+  .logo img{ width:38px; height:38px; }
+  .brand h1{ font-family:'Fraunces',serif; font-size:21px; font-weight:700; color:var(--navy); letter-spacing:-.3px; line-height:1; }
+  .brand .tag{ font-size:9.5px; color:var(--muted); margin-top:3px; }
+  .header-r{ margin-left:auto; text-align:right; }
+  .pill{ display:inline-block; background:var(--navy); color:var(--goldl); font-weight:700; font-size:9px; letter-spacing:1px; padding:4px 10px; border-radius:20px; }
+  .header-r .site{ font-size:9px; color:var(--muted); margin-top:5px; }
+
+  /* HERO LINE */
+  .hero{ margin-top:13px; background:var(--navy); border-radius:11px; padding:16px 18px; color:#fff; position:relative; overflow:hidden; }
+  .hero::after{ content:""; position:absolute; right:-40px; top:-40px; width:150px; height:150px; border-radius:50%; background:rgba(0,156,59,.18); }
+  .hero h2{ font-family:'Fraunces',serif; font-weight:600; font-size:17px; line-height:1.25; position:relative; }
+  .hero h2 em{ color:var(--goldl); font-style:normal; }
+  .hero p{ font-size:9.4px; color:#C7CDE0; margin-top:6px; max-width:150mm; position:relative; }
+
+  /* SECTION TITLES */
+  .sec-t{ font-size:8px; font-weight:700; letter-spacing:1.4px; text-transform:uppercase; color:var(--green); margin:0 0 5px; }
+
+  .row{ display:flex; gap:10px; margin-top:15px; }
+  .col{ flex:1; }
+
+  /* problem/solution cards */
+  .ps{ background:#fff; border:1px solid var(--border); border-radius:9px; padding:9px 11px; height:100%; }
+  .ps h3{ font-family:'Fraunces',serif; font-size:11.5px; color:var(--navy); margin-bottom:4px; }
+  .ps ul{ list-style:none; }
+  .ps li{ position:relative; padding-left:13px; margin-bottom:3px; color:#3a3f3c; font-size:9px; }
+  .ps li::before{ content:""; position:absolute; left:0; top:5px; width:5px; height:5px; border-radius:50%; background:var(--green); }
+  .ps.sol li::before{ background:var(--gold); }
+
+  /* market stats */
+  .stats{ display:flex; gap:10px; margin-top:15px; }
+  .stat{ flex:1; background:var(--navy); border-radius:9px; padding:13px 13px; color:#fff; }
+  .stat .n{ font-family:'Fraunces',serif; font-size:24px; font-weight:700; color:var(--goldl); line-height:1; }
+  .stat .l{ font-size:9px; font-weight:600; margin-top:5px; }
+  .stat .d{ font-size:7.8px; color:#9AA3C0; margin-top:3px; line-height:1.35; }
+
+  /* product chips */
+  .chips{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:5px; }
+  .chip{ background:#fff; border:1px solid var(--border); border-left:3px solid var(--green); border-radius:7px; padding:8px 9px; }
+  .chip b{ display:block; font-family:'Fraunces',serif; font-size:9.6px; color:var(--navy); }
+  .chip span{ font-size:7.8px; color:var(--muted); }
+  .chip.hl{ border-left-color:var(--gold); }
+
+  /* revenue list */
+  .rev{ background:#fff; border:1px solid var(--border); border-radius:9px; padding:10px 12px; }
+  .rev .item{ display:flex; gap:8px; align-items:baseline; padding:6px 0; border-bottom:1px dashed var(--border); }
+  .rev .item:last-child{ border-bottom:none; }
+  .rev .dot{ width:7px; height:7px; border-radius:2px; background:var(--green); flex-shrink:0; position:relative; top:2px; }
+  .rev b{ font-size:9.2px; color:var(--navy); }
+  .rev span{ font-size:8.4px; color:var(--muted); }
+
+  /* why now */
+  .why{ background:var(--creamd); border:1px solid var(--border); border-radius:9px; padding:10px 12px; }
+  .why h3{ font-family:'Fraunces',serif; font-size:12px; color:var(--navy); margin-bottom:4px; }
+  .why h3 em{ color:var(--green); font-style:normal; }
+  .why p{ font-size:9px; color:#3a3f3c; }
+
+  /* the ask */
+  .ask{ margin-top:15px; background:var(--navy); border-radius:11px; padding:16px 18px; color:#fff; display:flex; gap:20px; align-items:center; }
+  .ask .big{ flex-shrink:0; }
+  .ask .big .k{ font-size:8px; letter-spacing:1px; color:#9AA3C0; text-transform:uppercase; }
+  .ask .big .v{ font-family:'Fraunces',serif; font-size:34px; font-weight:700; color:var(--goldl); line-height:1; margin-top:3px; }
+  .ask .big .s{ font-size:8.6px; color:#C7CDE0; margin-top:3px; }
+  .ask .uf{ flex:1; }
+  .ask .uf .uft{ font-size:8px; letter-spacing:1px; text-transform:uppercase; color:#9AA3C0; margin-bottom:6px; }
+  .bar{ display:flex; align-items:center; gap:7px; margin-bottom:5px; }
+  .bar .lbl{ width:34mm; font-size:8.4px; }
+  .bar .track{ flex:1; height:7px; background:#1B2C55; border-radius:4px; overflow:hidden; }
+  .bar .fill{ height:100%; border-radius:4px; }
+  .bar .pct{ width:24px; text-align:right; font-family:'Fraunces',serif; font-weight:700; font-size:9px; color:var(--goldl); }
+
+  footer{ margin-top:auto; padding:7px 0 8px; display:flex; align-items:center; border-top:1px solid var(--border); }
+  footer .flag{ display:flex; width:60px; height:5px; border-radius:3px; overflow:hidden; margin-right:10px; }
+  footer .flag i{ flex:1; } .f1{background:var(--green)} .f2{background:var(--gold)} .f3{background:var(--navy)}
+  footer .c{ font-size:8.6px; color:var(--muted); }
+  footer .c b{ color:var(--navy); }
+  footer .r{ margin-left:auto; font-size:8px; color:#9AA3C0; font-style:italic; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="logo"><img src="logo.png" alt="BrasilConnect"/></div>
+    <div class="brand">
+      <h1>BrasilConnect <span style="color:var(--green)">USA</span></h1>
+      <div class="tag">A casa digital da comunidade brasileira nos Estados Unidos</div>
+    </div>
+    <div class="header-r">
+      <span class="pill">RODADA SEED · 2026</span>
+      <div class="site">brasilconnectusa.com</div>
+    </div>
+  </header>
+
+  <div class="hero">
+    <h2>O super-app que conecta <em>1,9 milhão</em> de brasileiros nos EUA — remessas, comunidade, negócios, viagem e imigração num só lugar, em português.</h2>
+    <p>Produto construído e no ar (9 módulos), com pagamentos, e-mail e push integrados. Pronto para escalar uma comunidade grande, jovem e digital que nenhum incumbente atende por inteiro.</p>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <div class="sec-t">O problema</div>
+      <div class="ps">
+        <h3>Viver longe do Brasil é caro e confuso</h3>
+        <ul>
+          <li>Remessas caras e opacas, espalhadas em vários apps</li>
+          <li>Contador, advogado, dentista BR: só no boca a boca</li>
+          <li>Marketplaces informais sem moderação e cheios de golpe</li>
+          <li>Falta de comunidade e pertencimento para quem chega</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col">
+      <div class="sec-t">A solução</div>
+      <div class="ps sol">
+        <h3>Tudo da vida do brasileiro, num app só</h3>
+        <ul>
+          <li>Compara câmbio e remessas e leva pro melhor parceiro</li>
+          <li>Diretório e marketplace de negócios brasileiros confiáveis</li>
+          <li>Grupos, eventos e ranking por estado: comunidade real</li>
+          <li>Em português, com taxas justas e perfis verificados</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="n">~1,9M</div><div class="l">brasileiros nos EUA</div><div class="d">5ª maior comunidade de imigrantes do país.</div></div>
+    <div class="stat"><div class="n">US$ 2–3 bi</div><div class="l">remessas EUA → Brasil / ano</div><div class="d">EUA são a maior origem de remessas ao Brasil.</div></div>
+    <div class="stat"><div class="n">US$ 40 bi+</div><div class="l">poder de consumo anual</div><div class="d">Moradia, comida, serviços, viagem e remessas.</div></div>
+  </div>
+
+  <div class="row">
+    <div class="col" style="flex:1.15">
+      <div class="sec-t">Produto pronto — 9 módulos no ar</div>
+      <div class="chips">
+        <div class="chip"><b>Câmbio & Remessas</b><span>Comparador ao vivo + parceiros</span></div>
+        <div class="chip"><b>Diretório</b><span>Negócios BR por cidade/raio</span></div>
+        <div class="chip"><b>Restaurant Connect</b><span>Pedidos online · comissão %</span></div>
+        <div class="chip"><b>Grupos</b><span>26 interesses + ranking</span></div>
+        <div class="chip"><b>AgendaPro</b><span>Booking com depósito</span></div>
+        <div class="chip"><b>Marketplace</b><span>Venda & troca moderada</span></div>
+        <div class="chip"><b>Viagem</b><span>Voos, hotéis, parques</span></div>
+        <div class="chip"><b>Imigração</b><span>Guias práticos + SEO</span></div>
+        <div class="chip"><b>Bolões & Gamificação</b><span>Engajamento da comunidade</span></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="sec-t">Como ganhamos dinheiro</div>
+      <div class="rev">
+        <div class="item"><span class="dot"></span><div><b>Afiliados de remessa & finanças</b> <span>— comissão por cliente (Wise, Remitly, WU…)</span></div></div>
+        <div class="item"><span class="dot"></span><div><b>Assinaturas de negócios</b> <span>— planos Starter / Pro / Premium</span></div></div>
+        <div class="item"><span class="dot"></span><div><b>Restaurant Connect</b> <span>— comissão % por pedido (vs. 15–30% do DoorDash)</span></div></div>
+        <div class="item"><span class="dot"></span><div><b>AgendaPro & sponsors</b> <span>— fee de booking + destaque no feed</span></div></div>
+        <div class="item"><span class="dot"></span><div><b>Afiliados de viagem</b> <span>— voos, hotéis, ingressos e passeios</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <div class="sec-t">Por que agora</div>
+      <div class="why">
+        <h3>A comunidade cresceu — <em>os serviços não</em></h3>
+        <p>A diáspora brasileira nos EUA está maior, mais jovem e mais digital do que nunca, mas segue presa em apps gringos e grupos de WhatsApp. A janela para virar a plataforma de referência está aberta agora — com o produto já pronto, enquanto concorrentes só começariam a construir.</p>
+      </div>
+    </div>
+    <div class="col">
+      <div class="sec-t">Vantagem competitiva</div>
+      <div class="why" style="background:#fff">
+        <h3 style="margin-bottom:4px">O fosso é a <em style="color:var(--green)">comunidade</em></h3>
+        <p>Apps gringos não falam português nem conhecem a dor do imigrante; grupos de WhatsApp não escalam nem monetizam. Unimos os dois: confiança + tudo num lugar + taxas justas. CAC baixo e efeito de rede — cada novo brasileiro torna o app mais valioso para o próximo.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="ask">
+    <div class="big">
+      <div class="k">Captação · Rodada Seed (SAFE)</div>
+      <div class="v">US$ 750K</div>
+      <div class="s">Pista de ~18 meses até métricas de Série A.<br><span style="opacity:.6;font-style:italic">[valor sugerido — ajustar]</span></div>
+    </div>
+    <div class="uf">
+      <div class="uft">Uso dos recursos</div>
+      <div class="bar"><span class="lbl">Marketing & aquisição</span><span class="track"><span class="fill" style="width:100%;background:var(--greenl)"></span></span><span class="pct">40%</span></div>
+      <div class="bar"><span class="lbl">Time</span><span class="track"><span class="fill" style="width:87%;background:var(--green)"></span></span><span class="pct">35%</span></div>
+      <div class="bar"><span class="lbl">Produto & engenharia</span><span class="track"><span class="fill" style="width:38%;background:#2E66B0"></span></span><span class="pct">15%</span></div>
+      <div class="bar"><span class="lbl">Operação & jurídico</span><span class="track"><span class="fill" style="width:25%;background:#2E66B0"></span></span><span class="pct">10%</span></div>
+    </div>
+  </div>
+
+  <footer>
+    <span class="flag"><i class="f1"></i><i class="f2"></i><i class="f3"></i></span>
+    <span class="c"><b>Anderson Torres</b> · Fundador &nbsp;·&nbsp; [seu e-mail] &nbsp;·&nbsp; [telefone/WhatsApp]</span>
+    <span class="r">Confidencial — material para investidor</span>
+  </footer>
+
+</div>
+</body>
+</html>
