@@ -13,8 +13,8 @@
     { "src": "/img/logo-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
   ],
   "shortcuts": [
-    { "name": "Bolão Copa 2026", "short_name": "Bolão",    "url": "/app/bolao",    "icons": [{ "src": "/favicon.svg", "sizes": "64x64" }] },
     { "name": "Câmbio",          "short_name": "Câmbio",   "url": "/app/remessas", "icons": [{ "src": "/favicon.svg", "sizes": "64x64" }] },
+    { "name": "Feed",            "short_name": "Feed",     "url": "/app/feed",     "icons": [{ "src": "/favicon.svg", "sizes": "64x64" }] },
     { "name": "Voos",            "short_name": "Voos",     "url": "/app/voos",     "icons": [{ "src": "/favicon.svg", "sizes": "64x64" }] },
     { "name": "Negócios",        "short_name": "Negócios", "url": "/negocio",      "icons": [{ "src": "/favicon.svg", "sizes": "64x64" }] }
   ],

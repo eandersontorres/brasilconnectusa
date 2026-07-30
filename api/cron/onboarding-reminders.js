@@ -135,7 +135,6 @@ const TEMPLATES = {
         block('Leva <strong>1 minuto</strong>. Ao completar, você desbloqueia:'),
         `<ul style="padding-left:20px;color:#4B4F4D;font-size:15px;line-height:1.85;margin:0 0 16px 0;">
           <li>💬 Postar e comentar nas comunidades brasileiras</li>
-          <li>⚽ Criar ou entrar em bolões da Copa 2026</li>
           <li>🏷️ Anunciar no marketplace e ver contatos completos</li>
           <li>🔔 Notificações de eventos brasileiros perto de você</li>
         </ul>`,
@@ -144,7 +143,7 @@ const TEMPLATES = {
       ctaUrl: APP_URL,
       ctaLabel: 'Completar perfil agora →',
     }),
-    text: `Quase lá! Falta só completar seu perfil na BrasilConnect (1 minuto).\n\nDepois disso, você pode postar, criar bolão da Copa, anunciar no marketplace e receber notificações de eventos.\n\nCompletar: ${APP_URL}`,
+    text: `Quase lá! Falta só completar seu perfil na BrasilConnect (1 minuto).\n\nDepois disso, você pode postar, anunciar no marketplace e receber notificações de eventos.\n\nCompletar: ${APP_URL}`,
   }),
 
   // Email 2 — D+4 — prova social + segunda tentativa

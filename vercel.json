@@ -4,6 +4,21 @@
       "source": "/landing.html",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/app/bolao",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/bolao/:code",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/bolao-premio",
+      "destination": "/",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -14,10 +29,6 @@
     {
       "source": "/app/:tab",
       "destination": "/app.html"
-    },
-    {
-      "source": "/bolao/:code",
-      "destination": "/api/bolao-invite?code=:code"
     },
     {
       "source": "/go/sponsor/:id",
@@ -126,10 +137,6 @@
     {
       "source": "/assinante",
       "destination": "/assinante/index.html"
-    },
-    {
-      "source": "/bolao-premio",
-      "destination": "/bolao-premio/index.html"
     },
     {
       "source": "/sitemap.xml",

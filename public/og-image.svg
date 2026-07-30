@@ -28,37 +28,31 @@
 
   <!-- Tag -->
   <g transform="translate(80,180)">
-    <rect x="0" y="0" width="220" height="34" rx="17" fill="rgba(0,156,59,0.18)" stroke="rgba(0,156,59,0.4)" stroke-width="1"/>
-    <text x="20" y="22" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#5FE89A" letter-spacing="1.5">⚽ BOLÃO COPA 2026</text>
+    <rect x="0" y="0" width="290" height="34" rx="17" fill="rgba(0,156,59,0.18)" stroke="rgba(0,156,59,0.4)" stroke-width="1"/>
+    <text x="20" y="22" font-family="Arial, sans-serif" font-size="13" font-weight="700" fill="#5FE89A" letter-spacing="1.5">🇧🇷 BRASILEIROS NOS EUA</text>
   </g>
 
   <!-- Headline -->
   <g transform="translate(80,250)">
     <text font-family="Georgia, 'Times New Roman', serif" font-size="72" font-weight="700" fill="#FFFFFF" letter-spacing="-2">
-      <tspan x="0" y="0">A Copa é</tspan>
-      <tspan x="0" y="84" fill="#FFD700" font-style="italic">aqui nos EUA.</tspan>
-      <tspan x="0" y="168">Bora montar</tspan>
-      <tspan x="0" y="252">nosso <tspan fill="#5FE89A">bolão?</tspan></tspan>
+      <tspan x="0" y="0">Sua vida aqui,</tspan>
+      <tspan x="0" y="84" fill="#FFD700" font-style="italic">resolvida</tspan>
+      <tspan x="0" y="168">num <tspan fill="#5FE89A">lugar só.</tspan></tspan>
     </text>
   </g>
 
-  <!-- Football emoji (right side) -->
+  <!-- Brazil roundel (right side) -->
   <g transform="translate(870,180)">
-    <circle cx="120" cy="120" r="120" fill="#FFFFFF" stroke="#001a5e" stroke-width="3"/>
-    <!-- Soccer ball pattern (simplified pentagons) -->
-    <g fill="#1A1F1C">
-      <polygon points="120,60 145,82 135,114 105,114 95,82"/>
-      <polygon points="60,140 85,118 105,135 95,165 70,165"/>
-      <polygon points="180,140 165,118 145,135 155,165 175,160"/>
-      <polygon points="120,200 100,180 140,180"/>
-    </g>
+    <circle cx="120" cy="120" r="120" fill="#009c3b"/>
+    <polygon points="120,38 202,120 120,202 38,120" fill="#FFD700"/>
+    <circle cx="120" cy="120" r="42" fill="#002776"/>
   </g>
 
   <!-- Bottom strip -->
   <g transform="translate(80,548)">
     <text font-family="Arial, sans-serif" font-size="20" font-weight="600" fill="rgba(255,255,255,0.85)">
-      <tspan x="0" y="0">🇧🇷 Ranking do seu estado</tspan>
-      <tspan x="380" y="0">🌎 Ranking nacional EUA</tspan>
+      <tspan x="0" y="0">💵 Câmbio e remessas</tspan>
+      <tspan x="380" y="0">✈️ Voos pro Brasil</tspan>
       <tspan x="780" y="0">⚡ 100% gratuito</tspan>
     </text>
   </g>

@@ -11,8 +11,7 @@ const FEATURES = [
   { letter: 'B', title: 'Câmbio',     desc: 'Alertas de cotação dólar/real direto no seu WhatsApp' },
   { letter: 'C', title: 'Voos',       desc: 'Passagens para o Brasil em tempo real, com alerta de promoção' },
   { letter: 'D', title: 'Negócios',   desc: 'Diretório de empresas brasileiras nos EUA' },
-  { letter: 'E', title: 'Bolão',      desc: 'Bolões da comunidade — Copa, eleições, e outros' },
-  { letter: 'F', title: 'Comunidade', desc: 'Grupos de interesse, eventos e indicações' },
+  { letter: 'E', title: 'Comunidade', desc: 'Grupos de interesse, eventos e indicações' },
 ]
 
 export default function ComingSoon() {

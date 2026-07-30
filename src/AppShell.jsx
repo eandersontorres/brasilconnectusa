@@ -61,7 +61,6 @@ const TABS = [
   { id: 'discover',  icon: '⌕',  label: 'Buscar' },
   { id: 'eventos',   icon: '🎉', label: 'Eventos' },
   { id: 'remessas',  icon: '$',  label: 'Câmbio' },
-  { id: 'bolao',     icon: '⚽', label: 'Bolão' },
   { id: 'voos',      icon: '✈',  label: 'Voos' },
 ]
 
@@ -361,7 +360,6 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
       {item(tab === 'remessas',   SIcons.dollar,   'Câmbio',     () => setTab('remessas'))}
       {item(tab === 'voos',       SIcons.plane,    'Voos',       () => setTab('voos'))}
       {SHOW_BUSINESS && item(false, SIcons.store, 'Negócios', () => { window.location.href = '/negocio' })}
-      {item(tab === 'bolao',      SIcons.trophy,   'Bolão',      () => setTab('bolao'))}
       {item(tab === 'marketplace',SIcons.tag,      'Marketplace',() => setTab('marketplace'))}
 
       {sectionTitle('Conteúdo')}
