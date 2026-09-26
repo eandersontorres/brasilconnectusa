@@ -140,11 +140,9 @@
     .tile p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.5; letter-spacing: -0.01em; }
     .tile p b, .tile li b { color: var(--ink); font-weight: 600; }
     .tile ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
-    .tile li {
-      font-size: 15px; line-height: 1.45; color: var(--ink-2); letter-spacing: -0.01em;
-      padding-left: 18px; position: relative;
-    }
-    .tile li::before {
+    .tile li { font-size: 15px; line-height: 1.45; color: var(--ink-2); letter-spacing: -0.01em; }
+    .tile ul > li { padding-left: 18px; position: relative; }
+    .tile ul > li::before {
       content: ""; position: absolute; left: 0; top: 0.62em;
       width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
     }
@@ -168,11 +166,10 @@
 
     /* Passos */
     .steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; counter-reset: s; }
-    .steps li { padding-left: 44px !important; position: relative; }
+    .steps li { padding-left: 44px; position: relative; }
     .steps li::before {
-      counter-increment: s; content: counter(s, decimal-leading-zero) !important;
-      position: absolute; left: 0 !important; top: 0.05em !important;
-      width: auto !important; height: auto !important; border-radius: 0 !important; background: none !important;
+      counter-increment: s; content: counter(s, decimal-leading-zero);
+      position: absolute; left: 0; top: 0.05em;
       font-family: var(--din); font-weight: 600; font-size: 14px; letter-spacing: 0.08em; color: var(--muted);
     }
 
@@ -182,7 +179,7 @@
     .tile.dark h3 { font-size: clamp(28px, 3.4vw, 38px); }
     .tile.dark li { color: #C7C7CC; }
     .tile.dark li b { color: #F5F5F7; }
-    .tile.dark li::before { background: #34C471; }
+    .tile.dark ul > li::before { background: #34C471; }
     @media (prefers-color-scheme: dark) {
       .tile.dark { background: #1D1D1F; border: 1px solid #333336; }
     }
