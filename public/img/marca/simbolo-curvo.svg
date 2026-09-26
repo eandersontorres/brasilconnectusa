@@ -1,0 +1,6 @@
+<svg width="1000" height="1000" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BrasilConnect USA — símbolo curvo">
+  <!-- Traço curvo (de BC_curved_V1.png) em vetor. Fundo transparente. Seta amarela + pupila navy. -->
+  <path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/>
+  <path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/>
+  <circle cx="37" cy="50" r="10" fill="#002776"/>
+</svg>

@@ -8,7 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow:wght@500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow:wght@500;600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
   <style>
     /* Tipografia big tech:
        - SF Pro (Apple) nativa em iPhone/Mac; Inter como equivalente aberto no Windows/Android.
@@ -75,13 +75,16 @@
       max-width: 1080px; margin: 0 auto; padding-inline: 22px;
       height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
-    .wordmark { font-weight: 600; font-size: 17px; letter-spacing: -0.02em; color: #F5F5F7; text-decoration: none; }
+    .wordmark { font-weight: 600; font-size: 17px; letter-spacing: -0.02em; color: #F5F5F7; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+    .wordmark svg { width: 24px; height: 24px; flex: none; display: block; }
     .wordmark span { color: #8E8E93; font-weight: 500; }
     .nav .label { color: #A1A1A6; font-size: 11px; }
 
     /* ── Hero (preto, estilo SpaceX) ── */
     .hero { background: #000; color: #F5F5F7; }
-    .hero-in { max-width: 1080px; margin: 0 auto; padding: 88px 22px 72px; }
+    .hero-in { max-width: 1080px; margin: 0 auto; padding: 88px 22px 72px; position: relative; }
+    .hero-mark { position: absolute; right: 22px; top: 76px; width: clamp(160px, 24vw, 270px); height: auto; }
+    @media (max-width: 900px) { .hero-mark { display: none; } }
     .hero .label { color: #A1A1A6; }
     .hero h1 {
       margin: 18px 0 0;
@@ -210,6 +213,52 @@
     }
     .plan90 li b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 2px; }
 
+    /* ── Marca & merch ── */
+    .brand { margin-top: 88px; }
+    .section-head .lede-sm { margin: 14px 0 0; max-width: 60ch; font-size: 17px; line-height: 1.5; color: var(--muted); letter-spacing: -0.015em; }
+    .brand-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .spec-card { background: var(--tile); border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+    .spec-card.w2 { grid-column: span 2; }
+    .stage { aspect-ratio: 1 / 1; display: grid; place-items: center; padding: 16%; }
+    .stage svg { width: 100%; height: auto; display: block; }
+    .spec-card.w2 .stage { aspect-ratio: auto; flex: 1; padding: 8% 10%; }
+    .bg-cream { background: #FAF7F0; }
+    .bg-deep { background: #1F4D3F; }
+    .bg-navy { background: #002776; }
+    .bg-black { background: #000; }
+    .spec-meta { padding: 16px 20px 18px; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+    .spec-meta .n { font-size: 15px; font-weight: 600; letter-spacing: -0.015em; }
+    .spec-meta .d { font-size: 13px; color: var(--muted); margin-top: 2px; line-height: 1.35; letter-spacing: -0.005em; }
+    .dl {
+      font-family: var(--din); font-weight: 600; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--ink); text-decoration: none; white-space: nowrap;
+      border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px;
+    }
+    .dl:hover, .dl:focus-visible { border-color: var(--ink); outline: none; }
+
+    .palette { display: grid; grid-template-columns: repeat(6, 1fr); border-radius: 24px; overflow: hidden; margin-top: 16px; }
+    .sw { padding: 72px 18px 18px; color: #FFFFFF; min-width: 0; }
+    .sw.on-light { color: #1D1D1F; }
+    .sw .n { font-size: 15px; font-weight: 600; letter-spacing: -0.015em; }
+    .sw .hex { font-family: var(--din); font-weight: 600; font-size: 12px; letter-spacing: 0.12em; margin-top: 2px; opacity: 0.8; }
+
+    .merch { margin-top: 16px; display: grid; grid-template-columns: 5fr 7fr; gap: 0; padding: 0; overflow: hidden; }
+    .merch-visual { background: #1F4D3F; display: grid; place-items: center; padding: 12% 10%; }
+    .merch-visual svg { width: 100%; max-width: 360px; height: auto; display: block; }
+    .merch-body { padding: 32px 30px 30px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+    .merch-body h3 { margin: 0; font-size: clamp(22px, 2.6vw, 28px); line-height: 1.14; font-weight: 700; letter-spacing: -0.028em; }
+    .groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .group .label { color: var(--muted); display: block; margin-bottom: 4px; font-size: 11px; }
+    .group .price { font-size: 14px; padding: 9px 0; }
+    .group .price .v { font-size: 15px; }
+
+    .phrases-tile { margin-top: 16px; }
+    .phrases { display: flex; flex-wrap: wrap; gap: 10px; }
+    .phrase {
+      font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 17px; letter-spacing: -0.01em;
+      border: 1px solid var(--line); border-radius: 999px; padding: 10px 18px; color: var(--ink);
+    }
+
     footer { max-width: 1080px; margin: 0 auto; padding: 28px 22px 48px; }
     footer .row { border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; }
     footer p { margin: 0; font-size: 12px; color: var(--muted); letter-spacing: -0.005em; line-height: 1.5; max-width: 70ch; }
@@ -223,7 +272,14 @@
       .plan90 li, .plan90 li + li { padding: 14px 0 12px; border-top-width: 1px; }
       .plan90 li:first-child { border-top-width: 2px; }
     }
+    @media (max-width: 900px) {
+      .brand-grid { grid-template-columns: repeat(2, 1fr); }
+      .palette { grid-template-columns: repeat(3, 1fr); }
+      .merch { grid-template-columns: 1fr; }
+      .merch-visual { padding: 10% 18%; }
+    }
     @media (max-width: 720px) {
+      .groups { grid-template-columns: 1fr; gap: 14px; }
       .specs { grid-template-columns: repeat(2, 1fr); }
       .spec, .spec + .spec { padding: 22px 16px 22px 0; border-left: 0; }
       .spec:nth-child(even) { padding-left: 16px; border-left: 1px solid #333336; }
@@ -238,6 +294,13 @@
       .bento { grid-template-columns: 1fr; }
       .s2, .s3, .s4, .s6 { grid-column: span 1; }
       .tile { padding: 26px 22px; border-radius: 20px; }
+      .merch { padding: 0; }
+      .merch-body { padding: 26px 22px; }
+      .spec-card { border-radius: 20px; }
+      .spec-meta { flex-direction: column; align-items: flex-start; padding: 14px 16px 16px; }
+      .palette { grid-template-columns: repeat(2, 1fr); border-radius: 20px; }
+      .sw { padding-top: 56px; }
+      .brand { margin-top: 64px; }
       .nav .label { display: none; }
     }
     @media (prefers-reduced-motion: no-preference) {
@@ -250,13 +313,14 @@
 
   <nav class="nav">
     <div class="nav-in">
-      <a class="wordmark" href="/">BrasilConnect <span>USA</span></a>
+      <a class="wordmark" href="/"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="11" fill="#009C3B"/><path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="32" r="7" fill="#002776"/></svg>BrasilConnect <span>USA</span></a>
       <span class="label">Plano de negócios · Uso interno</span>
     </div>
   </nav>
 
   <header class="hero">
     <div class="hero-in">
+      <svg class="hero-mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="#FAF7F0"/></svg>
       <div class="label">Plano de negócios · 2026</div>
       <h1>A plataforma da comunidade brasileira nos EUA.</h1>
       <p class="lede">Um só lugar para o brasileiro achar negócios, serviços e informação em português. E um <b>SaaS com zero comissão</b> para o negócio brasileiro vender online.</p>
@@ -319,6 +383,7 @@
           <div class="price"><span class="k">AgendaPro</span><span class="v">$19–79</span></div>
           <div class="price"><span class="k">Divulgação</span><span class="v">$9</span></div>
           <div class="price"><span class="k">Enterprise</span><span class="v">Sob medida</span></div>
+          <div class="price"><span class="k">Merch · Coleção 01</span><span class="v">$9–54</span></div>
         </div>
       </section>
 
@@ -398,6 +463,129 @@
       </section>
 
     </div>
+
+    <!-- ── Marca & merch ── -->
+    <section class="brand" id="marca">
+      <div class="section-head">
+        <div class="label">Marca &amp; merch</div>
+        <h2>O olho que conecta.</h2>
+        <p class="lede-sm">O símbolo, o “olho brasileiro”, é o mesmo no app, nas camisetas e nos suvenires. Os arquivos abaixo são os mestres em SVG, prontos para a gráfica.</p>
+      </div>
+
+      <div class="brand-grid">
+        <div class="spec-card">
+          <div class="stage bg-cream">
+            <svg viewBox="0 0 64 64" role="img" aria-label="Símbolo oficial em cor"><rect width="64" height="64" rx="11" fill="#009C3B"/><path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="32" r="7" fill="#002776"/></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Símbolo oficial</div><div class="d">App, site e peças claras</div></div><a class="dl" href="/img/marca/simbolo-cor.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card">
+          <div class="stage bg-cream">
+            <svg viewBox="0 0 100 100" role="img" aria-label="Símbolo curvo"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="#002776"/></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Símbolo curvo</div><div class="d">Peças claras</div></div><a class="dl" href="/img/marca/simbolo-curvo.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card">
+          <div class="stage bg-deep">
+            <svg viewBox="0 0 100 100" role="img" aria-label="Símbolo curvo claro"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="#FAF7F0"/></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Curvo claro</div><div class="d">Camisetas e peças escuras</div></div><a class="dl" href="/img/marca/simbolo-curvo-claro.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card">
+          <div class="stage bg-black">
+            <svg viewBox="0 0 64 64" role="img" aria-label="Símbolo reverso amarelo"><path d="M 16 16 L 52 32 L 16 48" fill="none" stroke="#FFDF00" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28" cy="32" r="7.5" fill="#FAF7F0"/></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Reverso amarelo</div><div class="d">Bordado e gravação</div></div><a class="dl" href="/img/marca/simbolo-mono-amarelo.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card w2">
+          <div class="stage bg-cream">
+            <svg viewBox="0 0 360 80" role="img" aria-label="Logo horizontal BrasilConnect USA"><g transform="translate(8, 8)"><rect width="64" height="64" fill="#009C3B" rx="11"/><path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="32" r="7" fill="#002776"/></g><text x="86" y="44" font-family="Fraunces, Georgia, serif" font-size="28" font-weight="700" fill="#1A1F1C" letter-spacing="-0.4">Brasil<tspan fill="#B8943B">Connect</tspan></text><text x="86" y="64" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#8C6D3D" letter-spacing="3.5">USA</text></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Logo horizontal</div><div class="d">Etiqueta, embalagem, site e rodapé</div></div><a class="dl" href="/img/marca/logo-horizontal.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card">
+          <div class="stage bg-navy">
+            <svg viewBox="0 0 64 64" role="img" aria-label="Símbolo em uma cor, branco"><path d="M 16 16 L 52 32 L 16 48" fill="none" stroke="#FFFFFF" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28" cy="32" r="7.5" fill="#FFFFFF"/></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Uma cor · branco</div><div class="d">Impressão monocromática</div></div><a class="dl" href="/img/marca/simbolo-mono-branco.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card">
+          <div class="stage bg-cream">
+            <svg viewBox="0 0 100 100" role="img" aria-label="Selo Saudade Approved"><circle cx="50" cy="50" r="48" fill="#1F4D3F"/><circle cx="50" cy="50" r="44" fill="none" stroke="#FFDF00" stroke-width="0.8" stroke-dasharray="1 2"/><g transform="translate(28, 24) scale(0.44)"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="#FAF7F0"/></g><text x="50" y="74" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11" font-weight="700" letter-spacing="1" fill="#FAF7F0">SAUDADE</text><text x="50" y="84" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="5" font-weight="600" letter-spacing="4" fill="#FFDF00">APPROVED</text></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Selo Saudade Approved</div><div class="d">Adesivo e patch</div></div><a class="dl" href="/img/marca/estampa-saudade-approved.svg" download>SVG ↓</a></div>
+        </div>
+      </div>
+
+      <div class="palette" aria-label="Paleta oficial">
+        <div class="sw" style="background:#1F4D3F"><div class="n">Verde-deep</div><div class="hex">#1F4D3F</div></div>
+        <div class="sw" style="background:#009C3B"><div class="n">Verde-bandeira</div><div class="hex">#009C3B</div></div>
+        <div class="sw on-light" style="background:#FFDF00"><div class="n">Amarelo</div><div class="hex">#FFDF00</div></div>
+        <div class="sw" style="background:#002776"><div class="n">Navy</div><div class="hex">#002776</div></div>
+        <div class="sw on-light" style="background:#B8943B"><div class="n">Champagne</div><div class="hex">#B8943B</div></div>
+        <div class="sw on-light" style="background:#FAF7F0"><div class="n">Cream</div><div class="hex">#FAF7F0</div></div>
+      </div>
+
+      <section class="tile merch">
+        <div class="merch-visual">
+          <svg viewBox="0 0 200 188" role="img" aria-label="Estampa das costas da camiseta"><g transform="translate(49, 10)"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="#FAF7F0"/></g><text x="100" y="150" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="15" font-weight="600" letter-spacing="4" fill="#FAF7F0">BRASILCONNECT</text><text x="100" y="170" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="8" font-weight="600" letter-spacing="11" fill="#FFDF00">U S A</text></svg>
+        </div>
+        <div class="merch-body">
+          <div class="label">Coleção 01 · merch</div>
+          <h3>Vista a saudade. Carregue o Brasil.</h3>
+          <div class="groups">
+            <div class="group">
+              <span class="label">Vestuário</span>
+              <div class="prices">
+                <div class="price"><span class="k">Tee Olho Bandeira</span><span class="v">$28</span></div>
+                <div class="price"><span class="k">Tee Olho Grande</span><span class="v">$30</span></div>
+                <div class="price"><span class="k">Moletom Canguru</span><span class="v">$54</span></div>
+              </div>
+            </div>
+            <div class="group">
+              <span class="label">Mesa &amp; café</span>
+              <div class="prices">
+                <div class="price"><span class="k">Caneca Saudade</span><span class="v">$16</span></div>
+                <div class="price"><span class="k">Caneca Esmaltada</span><span class="v">$18</span></div>
+                <div class="price"><span class="k">Garrafa Térmica</span><span class="v">$32</span></div>
+              </div>
+            </div>
+            <div class="group">
+              <span class="label">Acessórios</span>
+              <div class="prices">
+                <div class="price"><span class="k">Boné Bordado</span><span class="v">$26</span></div>
+                <div class="price"><span class="k">Ecobag Canvas</span><span class="v">$22</span></div>
+                <div class="price"><span class="k">Kit de Adesivos</span><span class="v">$9</span></div>
+              </div>
+            </div>
+          </div>
+          <ul>
+            <li><b>Receita extra sem estoque:</b> produção sob demanda (Printful ou Printify) ou fornecedor local.</li>
+            <li><b>Divulgação:</b> cada camiseta na rua mostra a marca para outros brasileiros.</li>
+          </ul>
+          <p class="fine">Estampa das costas mostrada ao lado. <a class="dl" href="/img/marca/estampa-costas-tee.svg" download>SVG ↓</a></p>
+        </div>
+      </section>
+
+      <section class="tile phrases-tile">
+        <div class="label">Frases das estampas</div>
+        <div class="phrases">
+          <span class="phrase">“Saudade Approved”</span>
+          <span class="phrase">“Brazuca in the USA”</span>
+          <span class="phrase">“De casa, longe de casa”</span>
+          <span class="phrase">“Tamo junto, brasil.”</span>
+          <span class="phrase">“Raiz brasileira · solo americano”</span>
+          <span class="phrase">“O olho que conecta”</span>
+        </div>
+        <p class="fine">Antes de mandar para a gráfica, converta os textos dos arquivos em curvas (outline). Assim a impressão não depende da fonte instalada. Para imagem, exporte PNG a 300 dpi (4000 px ou mais).</p>
+      </section>
+    </section>
   </main>
 
   <footer>
