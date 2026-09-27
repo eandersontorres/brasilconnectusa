@@ -54,7 +54,7 @@ export default function ComingSoon() {
     <div style={S.page}>
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
       <main style={S.container}>
         {/* Logo */}
@@ -183,8 +183,8 @@ const PALETTE = {
   line: '#E5E1D6',
 }
 
-const FONT_SERIF = "'Fraunces', Georgia, 'Times New Roman', serif"
-const FONT_SANS  = "'Sora', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+const FONT_SERIF = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+const FONT_SANS  = "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
 
 const S = {
   page: { minHeight: '100vh', background: PALETTE.paper, fontFamily: FONT_SANS, color: PALETTE.ink, padding: '32px 16px' },

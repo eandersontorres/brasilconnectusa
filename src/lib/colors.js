@@ -82,9 +82,13 @@ export const C = {
 }
 
 // ── Tipografia ─────────────────────────────────────────────────────────────
+// SF Pro (Apple, nativa em iPhone/Mac) com Inter como equivalente aberto.
+// `serif` mantém o nome por compatibilidade, mas agora é a fonte de títulos.
+// `brand` (Fraunces) é só pro logo "BrasilConnect", igual ao merch.
 export const FONT = {
-  serif: "'Fraunces', Georgia, serif",
-  sans:  "'Sora', -apple-system, BlinkMacSystemFont, sans-serif",
+  serif: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+  sans:  "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
+  brand: "'Fraunces', Georgia, serif",
 }
 
 // ── Breakpoints ────────────────────────────────────────────────────────────

@@ -24,8 +24,8 @@
     .painel-h1 {
       font-family: var(--font-display);
       font-size: clamp(32px, 4vw, 44px);
-      font-weight: 300;
-      letter-spacing: -0.025em;
+      font-weight: 700;
+      letter-spacing: -0.035em;
       color: var(--ink);
       margin: 0 0 12px;
       line-height: 1.1;
@@ -1260,7 +1260,7 @@
       const modalHTML = `
         <div id="item-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto;" onclick="if(event.target.id==='item-modal')document.getElementById('item-modal').remove()">
           <div style="background:#fff;border-radius:14px;padding:24px;width:100%;max-width:500px;">
-            <h3 style="font-family:'Fraunces',serif;color:var(--navy);margin-bottom:14px;">${item.id ? 'Editar' : 'Novo'} item</h3>
+            <h3 style="font-family:var(--font-display);color:var(--navy);margin-bottom:14px;">${item.id ? 'Editar' : 'Novo'} item</h3>
             <form id="item-form" onsubmit="submitItem(event, '${item.id || ''}')">
               <div style="margin-bottom:10px;"><label>Nome *</label><input name="name" required value="${esc(item.name)}" /></div>
               <div style="margin-bottom:10px;"><label>Descrição</label><textarea name="description" rows="2">${esc(item.description)}</textarea></div>

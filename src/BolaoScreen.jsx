@@ -2134,7 +2134,7 @@ function BolaoBlockedView({ state }) {
     <div style={{
       background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12,
       padding: 40, textAlign: 'center', maxWidth: 480, margin: '32px auto',
-      fontFamily: "'Sora', -apple-system, sans-serif",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
     }}>
       <div style={{ fontSize: 48, marginBottom: 12 }}>🚫</div>
       <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontSize: 24, fontWeight: 600, margin: '0 0 12px', color: '#1a1a1a' }}>
@@ -2162,7 +2162,7 @@ function BolaoConsentView({ profile, loading, onAccept, authUser }) {
     <div style={{
       background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12,
       padding: 28, maxWidth: 560, margin: '24px auto',
-      fontFamily: "'Sora', -apple-system, sans-serif",
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
     }}>
       <div style={{
         fontSize: 11, fontWeight: 700, color: '#92400E',
