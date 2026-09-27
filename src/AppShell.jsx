@@ -75,7 +75,7 @@ function Logo({ size = 22 }) {
       display: 'inline-flex',
       alignItems: 'center',
       gap: 8,
-      fontFamily: FONT.serif,
+      fontFamily: FONT.brand,
       fontSize: size,
       fontWeight: 600,
       color: C.navy,

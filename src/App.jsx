@@ -34,7 +34,7 @@ function LoginGate({ emoji, title, message, perks }) {
       maxWidth: 480, margin: '32px auto', padding: '40px 32px',
       background: '#fff', border: '1px solid #e5e7eb', borderRadius: 16,
       boxShadow: '0 4px 20px rgba(0,0,0,0.04)', textAlign: 'center',
-      fontFamily: 'Sora, -apple-system, BlinkMacSystemFont, sans-serif',
+      fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif",
     }}>
       <div style={{ fontSize: 48, marginBottom: 14 }}>{emoji}</div>
       <h2 style={{
