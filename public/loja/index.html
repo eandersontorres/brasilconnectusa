@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="canonical" href="https://brasilconnectusa.com/loja/">
-  <title>Loja · Camisetas, canecas e mais | BrasilConnect USA</title>
-  <meta name="description" content="A loja da brazuca: camisetas, canecas, bonés e acessórios com a marca BrasilConnect USA. Feito para a comunidade brasileira nos Estados Unidos.">
+  <title>Loja · Coleção 01 | BrasilConnect USA</title>
+  <meta name="description" content="Coleção 01 da BrasilConnect: camisetas em algodão Supima, linha de praia e suvenires com bordado discreto. Feita para a comunidade brasileira nos Estados Unidos.">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <meta name="theme-color" content="#1F4D3F">
   <meta name="author" content="BrasilConnect USA">
@@ -16,64 +16,113 @@
   <meta property="og:site_name" content="BrasilConnect USA">
   <meta property="og:locale" content="pt_BR">
   <meta property="og:url" content="https://brasilconnectusa.com/loja/">
-  <meta property="og:title" content="Loja · BrasilConnect USA">
-  <meta property="og:description" content="Camisetas, canecas, bonés e acessórios com a marca BrasilConnect USA.">
+  <meta property="og:title" content="Loja · Coleção 01 · BrasilConnect USA">
+  <meta property="og:description" content="Pra quem carrega o Brasil com bom gosto. Algodão Supima, bordado de verdade, marca discreta.">
   <meta property="og:image" content="https://brasilconnectusa.com/og-image.svg">
 
-  <!-- Fonts -->
+  <!-- Fontes: SF Pro/Inter vêm do premium.css; Barlow nos rótulos; Fraunces só no logo -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&display=swap" rel="stylesheet">
 
-  <!-- Premium design system -->
   <link rel="stylesheet" href="/css/premium.css">
 
   <style>
-    /* ── Loja (escopo) ───────────────────────────────────────── */
-    .shop-note{background:var(--green-soft);border:1px solid rgba(31,77,63,.18);border-radius:14px;padding:16px 20px;margin:0 auto 8px;max-width:760px;display:flex;gap:14px;align-items:center;font-size:.92rem;color:var(--green-deep)}
-    .shop-note b{font-weight:600}
-    .shop-note .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--flag-green);box-shadow:0 0 0 4px rgba(0,156,59,.15)}
+    /* ── Loja · Coleção 01 (classes com prefixo lj- pra não colidir com o premium.css) ── */
+    .lj { --lj-ink:#17201B; --lj-ink2:#4A534D; --lj-muted:#6B726C; --lj-line:#E2DCCF; --lj-deep:#1F4D3F;
+          --lj-st-roupa:#ECE7DD; --lj-st-praia:#EFE5D2; --lj-st-casa:#E6ECE7;
+          --lj-din:'Barlow','DIN Alternate','Helvetica Neue',Arial,sans-serif; color:var(--lj-ink); }
+    .lj-wrap { max-width:1200px; margin:0 auto; padding-inline:24px; }
+    .lj-label { font-family:var(--lj-din); font-weight:600; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--lj-muted); }
+    .lj h1, .lj h2, .lj h3 { margin:0; text-wrap:balance; }
 
-    .filters{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:34px 0 36px}
-    .chip{font-family:'Sora',sans-serif;font-size:.82rem;font-weight:500;letter-spacing:.01em;padding:8px 18px;border-radius:30px;border:1px solid var(--line-strong);background:transparent;color:var(--ink-soft);cursor:pointer;transition:.18s}
-    .chip:hover{border-color:var(--green-deep);color:var(--ink)}
-    .chip.active{background:var(--green-deep);border-color:var(--green-deep);color:#fff}
+    .lj-hero { padding-block:120px 48px; display:grid; grid-template-columns:1.05fr 1fr; gap:48px; align-items:center; }
+    .lj-hero h1 { margin-top:16px; font-size:clamp(40px,5.6vw,72px); line-height:1.02; font-weight:700; letter-spacing:-.04em; }
+    .lj-hero .lj-lede { margin:22px 0 0; max-width:46ch; font-size:clamp(17px,1.6vw,20px); line-height:1.45; color:var(--lj-ink2); }
+    .lj-specs { margin-top:36px; display:grid; grid-template-columns:repeat(3,1fr); border-top:1px solid var(--lj-line); }
+    .lj-spec { padding:18px 16px 0 0; }
+    .lj-spec + .lj-spec { padding-left:16px; border-left:1px solid var(--lj-line); }
+    .lj-spec .n { font-weight:700; font-size:clamp(26px,3vw,36px); letter-spacing:-.03em; line-height:1; font-variant-numeric:tabular-nums; }
+    .lj-spec .n small { font-size:.45em; font-weight:600; color:var(--lj-muted); margin-left:3px; letter-spacing:0; }
+    .lj-spec .lj-label { display:block; margin-top:8px; font-size:11px; letter-spacing:.12em; line-height:1.4; }
+    .lj-stage-hero { background:var(--lj-deep); border-radius:28px; padding:28px 18px 20px; display:grid; grid-template-columns:1.2fr 1fr; gap:4px; align-items:center; min-width:0; }
+    .lj-stage-hero svg { width:100%; height:auto; display:block; }
+    .lj-stage-hero .big { grid-row:span 2; }
 
-    .shop-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:26px}
-    .product{background:var(--paper-elevated);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s}
-    .product:hover{transform:translateY(-4px);box-shadow:0 18px 40px -22px rgba(26,31,28,.35)}
-    .product .stage{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;position:relative}
-    .product .stage svg{width:86%;height:86%}
-    .ribbon{position:absolute;top:14px;left:14px;font-family:'Sora',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;background:var(--accent);color:#fff;padding:4px 10px;border-radius:20px}
-    .product .body{padding:18px 20px 20px;border-top:1px solid var(--line);display:flex;flex-direction:column;flex:1}
-    .product .row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
-    .product .body h3{font-family:'Fraunces',serif;font-size:1.18rem;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
-    .product .price{font-family:'Fraunces',serif;font-size:1.18rem;font-weight:600;color:var(--green-deep);white-space:nowrap}
-    .product .desc{font-size:.82rem;color:var(--ink-muted);margin-top:5px}
-    .tags{display:flex;gap:6px;margin-top:13px;flex-wrap:wrap}
-    .tag{font-family:'Sora',sans-serif;font-size:.66rem;font-weight:500;letter-spacing:.03em;padding:4px 9px;border-radius:20px;background:var(--paper-soft);color:var(--accent-deep)}
-    .tag.dot{display:flex;align-items:center;gap:5px}
-    .tag.dot i{width:9px;height:9px;border-radius:50%;display:inline-block}
-    .buy{margin-top:16px;width:100%;border:none;cursor:pointer;font-family:'Sora',sans-serif;font-size:.86rem;font-weight:600;padding:12px;border-radius:30px;background:var(--green-deep);color:#fff;transition:.18s}
-    .buy:hover{background:var(--green-deep-hover)}
+    .lj-aviso { margin-top:8px; background:#FFFFFF; border:1px solid var(--lj-line); border-radius:24px; padding:32px; display:grid; grid-template-columns:1fr 1.1fr; gap:32px; align-items:center; }
+    .lj-aviso h2 { margin-top:8px; font-size:clamp(24px,2.6vw,32px); font-weight:700; letter-spacing:-.03em; line-height:1.1; }
+    .lj-aviso p { margin:10px 0 0; color:var(--lj-ink2); font-size:16px; line-height:1.5; }
+    .lj-form label { display:block; font-size:13px; font-weight:600; margin-bottom:8px; }
+    .lj-row { display:flex; gap:10px; flex-wrap:wrap; }
+    .lj-row input { flex:1 1 220px; min-width:0; padding:13px 16px; font:inherit; font-size:16px; border:1px solid var(--lj-line); border-radius:12px; background:#FAF7F0; color:var(--lj-ink); }
+    .lj-row input:focus { outline:2px solid var(--lj-deep); outline-offset:1px; border-color:transparent; }
+    .lj-btn { flex:none; padding:13px 22px; font:inherit; font-size:15px; font-weight:600; border:none; border-radius:12px; background:var(--lj-deep); color:#FAF7F0; cursor:pointer; }
+    .lj-btn:hover { background:#143527; }
+    .lj-btn:disabled { opacity:.6; cursor:default; }
+    .lj-btn:focus-visible, .lj-chip:focus-visible, .lj-sw:focus-visible, .lj-ask:focus-visible, .lj-link:focus-visible { outline:2px solid var(--lj-deep); outline-offset:3px; }
+    .lj-interest { margin:12px 0 0; font-size:14px; color:var(--lj-ink2); }
+    .lj-link { background:none; border:none; padding:0; font:inherit; font-size:14px; color:var(--lj-deep); text-decoration:underline; cursor:pointer; }
+    .lj-msg { margin:12px 0 0; font-size:14px; min-height:1.4em; }
+    .lj-msg.ok { color:var(--lj-deep); font-weight:600; }
+    .lj-msg.err { color:#A13A22; }
 
-    .cat-label{font-family:'Sora',sans-serif;text-transform:uppercase;letter-spacing:.18em;font-size:.68rem;font-weight:600;color:var(--accent-deep);margin:48px 0 18px}
-    .cat-label:first-of-type{margin-top:0}
+    .lj-shop { padding-top:72px; }
+    .lj-shop h2 { margin-top:8px; font-size:clamp(28px,3.4vw,40px); font-weight:700; letter-spacing:-.03em; }
+    .lj-chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+    .lj-chip { border:1px solid var(--lj-line); background:#FFFFFF; color:var(--lj-ink); border-radius:999px; padding:8px 14px; font:inherit; font-size:14px; font-weight:500; cursor:pointer; display:inline-flex; align-items:center; gap:7px; }
+    .lj-chip .ct { font-family:var(--lj-din); font-weight:600; font-size:12px; color:var(--lj-muted); }
+    .lj-chip[aria-pressed="true"] { background:var(--lj-ink); color:#FAF7F0; border-color:var(--lj-ink); }
+    .lj-chip[aria-pressed="true"] .ct { color:#FAF7F0; opacity:.7; }
+    .lj-grid { margin-top:28px; display:grid; grid-template-columns:repeat(4,1fr); gap:36px 20px; }
+    .lj-card { display:flex; flex-direction:column; gap:12px; min-width:0; }
+    .lj-stage { aspect-ratio:1/1; border-radius:22px; background:var(--lj-st-roupa); display:grid; place-items:center; overflow:hidden; }
+    .lj-card[data-stage="praia"] .lj-stage { background:var(--lj-st-praia); }
+    .lj-card[data-stage="casa"] .lj-stage { background:var(--lj-st-casa); }
+    .lj-stage svg { width:88%; height:88%; display:block; transition:transform .35s cubic-bezier(.2,.7,.2,1); }
+    @media (hover:hover) and (prefers-reduced-motion:no-preference) { .lj-card:hover .lj-stage svg { transform:scale(1.035); } }
+    .lj-meta { display:flex; flex-direction:column; gap:4px; }
+    .lj-meta .lj-label { font-size:11px; }
+    .lj-meta h3 { font-size:17px; font-weight:600; letter-spacing:-.02em; line-height:1.25; }
+    .lj-desc { margin:0; font-size:14px; line-height:1.45; color:var(--lj-ink2); }
+    .lj-rowc { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:4px; }
+    .lj-sws { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+    .lj-sw { width:22px; height:22px; border-radius:50%; border:1px solid rgba(0,0,0,.14); padding:0; cursor:pointer; position:relative; background:var(--c); }
+    .lj-sw[aria-pressed="true"]::after { content:""; position:absolute; inset:-4px; border-radius:50%; border:1.5px solid var(--lj-ink); }
+    .lj-cname { font-size:13px; color:var(--lj-muted); margin-left:4px; }
+    .lj-price { font-weight:700; font-size:17px; color:var(--lj-deep); white-space:nowrap; font-variant-numeric:tabular-nums; letter-spacing:-.02em; text-align:right; }
+    .lj-price small { display:block; font-family:var(--lj-din); font-weight:600; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--lj-muted); }
+    .lj-ask { margin-top:8px; align-self:flex-start; background:none; border:1px solid var(--lj-line); border-radius:999px; padding:8px 14px; font:inherit; font-size:14px; font-weight:600; color:var(--lj-deep); cursor:pointer; }
+    .lj-ask:hover { border-color:var(--lj-deep); }
 
-    /* toast */
-    .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:13px 22px;border-radius:30px;font-size:.88rem;font-weight:500;box-shadow:0 14px 30px -10px rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:.3s;z-index:999}
-    .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-    @media(max-width:600px){.product .stage svg{width:94%;height:94%}}
+    .lj-quality { margin-top:96px; padding-top:48px; border-top:1px solid var(--lj-line); display:grid; grid-template-columns:1fr 1.5fr; gap:48px; }
+    .lj-quality h2 { font-size:clamp(30px,3.6vw,44px); font-weight:700; letter-spacing:-.03em; line-height:1.05; margin-top:10px; }
+    .lj-quality .lj-intro { margin:16px 0 0; color:var(--lj-ink2); max-width:38ch; }
+    .lj-q { margin:0; display:grid; }
+    .lj-q > div { display:grid; grid-template-columns:170px 1fr; gap:20px; padding:18px 0; border-bottom:1px solid var(--lj-line); }
+    .lj-q > div:first-child { padding-top:4px; }
+    .lj-q dt { font-family:var(--lj-din); font-weight:600; font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--lj-muted); padding-top:3px; }
+    .lj-q dd { margin:0; font-size:16px; line-height:1.5; }
+    .lj-q dd span { color:var(--lj-ink2); }
+    .lj-fine { margin:56px 0 72px; font-size:13px; color:var(--lj-muted); }
+
+    @media (max-width:1080px) { .lj-grid { grid-template-columns:repeat(3,1fr); } }
+    @media (max-width:900px) {
+      .lj-hero { grid-template-columns:1fr; gap:32px; padding-top:100px; }
+      .lj-aviso, .lj-quality { grid-template-columns:1fr; gap:24px; }
+      .lj-grid { grid-template-columns:repeat(2,1fr); }
+    }
+    @media (max-width:560px) {
+      .lj-wrap { padding-inline:16px; }
+      .lj-grid { grid-template-columns:1fr; gap:40px; }
+      .lj-specs { grid-template-columns:1fr; }
+      .lj-spec, .lj-spec + .lj-spec { padding:14px 0; border-left:0; border-bottom:1px solid var(--lj-line); }
+      .lj-q > div { grid-template-columns:1fr; gap:6px; }
+      .lj-aviso { padding:24px 20px; }
+      .lj-row .lj-btn { width:100%; }
+    }
   </style>
 </head>
 <body>
-
-<!-- ░ SVG: logos oficiais reutilizáveis ░ -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-  <symbol id="logoFull" viewBox="0 0 64 64"><rect width="64" height="64" rx="11" fill="#009C3B"/><path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="32" r="7" fill="#002776"/></symbol>
-  <symbol id="logoYellow" viewBox="0 0 64 64"><path d="M 16 16 L 52 32 L 16 48" fill="none" stroke="#FFDF00" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28" cy="32" r="7.5" fill="currentColor"/></symbol>
-  <symbol id="logoCurve" viewBox="0 0 100 100"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="currentColor"/></symbol>
-</defs></svg>
 
 <header class="site-header">
   <div class="container">
@@ -82,209 +131,68 @@
       <a href="/custo-de-vida/">Custo de Vida</a>
       <a href="/guias/">Guias</a>
       <a href="/loja/" style="color:var(--ink);font-weight:600">Loja</a>
-      <a href="/?preview=brasil2026">App</a>
+      <a href="/app/feed">App</a>
     </nav>
   </div>
 </header>
 
-<main>
-  <section class="hero hero-compact">
-    <div class="container-narrow">
-      <div class="eyebrow">Loja · pré-lançamento</div>
-      <h1>A loja da <em>brazuca</em></h1>
-      <p class="lede">Camisetas, canecas, bonés e acessórios com a marca BrasilConnect — feitos para quem carrega o Brasil no peito (e na caneca) aqui nos Estados Unidos.</p>
-    </div>
-  </section>
-
-  <section style="padding-top:0">
-    <div class="container">
-      <div class="shop-note">
-        <span class="dot"></span>
-        <span><b>Vitrine em pré-lançamento.</b> Os produtos abaixo são finais — o pagamento online (checkout) entra em breve. Toque em “Comprar” para entrar na lista de aviso.</span>
+<main class="lj">
+  <div class="lj-wrap">
+    <section class="lj-hero">
+      <div>
+        <div class="lj-label">Loja · Coleção 01 · Pré-lançamento</div>
+        <h1>Pra quem carrega o Brasil com bom gosto.</h1>
+        <p class="lj-lede">Poucas peças, feitas pra durar. Algodão Supima, bordado de verdade e toalha de algodão turco, com o olho brasileiro bordado pequeno. Quem conhece, reconhece.</p>
+        <div class="lj-specs">
+          <div class="lj-spec"><div class="n">220<small>g/m²</small></div><span class="lj-label">Algodão Supima nas camisetas</span></div>
+          <div class="lj-spec"><div class="n">550<small>g/m²</small></div><span class="lj-label">Algodão turco na toalha</span></div>
+          <div class="lj-spec"><div class="n" id="lj-total">16</div><span class="lj-label">Peças na coleção</span></div>
+        </div>
       </div>
+      <div class="lj-stage-hero" id="lj-hero-stage" aria-label="Destaques da coleção"></div>
+    </section>
 
-      <div class="filters">
-        <button class="chip active" data-cat="all">Tudo</button>
-        <button class="chip" data-cat="vestuario">Vestuário</button>
-        <button class="chip" data-cat="mesa">Mesa &amp; café</button>
-        <button class="chip" data-cat="acessorios">Acessórios</button>
+    <section class="lj-aviso" id="aviso">
+      <div>
+        <div class="lj-label">Pré-lançamento</div>
+        <h2>Seja avisado quando a coleção abrir.</h2>
+        <p>As peças estão em fase de amostra. Deixe seu e-mail e avisamos no lançamento.</p>
       </div>
-
-      <div class="shop-grid">
-
-        <!-- ── VESTUÁRIO ── -->
-        <div class="product" data-cat="vestuario">
-          <div class="stage" style="background:#F5F1E5">
-            <span class="ribbon">Pré-venda</span>
-            <svg viewBox="0 0 300 300">
-              <path d="M95 60 L60 78 L42 120 L70 138 L80 120 L80 240 Q80 250 90 250 L210 250 Q220 250 220 240 L220 120 L230 138 L258 120 L240 78 L205 60 Q150 92 95 60 Z" fill="#FAF7F0" stroke="#E3DCCB" stroke-width="2.5"/>
-              <path d="M95 60 Q150 92 205 60 Q150 80 95 60 Z" fill="#ECE4D2"/>
-              <use href="#logoFull" x="116" y="92" width="46" height="46"/>
-            </svg>
-          </div>
-          <div class="body">
-            <div class="row"><h3>Tee · Olho Bandeira</h3><span class="price">$28</span></div>
-            <p class="desc">Cream · símbolo bordado no peito esquerdo</p>
-            <div class="tags"><span class="tag dot"><i style="background:#FAF7F0;border:1px solid #ccc"></i>Cream</span><span class="tag">Unissex S–XXL</span></div>
-            <button class="buy" data-name="Tee · Olho Bandeira">Comprar</button>
-          </div>
+      <form class="lj-form" id="lj-form" novalidate>
+        <label for="lj-email">Seu e-mail</label>
+        <div class="lj-row">
+          <input id="lj-email" name="email" type="email" autocomplete="email" inputmode="email" placeholder="voce@email.com" required>
+          <button class="lj-btn" id="lj-submit" type="submit">Quero ser avisado</button>
         </div>
+        <p class="lj-interest" id="lj-interest" hidden>Peça de interesse: <b id="lj-interest-name"></b> · <button type="button" class="lj-link" id="lj-clear">remover</button></p>
+        <p class="lj-msg" id="lj-msg" role="status" aria-live="polite"></p>
+      </form>
+    </section>
 
-        <div class="product" data-cat="vestuario">
-          <div class="stage" style="background:#143527">
-            <span class="ribbon">Pré-venda</span>
-            <svg viewBox="0 0 300 300">
-              <path d="M95 60 L60 78 L42 120 L70 138 L80 120 L80 240 Q80 250 90 250 L210 250 Q220 250 220 240 L220 120 L230 138 L258 120 L240 78 L205 60 Q150 92 95 60 Z" fill="#1F4D3F" stroke="#163A2F" stroke-width="2.5"/>
-              <path d="M95 60 Q150 92 205 60 Q150 80 95 60 Z" fill="#183D31"/>
-              <g style="color:#FAF7F0"><use href="#logoCurve" x="96" y="104" width="108" height="108"/></g>
-              <text x="150" y="238" text-anchor="middle" font-family="Fraunces,serif" font-size="13" font-weight="600" letter-spacing="3" fill="#F3EFE4">BRASILCONNECT</text>
-            </svg>
-          </div>
-          <div class="body">
-            <div class="row"><h3>Tee · Olho Grande</h3><span class="price">$30</span></div>
-            <p class="desc">Verde-deep · estampa central + wordmark</p>
-            <div class="tags"><span class="tag dot"><i style="background:#1F4D3F"></i>Verde-deep</span><span class="tag">Oversized</span></div>
-            <button class="buy" data-name="Tee · Olho Grande">Comprar</button>
-          </div>
-        </div>
+    <section class="lj-shop" id="colecao">
+      <div class="lj-label">A coleção</div>
+      <h2>Escolha, troque a cor, imagine usando.</h2>
+      <div class="lj-chips" id="lj-chips" role="toolbar" aria-label="Filtrar por categoria"></div>
+      <div class="lj-grid" id="lj-grid"></div>
+    </section>
 
-        <div class="product" data-cat="vestuario">
-          <div class="stage" style="background:#F5F1E5">
-            <span class="ribbon">Pré-venda</span>
-            <svg viewBox="0 0 300 300">
-              <path d="M92 64 L58 84 L40 128 L70 146 L82 126 L82 248 Q82 258 92 258 L208 258 Q218 258 218 248 L218 126 L230 146 L260 128 L242 84 L208 64 L208 64 Q150 96 92 64 Z" fill="#2A3A56" stroke="#1f2c43" stroke-width="2.5"/>
-              <path d="M112 64 Q150 110 188 64 Q150 74 112 64 Z" fill="#22304a"/>
-              <path d="M120 64 Q150 104 180 64" fill="none" stroke="#1a2538" stroke-width="3"/>
-              <line x1="138" y1="120" x2="138" y2="180" stroke="#1a2538" stroke-width="4" stroke-linecap="round"/>
-              <line x1="162" y1="120" x2="162" y2="180" stroke="#1a2538" stroke-width="4" stroke-linecap="round"/>
-              <rect x="110" y="190" width="80" height="44" rx="8" fill="#22304a" stroke="#1a2538" stroke-width="2"/>
-              <g style="color:#FAF7F0"><use href="#logoCurve" x="124" y="126" width="52" height="52"/></g>
-            </svg>
-          </div>
-          <div class="body">
-            <div class="row"><h3>Moletom Canguru</h3><span class="price">$54</span></div>
-            <p class="desc">Navy · capuz + bolso, fleece premium</p>
-            <div class="tags"><span class="tag dot"><i style="background:#002776"></i>Navy</span><span class="tag">Inverno</span></div>
-            <button class="buy" data-name="Moletom Canguru">Comprar</button>
-          </div>
-        </div>
-
-        <!-- ── MESA & CAFÉ ── -->
-        <div class="product" data-cat="mesa">
-          <div class="stage" style="background:#F5F1E5">
-            <span class="ribbon">Pré-venda</span>
-            <svg viewBox="0 0 300 300">
-              <rect x="78" y="92" width="120" height="130" rx="14" fill="#FAF7F0" stroke="#E3DCCB" stroke-width="2.5"/>
-              <path d="M198 118 Q244 118 244 156 Q244 194 198 194" fill="none" stroke="#E3DCCB" stroke-width="13" stroke-linecap="round"/>
-              <ellipse cx="138" cy="92" rx="60" ry="11" fill="#ECE4D2"/>
-              <use href="#logoFull" x="111" y="116" width="54" height="54"/>
-              <text x="138" y="206" text-anchor="middle" font-family="Fraunces,serif" font-size="11" font-weight="600" letter-spacing="2" fill="#8C6D3D">SAUDADE</text>
-            </svg>
-          </div>
-          <div class="body">
-            <div class="row"><h3>Caneca · Saudade</h3><span class="price">$16</span></div>
-            <p class="desc">Cerâmica cream 325ml · símbolo verde</p>
-            <div class="tags"><span class="tag dot"><i style="background:#FAF7F0;border:1px solid #ccc"></i>Cream</span><span class="tag">325ml</span></div>
-            <button class="buy" data-name="Caneca · Saudade">Comprar</button>
-          </div>
-        </div>
-
-        <div class="product" data-cat="mesa">
-          <div class="stage" style="background:#F5F1E5">
-            <span class="ribbon">Pré-venda</span>
-            <svg viewBox="0 0 300 300">
-              <rect x="78" y="92" width="120" height="130" rx="14" fill="#1F4D3F" stroke="#163A2F" stroke-width="2.5"/>
-              <path d="M198 118 Q244 118 244 156 Q244 194 198 194" fill="none" stroke="#1F4D3F" stroke-width="13" stroke-linecap="round"/>
-              <ellipse cx="138" cy="92" rx="60" ry="11" fill="#173B30"/>
-              <g style="color:#FAF7F0"><use href="#logoYellow" x="110" y="120" width="56" height="56"/></g>
-              <text x="138" y="205" text-anchor="middle" font-family="Sora,sans-serif" font-size="9" font-weight="600" letter-spacing="3" fill="#E9DFC4">BRASILCONNECT · USA</text>
-            </svg>
-          </div>
-          <div class="body">
-            <div class="row"><h3>Caneca · Esmaltada</h3><span class="price">$18</span></div>
-            <p class="desc">Verde-deep 350ml · gravação amarela</p>
-            <div class="tags"><span class="tag dot"><i style="background:#1F4D3F"></i>Verde-deep</span><span class="tag">350ml</span></div>
-            <button class="buy" data-name="Caneca · Esmaltada">Comprar</button>
-          </div>
-        </div>
-
-        <div class="product" data-cat="mesa">
-          <div class="stage" style="background:#F5F1E5">
-            <span class="ribbon">Pré-venda</span>
-            <svg viewBox="0 0 300 300">
-              <path d="M112 58 L188 58 L181 240 Q180 252 168 252 L132 252 Q120 252 119 240 Z" fill="#D9D2C4" stroke="#C3BBA9" stroke-width="2.5"/>
-              <path d="M112 58 L188 58 L186 110 L114 110 Z" fill="#E7E1D4"/>
-              <rect x="108" y="50" width="84" height="14" rx="7" fill="#1F4D3F"/>
-              <use href="#logoFull" x="123" y="138" width="52" height="52"/>
-            </svg>
-          </div>
-          <div class="body">
-            <div class="row"><h3>Garrafa Térmica</h3><span class="price">$32</span></div>
-            <p class="desc">Aço inox 600ml · tampa verde, parede dupla</p>
-            <div class="tags"><span class="tag dot"><i style="background:#D9D2C4;border:1px solid #ccc"></i>Inox</span><span class="tag">600ml</span></div>
-            <button class="buy" data-name="Garrafa Térmica">Comprar</button>
-          </div>
-        </div>
-
-        <!-- ── ACESSÓRIOS ── -->
-        <div class="product" data-cat="acessorios">
-          <div class="stage" style="background:#F5F1E5">
-            <span class="ribbon">Pré-venda</span>
-            <svg viewBox="0 0 300 300">
-              <path d="M58 178 Q58 96 150 96 Q242 96 242 178 Q150 158 58 178 Z" fill="#1F4D3F" stroke="#163A2F" stroke-width="2.5"/>
-              <path d="M150 96 Q150 158 150 178 M104 100 Q100 150 92 172 M196 100 Q200 150 208 172" fill="none" stroke="#173B30" stroke-width="2.5"/>
-              <path d="M54 178 Q150 156 246 178 Q252 200 230 206 Q150 192 70 206 Q48 200 54 178 Z" fill="#173B30" stroke="#10271f" stroke-width="2"/>
-              <circle cx="150" cy="96" r="5" fill="#163A2F"/>
-              <g style="color:#FAF7F0"><use href="#logoYellow" x="125" y="122" width="50" height="50"/></g>
-            </svg>
-          </div>
-          <div class="body">
-            <div class="row"><h3>Dad Hat · Bordado</h3><span class="price">$26</span></div>
-            <p class="desc">Verde-deep · símbolo bordado, fecho metal</p>
-            <div class="tags"><span class="tag dot"><i style="background:#1F4D3F"></i>Verde-deep</span><span class="tag">Ajustável</span></div>
-            <button class="buy" data-name="Dad Hat · Bordado">Comprar</button>
-          </div>
-        </div>
-
-        <div class="product" data-cat="acessorios">
-          <div class="stage" style="background:#F5F1E5">
-            <span class="ribbon">Pré-venda</span>
-            <svg viewBox="0 0 300 300">
-              <path d="M78 96 L222 96 L232 248 Q232 256 224 256 L76 256 Q68 256 68 248 Z" fill="#EDE6D6" stroke="#D8CFBC" stroke-width="2.5"/>
-              <path d="M112 100 Q112 56 150 56 Q188 56 188 100" fill="none" stroke="#D8CFBC" stroke-width="7"/>
-              <use href="#logoFull" x="120" y="126" width="60" height="60"/>
-              <text x="150" y="218" text-anchor="middle" font-family="Fraunces,serif" font-size="13" font-weight="600" letter-spacing="1" fill="#1A1F1C">Brasil<tspan fill="#B8943B">Connect</tspan></text>
-            </svg>
-          </div>
-          <div class="body">
-            <div class="row"><h3>Ecobag Canvas</h3><span class="price">$22</span></div>
-            <p class="desc">Lona crua · alça reforçada, estampa wordmark</p>
-            <div class="tags"><span class="tag dot"><i style="background:#EDE6D6;border:1px solid #ccc"></i>Natural</span><span class="tag">Canvas 12oz</span></div>
-            <button class="buy" data-name="Ecobag Canvas">Comprar</button>
-          </div>
-        </div>
-
-        <div class="product" data-cat="acessorios">
-          <div class="stage" style="background:#F5F1E5">
-            <span class="ribbon">Pré-venda</span>
-            <svg viewBox="0 0 300 300">
-              <g transform="rotate(-8 96 110)"><rect x="62" y="78" width="68" height="68" rx="14" fill="#009C3B" stroke="#fff" stroke-width="4"/><g style="color:#002776"><use href="#logoYellow" x="74" y="90" width="44" height="44"/></g></g>
-              <g transform="rotate(7 205 100)"><rect x="172" y="70" width="74" height="44" rx="10" fill="#FAF7F0" stroke="#fff" stroke-width="4"/><text x="209" y="98" text-anchor="middle" font-family="Fraunces,serif" font-size="15" font-weight="700" fill="#1A1F1C">Brazuca</text></g>
-              <g transform="rotate(5 110 205)"><rect x="70" y="172" width="92" height="62" rx="12" fill="#1F4D3F" stroke="#fff" stroke-width="4"/><g style="color:#FAF7F0"><use href="#logoYellow" x="100" y="180" width="34" height="34"/></g><text x="116" y="224" text-anchor="middle" font-family="Sora" font-size="8" font-weight="600" letter-spacing="1.5" fill="#E9DFC4">SAUDADE APPROVED</text></g>
-              <g transform="rotate(-6 210 210)"><rect x="178" y="178" width="58" height="58" rx="29" fill="#FAF7F0" stroke="#fff" stroke-width="4"/><use href="#logoFull" x="190" y="190" width="34" height="34"/></g>
-            </svg>
-          </div>
-          <div class="body">
-            <div class="row"><h3>Kit de Adesivos</h3><span class="price">$9</span></div>
-            <p class="desc">4 vinis à prova d'água · laptop, garrafa, carro</p>
-            <div class="tags"><span class="tag">Vinil resistente</span><span class="tag">Pack ×4</span></div>
-            <button class="buy" data-name="Kit de Adesivos">Comprar</button>
-          </div>
-        </div>
-
+    <section class="lj-quality">
+      <div>
+        <div class="lj-label">Padrão de qualidade</div>
+        <h2>O que faz ser premium.</h2>
+        <p class="lj-intro">Toda peça da coleção segue o mesmo padrão. Se a amostra não cumprir, a peça não entra.</p>
       </div>
-    </div>
-  </section>
+      <dl class="lj-q">
+        <div><dt>Tecido</dt><dd>Algodão Supima ou Pima, fio penteado. <span>220 g/m² nas masculinas, 180 g/m² nas femininas, orgânico no infantil.</span></dd></div>
+        <div><dt>Marca na peça</dt><dd>Símbolo pequeno, bordado em uma cor só. <span>Sem logo gigante e sem transfer plástico que racha na lavagem.</span></dd></div>
+        <div><dt>Acabamento</dt><dd>Costura dupla, gola com ribana reforçada. <span>Etiqueta impressa por dentro, sem etiqueta que pinica.</span></dd></div>
+        <div><dt>Praia</dt><dd>Toalha em algodão turco 550 g/m². <span>Bolsa em lona 16 oz com alça de corda.</span></dd></div>
+        <div><dt>Embalagem</dt><dd>Caixa kraft, papel de seda e cartão “Saudade Approved”.</dd></div>
+      </dl>
+    </section>
+
+    <p class="lj-fine">Desenhos ilustrativos. As fotos das peças chegam com as amostras. Preços previstos em dólar, antes de impostos, e podem mudar até o lançamento.</p>
+  </div>
 </main>
 
 <footer class="site-footer">
@@ -295,30 +203,356 @@
   </div>
 </footer>
 
-<div class="toast" id="toast"></div>
-
 <script>
-  // Filtros de categoria
-  document.querySelectorAll('.chip').forEach(function(chip){
-    chip.addEventListener('click', function(){
-      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-      chip.classList.add('active');
-      var cat = chip.dataset.cat;
-      document.querySelectorAll('.product').forEach(function(p){
-        p.style.display = (cat==='all' || p.dataset.cat===cat) ? '' : 'none';
-      });
-    });
+(function () {
+  const Y = '#FFDF00', NAVY = '#002776', CREAM = '#FAF7F0', FLAG = '#009C3B', DEEP = '#1F4D3F', GOLD = '#B8943B';
+
+  // ── Marca ────────────────────────────────────────────────────────
+  const oficial = (x, y, s) => `<g transform="translate(${x - s / 2} ${y - s / 2}) scale(${s / 64})"><rect width="64" height="64" rx="11" fill="${FLAG}"/><path d="M14 18 L50 32 L14 46" fill="none" stroke="${Y}" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="32" r="7" fill="${NAVY}"/></g>`;
+  const curvo = (x, y, s, pupil = CREAM, stroke = Y) => `<g transform="translate(${x - s / 2} ${y - s / 2}) scale(${s / 100})"><path d="M22 15 Q62 29 81 50" fill="none" stroke="${stroke}" stroke-width="6.4" stroke-linecap="round"/><path d="M81 50 Q62 71 22 85" fill="none" stroke="${stroke}" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="${pupil}"/></g>`;
+  const mono = (x, y, s, color) => `<g transform="translate(${x - s / 2} ${y - s / 2}) scale(${s / 64})"><path d="M16 16 L52 32 L16 48" fill="none" stroke="${color}" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28" cy="32" r="7.5" fill="${color}"/></g>`;
+  const selo = (x, y, s) => `<g transform="translate(${x - s / 2} ${y - s / 2}) scale(${s / 100})"><circle cx="50" cy="50" r="48" fill="${DEEP}"/><circle cx="50" cy="50" r="44" fill="none" stroke="${Y}" stroke-width="0.8" stroke-dasharray="1 2"/><g transform="translate(28 24) scale(0.44)"><path d="M22 15 Q62 29 81 50" fill="none" stroke="${Y}" stroke-width="6.4" stroke-linecap="round"/><path d="M81 50 Q62 71 22 85" fill="none" stroke="${Y}" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="${CREAM}"/></g><text x="50" y="74" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11" font-weight="600" letter-spacing="1" fill="${CREAM}">SAUDADE</text><text x="50" y="84" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="5" font-weight="600" letter-spacing="4" fill="${Y}">APPROVED</text></g>`;
+  // Marca discreta: símbolo pequeno em uma cor (bordado tom sobre tom).
+  // Tecido claro → linha verde-deep; tecido escuro → linha champagne.
+  const THREAD = { light: DEEP, dark: '#D8C08A' };
+  const discreto = (tone, x, y, s) => mono(x, y, s, THREAD[tone] || DEEP);
+
+  // ── Formas ───────────────────────────────────────────────────────
+  const edge = 'fill="none" stroke="#000" stroke-opacity=".13" stroke-width="1.2" stroke-linejoin="round"';
+
+  function teeM(c, back) {
+    const body = 'M78 38 L98 30 Q120 42 142 30 L162 38 L200 62 L184 94 L164 84 L164 212 L76 212 L76 84 L56 94 L40 62 Z';
+    const neck = back ? 'M98 30 Q120 38 142 30' : 'M98 30 Q120 50 142 30';
+    return `<path d="${body}" fill="${c}"/>
+      <path d="M76 84 L76 212 L92 212 Q84 150 86 84 Z" fill="#000" opacity=".05"/>
+      <path d="M164 84 L164 212 L150 212 Q156 150 154 84 Z" fill="#000" opacity=".08"/>
+      <path d="M196 64 L181 92 M44 64 L59 92 M78 206 L162 206" fill="none" stroke="#000" stroke-opacity=".12" stroke-width="1.2"/>
+      <path d="${neck}" fill="none" stroke="#000" stroke-opacity=".2" stroke-width="5" stroke-linecap="round"/>
+      <path d="${body}" ${edge}/>`;
+  }
+  function teeF(c) {
+    const body = 'M86 40 L104 32 Q120 46 136 32 L154 40 L184 60 L172 84 L156 78 Q148 118 160 206 L80 206 Q92 118 84 78 L68 84 L56 60 Z';
+    return `<path d="${body}" fill="${c}"/>
+      <path d="M84 78 Q92 118 80 206 L96 206 Q100 130 96 80 Z" fill="#000" opacity=".05"/>
+      <path d="M156 78 Q148 118 160 206 L146 206 Q140 130 144 80 Z" fill="#000" opacity=".08"/>
+      <path d="M181 62 L169 82 M59 62 L71 82 M82 200 L158 200" fill="none" stroke="#000" stroke-opacity=".12" stroke-width="1.2"/>
+      <path d="M104 32 Q120 56 136 32" fill="none" stroke="#000" stroke-opacity=".2" stroke-width="4.5" stroke-linecap="round"/>
+      <path d="${body}" ${edge}/>`;
+  }
+  function body(c) {
+    const b = 'M92 44 L108 38 Q120 46 132 38 L148 44 L170 62 L160 80 L148 74 L150 152 Q150 178 136 188 L130 204 L110 204 L104 188 Q90 178 90 152 L92 74 L80 80 L70 62 Z';
+    return `<path d="${b}" fill="${c}"/>
+      <path d="M148 74 L150 152 Q150 178 136 188 L130 188 Q142 170 140 76 Z" fill="#000" opacity=".07"/>
+      <path d="M108 38 Q120 52 132 38" fill="none" stroke="#000" stroke-opacity=".2" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="114" cy="199" r="1.8" fill="#000" opacity=".3"/><circle cx="120" cy="199" r="1.8" fill="#000" opacity=".3"/><circle cx="126" cy="199" r="1.8" fill="#000" opacity=".3"/>
+      <path d="${b}" ${edge}/>`;
+  }
+  function cap(c, tone) {
+    return `<ellipse cx="120" cy="184" rx="70" ry="7" fill="#000" opacity=".08"/>
+      <path d="M58 150 Q64 100 120 96 Q176 100 182 150 Z" fill="${c}"/>
+      <path d="M150 100 Q178 108 182 150 L162 150 Q162 118 150 100 Z" fill="#000" opacity=".08"/>
+      <path d="M120 98 L120 150 M94 100 Q86 124 86 150 M146 100 Q154 124 154 150" fill="none" stroke="#000" stroke-opacity=".14" stroke-width="1.2"/>
+      <circle cx="120" cy="97" r="4.5" fill="${c}" stroke="#000" stroke-opacity=".2"/>
+      ${discreto(tone, 121, 126, 16)}
+      <path d="M50 148 Q120 136 190 148 Q204 172 120 180 Q36 172 50 148 Z" fill="${c}"/>
+      <path d="M50 148 Q120 136 190 148 Q204 172 120 180 Q36 172 50 148 Z" fill="#000" opacity=".14"/>
+      <path d="M60 156 Q120 146 180 156" fill="none" stroke="#000" stroke-opacity=".16" stroke-width="1" stroke-dasharray="3 3"/>
+      <path d="M58 150 Q64 100 120 96 Q176 100 182 150 Z" ${edge}/>`;
+  }
+  function bucket(c, tone) {
+    return `<ellipse cx="120" cy="186" rx="84" ry="7" fill="#000" opacity=".08"/>
+      <path d="M80 92 Q120 76 160 92 L168 148 L72 148 Z" fill="${c}"/>
+      <path d="M150 88 Q158 90 160 92 L168 148 L152 148 Z" fill="#000" opacity=".08"/>
+      <path d="M80 92 Q120 102 160 92" fill="none" stroke="#000" stroke-opacity=".16" stroke-width="1.2"/>
+      ${discreto(tone, 121, 124, 14)}
+      <path d="M40 146 Q120 130 200 146 L214 174 Q120 158 26 174 Z" fill="${c}"/>
+      <path d="M40 146 Q120 130 200 146 L214 174 Q120 158 26 174 Z" fill="#000" opacity=".1"/>
+      <path d="M44 154 Q120 139 196 154 M48 163 Q120 148 192 163" fill="none" stroke="#000" stroke-opacity=".16" stroke-width="1" stroke-dasharray="3 3"/>
+      <path d="M80 92 Q120 76 160 92 L168 148 L72 148 Z" ${edge}/>`;
+  }
+  function mug(c, tone) {
+    const ink = tone === 'dark' ? CREAM : DEEP;
+    return `<ellipse cx="116" cy="188" rx="56" ry="7" fill="#000" opacity=".09"/>
+      <path d="M160 96 Q196 94 196 124 Q196 154 160 152" fill="none" stroke="${c}" stroke-width="13" stroke-linecap="round"/>
+      <path d="M160 96 Q196 94 196 124 Q196 154 160 152" fill="none" stroke="#000" stroke-opacity=".1" stroke-width="13" stroke-linecap="round"/>
+      <rect x="66" y="68" width="96" height="116" rx="12" fill="${c}"/>
+      <rect x="74" y="78" width="10" height="96" rx="5" fill="#fff" opacity=".16"/>
+      <rect x="138" y="68" width="24" height="116" rx="12" fill="#000" opacity=".07"/>
+      <ellipse cx="114" cy="70" rx="48" ry="9" fill="${c}"/>
+      <ellipse cx="114" cy="70" rx="42" ry="6" fill="#000" opacity=".2"/>
+      ${discreto(tone, 115, 118, 20)}
+      <text x="114" y="140" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="7" font-weight="600" letter-spacing="2.5" fill="${ink}" opacity=".85">SAUDADE</text>
+      <rect x="66" y="68" width="96" height="116" rx="12" ${edge}/>`;
+  }
+  function imas() {
+    return `<g transform="rotate(-7 80 90)">
+        <rect x="47" y="59" width="68" height="68" rx="14" fill="#000" opacity=".12"/>
+        ${oficial(79, 91, 66)}
+      </g>
+      <circle cx="160" cy="98" r="40" fill="#000" opacity=".12"/>
+      ${selo(157, 94, 80)}
+      <g transform="rotate(3 120 172)">
+        <rect x="58" y="150" width="128" height="48" rx="10" fill="#000" opacity=".12"/>
+        <rect x="54" y="146" width="128" height="48" rx="10" fill="${CREAM}"/>
+        <rect x="54" y="146" width="128" height="48" rx="10" ${edge}/>
+        ${oficial(78, 170, 24)}
+        <text x="134" y="166" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="600" fill="${DEEP}">Tamo junto,</text>
+        <text x="134" y="182" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="13" font-weight="600" fill="${DEEP}">brasil.</text>
+      </g>`;
+  }
+  function toalha(c, tone) {
+    const a = tone === 'dark' ? CREAM : DEEP;
+    return `<ellipse cx="120" cy="222" rx="66" ry="5" fill="#000" opacity=".08"/>
+      <rect x="40" y="30" width="160" height="9" rx="4.5" fill="#B9A27A"/>
+      <rect x="64" y="34" width="112" height="22" fill="${c}"/>
+      <rect x="64" y="34" width="112" height="22" fill="#000" opacity=".16"/>
+      <rect x="64" y="40" width="112" height="166" rx="3" fill="${c}"/>
+      <rect x="64" y="56" width="112" height="5" fill="${a}" opacity=".9"/>
+      <rect x="64" y="66" width="112" height="2" fill="${a}" opacity=".9"/>
+      <rect x="64" y="180" width="112" height="2" fill="${a}" opacity=".9"/>
+      <rect x="64" y="186" width="112" height="5" fill="${a}" opacity=".9"/>
+      ${discreto(tone, 121, 168, 13)}
+      <rect x="150" y="40" width="26" height="166" fill="#000" opacity=".07"/>
+      <path d="${Array.from({ length: 19 }, (_, i) => `M${67 + i * 6} 206 L${67 + i * 6} 216`).join(' ')}" stroke="${c}" stroke-width="2.4" stroke-linecap="round"/>
+      <rect x="64" y="40" width="112" height="166" rx="3" ${edge}/>`;
+  }
+  function canga(c, tone, uid) {
+    const m = tone === 'dark' ? 'rgba(250,247,240,.26)' : 'rgba(31,77,63,.28)';
+    const shape = 'M40 40 Q120 30 200 40 L192 196 Q156 210 120 199 Q84 210 48 196 Z';
+    let marks = '';
+    for (let r = 0; r < 5; r++) for (let k = 0; k < 5; k++) {
+      const x = 52 + k * 38 + (r % 2 ? 19 : 0), y = 58 + r * 36;
+      marks += mono(x, y, 13, m);
+    }
+    return `<ellipse cx="120" cy="214" rx="78" ry="6" fill="#000" opacity=".08"/>
+      <clipPath id="cg-${uid}"><path d="${shape}"/></clipPath>
+      <path d="${shape}" fill="${c}"/>
+      <g clip-path="url(#cg-${uid})">${marks}
+        <path d="M60 40 Q90 120 70 210" fill="none" stroke="#fff" stroke-opacity=".12" stroke-width="18"/>
+        <path d="M150 36 Q170 120 158 210" fill="none" stroke="#000" stroke-opacity=".08" stroke-width="22"/>
+      </g>
+      <path d="${shape}" ${edge}/>
+      <path d="M48 196 Q44 206 40 214 M52 197 Q52 207 50 216 M192 196 Q196 206 200 214 M188 197 Q188 207 190 216" stroke="${c}" stroke-width="2" stroke-linecap="round" fill="none"/>`;
+  }
+  function bolsa(c, tone) {
+    const band = tone === 'dark' ? CREAM : DEEP;
+    return `<ellipse cx="120" cy="214" rx="78" ry="6" fill="#000" opacity=".08"/>
+      <path d="M86 96 Q86 42 120 42 Q154 42 154 96" fill="none" stroke="#C9B48A" stroke-width="7" stroke-linecap="round"/>
+      <path d="M86 96 Q86 42 120 42 Q154 42 154 96" fill="none" stroke="#8E7A52" stroke-width="7" stroke-dasharray="2 4" stroke-linecap="round" opacity=".5"/>
+      <path d="M58 92 L182 92 L194 208 L46 208 Z" fill="${c}"/>
+      <path d="M160 92 L182 92 L194 208 L168 208 Z" fill="#000" opacity=".08"/>
+      <path d="M58 92 L182 92 L184 112 L56 112 Z" fill="${band}"/>
+      <rect x="106" y="102" width="28" height="24" rx="3" fill="#8A5A34"/>
+      <rect x="108.5" y="104.5" width="23" height="19" rx="2" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width=".8" stroke-dasharray="1.5 1.5"/>
+      ${mono(121, 114, 13, 'rgba(0,0,0,.38)')}
+      <path d="M58 92 L182 92 L194 208 L46 208 Z" ${edge}/>`;
+  }
+  function necessaire(c, tone) {
+    const b = 'M50 96 Q50 82 64 82 L176 82 Q190 82 190 96 L190 178 Q190 192 176 192 L64 192 Q50 192 50 178 Z';
+    return `<ellipse cx="120" cy="204" rx="72" ry="6" fill="#000" opacity=".08"/>
+      <path d="${b}" fill="${c}"/>
+      <path d="M160 82 L176 82 Q190 82 190 96 L190 178 Q190 192 176 192 L160 192 Z" fill="#000" opacity=".08"/>
+      <path d="M58 92 L182 92" stroke="#000" stroke-opacity=".3" stroke-width="3" stroke-dasharray="2 2"/>
+      <rect x="168" y="86" width="7" height="18" rx="2" fill="#C9A96E"/>
+      <rect x="166" y="102" width="11" height="14" rx="4" fill="none" stroke="#C9A96E" stroke-width="2"/>
+      ${discreto(tone, 168, 174, 13)}
+      <path d="${b}" ${edge}/>`;
+  }
+  function pin() {
+    return `<rect x="56" y="30" width="128" height="180" rx="12" fill="${CREAM}"/>
+      <rect x="56" y="30" width="128" height="180" rx="12" ${edge}/>
+      <circle cx="120" cy="46" r="5" fill="#000" opacity=".12"/>
+      <text x="120" y="76" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11" font-weight="600" letter-spacing="2.5" fill="${DEEP}">BRASILCONNECT</text>
+      <rect x="82" y="96" width="80" height="80" rx="18" fill="#000" opacity=".14"/>
+      <rect x="78" y="92" width="80" height="80" rx="18" fill="${GOLD}"/>
+      <rect x="80" y="94" width="76" height="76" rx="16" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1.5"/>
+      ${oficial(118, 132, 64)}
+      <text x="120" y="196" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="7" font-weight="600" letter-spacing="3" fill="${GOLD}">USA</text>`;
+  }
+  function chaveiro(c) {
+    const tag = 'M92 80 L148 80 Q156 80 156 88 L156 176 Q156 196 120 206 Q84 196 84 176 L84 88 Q84 80 92 80 Z';
+    return `<ellipse cx="120" cy="218" rx="46" ry="5" fill="#000" opacity=".08"/>
+      <circle cx="120" cy="46" r="20" fill="none" stroke="#B8B8B4" stroke-width="5"/>
+      <circle cx="120" cy="46" r="20" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="1.5"/>
+      <rect x="114" y="62" width="12" height="24" rx="4" fill="#A9A9A4"/>
+      <path d="${tag}" fill="${c}"/>
+      <path d="M140 80 L148 80 Q156 80 156 88 L156 176 Q156 196 120 206 L126 204 Q146 190 146 172 L146 86 Z" fill="#000" opacity=".12"/>
+      <path d="M94 90 L146 90 L146 174 Q146 188 120 196 Q94 188 94 174 Z" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="1" stroke-dasharray="3 3"/>
+      <circle cx="120" cy="96" r="5" fill="#000" opacity=".35"/>
+      ${mono(122, 148, 28, 'rgba(0,0,0,.3)')}
+      <path d="${tag}" ${edge}/>`;
+  }
+
+  // ── Produtos ─────────────────────────────────────────────────────
+  const C = {
+    creme: { n: 'Creme', c: '#F3EEE3', t: 'light' },
+    offwhite: { n: 'Off-white', c: '#FBFAF6', t: 'light' },
+    deep: { n: 'Verde-deep', c: DEEP, t: 'dark' },
+    navy: { n: 'Navy', c: '#0E2150', t: 'dark' },
+    preto: { n: 'Preto', c: '#161616', t: 'dark' },
+    champ: { n: 'Champagne', c: '#DCC8A0', t: 'light' },
+    areia: { n: 'Areia', c: '#E3D5BA', t: 'light' },
+    manteiga: { n: 'Amarelo-manteiga', c: '#F4E4A4', t: 'light' },
+    bandeira: { n: 'Verde-bandeira', c: FLAG, t: 'dark' },
+    amarelo: { n: 'Amarelo', c: '#F7D63D', t: 'light' },
+    natural: { n: 'Lona natural', c: '#E8DDC7', t: 'light' },
+    caramelo: { n: 'Caramelo', c: '#9A6A3F', t: 'dark' },
+    unica: { n: 'Kit com 3', c: '#E6ECE7', t: 'light' },
+    dourado: { n: 'Dourado', c: GOLD, t: 'light' },
+  };
+
+  const P = [
+    { id: 'tee-m-olho', cat: 'masculino', stage: 'roupa', label: 'Masculino', name: 'Camiseta Olho', desc: 'Algodão Supima 220 g/m², corte reto. Símbolo bordado no peito.', price: 44, colors: [C.creme, C.deep, C.navy, C.preto],
+      draw: (k) => teeM(k.c) + discreto(k.t, 143, 72, 13) },
+    { id: 'tee-m-costas', cat: 'masculino', stage: 'roupa', label: 'Masculino', name: 'Camiseta Assinatura', desc: 'Vista de costas: símbolo pequeno e “BrasilConnect” bordados na nuca, logo abaixo da gola.', price: 48, colors: [C.deep, C.navy, C.preto],
+      draw: (k) => teeM(k.c, true) + discreto(k.t, 121, 50, 12) + `<text x="120" y="63" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="4.6" font-weight="600" letter-spacing="1.1" fill="${THREAD[k.t]}">BRASILCONNECT</text>` },
+    { id: 'tee-f-olho', cat: 'feminino', stage: 'roupa', label: 'Feminino', name: 'Camiseta Olho Acinturada', desc: 'Supima 180 g/m², modelagem acinturada e gola canoa. Bordado delicado no peito.', price: 44, colors: [C.offwhite, C.champ, C.deep],
+      draw: (k) => teeF(k.c) + discreto(k.t, 141, 74, 11) },
+    { id: 'tee-f-saudade', cat: 'feminino', stage: 'roupa', label: 'Feminino', name: 'Camiseta Saudade Approved', desc: 'Selo “Saudade Approved” pequeno, bordado no peito. Supima 180 g/m².', price: 46, colors: [C.navy, C.creme, C.areia],
+      draw: (k) => teeF(k.c) + selo(141, 76, 17) },
+    { id: 'tee-k', cat: 'infantil', stage: 'roupa', label: 'Infantil', name: 'Camiseta Pequeno Brazuca', desc: 'Algodão orgânico penteado, de 2 a 12 anos. Olho bordado pequeno no peito.', price: 30, colors: [C.manteiga, C.creme, C.bandeira],
+      draw: (k) => `<g transform="translate(34 40) scale(.72)">${teeM(k.c)}${discreto(k.t, 144, 74, 17)}</g>` },
+    { id: 'body', cat: 'infantil', stage: 'roupa', label: 'Bebê', name: 'Body Brazuquinha', desc: 'Algodão Pima, botões de pressão, de 0 a 24 meses. Olho bordado no peito.', price: 32, colors: [C.creme, C.offwhite, C.areia],
+      draw: (k) => `<g transform="translate(-6 0) scale(1.05)">${body(k.c)}${discreto('light', 136, 80, 11)}</g>` },
+    { id: 'toalha', cat: 'praia', stage: 'praia', label: 'Praia', name: 'Toalha de Praia Jacquard', desc: 'Algodão turco 550 g/m², 100 × 180 cm. Símbolo pequeno tecido na barra.', price: 84, colors: [C.deep, C.navy, C.areia],
+      draw: (k) => toalha(k.c, k.t) },
+    { id: 'canga', cat: 'praia', stage: 'praia', label: 'Praia', name: 'Canga Olho Brasileiro', desc: 'Viscose leve, 140 × 100 cm, estampa corrida tom sobre tom e franja nas pontas.', price: 48, colors: [C.amarelo, C.navy, C.deep],
+      draw: (k, uid) => canga(k.c, k.t, uid) },
+    { id: 'bolsa', cat: 'praia', stage: 'praia', label: 'Praia', name: 'Bolsa de Praia em Lona', desc: 'Lona de algodão 16 oz, alça de corda. Símbolo marcado no lacre de couro.', price: 68, colors: [C.natural, C.deep],
+      draw: (k) => bolsa(k.c, k.t) },
+    { id: 'bucket', cat: 'praia', stage: 'praia', label: 'Praia', name: 'Chapéu Bucket', desc: 'Sarja de algodão lavada, aba de 6 cm, símbolo bordado pequeno na frente.', price: 42, colors: [C.areia, C.deep, C.navy],
+      draw: (k) => bucket(k.c, k.t) },
+    { id: 'necessaire', cat: 'praia', stage: 'praia', label: 'Praia', name: 'Nécessaire de Praia', desc: 'Nylon impermeável com forro e zíper metálico. Símbolo bordado no canto.', price: 34, colors: [C.deep, C.navy, C.areia],
+      draw: (k) => necessaire(k.c, k.t) },
+    { id: 'caneca', cat: 'suvenir', stage: 'casa', label: 'Suvenir', name: 'Caneca Saudade', desc: 'Cerâmica fosca 350 ml com gravação discreta do símbolo. Pode ir na lava-louças.', price: 26, colors: [C.creme, C.deep, C.navy],
+      draw: (k) => mug(k.c, k.t) },
+    { id: 'imas', cat: 'suvenir', stage: 'casa', label: 'Suvenir', name: 'Kit de Ímãs de Geladeira', desc: '3 ímãs em acrílico com impressão UV e base emborrachada.', price: 16, colors: [C.unica],
+      draw: () => imas() },
+    { id: 'chaveiro', cat: 'suvenir', stage: 'casa', label: 'Suvenir', name: 'Chaveiro de Couro', desc: 'Couro legítimo com o símbolo em baixo-relevo e argola de aço.', price: 22, colors: [C.caramelo, C.preto],
+      draw: (k) => chaveiro(k.c) },
+    { id: 'bone', cat: 'acessorios', stage: 'roupa', label: 'Acessórios', name: 'Boné Dad Hat Bordado', desc: 'Sarja de algodão, 6 gomos, fecho de metal e símbolo bordado pequeno.', price: 38, colors: [C.deep, C.navy, C.creme],
+      draw: (k) => cap(k.c, k.t) },
+    { id: 'pin', cat: 'acessorios', stage: 'casa', label: 'Acessórios', name: 'Pin Esmaltado', desc: 'Esmalte duro com borda dourada e trava de metal.', price: 14, colors: [C.dourado],
+      draw: () => pin() },
+  ];
+
+  const CATS = [
+    { k: 'todos', n: 'Todos' },
+    { k: 'masculino', n: 'Masculino' },
+    { k: 'feminino', n: 'Feminino' },
+    { k: 'infantil', n: 'Infantil' },
+    { k: 'praia', n: 'Praia' },
+    { k: 'suvenir', n: 'Suvenir' },
+    { k: 'acessorios', n: 'Acessórios' },
+  ];
+
+  const svg = (inner, label) => `<svg viewBox="0 0 240 240" role="img" aria-label="${label}">${inner}</svg>`;
+
+  // ── Topo: composição ─────────────────────────────────────────────
+  document.getElementById('lj-hero-stage').innerHTML =
+    '<div class="big">' + svg(teeM('#F3EEE3') + discreto('light', 143, 72, 13), 'Camiseta Olho, creme') + '</div>' +
+    '<div>' + svg(cap('#0E2150', 'dark'), 'Boné, navy') + '</div>' +
+    '<div>' + svg(toalha('#E3D5BA', 'light'), 'Toalha de praia, areia') + '</div>';
+  document.getElementById('lj-total').textContent = P.length;
+
+  // ── Grade ────────────────────────────────────────────────────────
+  const grid = document.getElementById('lj-grid');
+  grid.innerHTML = P.map((p) => `
+    <article class="lj-card" data-cat="${p.cat}" data-stage="${p.stage}" data-id="${p.id}">
+      <div class="lj-stage">${svg(p.draw(p.colors[0], p.id + '-0'), `${p.name}, ${p.colors[0].n}`)}</div>
+      <div class="lj-meta">
+        <span class="lj-label">${p.label}</span>
+        <h3>${p.name}</h3>
+        <p class="lj-desc">${p.desc}</p>
+        <div class="lj-rowc">
+          <div class="lj-sws" role="group" aria-label="Cores de ${p.name}">
+            ${p.colors.map((k, i) => `<button type="button" class="lj-sw" style="--c:${k.c}" data-i="${i}" aria-pressed="${i === 0}" aria-label="${k.n}" title="${k.n}"></button>`).join('')}
+            <span class="lj-cname">${p.colors[0].n}</span>
+          </div>
+          <div class="lj-price">US$ ${p.price}<small>previsto</small></div>
+        </div>
+        <button type="button" class="lj-ask" data-id="${p.id}">Avise-me</button>
+      </div>
+    </article>`).join('');
+
+  grid.addEventListener('click', (e) => {
+    const sw = e.target.closest('.lj-sw');
+    if (sw) {
+      const card = sw.closest('.lj-card');
+      const p = P.find((x) => x.id === card.dataset.id);
+      const i = Number(sw.dataset.i), k = p.colors[i];
+      card.querySelector('.lj-stage').innerHTML = svg(p.draw(k, p.id + '-' + i), `${p.name}, ${k.n}`);
+      card.querySelectorAll('.lj-sw').forEach((s) => s.setAttribute('aria-pressed', String(s === sw)));
+      card.querySelector('.lj-cname').textContent = k.n;
+      return;
+    }
+    const ask = e.target.closest('.lj-ask');
+    if (ask) setInterest(ask.dataset.id, true);
   });
 
-  // "Comprar" — checkout ainda não ligado: aviso + (hook futuro p/ waitlist)
-  var toast = document.getElementById('toast'), t;
-  document.querySelectorAll('.buy').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      toast.textContent = '🛒 ' + btn.dataset.name + ' — checkout chega em breve. Você entrou na lista de aviso!';
-      toast.classList.add('show');
-      clearTimeout(t); t = setTimeout(function(){ toast.classList.remove('show'); }, 3200);
-    });
+  // ── Filtros ──────────────────────────────────────────────────────
+  const chips = document.getElementById('lj-chips');
+  const count = (k) => (k === 'todos' ? P.length : P.filter((p) => p.cat === k).length);
+  chips.innerHTML = CATS.map((c, i) => `<button type="button" class="lj-chip" data-k="${c.k}" aria-pressed="${i === 0}">${c.n}<span class="ct">${count(c.k)}</span></button>`).join('');
+  chips.addEventListener('click', (e) => {
+    const c = e.target.closest('.lj-chip');
+    if (!c) return;
+    chips.querySelectorAll('.lj-chip').forEach((x) => x.setAttribute('aria-pressed', String(x === c)));
+    grid.querySelectorAll('.lj-card').forEach((card) => { card.hidden = !(c.dataset.k === 'todos' || card.dataset.cat === c.dataset.k); });
   });
+
+  // ── Lista de aviso (POST /api/waitlist) ──────────────────────────
+  const form = document.getElementById('lj-form');
+  const email = document.getElementById('lj-email');
+  const btn = document.getElementById('lj-submit');
+  const msg = document.getElementById('lj-msg');
+  const interestBox = document.getElementById('lj-interest');
+  const interestName = document.getElementById('lj-interest-name');
+  let interest = null;
+
+  function setInterest(id, focus) {
+    const p = P.find((x) => x.id === id);
+    interest = p ? p.id : null;
+    interestBox.hidden = !p;
+    if (p) interestName.textContent = p.name;
+    msg.textContent = ''; msg.className = 'lj-msg';
+    if (focus) {
+      document.getElementById('aviso').scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+      setTimeout(() => email.focus({ preventScroll: true }), 350);
+    }
+  }
+  document.getElementById('lj-clear').addEventListener('click', () => setInterest(null, false));
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const value = email.value.trim();
+    if (!value || !value.includes('@')) {
+      msg.textContent = 'Digite um e-mail válido, como voce@email.com.';
+      msg.className = 'lj-msg err';
+      email.focus();
+      return;
+    }
+    btn.disabled = true; btn.textContent = 'Enviando…';
+    msg.textContent = ''; msg.className = 'lj-msg';
+    try {
+      const r = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: value, source: interest ? ('loja:' + interest).slice(0, 40) : 'loja-colecao-01' }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(d.error || 'Não deu certo agora. Tente de novo em alguns minutos.');
+      form.reset(); setInterest(null, false);  // limpa o formulário antes da mensagem de sucesso
+      msg.textContent = 'Pronto! Avisamos ' + value + ' quando a coleção abrir.';
+      msg.className = 'lj-msg ok';
+    } catch (err) {
+      msg.textContent = err.message;
+      msg.className = 'lj-msg err';
+    } finally {
+      btn.disabled = false; btn.textContent = 'Quero ser avisado';
+    }
+  });
+})();
 </script>
 </body>
 </html>

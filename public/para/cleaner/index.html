@@ -10,17 +10,17 @@
   <meta name="theme-color" content="#1F4D3F">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/premium.css">
   <style>
-    .module-hero { background: linear-gradient(135deg, #064e3b 0%, #0d9488 100%); color: #fff; padding: 80px 0 60px; }
+    .module-hero { background: linear-gradient(135deg, #1F4D3F 0%, #143527 100%); color: #fff; padding: 80px 0 60px; }
     .module-hero .container-narrow { padding: 0 40px; }
     .module-hero .emoji-big { font-size: 64px; margin-bottom: 16px; }
-    .module-hero h1 { color: #fff; font-family: var(--font-display); font-size: 52px; font-weight: 600; margin: 0 0 12px 0; letter-spacing: -0.02em; }
-    .module-hero .tagline { color: #FFD700; font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+    .module-hero h1 { color: #fff; font-family: var(--font-display); font-size: 52px; font-weight: 700; margin: 0 0 12px 0; letter-spacing: -0.035em; }
+    .module-hero .tagline { color: #FFDF00; font-size: 18px; font-weight: 600; margin-bottom: 20px; }
     .module-hero .lede { color: rgba(255,255,255,0.9); font-size: 17px; line-height: 1.65; max-width: 620px; }
     .module-hero .cta-row { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
-    .module-hero .btn-primary { background: #FFD700; color: #064e3b; border: none; padding: 14px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; font-size: 15px; }
+    .module-hero .btn-primary { background: #FAF7F0; color: #1F4D3F; border: none; padding: 14px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; font-size: 15px; }
     .module-hero .btn-ghost-white { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 14px 28px; font-weight: 600; border-radius: 8px; text-decoration: none; font-size: 15px; }
     .module-hero .soon-pill { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; padding: 5px 12px; border-radius: 999px; margin-bottom: 18px; text-transform: uppercase; }
 
@@ -39,7 +39,9 @@
     .mockup { background: #FAFAFA; border: 1px solid var(--line); border-radius: 14px; padding: 32px; margin: 24px 0; }
     .mockup-header { display: flex; align-items: center; gap: 10px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; font-size: 13px; color: var(--ink-muted); }
     .mockup-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #DCFCE7; }
-    .week-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 12px; }
+    .week-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+    .week-col, .house-card { min-width: 0; overflow-wrap: anywhere; }
+    @media (max-width: 600px) { .week-grid { gap: 4px; } .week-col { padding: 4px; } .house-card { padding: 6px; font-size: 11px; } }
     .week-day-label { font-size: 11px; color: var(--ink-muted); text-align: center; padding: 6px 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
     .house-card { border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.4; border: 1px solid transparent; margin-bottom: 6px; }
     .house-card .h-name { font-weight: 700; }
