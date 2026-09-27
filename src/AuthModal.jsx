@@ -186,8 +186,9 @@ export default function AuthModal({ onClose, onAuthenticated, initialMode = 'sig
         {/* Cabeçalho */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
           <div>
-            <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 600, color: NAVY }}>
-              Brasil<em style={{ color: GOLD, fontStyle: 'normal', fontWeight: 600 }}>Connect</em>
+            <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: 22, fontWeight: 600, color: NAVY, display: 'flex', alignItems: 'center', gap: 9 }}>
+              <img src="/img/marca/simbolo-cor.svg" alt="" width={28} height={28} style={{ display: 'block' }} />
+              <span>Brasil<em style={{ color: GOLD, fontStyle: 'normal', fontWeight: 600 }}>Connect</em></span>
             </div>
             <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>Comunidade de brasileiros nos EUA</div>
           </div>
