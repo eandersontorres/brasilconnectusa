@@ -135,6 +135,10 @@
       "destination": "/admin/parceiros.html"
     },
     {
+      "source": "/admin/plano",
+      "destination": "/admin/plano.html"
+    },
+    {
       "source": "/assinante",
       "destination": "/assinante/index.html"
     },

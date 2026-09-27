@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Plano de Negócios · BrasilConnect</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Barlow:wght@500;600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <style>
+    /* Tipografia big tech:
+       - SF Pro (Apple) nativa em iPhone/Mac; Inter como equivalente aberto no Windows/Android.
+       - Barlow (desenho DIN, família da D-DIN da SpaceX) para rótulos e números. */
+    :root {
+      --sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --din: "Barlow", "D-DIN", "DIN Alternate", "DIN Next", "Helvetica Neue", Arial, sans-serif;
+
+      --bg: #F5F5F7;
+      --tile: #FFFFFF;
+      --ink: #1D1D1F;
+      --ink-2: #424245;
+      --muted: #6E6E73;
+      --line: #D2D2D7;
+      --accent: #1A7F45;
+      --bar: #1D1D1F;
+      --bar-dim: #C7C7CC;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --bg: #000000;
+        --tile: #161617;
+        --ink: #F5F5F7;
+        --ink-2: #D2D2D7;
+        --muted: #A1A1A6;
+        --line: #333336;
+        --accent: #34C471;
+        --bar: #F5F5F7;
+        --bar-dim: #48484A;
+      }
+    }
+
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 17px;
+      line-height: 1.47;
+      letter-spacing: -0.022em;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .label {
+      font-family: var(--din);
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* ── Barra superior ── */
+    .nav {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(0, 0, 0, 0.8);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      backdrop-filter: saturate(180%) blur(20px);
+      color: #F5F5F7;
+    }
+    .nav-in {
+      max-width: 1080px; margin: 0 auto; padding-inline: 22px;
+      height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    }
+    .wordmark { font-weight: 600; font-size: 17px; letter-spacing: -0.02em; color: #F5F5F7; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; }
+    .wordmark svg { width: 24px; height: 24px; flex: none; display: block; }
+    .wordmark span { color: #8E8E93; font-weight: 500; }
+    .nav .label { color: #A1A1A6; font-size: 11px; }
+
+    /* ── Hero (preto, estilo SpaceX) ── */
+    .hero { background: #000; color: #F5F5F7; }
+    .hero-in { max-width: 1080px; margin: 0 auto; padding: 88px 22px 72px; position: relative; }
+    .hero-mark { position: absolute; right: 22px; top: 76px; width: clamp(160px, 24vw, 270px); height: auto; }
+    @media (max-width: 900px) { .hero-mark { display: none; } }
+    .hero .label { color: #A1A1A6; }
+    .hero h1 {
+      margin: 18px 0 0;
+      font-size: clamp(40px, 7vw, 80px);
+      line-height: 1.05;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      max-width: 14ch;
+      text-wrap: balance;
+    }
+    .hero .lede {
+      margin: 22px 0 0;
+      max-width: 58ch;
+      font-size: clamp(18px, 2.2vw, 21px);
+      line-height: 1.4;
+      color: #A1A1A6;
+      font-weight: 500;
+    }
+    .hero .lede b { color: #F5F5F7; font-weight: 600; }
+
+    /* Ficha técnica (estilo Tesla) */
+    .specs {
+      margin-top: 64px;
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid #333336;
+    }
+    .spec { padding: 26px 20px 0 0; }
+    .spec + .spec { padding-left: 20px; border-left: 1px solid #333336; }
+    .spec .num {
+      font-size: clamp(30px, 4vw, 44px); font-weight: 600; letter-spacing: -0.03em;
+      line-height: 1; font-variant-numeric: tabular-nums; white-space: nowrap;
+    }
+    .spec .num small { font-size: 0.5em; font-weight: 600; margin-left: 2px; color: #A1A1A6; letter-spacing: -0.01em; }
+    .spec .label { display: block; margin-top: 10px; font-size: 11px; color: #8E8E93; }
+
+    /* ── Grade de blocos (estilo Apple) ── */
+    main { max-width: 1080px; margin: 0 auto; padding: 56px 22px 24px; }
+    .section-head { margin: 0 0 28px; }
+    .section-head .label { color: var(--muted); }
+    .section-head h2 {
+      margin: 10px 0 0; font-size: clamp(30px, 4.4vw, 48px); line-height: 1.08;
+      font-weight: 700; letter-spacing: -0.03em; text-wrap: balance;
+    }
+
+    .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+    .tile {
+      background: var(--tile); border-radius: 24px; padding: 32px 30px 30px;
+      display: flex; flex-direction: column; gap: 14px; min-width: 0;
+    }
+    .s2 { grid-column: span 2; } .s3 { grid-column: span 3; } .s4 { grid-column: span 4; } .s6 { grid-column: span 6; }
+    .tile .label { color: var(--muted); }
+    .tile h3 {
+      margin: 0; font-size: clamp(22px, 2.6vw, 28px); line-height: 1.14;
+      font-weight: 700; letter-spacing: -0.028em; text-wrap: balance;
+    }
+    .tile p { margin: 0; color: var(--ink-2); font-size: 15px; line-height: 1.5; letter-spacing: -0.01em; }
+    .tile p b, .tile li b { color: var(--ink); font-weight: 600; }
+    .tile ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .tile li { font-size: 15px; line-height: 1.45; color: var(--ink-2); letter-spacing: -0.01em; }
+    .tile ul > li { padding-left: 18px; position: relative; }
+    .tile ul > li::before {
+      content: ""; position: absolute; left: 0; top: 0.62em;
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    }
+    .fine { font-size: 12px !important; color: var(--muted) !important; }
+
+    /* Módulos */
+    .mods { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+    .mod { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+    .mod .n { font-weight: 600; font-size: 15px; letter-spacing: -0.015em; }
+    .mod .d { font-size: 13px; color: var(--muted); margin-top: 2px; letter-spacing: -0.005em; }
+
+    /* Preços */
+    .prices { display: grid; gap: 0; }
+    .price {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+      padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 15px;
+    }
+    .price:last-child { border-bottom: 0; }
+    .price .k { color: var(--ink-2); letter-spacing: -0.01em; }
+    .price .v { font-family: var(--din); font-weight: 600; font-size: 16px; letter-spacing: 0.02em; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+    /* Passos */
+    .steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 14px; counter-reset: s; }
+    .steps li { padding-left: 44px; position: relative; }
+    .steps li::before {
+      counter-increment: s; content: counter(s, decimal-leading-zero);
+      position: absolute; left: 0; top: 0.05em;
+      font-family: var(--din); font-weight: 600; font-size: 14px; letter-spacing: 0.08em; color: var(--muted);
+    }
+
+    /* North Star invertido (preto) */
+    .tile.dark { background: #000; color: #F5F5F7; }
+    .tile.dark .label { color: #8E8E93; }
+    .tile.dark h3 { font-size: clamp(28px, 3.4vw, 38px); }
+    .tile.dark li { color: #C7C7CC; }
+    .tile.dark li b { color: #F5F5F7; }
+    .tile.dark ul > li::before { background: #34C471; }
+    @media (prefers-color-scheme: dark) {
+      .tile.dark { background: #1D1D1F; border: 1px solid #333336; }
+    }
+
+    /* Gráfico de ARR, em escala (US$ 780k = 100%) */
+    .chart { display: grid; gap: 16px; margin-top: 4px; }
+    .bar-row { display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center; }
+    .bar-row .yr { font-family: var(--din); font-weight: 600; font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .track { position: relative; height: 34px; }
+    .bar { height: 100%; border-radius: 8px; background: var(--bar-dim); min-width: 6px; }
+    .bar.hi { background: var(--bar); }
+    .bar-val {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      font-size: 14px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; font-variant-numeric: tabular-nums;
+    }
+    .bar-val small { color: var(--muted); font-weight: 500; margin-left: 6px; }
+    .bar-val.in { color: var(--bg); left: 14px; }
+    .bar-val.in small { color: var(--bar-dim); }
+
+    /* 90 dias */
+    .plan90 { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; counter-reset: p; }
+    .plan90 li { padding: 18px 18px 4px 0; border-top: 2px solid var(--ink); position: relative; font-size: 15px; line-height: 1.4; color: var(--ink-2); letter-spacing: -0.01em; }
+    .plan90 li + li { padding-left: 18px; }
+    .plan90 li::before {
+      counter-increment: p; content: counter(p, decimal-leading-zero);
+      display: block; margin-bottom: 8px;
+      font-family: var(--din); font-weight: 600; font-size: 13px; letter-spacing: 0.14em; color: var(--muted);
+    }
+    .plan90 li b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 2px; }
+
+    /* ── Marca & merch ── */
+    .brand { margin-top: 88px; }
+    .section-head .lede-sm { margin: 14px 0 0; max-width: 60ch; font-size: 17px; line-height: 1.5; color: var(--muted); letter-spacing: -0.015em; }
+    .brand-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .spec-card { background: var(--tile); border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+    .spec-card.w2 { grid-column: span 2; }
+    .stage { aspect-ratio: 1 / 1; display: grid; place-items: center; padding: 16%; }
+    .stage svg { width: 100%; height: auto; display: block; }
+    .spec-card.w2 .stage { aspect-ratio: auto; flex: 1; padding: 8% 10%; }
+    .bg-cream { background: #FAF7F0; }
+    .bg-deep { background: #1F4D3F; }
+    .bg-navy { background: #002776; }
+    .bg-black { background: #000; }
+    .spec-meta { padding: 16px 20px 18px; display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+    .spec-meta .n { font-size: 15px; font-weight: 600; letter-spacing: -0.015em; }
+    .spec-meta .d { font-size: 13px; color: var(--muted); margin-top: 2px; line-height: 1.35; letter-spacing: -0.005em; }
+    .dl {
+      font-family: var(--din); font-weight: 600; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--ink); text-decoration: none; white-space: nowrap;
+      border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px;
+    }
+    .dl:hover, .dl:focus-visible { border-color: var(--ink); outline: none; }
+
+    .palette { display: grid; grid-template-columns: repeat(6, 1fr); border-radius: 24px; overflow: hidden; margin-top: 16px; }
+    .sw { padding: 72px 18px 18px; color: #FFFFFF; min-width: 0; }
+    .sw.on-light { color: #1D1D1F; }
+    .sw .n { font-size: 15px; font-weight: 600; letter-spacing: -0.015em; }
+    .sw .hex { font-family: var(--din); font-weight: 600; font-size: 12px; letter-spacing: 0.12em; margin-top: 2px; opacity: 0.8; }
+
+    .merch { margin-top: 16px; display: grid; grid-template-columns: 5fr 7fr; gap: 0; padding: 0; overflow: hidden; }
+    .merch-visual { background: #1F4D3F; display: grid; place-items: center; padding: 12% 10%; }
+    .merch-visual svg { width: 100%; max-width: 360px; height: auto; display: block; }
+    .merch-body { padding: 32px 30px 30px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+    .merch-body h3 { margin: 0; font-size: clamp(22px, 2.6vw, 28px); line-height: 1.14; font-weight: 700; letter-spacing: -0.028em; }
+    .groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .group .label { color: var(--muted); display: block; margin-bottom: 4px; font-size: 11px; }
+    .group .price { font-size: 14px; padding: 9px 0; }
+    .group .price .v { font-size: 15px; }
+
+    .phrases-tile { margin-top: 16px; }
+    .phrases { display: flex; flex-wrap: wrap; gap: 10px; }
+    .phrase {
+      font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 17px; letter-spacing: -0.01em;
+      border: 1px solid var(--line); border-radius: 999px; padding: 10px 18px; color: var(--ink);
+    }
+
+    footer { max-width: 1080px; margin: 0 auto; padding: 28px 22px 48px; }
+    footer .row { border-top: 1px solid var(--line); padding-top: 18px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; }
+    footer p { margin: 0; font-size: 12px; color: var(--muted); letter-spacing: -0.005em; line-height: 1.5; max-width: 70ch; }
+
+    /* ── Responsivo ── */
+    @media (max-width: 900px) {
+      .bento { grid-template-columns: repeat(2, 1fr); }
+      .s2, .s3 { grid-column: span 1; }
+      .s4, .s6 { grid-column: span 2; }
+      .plan90 { grid-template-columns: 1fr; }
+      .plan90 li, .plan90 li + li { padding: 14px 0 12px; border-top-width: 1px; }
+      .plan90 li:first-child { border-top-width: 2px; }
+    }
+    @media (max-width: 900px) {
+      .brand-grid { grid-template-columns: repeat(2, 1fr); }
+      .palette { grid-template-columns: repeat(3, 1fr); }
+      .merch { grid-template-columns: 1fr; }
+      .merch-visual { padding: 10% 18%; }
+    }
+    @media (max-width: 720px) {
+      .groups { grid-template-columns: 1fr; gap: 14px; }
+      .specs { grid-template-columns: repeat(2, 1fr); }
+      .spec, .spec + .spec { padding: 22px 16px 22px 0; border-left: 0; }
+      .spec:nth-child(even) { padding-left: 16px; border-left: 1px solid #333336; }
+      .spec:nth-child(n+3) { border-top: 1px solid #333336; }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      .hero-in { padding: 56px 18px 48px; }
+      main { padding: 40px 16px 16px; }
+      footer { padding-inline: 16px; }
+      .nav-in { padding-inline: 16px; }
+      .bento { grid-template-columns: 1fr; }
+      .s2, .s3, .s4, .s6 { grid-column: span 1; }
+      .tile { padding: 26px 22px; border-radius: 20px; }
+      .merch { padding: 0; }
+      .merch-body { padding: 26px 22px; }
+      .spec-card { border-radius: 20px; }
+      .spec-meta { flex-direction: column; align-items: flex-start; padding: 14px 16px 16px; }
+      .palette { grid-template-columns: repeat(2, 1fr); border-radius: 20px; }
+      .sw { padding-top: 56px; }
+      .brand { margin-top: 64px; }
+      .nav .label { display: none; }
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .bar { transform-origin: left center; animation: grow .9s cubic-bezier(.2,.7,.2,1) both; }
+      @keyframes grow { from { transform: scaleX(0.02); } to { transform: scaleX(1); } }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-in">
+      <a class="wordmark" href="/"><svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="11" fill="#009C3B"/><path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="32" r="7" fill="#002776"/></svg>BrasilConnect <span>USA</span></a>
+      <span class="label">Plano de negócios · Uso interno</span>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-in">
+      <svg class="hero-mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="#FAF7F0"/></svg>
+      <div class="label">Plano de negócios · 2026</div>
+      <h1>A plataforma da comunidade brasileira nos EUA.</h1>
+      <p class="lede">Um só lugar para o brasileiro achar negócios, serviços e informação em português. E um <b>SaaS com zero comissão</b> para o negócio brasileiro vender online.</p>
+
+      <div class="specs">
+        <div class="spec"><div class="num">1,9<small>M</small></div><span class="label">Brasileiros nos EUA</span></div>
+        <div class="spec"><div class="num">0<small>%</small></div><span class="label">Comissão por pedido</span></div>
+        <div class="spec"><div class="num">$29<small>/mês</small></div><span class="label">Plano Pro</span></div>
+        <div class="spec"><div class="num">$780<small>k</small></div><span class="label">ARR alvo · Ano 3*</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="section-head">
+      <div class="label">O plano</div>
+      <h2>Tudo numa página.</h2>
+    </div>
+
+    <div class="bento">
+
+      <section class="tile s3">
+        <div class="label">Problema</div>
+        <h3>Uma comunidade espalhada em mil grupos.</h3>
+        <ul>
+          <li><b>Consumidor:</b> informação solta em grupos de WhatsApp e Facebook. Difícil achar negócio de confiança em português.</li>
+          <li><b>Negócio:</b> vende pelo Instagram, sem checkout nem agenda. DoorDash e Uber Eats cobram <b>15–30%</b> por pedido.</li>
+          <li>Square, Toast e Booksy são em inglês, caros e complexos.</li>
+        </ul>
+      </section>
+
+      <section class="tile s3">
+        <div class="label">Produto</div>
+        <h3>Cinco módulos. Um painel.</h3>
+        <div class="mods">
+          <div class="mod"><div class="n">Restaurante</div><div class="d">Cardápio e pedidos</div></div>
+          <div class="mod"><div class="n">Mercado</div><div class="d">Catálogo com estoque</div></div>
+          <div class="mod"><div class="n">Loja</div><div class="d">Vitrine e pedidos</div></div>
+          <div class="mod"><div class="n">AgendaPro</div><div class="d">Agendamento e lembretes</div></div>
+          <div class="mod"><div class="n">Divulgação</div><div class="d">Perfil no diretório</div></div>
+        </div>
+        <p class="fine">A comunidade gratuita (guias, custo de vida, grupos, marketplace, push) traz o consumidor. Os negócios pagam.</p>
+      </section>
+
+      <section class="tile s2">
+        <div class="label">Mercado</div>
+        <h3>Grande e concentrado.</h3>
+        <ul>
+          <li>FL, Boston, NY/NJ, Texas, Atlanta e LA.</li>
+          <li><b>Meta em 3 anos:</b> 2–4 mil negócios pagantes em 8–10 cidades.</li>
+          <li>Densidade local gera efeito de rede.</li>
+        </ul>
+      </section>
+
+      <section class="tile s2">
+        <div class="label">Receita</div>
+        <h3>Assinatura fixa. Zero comissão.</h3>
+        <div class="prices">
+          <div class="price"><span class="k">Restaurante · Mercado · Loja</span><span class="v">$29</span></div>
+          <div class="price"><span class="k">AgendaPro</span><span class="v">$19–79</span></div>
+          <div class="price"><span class="k">Divulgação</span><span class="v">$9</span></div>
+          <div class="price"><span class="k">Enterprise</span><span class="v">Sob medida</span></div>
+          <div class="price"><span class="k">Merch · Coleção 01</span><span class="v">$9–54</span></div>
+        </div>
+      </section>
+
+      <section class="tile s2">
+        <div class="label">Diferenciais</div>
+        <h3>Difícil de copiar.</h3>
+        <ul>
+          <li><b>0% de comissão</b> contra 15–30% dos apps americanos.</li>
+          <li><b>Idioma e confiança</b> da comunidade.</li>
+          <li><b>Densidade</b> de oferta e demanda por cidade.</li>
+          <li><b>Canal próprio</b> de push e e-mail.</li>
+        </ul>
+      </section>
+
+      <section class="tile s3">
+        <div class="label">Go-to-market</div>
+        <h3>Cidade por cidade.</h3>
+        <ol class="steps">
+          <li><b>Ancorar</b> numa praça, como Austin e Round Rock.</li>
+          <li><b>Cadastrar</b> os negócios âncora antes de divulgar.</li>
+          <li><b>Atrair</b> o consumidor com SEO e comunidade.</li>
+          <li><b>Converter</b> o negócio em pagante quando vê demanda.</li>
+          <li><b>Repetir</b> o processo na próxima cidade.</li>
+        </ol>
+      </section>
+
+      <section class="tile s3 dark">
+        <div class="label">Métrica-norte</div>
+        <h3>Negócios ativos pagantes por cidade.</h3>
+        <ul>
+          <li>Conversão do plano grátis para o Pro, MRR e ARPU (cerca de $24).</li>
+          <li>Churn mensal alvo de <b>4–6%</b>.</li>
+          <li>Negócio que recebe pedido ou agendamento <b>não cancela</b>.</li>
+        </ul>
+      </section>
+
+      <section class="tile s4">
+        <div class="label">Projeções*</div>
+        <h3>Rumo a US$ 780 mil de receita anual.</h3>
+        <div class="chart" role="img" aria-label="Receita anual recorrente projetada: Ano 1 US$ 43 mil com 150 negócios; Ano 2 US$ 240 mil com 800; Ano 3 US$ 780 mil com 2.500.">
+          <div class="bar-row">
+            <span class="yr">Ano 1</span>
+            <div class="track"><div class="bar" style="width:5.5%"></div><span class="bar-val" style="left:calc(5.5% + 12px)">$43k <small>150 negócios</small></span></div>
+          </div>
+          <div class="bar-row">
+            <span class="yr">Ano 2</span>
+            <div class="track"><div class="bar" style="width:30.8%"></div><span class="bar-val" style="left:calc(30.8% + 12px)">$240k <small>800 negócios</small></span></div>
+          </div>
+          <div class="bar-row">
+            <span class="yr">Ano 3</span>
+            <div class="track"><div class="bar hi" style="width:100%"></div><span class="bar-val in">$780k <small>2.500 negócios</small></span></div>
+          </div>
+        </div>
+        <p class="fine">*Cenário com premissas (ARPU de $24, churn de 4–6% ao mês), não é previsão. Recalibrar com dados reais.</p>
+      </section>
+
+      <section class="tile s2">
+        <div class="label">Riscos</div>
+        <h3>O que pode dar errado.</h3>
+        <ul>
+          <li><b>Poucos negócios</b> no início. Cadastrar antes de divulgar.</li>
+          <li><b>Churn de PME.</b> Tornar pedidos e agenda indispensáveis.</li>
+          <li><b>Reação dos grandes.</b> Nicho e idioma protegem.</li>
+        </ul>
+      </section>
+
+      <section class="tile s6">
+        <div class="label">Próximos 90 dias</div>
+        <h3>O que fazer agora.</h3>
+        <ol class="plan90">
+          <li><b>Escolher a cidade nº 1</b>e listar 50 negócios âncora.</li>
+          <li><b>Medir o funil</b>do visitante até o plano Pro.</li>
+          <li><b>Fechar o ciclo</b>de pedido, agendamento e notificação.</li>
+          <li><b>Definir a meta</b>de pagantes na cidade nº 1.</li>
+          <li><b>Recalibrar</b>as projeções com números reais.</li>
+        </ol>
+      </section>
+
+    </div>
+
+    <!-- ── Marca & merch ── -->
+    <section class="brand" id="marca">
+      <div class="section-head">
+        <div class="label">Marca &amp; merch</div>
+        <h2>O olho que conecta.</h2>
+        <p class="lede-sm">O símbolo, o “olho brasileiro”, é o mesmo no app, nas camisetas e nos suvenires. Os arquivos abaixo são os mestres em SVG, prontos para a gráfica.</p>
+      </div>
+
+      <div class="brand-grid">
+        <div class="spec-card">
+          <div class="stage bg-cream">
+            <svg viewBox="0 0 64 64" role="img" aria-label="Símbolo oficial em cor"><rect width="64" height="64" rx="11" fill="#009C3B"/><path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="32" r="7" fill="#002776"/></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Símbolo oficial</div><div class="d">App, site e peças claras</div></div><a class="dl" href="/img/marca/simbolo-cor.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card">
+          <div class="stage bg-cream">
+            <svg viewBox="0 0 100 100" role="img" aria-label="Símbolo curvo"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="#002776"/></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Símbolo curvo</div><div class="d">Peças claras</div></div><a class="dl" href="/img/marca/simbolo-curvo.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card">
+          <div class="stage bg-deep">
+            <svg viewBox="0 0 100 100" role="img" aria-label="Símbolo curvo claro"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="#FAF7F0"/></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Curvo claro</div><div class="d">Camisetas e peças escuras</div></div><a class="dl" href="/img/marca/simbolo-curvo-claro.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card">
+          <div class="stage bg-black">
+            <svg viewBox="0 0 64 64" role="img" aria-label="Símbolo reverso amarelo"><path d="M 16 16 L 52 32 L 16 48" fill="none" stroke="#FFDF00" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28" cy="32" r="7.5" fill="#FAF7F0"/></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Reverso amarelo</div><div class="d">Bordado e gravação</div></div><a class="dl" href="/img/marca/simbolo-mono-amarelo.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card w2">
+          <div class="stage bg-cream">
+            <svg viewBox="0 0 360 80" role="img" aria-label="Logo horizontal BrasilConnect USA"><g transform="translate(8, 8)"><rect width="64" height="64" fill="#009C3B" rx="11"/><path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="32" r="7" fill="#002776"/></g><text x="86" y="44" font-family="Fraunces, Georgia, serif" font-size="28" font-weight="700" fill="#1A1F1C" letter-spacing="-0.4">Brasil<tspan fill="#B8943B">Connect</tspan></text><text x="86" y="64" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#8C6D3D" letter-spacing="3.5">USA</text></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Logo horizontal</div><div class="d">Etiqueta, embalagem, site e rodapé</div></div><a class="dl" href="/img/marca/logo-horizontal.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card">
+          <div class="stage bg-navy">
+            <svg viewBox="0 0 64 64" role="img" aria-label="Símbolo em uma cor, branco"><path d="M 16 16 L 52 32 L 16 48" fill="none" stroke="#FFFFFF" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="28" cy="32" r="7.5" fill="#FFFFFF"/></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Uma cor · branco</div><div class="d">Impressão monocromática</div></div><a class="dl" href="/img/marca/simbolo-mono-branco.svg" download>SVG ↓</a></div>
+        </div>
+
+        <div class="spec-card">
+          <div class="stage bg-cream">
+            <svg viewBox="0 0 100 100" role="img" aria-label="Selo Saudade Approved"><circle cx="50" cy="50" r="48" fill="#1F4D3F"/><circle cx="50" cy="50" r="44" fill="none" stroke="#FFDF00" stroke-width="0.8" stroke-dasharray="1 2"/><g transform="translate(28, 24) scale(0.44)"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="#FAF7F0"/></g><text x="50" y="74" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="11" font-weight="700" letter-spacing="1" fill="#FAF7F0">SAUDADE</text><text x="50" y="84" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="5" font-weight="600" letter-spacing="4" fill="#FFDF00">APPROVED</text></svg>
+          </div>
+          <div class="spec-meta"><div><div class="n">Selo Saudade Approved</div><div class="d">Adesivo e patch</div></div><a class="dl" href="/img/marca/estampa-saudade-approved.svg" download>SVG ↓</a></div>
+        </div>
+      </div>
+
+      <div class="palette" aria-label="Paleta oficial">
+        <div class="sw" style="background:#1F4D3F"><div class="n">Verde-deep</div><div class="hex">#1F4D3F</div></div>
+        <div class="sw" style="background:#009C3B"><div class="n">Verde-bandeira</div><div class="hex">#009C3B</div></div>
+        <div class="sw on-light" style="background:#FFDF00"><div class="n">Amarelo</div><div class="hex">#FFDF00</div></div>
+        <div class="sw" style="background:#002776"><div class="n">Navy</div><div class="hex">#002776</div></div>
+        <div class="sw on-light" style="background:#B8943B"><div class="n">Champagne</div><div class="hex">#B8943B</div></div>
+        <div class="sw on-light" style="background:#FAF7F0"><div class="n">Cream</div><div class="hex">#FAF7F0</div></div>
+      </div>
+
+      <section class="tile merch">
+        <div class="merch-visual">
+          <svg viewBox="0 0 200 188" role="img" aria-label="Estampa das costas da camiseta"><g transform="translate(49, 10)"><path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/><circle cx="37" cy="50" r="10" fill="#FAF7F0"/></g><text x="100" y="150" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="15" font-weight="600" letter-spacing="4" fill="#FAF7F0">BRASILCONNECT</text><text x="100" y="170" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="8" font-weight="600" letter-spacing="11" fill="#FFDF00">U S A</text></svg>
+        </div>
+        <div class="merch-body">
+          <div class="label">Coleção 01 · merch</div>
+          <h3>Vista a saudade. Carregue o Brasil.</h3>
+          <div class="groups">
+            <div class="group">
+              <span class="label">Vestuário</span>
+              <div class="prices">
+                <div class="price"><span class="k">Tee Olho Bandeira</span><span class="v">$28</span></div>
+                <div class="price"><span class="k">Tee Olho Grande</span><span class="v">$30</span></div>
+                <div class="price"><span class="k">Moletom Canguru</span><span class="v">$54</span></div>
+              </div>
+            </div>
+            <div class="group">
+              <span class="label">Mesa &amp; café</span>
+              <div class="prices">
+                <div class="price"><span class="k">Caneca Saudade</span><span class="v">$16</span></div>
+                <div class="price"><span class="k">Caneca Esmaltada</span><span class="v">$18</span></div>
+                <div class="price"><span class="k">Garrafa Térmica</span><span class="v">$32</span></div>
+              </div>
+            </div>
+            <div class="group">
+              <span class="label">Acessórios</span>
+              <div class="prices">
+                <div class="price"><span class="k">Boné Bordado</span><span class="v">$26</span></div>
+                <div class="price"><span class="k">Ecobag Canvas</span><span class="v">$22</span></div>
+                <div class="price"><span class="k">Kit de Adesivos</span><span class="v">$9</span></div>
+              </div>
+            </div>
+          </div>
+          <ul>
+            <li><b>Receita extra sem estoque:</b> produção sob demanda (Printful ou Printify) ou fornecedor local.</li>
+            <li><b>Divulgação:</b> cada camiseta na rua mostra a marca para outros brasileiros.</li>
+          </ul>
+          <p class="fine">Estampa das costas mostrada ao lado. <a class="dl" href="/img/marca/estampa-costas-tee.svg" download>SVG ↓</a></p>
+        </div>
+      </section>
+
+      <section class="tile phrases-tile">
+        <div class="label">Frases das estampas</div>
+        <div class="phrases">
+          <span class="phrase">“Saudade Approved”</span>
+          <span class="phrase">“Brazuca in the USA”</span>
+          <span class="phrase">“De casa, longe de casa”</span>
+          <span class="phrase">“Tamo junto, brasil.”</span>
+          <span class="phrase">“Raiz brasileira · solo americano”</span>
+          <span class="phrase">“O olho que conecta”</span>
+        </div>
+        <p class="fine">Antes de mandar para a gráfica, converta os textos dos arquivos em curvas (outline). Assim a impressão não depende da fonte instalada. Para imagem, exporte PNG a 300 dpi (4000 px ou mais).</p>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <div class="row">
+      <p>BrasilConnect USA · Documento interno de estratégia · v1.0 · setembro de 2026</p>
+      <p>Confidencial. Os números financeiros são cenários ilustrativos.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

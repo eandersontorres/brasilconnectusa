@@ -2,9 +2,12 @@
    BrasilConnect USA — Sistema de Design Premium
    Filosofia: editorial NYT/Stripe + brasilidade sutil
    - 1 cor de accent quente (champagne #B8943B) + verde-deep (#1F4D3F)
-   - Tipografia: Fraunces ultra-light + Sora regular
+   - Tipografia: SF Pro (Apple, nativa em iPhone/Mac) com Inter como
+     equivalente aberto no Windows/Android. Fraunces só no logo.
    - Hairlines, espaço, sem decoração desnecessária
    ════════════════════════════════════════════════════════════════ */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
   /* ── Surface ────────────────────────────────────────────────── */
@@ -53,8 +56,9 @@
 
   /* ── Tipografia ─────────────────────────────────────────────── */
   --font-serif:    'Fraunces', Georgia, 'Cormorant Garamond', 'Times New Roman', serif;
-  --font-sans:     'Sora', -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
-  --font-display:  var(--font-serif);
+  --font-sans:     -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display:  -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-brand:    var(--font-serif);   /* logo "BrasilConnect" — igual ao merch */
   --font-body:     var(--font-sans);
 
   /* ── Spacing / radius ───────────────────────────────────────── */
@@ -176,10 +180,22 @@ body.has-flag-stripe { padding-top: 3px; }
 body.has-flag-stripe .bc-nav { top: 3px; }
 .bc-nav .bc-logo,
 .bc-logo {
-  font-family: var(--font-display);
+  font-family: var(--font-brand);
   font-size: 19px; font-weight: 500;
   color: var(--ink); letter-spacing: -0.01em;
   text-decoration: none;
+  display: inline-flex; align-items: center;
+}
+div.bc-logo { display: flex; }
+/* Símbolo oficial ("olho brasileiro") antes do nome. Margem em vez de gap
+   pra não separar "Brasil" de "Connect", que viram itens flex. */
+.bc-logo::before {
+  content: "";
+  display: inline-block; vertical-align: -0.22em;
+  flex: none;
+  width: 1.25em; height: 1.25em;
+  margin-right: 0.42em;
+  background: url("/img/marca/simbolo-cor.svg") center / contain no-repeat;
 }
 .bc-logo em { font-style: italic; font-weight: 400; color: var(--accent); }
 .bc-nav-r { display: flex; align-items: center; gap: 32px; }
@@ -213,7 +229,7 @@ body.has-flag-stripe .site-header { top: 3px; }
 .site-header .logo {
   display: flex; align-items: center; gap: 10px;
   text-decoration: none;
-  font-family: var(--font-display);
+  font-family: var(--font-brand);
   font-size: 19px; font-weight: 500;
   color: var(--ink); letter-spacing: -0.01em;
 }
@@ -1081,10 +1097,11 @@ footer.bc-footer {
 footer.bc-footer .bc-logo,
 .site-footer .footer-logo {
   color: #fff;
-  font-family: var(--font-display);
+  font-family: var(--font-brand);
   font-size: 22px;
   font-weight: 500;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
 }
 .site-footer .bc-logo em,
 footer.bc-footer .bc-logo em { color: var(--accent); }
@@ -1216,3 +1233,31 @@ section.section-prose { padding: 8px 0; }
   .feature-row { grid-template-columns: 1fr; gap: 18px; padding: 28px 0; }
   .feature-row:nth-child(even) > div:first-child { order: 0; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   Tipografia big tech (SF Pro / Inter)
+   Títulos em negrito com letras mais juntas; destaques só por cor.
+   Fica no fim pra vencer as regras acima com a mesma especificidade.
+   ════════════════════════════════════════════════════════════════ */
+body { letter-spacing: -0.011em; }
+h1 { font-weight: 700; letter-spacing: -0.035em; line-height: 1.06; }
+h2 { font-weight: 700; letter-spacing: -0.03em; line-height: 1.12; }
+h3 { font-weight: 600; letter-spacing: -0.02em; }
+h1 em, h2 em, .hero-product em { font-style: normal; font-weight: inherit; }
+.hero-product { font-weight: 700; letter-spacing: -0.045em; }
+.hero-tagline { font-weight: 500; letter-spacing: -0.02em; }
+.hero .lede { font-weight: 400; }
+.feature-num { font-weight: 600; letter-spacing: -0.02em; }
+.plan-price { font-weight: 700; letter-spacing: -0.035em; }
+.plan-card .price,
+.plan-row-price { font-weight: 600; letter-spacing: -0.02em; }
+.plan-row-name { font-weight: 600; }
+.hero.hero-compact h1,
+.section-head h2,
+.cadastro-banner h2 { font-weight: 700; letter-spacing: -0.03em; }
+.card-stat .value { font-weight: 700; letter-spacing: -0.03em; }
+.plan-card h3,
+.feature-row .ftxt h3,
+.related-card .related-title,
+.biz-name,
+.biz-photo .biz-initials { font-weight: 600; letter-spacing: -0.015em; }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 const PALETTE = { paper:'#FAF7F0', paperEl:'#FFFFFF', green:'#009c3b', gold:'#B89968', goldDk:'#8C6D3D', ink:'#1A1F1C', inkSoft:'#4B4F4D', inkMuted:'#6B6E68', line:'#E5E1D6' }
-const FONT_SERIF = "'Fraunces', Georgia, serif"
+const FONT_SERIF = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
 
 const PRIVACY_LEVELS = [
   { id:'public',    label:'Público',    desc:'Qualquer pessoa na internet vê' },
@@ -51,7 +51,7 @@ export default function ProfileApp() {
   }
 
   return (
-    <div style={{ fontFamily:"'Sora', sans-serif", color: PALETTE.ink, background: PALETTE.paper, minHeight:'100%' }}>
+    <div style={{ fontFamily:"-apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif", color: PALETTE.ink, background: PALETTE.paper, minHeight:'100%' }}>
       <div style={{ padding:'20px 16px 8px' }}>
         <div style={{ textTransform:'uppercase', letterSpacing:'0.16em', fontSize:10, fontWeight:600, color: PALETTE.goldDk, marginBottom:4 }}>MEU PERFIL</div>
         <div style={{ fontFamily: FONT_SERIF, fontSize:26, fontWeight:700 }}>Como você aparece na plataforma</div>
