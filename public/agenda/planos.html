@@ -10,19 +10,20 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,200;1,9..144,300&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/premium.css">
   <style>
+    /* Paleta da marca (premium.css): verde-deep, champagne, creme. */
     :root {
-      --green: #009c3b;
-      --navy:  #002776;
-      --gold:  #ffdf00;
-      --bg:    #f6f7f9;
-      --line:  #e5e7eb;
-      --txt:   #111827;
-      --muted: #6b7280;
+      --green: #1F4D3F;
+      --navy:  #1A1F1C;
+      --gold:  #B8943B;
+      --bg:    #FAF7F0;
+      --line:  #E6E0D2;
+      --txt:   #1A1F1C;
+      --muted: #6E726D;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-family: var(--font-sans);
       background: var(--bg);
       color: var(--txt);
       -webkit-font-smoothing: antialiased;
@@ -60,15 +61,17 @@
       padding: 32px 20px 80px;
     }
     .brand {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 18px;
     }
-    .brand span { color: var(--gold); }
-    .brand b { color: var(--navy); }
+    .brand .bc-logo { font-size: 20px; }
+    .brand-sub { font-size: 14px; font-weight: 500; color: var(--muted); }
     h1 {
-      font-size: 32px;
-      font-weight: 700;
+      font-family: var(--font-display);
+      font-size: 34px;
+      font-weight: 500;
       margin: 8px 0 6px;
       letter-spacing: -0.5px;
     }
@@ -137,7 +140,7 @@
     .plan.popular {
       border-color: var(--green);
       border-width: 2px;
-      box-shadow: 0 8px 24px rgba(0, 156, 59, 0.08);
+      box-shadow: 0 8px 24px rgba(31, 77, 63, 0.10);
     }
     .badge {
       position: absolute;
@@ -261,7 +264,7 @@
 
     /* Enterprise banner */
     .enterprise-banner {
-      background: linear-gradient(135deg, #002776 0%, #0f2340 100%);
+      background: linear-gradient(135deg, #1F4D3F 0%, #143527 100%);
       border-radius: 14px;
       padding: 28px 26px;
       margin-top: 28px;
@@ -274,7 +277,7 @@
       position: absolute;
       top: -40px; right: -40px;
       width: 180px; height: 180px;
-      background: radial-gradient(circle, rgba(255,223,0,0.15) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(184,148,59,0.22) 0%, transparent 70%);
       pointer-events: none;
     }
     .enterprise-content { position: relative; z-index: 1; }
@@ -409,7 +412,7 @@
   <div id="banner"></div>
 
   <div class="container">
-    <div class="brand"><b>Brasil</b><span>Connect</span> · AgendaPro</div>
+    <div class="brand"><a class="bc-logo" href="/">Brasil<em>Connect</em></a><span class="brand-sub">· AgendaPro</span></div>
     <h1>Escolhe o plano ideal pro seu negócio</h1>
     <p class="subtitle">14 dias grátis em qualquer plano. Cancela quando quiser, sem multa. Cobramos só depois do trial.</p>
 
