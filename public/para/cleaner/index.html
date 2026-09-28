@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://brasilconnectusa.com/para/cleaner/">
+  <title>AgendaPro Cleaner — Gestão de schedule pra house cleaner brasileira nos EUA | BrasilConnect</title>
+  <meta name="description" content="Casas, equipes e rotas num só lugar. A agenda se preenche sozinha com a recorrência de cada casa. Feito em português pra dona de schedule de limpeza nos EUA.">
+  <meta name="theme-color" content="#1F4D3F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    .module-hero { background: linear-gradient(135deg, #1F4D3F 0%, #143527 100%); color: #fff; padding: 80px 0 60px; }
+    .module-hero .container-narrow { padding: 0 40px; }
+    .module-hero .emoji-big { font-size: 64px; margin-bottom: 16px; }
+    .module-hero h1 { color: #fff; font-family: var(--font-display); font-size: 52px; font-weight: 700; margin: 0 0 12px 0; letter-spacing: -0.035em; }
+    .module-hero .tagline { color: #FFDF00; font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+    .module-hero .lede { color: rgba(255,255,255,0.9); font-size: 17px; line-height: 1.65; max-width: 620px; }
+    .module-hero .cta-row { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .module-hero .btn-primary { background: #FAF7F0; color: #1F4D3F; border: none; padding: 14px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; font-size: 15px; }
+    .module-hero .btn-ghost-white { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 14px 28px; font-weight: 600; border-radius: 8px; text-decoration: none; font-size: 15px; }
+    .module-hero .soon-pill { display: inline-block; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; padding: 5px 12px; border-radius: 999px; margin-bottom: 18px; text-transform: uppercase; }
+
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 32px 0; }
+    .step-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; position: relative; }
+    .step-card .step-num { position: absolute; top: -14px; left: 24px; background: var(--green-deep); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .step-card h4 { font-family: var(--font-display); font-size: 18px; margin: 6px 0 8px 0; color: var(--ink); }
+    .step-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+    .uses-list { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 28px; margin: 24px 0; }
+    .uses-list h3 { margin: 0 0 14px 0; font-size: 18px; }
+    .uses-list ul { margin: 0; padding-left: 22px; }
+    .uses-list li { padding: 5px 0; color: var(--ink-soft); line-height: 1.7; }
+
+    /* Mockup: semana por equipe */
+    .mockup { background: #FAFAFA; border: 1px solid var(--line); border-radius: 14px; padding: 32px; margin: 24px 0; }
+    .mockup-header { display: flex; align-items: center; gap: 10px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; font-size: 13px; color: var(--ink-muted); }
+    .mockup-header .dot { width: 10px; height: 10px; border-radius: 50%; background: #DCFCE7; }
+    .week-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+    .week-col, .house-card { min-width: 0; overflow-wrap: anywhere; }
+    @media (max-width: 600px) { .week-grid { gap: 4px; } .week-col { padding: 4px; } .house-card { padding: 6px; font-size: 11px; } }
+    .week-day-label { font-size: 11px; color: var(--ink-muted); text-align: center; padding: 6px 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+    .house-card { border-radius: 8px; padding: 8px 10px; font-size: 12px; line-height: 1.4; border: 1px solid transparent; margin-bottom: 6px; }
+    .house-card .h-name { font-weight: 700; }
+    .house-card .h-meta { font-size: 11px; opacity: 0.8; }
+    .house-card.team-a { background: #DCFCE7; color: #14532D; border-color: #86EFAC; }
+    .house-card.team-b { background: #DBEAFE; color: #1E3A8A; border-color: #93C5FD; }
+    .week-col { min-height: 120px; background: #fff; border: 1px dashed var(--line); border-radius: 10px; padding: 8px; }
+    .team-legend { display: flex; gap: 16px; margin-top: 14px; font-size: 12px; color: var(--ink-muted); flex-wrap: wrap; }
+    .team-legend .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: middle; margin-right: 5px; }
+    .route-hint { margin-top: 16px; background: #FFFBEA; border: 1px solid #FDE68A; color: #713F12; border-radius: 10px; padding: 12px 16px; font-size: 13px; line-height: 1.6; }
+
+    .vs-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin: 24px 0; }
+    .vs-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+    .vs-card h4 { font-family: var(--font-display); font-size: 18px; margin: 0 0 8px 0; color: var(--ink); }
+    .vs-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.65; margin: 0; }
+
+    /* Waitlist */
+    .waitlist-box { background: var(--paper-elevated); border: 2px solid var(--green-deep); border-radius: 16px; padding: 36px; margin: 24px 0; }
+    .waitlist-box h3 { font-family: var(--font-display); font-size: 26px; margin: 0 0 8px 0; color: var(--ink); }
+    .waitlist-box .sub { color: var(--ink-soft); font-size: 15px; line-height: 1.6; margin-bottom: 22px; }
+    .waitlist-form { display: flex; gap: 12px; flex-wrap: wrap; }
+    .waitlist-form input { flex: 1 1 220px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; font-size: 15px; font-family: inherit; background: #fff; color: var(--ink); }
+    .waitlist-form input:focus { outline: 2px solid var(--green-deep); border-color: var(--green-deep); }
+    .waitlist-form button { padding: 14px 28px; background: var(--green-deep); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; font-family: inherit; }
+    .waitlist-form button:disabled { opacity: 0.6; cursor: wait; }
+    .waitlist-msg { margin-top: 14px; font-size: 14px; line-height: 1.6; display: none; padding: 12px 16px; border-radius: 8px; }
+    .waitlist-msg.ok { display: block; background: #DCFCE7; color: #14532D; border: 1px solid #86EFAC; }
+    .waitlist-msg.err { display: block; background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item summary { font-weight: 600; cursor: pointer; color: var(--ink); font-size: 15px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::before { content: '+ '; color: var(--green); font-weight: 700; }
+    .faq-item[open] summary::before { content: '− '; }
+    .faq-item p { margin: 10px 0 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+
+    .final-cta { background: var(--paper-soft); padding: 60px 0; text-align: center; margin-top: 40px; }
+    .final-cta h2 { font-family: var(--font-display); font-size: 36px; margin-bottom: 12px; }
+    .final-cta p { color: var(--ink-soft); font-size: 16px; margin-bottom: 24px; }
+  </style>
+</head>
+<body class="has-flag-stripe">
+  <nav class="bc-nav">
+    <a href="/" class="bc-logo">Brasil<em>Connect</em></a>
+    <div class="bc-nav-links">
+      <a href="/" class="bc-nl">Início</a>
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/para/" class="bc-nl active">Para seu negócio</a>
+      <a href="/negocio/" class="bc-nl">Negócios</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="module-hero">
+      <div class="container-narrow">
+        <div class="emoji-big">🧹</div>
+        <div class="soon-pill">Em breve · lista de espera aberta</div>
+        <h1>AgendaPro Cleaner</h1>
+        <div class="tagline">Suas casas, suas equipes e suas rotas — sem caderno, sem confusão.</div>
+        <p class="lede">Feito pra quem tem um schedule de limpeza nos EUA. Você cadastra cada casa uma vez — endereço, preço, toda semana ou quinzenal — e a agenda das próximas semanas se preenche sozinha. Escolhe qual equipe atende cada casa, vê tudo no mapa e para de mandar equipe cruzar a cidade à toa.</p>
+        <div class="cta-row">
+          <a href="#lista" class="btn-primary">✋ Entrar na lista de espera →</a>
+          <a href="#como-funciona" class="btn-ghost-white">Como funciona</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="como-funciona">
+      <div class="container-narrow">
+        <div class="eyebrow">Como funciona</div>
+        <h2>Cadastra a casa uma vez. O resto anda sozinho.</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <span class="step-num">1</span>
+            <h4>Cadastra as casas</h4>
+            <p>Nome da cliente, endereço, preço e frequência (semanal, quinzenal, mensal). Anota o que importa: código do portão, cachorro, produto que a cliente prefere.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">2</span>
+            <h4>Agenda se preenche sozinha</h4>
+            <p>A recorrência gera as próximas semanas automaticamente. Cliente pulou uma semana? Um toque. Remarcou? Arrasta. Sem reescrever o caderno toda segunda.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">3</span>
+            <h4>Monta as equipes</h4>
+            <p>Cada equipe tem uma cor. Você vê a semana inteira em colunas por equipe e percebe na hora se alguém está com casa demais — ou de menos.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">4</span>
+            <h4>Vê o dia no mapa</h4>
+            <p>As casas do dia aparecem como pinos coloridos. Casa nova? A gente mostra em que dia você já atende perto dali, pra encaixar sem queimar gasolina.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="background:var(--paper-soft);">
+      <div class="container-narrow">
+        <div class="eyebrow">Preview</div>
+        <h2>Sua semana, por equipe.</h2>
+        <div class="mockup">
+          <div class="mockup-header">
+            <div class="dot"></div>
+            <span><strong>brasilconnectusa.com</strong>/agenda — semana de 20 a 24 de julho</span>
+          </div>
+          <div class="week-grid">
+            <div class="week-day-label">Seg 20</div>
+            <div class="week-day-label">Ter 21</div>
+            <div class="week-day-label">Qua 22</div>
+            <div class="week-day-label">Qui 23</div>
+            <div class="week-day-label">Sex 24</div>
+
+            <div class="week-col">
+              <div class="house-card team-a"><div class="h-name">Casa da Karen</div><div class="h-meta">Framingham · $160 · semanal</div></div>
+              <div class="house-card team-a"><div class="h-name">Casa da Lisa</div><div class="h-meta">Framingham · $140 · quinzenal</div></div>
+            </div>
+            <div class="week-col">
+              <div class="house-card team-b"><div class="h-name">Apto do Mike</div><div class="h-meta">Natick · $120 · semanal</div></div>
+            </div>
+            <div class="week-col">
+              <div class="house-card team-a"><div class="h-name">Casa da Emily</div><div class="h-meta">Marlborough · $180 · quinzenal</div></div>
+              <div class="house-card team-b"><div class="h-name">Casa da Sarah</div><div class="h-meta">Natick · $150 · semanal</div></div>
+            </div>
+            <div class="week-col">
+              <div class="house-card team-a"><div class="h-name">Casa da Jen</div><div class="h-meta">Framingham · $160 · semanal</div></div>
+              <div class="house-card team-a"><div class="h-name">Casa da Amy</div><div class="h-meta">Framingham · $130 · semanal</div></div>
+            </div>
+            <div class="week-col">
+              <div class="house-card team-b"><div class="h-name">Casa da Beth</div><div class="h-meta">Sudbury · $200 · quinzenal</div></div>
+            </div>
+          </div>
+          <div class="team-legend">
+            <span><span class="sw" style="background:#86EFAC;"></span>Equipe da Maria</span>
+            <span><span class="sw" style="background:#93C5FD;"></span>Equipe da Ju</span>
+          </div>
+          <div class="route-hint">💡 <strong>Dica de rota:</strong> as 3 casas de Framingham da quinta ficam a menos de 4 milhas uma da outra — a Equipe da Maria faz as três sem voltar pra estrada.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Pra quem é</div>
+        <h2>Pra quem vive do schedule.</h2>
+        <div class="uses-list">
+          <h3>Você se reconhece aqui?</h3>
+          <ul>
+            <li><strong>Dona de schedule com equipes</strong> — 20, 40, 80 casas e 2–4 equipes na rua. Hoje tudo no caderno e no grupo do WhatsApp.</li>
+            <li><strong>Casal ou dupla que limpa junto</strong> — uma "equipe" só, mas cansou de esquecer qual quinzenal cai essa semana.</li>
+            <li><strong>Quem tá comprando schedule</strong> — recebeu o caderno da antiga dona e precisa organizar as casas antes que alguma caia.</li>
+            <li><strong>Quem quer crescer</strong> — perfil público com avaliações das clientes pra fechar casa nova, dentro da comunidade brasileira que já usa o BrasilConnect.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="background:var(--paper-soft);">
+      <div class="container-narrow">
+        <div class="eyebrow">Por que não uma ferramenta americana?</div>
+        <h2>ZenMaid e Jobber existem. Mas não foram feitos pra você.</h2>
+        <div class="vs-list">
+          <div class="vs-card">
+            <h4>🇧🇷 Em português, do seu jeito</h4>
+            <p>Painel em português, lembrete pra cliente em inglês. Feito pra operação real da comunidade — WhatsApp, Zelle, pagamento na semana — não pro manual da empresa americana.</p>
+          </div>
+          <div class="vs-card">
+            <h4>💵 Preço que cabe no schedule</h4>
+            <p>As ferramentas americanas começam em $49/mês e sobem rápido. O Cleaner vai custar bem menos — e quem entrar na lista de espera trava <strong>preço de fundador</strong>.</p>
+          </div>
+          <div class="vs-card">
+            <h4>📣 Elas organizam. A gente também traz cliente.</h4>
+            <p>Seu perfil público com avaliações fica no diretório do BrasilConnect, onde a comunidade já procura serviço. Ferramenta americana nenhuma te traz uma casa nova.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="lista">
+      <div class="container-narrow">
+        <div class="eyebrow">Lista de espera</div>
+        <h2>Estamos construindo com as primeiras donas de schedule.</h2>
+        <div class="waitlist-box">
+          <h3>Garanta seu lugar (e o preço de fundador)</h3>
+          <p class="sub">Deixa seu email e sua cidade. Quem está na lista entra primeiro, ajuda a decidir o que vem antes e trava o preço de fundador pra sempre. Sem spam — a gente só escreve quando tiver novidade de verdade.</p>
+          <form class="waitlist-form" id="waitlistForm">
+            <input type="email" id="wlEmail" placeholder="Seu melhor email" required maxlength="200">
+            <input type="text" id="wlCity" placeholder="Sua cidade (ex: Framingham, MA)" maxlength="80">
+            <button type="submit" id="wlBtn">Entrar na lista →</button>
+          </form>
+          <div class="waitlist-msg" id="wlMsg"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Perguntas</div>
+        <h2>Dúvidas frequentes</h2>
+
+        <details class="faq-item">
+          <summary>Minhas clientes são americanas. O lembrete vai em inglês?</summary>
+          <p>Vai. Você marca o idioma de cada cliente (inglês, português ou espanhol) e o lembrete de véspera sai no idioma certo, automático. Seu painel continua todo em português.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Minha equipe precisa baixar aplicativo?</summary>
+          <p>Não. Cada equipe recebe um link no WhatsApp com a rota do dia: as casas em ordem, botão de navegação pro GPS e as observações de cada casa (portão, alarme, pet). Abre em qualquer celular, sem login e sem senha.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Hoje tá tudo no meu caderno. Vou ter que digitar tudo?</summary>
+          <p>Cadastrar uma casa leva menos de um minuto, e só se faz uma vez — a recorrência cuida do resto. Pra quem entra da lista de espera, a gente ajuda a colocar as primeiras casas junto com você.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Quanto vai custar?</summary>
+          <p>Menos que as ferramentas americanas (que começam em $49/mês). O preço final sai no lançamento, com teste grátis — e quem está na lista de espera trava o preço de fundador, que não sobe depois.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Funciona pra quem limpa sozinha, sem equipe?</summary>
+          <p>Funciona. Você é a "equipe" — e usa a recorrência, o mapa do dia e os lembretes do mesmo jeito. Quando montar a primeira equipe, é só criar no painel.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Vocês pegam comissão das minhas casas?</summary>
+          <p>Não. Suas clientes são suas e o dinheiro da limpeza vai direto pra você, do jeito que você já recebe (cash, Zelle, Venmo, cheque). Você paga só a assinatura da ferramenta.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container-narrow">
+        <h2>O caderno te trouxe até aqui.</h2>
+        <p>O AgendaPro Cleaner leva o schedule daqui pra frente. Entra na lista — é grátis.</p>
+        <a href="#lista" class="btn btn-primary" style="padding:16px 32px;font-size:16px;font-weight:700;">✋ Entrar na lista de espera →</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bc-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
+          <p class="footer-tagline">A plataforma para brasileiros nos EUA.</p>
+        </div>
+        <div>
+          <h4>Para seu negócio</h4>
+          <a href="/para/restaurant/">Restaurante</a>
+          <a href="/para/grocery/">Mercado</a>
+          <a href="/para/retail/">Loja (Retail)</a>
+          <a href="/para/agenda-pro/">AgendaPro</a>
+          <a href="/para/cleaner/">AgendaPro Cleaner</a>
+          <a href="/para/showcase/">Divulgação</a>
+        </div>
+        <div>
+          <h4>Sobre</h4>
+          <a href="/">Início</a>
+          <a href="/custo-de-vida/">Cidades</a>
+          <a href="/guias/">Guias</a>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 BrasilConnect USA</div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('waitlistForm').addEventListener('submit', async function (e) {
+      e.preventDefault()
+      const btn = document.getElementById('wlBtn')
+      const msg = document.getElementById('wlMsg')
+      const email = document.getElementById('wlEmail').value.trim()
+      const city = document.getElementById('wlCity').value.trim()
+
+      btn.disabled = true
+      btn.textContent = 'Enviando...'
+      msg.className = 'waitlist-msg'
+
+      try {
+        const res = await fetch('/api/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, city, source: 'cleaner' }),
+        })
+        const data = await res.json()
+        if (res.ok && data.ok) {
+          msg.className = 'waitlist-msg ok'
+          msg.textContent = data.isNew
+            ? '🎉 Pronto! Você está na lista do AgendaPro Cleaner. Dá uma olhada no seu email.'
+            : 'Você já estava na lista — seu lugar continua garantido. 💚'
+          document.getElementById('waitlistForm').reset()
+        } else {
+          msg.className = 'waitlist-msg err'
+          msg.textContent = data.error || 'Não deu certo. Tenta de novo em instantes.'
+        }
+      } catch (err) {
+        msg.className = 'waitlist-msg err'
+        msg.textContent = 'Sem conexão com o servidor. Tenta de novo em instantes.'
+      }
+
+      btn.disabled = false
+      btn.textContent = 'Entrar na lista →'
+    })
+  </script>
+</body>
+</html>

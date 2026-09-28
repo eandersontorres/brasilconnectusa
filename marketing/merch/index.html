@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrasilConnect USA — Merch Lookbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF7F0; --paper-soft:#F1ECDF; --paper-deep:#F5F1E5; --white:#fff;
+    --ink:#1A1F1C; --ink-soft:#4B4F4D; --ink-muted:#8B8E89;
+    --accent:#B8943B; --accent-deep:#8C6D3D;
+    --green-deep:#1F4D3F; --green-deep-hover:#143527;
+    --flag-green:#009C3B; --flag-yellow:#FFD700; --navy:#002776;
+    --line:rgba(26,31,28,.10); --line-strong:rgba(26,31,28,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Inter',system-ui,sans-serif;background:var(--paper);color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.55}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  h1,h2,h3,.serif{font-family:'Fraunces',Georgia,serif}
+  .eyebrow{text-transform:uppercase;letter-spacing:.22em;font-size:11px;font-weight:600;color:var(--accent-deep)}
+
+  /* ── Header ── */
+  header{padding:34px 0 0}
+  .logo{display:flex;align-items:center;gap:13px;text-decoration:none}
+  .logo .word{font-family:'Fraunces',serif;font-size:25px;font-weight:700;color:var(--ink);letter-spacing:-.5px;line-height:1}
+  .logo .word em{font-style:normal;color:var(--accent)}
+  .logo .usa{display:block;font-family:'Inter';font-size:9.5px;font-weight:600;letter-spacing:3.5px;color:var(--accent-deep);margin-top:2px}
+
+  /* ── Hero ── */
+  .hero{padding:60px 0 48px;border-bottom:1px solid var(--line)}
+  .hero h1{font-size:clamp(40px,7vw,76px);font-weight:300;letter-spacing:-.02em;line-height:.98}
+  .hero h1 b{font-weight:600;font-style:italic;color:var(--green-deep)}
+  .hero p{max-width:540px;margin-top:22px;font-size:17px;color:var(--ink-soft)}
+  .hero .meta{display:flex;gap:30px;margin-top:30px;flex-wrap:wrap}
+  .hero .meta div span{display:block;font-family:'Fraunces';font-size:23px;font-weight:600;color:var(--green-deep)}
+  .hero .meta div small{font-size:11.5px;color:var(--ink-muted);text-transform:uppercase;letter-spacing:.1em}
+
+  /* ── Palette strip ── */
+  .palette{display:flex;flex-wrap:wrap;gap:0;margin-top:40px;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .sw{flex:1;min-width:120px;padding:20px 16px 16px;color:#fff}
+  .sw b{display:block;font-family:'Fraunces';font-size:15px;font-weight:600}
+  .sw small{font-size:10.5px;opacity:.8;letter-spacing:.05em}
+
+  /* ── Section ── */
+  section{padding:64px 0;border-bottom:1px solid var(--line)}
+  .sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:20px;margin-bottom:38px;flex-wrap:wrap}
+  .sec-head h2{font-size:clamp(28px,4vw,40px);font-weight:400;letter-spacing:-.01em}
+  .sec-head h2 em{font-style:italic;color:var(--accent)}
+  .sec-head p{max-width:420px;font-size:14.5px;color:var(--ink-soft)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:26px}
+  .card{background:var(--white);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:transform .25s,box-shadow .25s}
+  .card:hover{transform:translateY(-4px);box-shadow:0 18px 40px -22px rgba(26,31,28,.35)}
+  .stage{aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;position:relative}
+  .stage svg{width:88%;height:88%}
+  .card .body{padding:18px 20px 22px;border-top:1px solid var(--line)}
+  .card .body .row{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .card .body h3{font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .card .body .price{font-family:'Fraunces';font-size:18px;font-weight:600;color:var(--green-deep);white-space:nowrap}
+  .card .body p{font-size:13px;color:var(--ink-muted);margin-top:5px}
+  .tags{display:flex;gap:6px;margin-top:13px;flex-wrap:wrap}
+  .tag{font-size:10.5px;font-weight:500;letter-spacing:.04em;padding:4px 9px;border-radius:20px;background:var(--paper-soft);color:var(--accent-deep)}
+  .tag.dot{display:flex;align-items:center;gap:5px}
+  .tag.dot i{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+  /* ── Concept band ── */
+  .band{background:var(--green-deep);color:#F3EFE4}
+  .band .eyebrow{color:var(--flag-yellow)}
+  .band h2{color:#fff}
+  .band .sec-head p{color:rgba(255,255,255,.7)}
+  .band .card{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12)}
+  .band .card .body{border-color:rgba(255,255,255,.12)}
+  .band .card .body h3{color:#fff}
+  .band .card .body p{color:rgba(255,255,255,.6)}
+  .band .card .body .price{color:var(--flag-yellow)}
+  .band .tag{background:rgba(255,255,255,.08);color:#E9DFC4}
+
+  .slogans{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:14px}
+  .slogan{border:1px solid rgba(255,255,255,.16);border-radius:13px;padding:22px 20px;background:rgba(255,255,255,.03)}
+  .slogan b{font-family:'Fraunces';font-size:21px;font-weight:600;font-style:italic;color:#fff;display:block;line-height:1.15}
+  .slogan small{font-size:12px;color:rgba(255,255,255,.55);margin-top:8px;display:block}
+
+  footer{padding:54px 0 70px;text-align:center}
+  footer p{color:var(--ink-muted);font-size:13px}
+  footer .serif{font-size:26px;font-weight:300;color:var(--ink);margin-bottom:10px}
+  footer .serif em{font-style:italic;color:var(--green-deep)}
+
+  @media(max-width:600px){.hero{padding:40px 0 32px}.stage svg{width:94%;height:94%}}
+</style>
+</head>
+<body>
+
+<!-- ░░░ SVG DEFINITIONS (reusable brand marks) ░░░ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- LOGO OFICIAL (geométrico, idêntico a public/img/logo.svg) — badge p/ fundos claros -->
+    <symbol id="logoFull" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="11" fill="#009C3B"/>
+      <path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="27" cy="32" r="7" fill="#002776"/>
+    </symbol>
+    <!-- LOGO reverso (geométrico s/ bloco) — bordado/gravação em fundo escuro. Pupila = currentColor -->
+    <symbol id="logoYellow" viewBox="0 0 64 64">
+      <path d="M 16 16 L 52 32 L 16 48" fill="none" stroke="#FFDF00" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="28" cy="32" r="7.5" fill="currentColor"/>
+    </symbol>
+    <!-- LOGO curvo (traço orgânico de BC_curved_V1.png em vetor) — estampas grandes. Pupila = currentColor -->
+    <symbol id="logoCurve" viewBox="0 0 100 100">
+      <path d="M 22 15 Q 62 29 81 50" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/>
+      <path d="M 81 50 Q 62 71 22 85" fill="none" stroke="#FFDF00" stroke-width="6.4" stroke-linecap="round"/>
+      <circle cx="37" cy="50" r="10" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="wrap">
+<header>
+  <a class="logo" href="#">
+    <svg width="40" height="40" viewBox="0 0 64 64"><rect width="64" height="64" rx="11" fill="#009C3B"/><path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="32" r="7" fill="#002776"/></svg>
+    <span><span class="word">Brasil<em>Connect</em></span><span class="usa">USA</span></span>
+  </a>
+</header>
+
+<!-- ░░░ HERO ░░░ -->
+<div class="hero">
+  <p class="eyebrow">Merch Lookbook · Coleção 01</p>
+  <h1 style="margin-top:18px">Vista a <b>saudade.</b><br>Carregue o Brasil.</h1>
+  <p>Uma linha de produtos para a comunidade brasileira nos EUA — feita com a mesma alma editorial da marca: brasilidade sutil, acabamento premium, nada de clichê de bandeira gritante.</p>
+  <div class="meta">
+    <div><span>8</span><small>Produtos</small></div>
+    <div><span>3</span><small>Estampas-conceito</small></div>
+    <div><span>POD</span><small>Print-on-demand ready</small></div>
+  </div>
+
+  <!-- Palette -->
+  <div class="palette">
+    <div class="sw" style="background:#1F4D3F"><b>Verde-deep</b><small>#1F4D3F</small></div>
+    <div class="sw" style="background:#009C3B"><b>Verde-bandeira</b><small>#009C3B</small></div>
+    <div class="sw" style="background:#FFD700;color:#1A1F1C"><b>Amarelo</b><small>#FFD700</small></div>
+    <div class="sw" style="background:#002776"><b>Navy</b><small>#002776</small></div>
+    <div class="sw" style="background:#B8943B"><b>Champagne</b><small>#B8943B</small></div>
+    <div class="sw" style="background:#FAF7F0;color:#1A1F1C"><b>Cream</b><small>#FAF7F0</small></div>
+  </div>
+</div>
+
+<!-- ░░░ APPAREL ░░░ -->
+<section>
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">01 · Vestuário</p>
+      <h2 style="margin-top:8px">Camisetas &amp; <em>moletons</em></h2>
+    </div>
+    <p>Algodão pesado, corte unissex. O símbolo do "olho brasileiro" no peito; estampas-conceito nas costas.</p>
+  </div>
+  <div class="grid">
+
+    <!-- Tee cream peito -->
+    <div class="card">
+      <div class="stage" style="background:#F5F1E5">
+        <svg viewBox="0 0 300 300">
+          <path d="M95 60 L60 78 L42 120 L70 138 L80 120 L80 240 Q80 250 90 250 L210 250 Q220 250 220 240 L220 120 L230 138 L258 120 L240 78 L205 60 Q150 92 95 60 Z" fill="#FAF7F0" stroke="#E3DCCB" stroke-width="2.5"/>
+          <path d="M95 60 Q150 92 205 60 Q150 80 95 60 Z" fill="#ECE4D2"/>
+          <use href="#logoFull" x="116" y="92" width="46" height="46"/>
+        </svg>
+      </div>
+      <div class="body">
+        <div class="row"><h3>Tee · Olho Bandeira</h3><span class="price">$28</span></div>
+        <p>Cream · símbolo bordado no peito esquerdo</p>
+        <div class="tags"><span class="tag dot"><i style="background:#FAF7F0;border:1px solid #ccc"></i>Cream</span><span class="tag">Unissex S–XXL</span></div>
+      </div>
+    </div>
+
+    <!-- Tee verde costas -->
+    <div class="card">
+      <div class="stage" style="background:#143527">
+        <svg viewBox="0 0 300 300">
+          <path d="M95 60 L60 78 L42 120 L70 138 L80 120 L80 240 Q80 250 90 250 L210 250 Q220 250 220 240 L220 120 L230 138 L258 120 L240 78 L205 60 Q150 92 95 60 Z" fill="#1F4D3F" stroke="#163A2F" stroke-width="2.5"/>
+          <path d="M95 60 Q150 92 205 60 Q150 80 95 60 Z" fill="#183D31"/>
+          <g style="color:#FAF7F0"><use href="#logoCurve" x="96" y="104" width="108" height="108"/></g>
+          <text x="150" y="238" text-anchor="middle" font-family="Fraunces,serif" font-size="13" font-weight="600" letter-spacing="3" fill="#F3EFE4">BRASILCONNECT</text>
+        </svg>
+      </div>
+      <div class="body">
+        <div class="row"><h3>Tee · Olho Grande</h3><span class="price">$30</span></div>
+        <p>Verde-deep · estampa central + wordmark</p>
+        <div class="tags"><span class="tag dot"><i style="background:#1F4D3F"></i>Verde-deep</span><span class="tag">Oversized</span></div>
+      </div>
+    </div>
+
+    <!-- Hoodie -->
+    <div class="card">
+      <div class="stage" style="background:#F5F1E5">
+        <svg viewBox="0 0 300 300">
+          <path d="M92 64 L58 84 L40 128 L70 146 L82 126 L82 248 Q82 258 92 258 L208 258 Q218 258 218 248 L218 126 L230 146 L260 128 L242 84 L208 64 L208 64 Q150 96 92 64 Z" fill="#2A3A56" stroke="#1f2c43" stroke-width="2.5"/>
+          <path d="M112 64 Q150 110 188 64 Q150 74 112 64 Z" fill="#22304a"/>
+          <path d="M120 64 Q150 104 180 64" fill="none" stroke="#1a2538" stroke-width="3"/>
+          <line x1="138" y1="120" x2="138" y2="180" stroke="#1a2538" stroke-width="4" stroke-linecap="round"/>
+          <line x1="162" y1="120" x2="162" y2="180" stroke="#1a2538" stroke-width="4" stroke-linecap="round"/>
+          <rect x="110" y="190" width="80" height="44" rx="8" fill="#22304a" stroke="#1a2538" stroke-width="2"/>
+          <g style="color:#FAF7F0"><use href="#logoCurve" x="124" y="126" width="52" height="52"/></g>
+        </svg>
+      </div>
+      <div class="body">
+        <div class="row"><h3>Moletom Canguru</h3><span class="price">$54</span></div>
+        <p>Navy · capuz + bolso, fleece premium</p>
+        <div class="tags"><span class="tag dot"><i style="background:#002776"></i>Navy</span><span class="tag">Inverno</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ░░░ DRINKWARE ░░░ -->
+<section>
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">02 · Mesa &amp; café</p>
+      <h2 style="margin-top:8px">Canecas &amp; <em>garrafas</em></h2>
+    </div>
+    <p>Para o cafezinho que mata a saudade. Cerâmica fosca e aço inox com gravação do símbolo.</p>
+  </div>
+  <div class="grid">
+
+    <!-- Mug cream -->
+    <div class="card">
+      <div class="stage" style="background:#F5F1E5">
+        <svg viewBox="0 0 300 300">
+          <rect x="78" y="92" width="120" height="130" rx="14" fill="#FAF7F0" stroke="#E3DCCB" stroke-width="2.5"/>
+          <path d="M198 118 Q244 118 244 156 Q244 194 198 194" fill="none" stroke="#E3DCCB" stroke-width="13" stroke-linecap="round"/>
+          <ellipse cx="138" cy="92" rx="60" ry="11" fill="#ECE4D2"/>
+          <use href="#logoFull" x="111" y="116" width="54" height="54"/>
+          <text x="138" y="206" text-anchor="middle" font-family="Fraunces,serif" font-size="11" font-weight="600" letter-spacing="2" fill="#8C6D3D">SAUDADE</text>
+        </svg>
+      </div>
+      <div class="body">
+        <div class="row"><h3>Caneca · Saudade</h3><span class="price">$16</span></div>
+        <p>Cerâmica cream 325ml · símbolo verde</p>
+        <div class="tags"><span class="tag dot"><i style="background:#FAF7F0;border:1px solid #ccc"></i>Cream</span><span class="tag">325ml</span></div>
+      </div>
+    </div>
+
+    <!-- Mug verde -->
+    <div class="card">
+      <div class="stage" style="background:#F5F1E5">
+        <svg viewBox="0 0 300 300">
+          <rect x="78" y="92" width="120" height="130" rx="14" fill="#1F4D3F" stroke="#163A2F" stroke-width="2.5"/>
+          <path d="M198 118 Q244 118 244 156 Q244 194 198 194" fill="none" stroke="#1F4D3F" stroke-width="13" stroke-linecap="round"/>
+          <ellipse cx="138" cy="92" rx="60" ry="11" fill="#173B30"/>
+          <g style="color:#FAF7F0"><use href="#logoYellow" x="110" y="120" width="56" height="56"/></g>
+          <text x="138" y="205" text-anchor="middle" font-family="Inter,sans-serif" font-size="9" font-weight="600" letter-spacing="3" fill="#E9DFC4">BRASILCONNECT · USA</text>
+        </svg>
+      </div>
+      <div class="body">
+        <div class="row"><h3>Caneca · Esmaltada</h3><span class="price">$18</span></div>
+        <p>Verde-deep 350ml · gravação amarela</p>
+        <div class="tags"><span class="tag dot"><i style="background:#1F4D3F"></i>Verde-deep</span><span class="tag">350ml</span></div>
+      </div>
+    </div>
+
+    <!-- Tumbler -->
+    <div class="card">
+      <div class="stage" style="background:#F5F1E5">
+        <svg viewBox="0 0 300 300">
+          <path d="M112 58 L188 58 L181 240 Q180 252 168 252 L132 252 Q120 252 119 240 Z" fill="#D9D2C4" stroke="#C3BBA9" stroke-width="2.5"/>
+          <path d="M112 58 L188 58 L186 110 L114 110 Z" fill="#E7E1D4"/>
+          <rect x="108" y="50" width="84" height="14" rx="7" fill="#1F4D3F"/>
+          <use href="#logoFull" x="123" y="138" width="52" height="52"/>
+        </svg>
+      </div>
+      <div class="body">
+        <div class="row"><h3>Garrafa Térmica</h3><span class="price">$32</span></div>
+        <p>Aço inox 600ml · tampa verde, parede dupla</p>
+        <div class="tags"><span class="tag dot"><i style="background:#D9D2C4;border:1px solid #ccc"></i>Inox</span><span class="tag">600ml</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ░░░ ACCESSORIES ░░░ -->
+<section>
+  <div class="sec-head">
+    <div>
+      <p class="eyebrow">03 · Acessórios</p>
+      <h2 style="margin-top:8px">Bonés, <em>ecobags</em> &amp; adesivos</h2>
+    </div>
+    <p>O dia a dia da brazuca. Bordado, canvas e vinil resistente — pra levar o Brasil junto.</p>
+  </div>
+  <div class="grid">
+
+    <!-- Dad hat -->
+    <div class="card">
+      <div class="stage" style="background:#F5F1E5">
+        <svg viewBox="0 0 300 300">
+          <path d="M58 178 Q58 96 150 96 Q242 96 242 178 Q150 158 58 178 Z" fill="#1F4D3F" stroke="#163A2F" stroke-width="2.5"/>
+          <path d="M150 96 Q150 158 150 178 M104 100 Q100 150 92 172 M196 100 Q200 150 208 172" fill="none" stroke="#173B30" stroke-width="2.5"/>
+          <path d="M54 178 Q150 156 246 178 Q252 200 230 206 Q150 192 70 206 Q48 200 54 178 Z" fill="#173B30" stroke="#10271f" stroke-width="2"/>
+          <circle cx="150" cy="96" r="5" fill="#163A2F"/>
+          <g style="color:#FAF7F0"><use href="#logoYellow" x="125" y="122" width="50" height="50"/></g>
+        </svg>
+      </div>
+      <div class="body">
+        <div class="row"><h3>Dad Hat · Bordado</h3><span class="price">$26</span></div>
+        <p>Verde-deep · símbolo bordado, fecho metal</p>
+        <div class="tags"><span class="tag dot"><i style="background:#1F4D3F"></i>Verde-deep</span><span class="tag">Ajustável</span></div>
+      </div>
+    </div>
+
+    <!-- Tote -->
+    <div class="card">
+      <div class="stage" style="background:#F5F1E5">
+        <svg viewBox="0 0 300 300">
+          <path d="M78 96 L222 96 L232 248 Q232 256 224 256 L76 256 Q68 256 68 248 Z" fill="#EDE6D6" stroke="#D8CFBC" stroke-width="2.5"/>
+          <path d="M112 100 Q112 56 150 56 Q188 56 188 100" fill="none" stroke="#D8CFBC" stroke-width="7"/>
+          <use href="#logoFull" x="120" y="126" width="60" height="60"/>
+          <text x="150" y="218" text-anchor="middle" font-family="Fraunces,serif" font-size="13" font-weight="600" letter-spacing="1" fill="#1A1F1C">Brasil<tspan fill="#B8943B">Connect</tspan></text>
+        </svg>
+      </div>
+      <div class="body">
+        <div class="row"><h3>Ecobag Canvas</h3><span class="price">$22</span></div>
+        <p>Lona crua · alça reforçada, estampa wordmark</p>
+        <div class="tags"><span class="tag dot"><i style="background:#EDE6D6;border:1px solid #ccc"></i>Natural</span><span class="tag">Canvas 12oz</span></div>
+      </div>
+    </div>
+
+    <!-- Sticker pack -->
+    <div class="card">
+      <div class="stage" style="background:#F5F1E5">
+        <svg viewBox="0 0 300 300">
+          <g transform="rotate(-8 96 110)"><rect x="62" y="78" width="68" height="68" rx="14" fill="#009C3B" stroke="#fff" stroke-width="4"/><g style="color:#002776"><use href="#logoYellow" x="74" y="90" width="44" height="44"/></g></g>
+          <g transform="rotate(7 205 100)"><rect x="172" y="70" width="74" height="44" rx="10" fill="#FAF7F0" stroke="#fff" stroke-width="4"/><text x="209" y="98" text-anchor="middle" font-family="Fraunces,serif" font-size="15" font-weight="700" fill="#1A1F1C">Brazuca</text></g>
+          <g transform="rotate(5 110 205)"><rect x="70" y="172" width="92" height="62" rx="12" fill="#1F4D3F" stroke="#fff" stroke-width="4"/><g style="color:#FAF7F0"><use href="#logoYellow" x="100" y="180" width="34" height="34"/></g><text x="116" y="224" text-anchor="middle" font-family="Inter" font-size="8" font-weight="600" letter-spacing="1.5" fill="#E9DFC4">SAUDADE APPROVED</text></g>
+          <g transform="rotate(-6 210 210)"><rect x="178" y="178" width="58" height="58" rx="29" fill="#FAF7F0" stroke="#fff" stroke-width="4"/><use href="#logoFull" x="190" y="190" width="34" height="34"/></g>
+        </svg>
+      </div>
+      <div class="body">
+        <div class="row"><h3>Kit de Adesivos</h3><span class="price">$9</span></div>
+        <p>4 vinis à prova d'água · laptop, garrafa, carro</p>
+        <div class="tags"><span class="tag">Vinil holográfico opc.</span><span class="tag">Pack ×4</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ░░░ CONCEITOS / SLOGANS ░░░ -->
+<section class="band">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow">04 · Estampas-conceito</p>
+        <h2 style="margin-top:8px">A voz da <em>brazuca</em></h2>
+      </div>
+      <p>Frases que a comunidade reconhece na hora — pra usar em tees, canecas e adesivos da coleção.</p>
+    </div>
+    <div class="slogans">
+      <div class="slogan"><b>"Saudade Approved"</b><small>Selo bem-humorado · adesivo + tee</small></div>
+      <div class="slogan"><b>"Brazuca in the USA"</b><small>Identidade direta · costas de camiseta</small></div>
+      <div class="slogan"><b>"De casa, longe de casa"</b><small>Emocional · caneca + ecobag</small></div>
+      <div class="slogan"><b>"Tamo junto, brasil."</b><small>Comunidade · tee minimal</small></div>
+      <div class="slogan"><b>"Raiz brasileira · solo americano"</b><small>Editorial · moletom costas</small></div>
+      <div class="slogan"><b>"O olho que conecta"</b><small>Conceito do símbolo · pôster + tee</small></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="serif">Pronto pra <em>produzir</em>.</p>
+    <p>Todos os mockups usam a paleta e o símbolo oficiais — exportáveis em SVG/PNG vetorial para impressão print-on-demand (Printful/Printify) ou fornecedor local.</p>
+    <p style="margin-top:8px">BrasilConnect USA · Merch Lookbook · Coleção 01</p>
+  </div>
+</footer>
+</div>
+</body>
+</html>
