@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ═════════════════════════════════════════════════════════════════════════════
 -- BrasilConnect — Schema Social V3 (RESET TOTAL e recreate limpo)
 -- DERRUBA tudo do schema social que possa ter sido criado parcialmente
@@ -143,13 +146,13 @@ CREATE TABLE bc_reports (
 CREATE INDEX idx_reports_status ON bc_reports(status, created_at DESC);
 
 -- ── 8. RLS desabilitado (APIs usam service key) ────────────────────────────
-ALTER TABLE bc_communities         DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_community_members   DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_posts               DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_comments            DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_votes               DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_event_rsvps         DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_reports             DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_communities         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_community_members   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_posts               ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_comments            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_votes               ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_event_rsvps         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_reports             ENABLE ROW LEVEL SECURITY;
 
 -- ── 9. SEEDS — Comunidade GERAL ────────────────────────────────────────────
 INSERT INTO bc_communities (slug, name, type, description, is_official) VALUES

@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ════════════════════════════════════════════════════════════════════════
 -- Notificacoes in-app (sino com badge)
 -- Disparadas em eventos: novo comentario, mention, RSVP, pedido novo, etc.
@@ -21,4 +24,4 @@ CREATE INDEX IF NOT EXISTS idx_notif_user      ON bc_notifications(user_id, crea
 CREATE INDEX IF NOT EXISTS idx_notif_email     ON bc_notifications(user_email, created_at DESC) WHERE read_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_notif_created   ON bc_notifications(created_at DESC);
 
-ALTER TABLE bc_notifications DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_notifications ENABLE ROW LEVEL SECURITY;

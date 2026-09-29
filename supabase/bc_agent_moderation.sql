@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ════════════════════════════════════════════════════════════════════════════
 -- Agente de Moderação IA — Claude Haiku 4.5
 -- ════════════════════════════════════════════════════════════════════════════
@@ -93,7 +96,7 @@ CREATE INDEX IF NOT EXISTS idx_agent_log_recent  ON bc_agent_log(created_at DESC
 CREATE INDEX IF NOT EXISTS idx_agent_log_severe  ON bc_agent_log(severity, created_at DESC)
   WHERE severity IN ('high', 'critical');
 
-ALTER TABLE bc_agent_log DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_agent_log ENABLE ROW LEVEL SECURITY;
 
 -- ── 6. View pra fila do admin (unifica todas as fontes flagged/hidden) ────
 CREATE OR REPLACE VIEW bc_agent_queue AS

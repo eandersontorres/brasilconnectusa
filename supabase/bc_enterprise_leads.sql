@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ═══════════════════════════════════════════════════════════════════════
 -- Leads do plano Enterprise (AgendaPro)
 -- Capturados em /agenda/planos atraves do form "Falar com a equipe"
@@ -24,7 +27,7 @@ CREATE TABLE IF NOT EXISTS bc_enterprise_leads (
 CREATE INDEX IF NOT EXISTS idx_enterprise_leads_status ON bc_enterprise_leads(status);
 CREATE INDEX IF NOT EXISTS idx_enterprise_leads_created ON bc_enterprise_leads(created_at DESC);
 
-ALTER TABLE bc_enterprise_leads DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_enterprise_leads ENABLE ROW LEVEL SECURITY;
 
 -- Verificacao
 SELECT 'OK' AS status, COUNT(*) AS total FROM bc_enterprise_leads;

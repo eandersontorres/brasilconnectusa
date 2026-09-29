@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ═════════════════════════════════════════════════════════════════════════════
 -- BrasilConnect — Drip de emails pra completar onboarding
 --
@@ -34,7 +37,7 @@ CREATE TABLE IF NOT EXISTS bc_onboarding_drip_log (
 CREATE INDEX IF NOT EXISTS idx_onb_drip_log_user ON bc_onboarding_drip_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_onb_drip_log_sent ON bc_onboarding_drip_log(sent_at DESC);
 
-ALTER TABLE bc_onboarding_drip_log DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_onboarding_drip_log ENABLE ROW LEVEL SECURITY;
 
 -- ── 2. View de candidatos ───────────────────────────────────────────────────
 -- Retorna pro cron: user_id, email, city, signed_up_at, next_step_due

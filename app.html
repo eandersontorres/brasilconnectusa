@@ -30,7 +30,7 @@
     <meta property="og:url" content="https://brasilconnectusa.com/app" />
     <meta property="og:title" content="App · BrasilConnect USA" />
     <meta property="og:description" content="Feed, remessas, voos e negócios brasileiros nos EUA." />
-    <meta property="og:image" content="https://brasilconnectusa.com/og-image.svg" />
+    <meta property="og:image" content="https://brasilconnectusa.com/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="BrasilConnect USA — plataforma para brasileiros nos EUA" />
@@ -39,7 +39,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="BrasilConnect USA" />
     <meta name="twitter:description" content="Remessas, câmbio, voos e comunidade brasileira nos EUA." />
-    <meta name="twitter:image" content="https://brasilconnectusa.com/og-image.svg" />
+    <meta name="twitter:image" content="https://brasilconnectusa.com/og-image.png" />
 
     <!-- ── PWA / Apple ────────────────────────────────────────────── -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -84,39 +84,10 @@
     }
     </script>
 
-    <!-- ── Google Analytics 4 (GA4) ───────────────────────────────── -->
-    <!-- DESATIVADO pre-launch: snippets com placeholder G-XXXXXXXXXX
-         estavam fazendo o browser tentar carregar gtm.js, sendo bloqueado
-         pelo CSP, e ainda assim poluindo o console. Quando criar GA4 real,
-         descomenta E adiciona googletagmanager.com no CSP (vercel.json).
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX', { anonymize_ip: true });
-    </script>
-    -->
-
-    <!-- ── Meta Pixel (Facebook/Instagram Ads) ────────────────────── -->
-    <!-- DESATIVADO pre-launch (mesmo motivo do GA acima). Quando criar
-         pixel real, descomenta E adiciona connect.facebook.net no CSP.
-    <script>
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', 'XXXXXXXXXXXXXXX');
-      fbq('track', 'PageView');
-    </script>
-    -->
+    <!-- Analytics (GA4 / Meta Pixel): so carrega com consentimento. Ver public/js/site.js -->
+    <script src="/js/site.js" defer></script>
   </head>
   <body>
-    <!-- noscript pixel desativado junto: <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=XXXXXXXXXXXXXXX&ev=PageView&noscript=1"/></noscript> -->
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

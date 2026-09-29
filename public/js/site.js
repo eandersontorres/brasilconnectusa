@@ -1,8 +1,8 @@
 /**
  * BrasilConnect USA — site-wide tracking helper
  *
- * Carregado em todas as páginas estáticas. Encaminha eventos custom
- * para GA4 e Meta Pixel + Supabase via /api/track.
+ * Carregado em todas as páginas públicas. Cuida do consentimento de cookies e
+ * encaminha eventos custom para GA4 e Meta Pixel, que só carregam depois do aceite.
  *
  * API pública:
  *   bcTrack(eventName, params)    — dispara evento custom
@@ -15,6 +15,107 @@
  */
 (function () {
   'use strict';
+
+  // ── Analytics com consentimento ────────────────────────────────
+  // Preencha os IDs quando as contas existirem. Com os dois vazios nada é
+  // carregado, nenhum cookie de terceiro é gravado e o aviso não aparece.
+  var ANALYTICS = {
+    ga4: '',     // ex.: 'G-ABC123DEF4'
+    pixel: '',   // ex.: '123456789012345'
+  };
+  var CONSENT_KEY = 'bc_consent';   // 'granted' | 'denied'
+  var analyticsLoaded = false;
+
+  function hasAnalytics() { return !!(ANALYTICS.ga4 || ANALYTICS.pixel); }
+  function getConsent() {
+    // Global Privacy Control do navegador vale como recusa
+    if (navigator.globalPrivacyControl === true) return 'denied';
+    try { return localStorage.getItem(CONSENT_KEY); } catch (e) { return null; }
+  }
+  function setConsent(v) {
+    try { localStorage.setItem(CONSENT_KEY, v); } catch (e) {}
+  }
+
+  function loadAnalytics() {
+    if (analyticsLoaded || !hasAnalytics()) return;
+    analyticsLoaded = true;
+    if (ANALYTICS.ga4) {
+      var g = document.createElement('script');
+      g.async = true;
+      g.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(ANALYTICS.ga4);
+      document.head.appendChild(g);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      window.gtag('js', new Date());
+      window.gtag('config', ANALYTICS.ga4, { anonymize_ip: true });
+    }
+    if (ANALYTICS.pixel) {
+      (function (f, b, e, v, n, t, s2) {
+        if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+        if (!f._fbq) f._fbq = n; n.push = n; n.loaded = true; n.version = '2.0'; n.queue = [];
+        t = b.createElement(e); t.async = true; t.src = v;
+        s2 = b.getElementsByTagName(e)[0]; s2.parentNode.insertBefore(t, s2);
+      })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+      window.fbq('init', ANALYTICS.pixel);
+      window.fbq('track', 'PageView');
+    }
+  }
+
+  function closeBanner() {
+    var el = document.getElementById('bc-consent');
+    if (el) el.parentNode.removeChild(el);
+  }
+
+  function showBanner() {
+    if (document.getElementById('bc-consent')) return;
+    var el = document.createElement('div');
+    el.id = 'bc-consent';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', 'Preferências de cookies');
+    el.style.cssText = 'position:fixed;left:16px;right:16px;bottom:16px;z-index:2147483000;max-width:560px;margin:0 auto;' +
+      'background:#FAF7F0;color:#1A1F1C;border:1px solid #D9D3C4;border-radius:14px;padding:18px 20px;' +
+      'box-shadow:0 12px 40px rgba(0,0,0,.18);font:400 14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;';
+    var btn = 'font-family:inherit;font-size:14px;font-weight:600;padding:11px 18px;border-radius:9px;cursor:pointer;flex:1;min-width:120px;';
+    el.innerHTML =
+      '<div style="font-weight:700;margin-bottom:4px;">Cookies de medição</div>' +
+      '<div style="color:#4B4F4D;">Usamos cookies essenciais pra o site funcionar. Com a sua permissão, também medimos visitas ' +
+      'pra melhorar a plataforma. <a href="/privacidade#cookies" style="color:#1F4D3F;">Saiba mais</a>.</div>' +
+      '<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">' +
+      '<button type="button" data-c="denied" style="' + btn + 'background:transparent;border:1px solid #1F4D3F;color:#1F4D3F;">Recusar</button>' +
+      '<button type="button" data-c="granted" style="' + btn + 'background:#1F4D3F;border:1px solid #1F4D3F;color:#fff;">Aceitar</button>' +
+      '</div>';
+    el.addEventListener('click', function (e) {
+      var b = e.target.closest && e.target.closest('button[data-c]');
+      if (!b) return;
+      setConsent(b.getAttribute('data-c'));
+      closeBanner();
+      if (b.getAttribute('data-c') === 'granted') loadAnalytics();
+    });
+    document.body.appendChild(el);
+  }
+
+  function initConsent() {
+    if (!hasAnalytics()) return;
+    var c = getConsent();
+    if (c === 'granted') loadAnalytics();
+    else if (c !== 'denied') showBanner();
+  }
+
+  // Link "Preferências de cookies" (qualquer elemento com data-cookie-prefs)
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('[data-cookie-prefs]');
+    if (!t) return;
+    e.preventDefault();
+    if (!hasAnalytics()) {
+      alert('Hoje o site só usa cookies essenciais. Não há cookies de medição ou de anúncios pra configurar.');
+      return;
+    }
+    showBanner();
+  });
+
+  window.bcConsent = { status: getConsent, open: showBanner, enabled: hasAnalytics };
+  if (document.body) initConsent();
+  else document.addEventListener('DOMContentLoaded', initConsent);
 
   function bcTrack(name, params) {
     params = params || {};

@@ -67,7 +67,7 @@ function invitePageHtml({ group, memberCount }) {
   const ogDesc = memberCount > 1
     ? `Começou o mata-mata! Brasil x Japão nos 16-avos (29/jun). ${memberCount} brasileiros já palpitando — entre e dispute o ranking estadual e nacional dos EUA.`
     : `Começou o mata-mata da Copa! Palpite no Brasil x Japão (16-avos, 29/jun) e dispute o ranking estadual e nacional dos EUA.`
-  const ogImage = 'https://brasilconnectusa.com/og-image.svg'
+  const ogImage = 'https://brasilconnectusa.com/og-image.png'
   const url = `https://brasilconnectusa.com/bolao/${code}`
   const prizeLine = group.prize_title || group.prize_first
     ? `<div class="prize">🏆 ${escapeHtml(group.prize_title || group.prize_first)}</div>`
