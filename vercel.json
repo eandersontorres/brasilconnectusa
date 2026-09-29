@@ -71,6 +71,10 @@
       "destination": "/agenda/review.html"
     },
     {
+      "source": "/agenda/planos",
+      "destination": "/agenda/planos.html"
+    },
+    {
       "source": "/agenda/:slug",
       "destination": "/agenda/profile.html"
     },
@@ -97,10 +101,6 @@
     {
       "source": "/viagem",
       "destination": "/viagem/index.html"
-    },
-    {
-      "source": "/agenda/planos",
-      "destination": "/agenda/planos.html"
     },
     {
       "source": "/admin",
