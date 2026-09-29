@@ -90,6 +90,18 @@
 
     let provider, services, selected = { service: null, date: null, slot: null }
 
+    // So http(s): bloqueia javascript:, data: etc.
+    function httpUrl(u) { const s = String(u || '').trim(); return /^https?:\/\//i.test(s) ? s : '' }
+
+    // Voltou do Stripe depois de pagar (ou desistir) do sinal
+    function paidBanner() {
+      const q = new URLSearchParams(location.search)
+      const box = 'border-radius:12px;padding:14px 18px;font-size:14px;margin:24px 0 8px;'
+      if (q.get('paid') === '1') return `<div style="${box}background:var(--green-soft);color:var(--green-deep);"><strong>Sinal pago.</strong> Seu horário está confirmado.</div>`
+      if (q.get('canceled') === '1') return `<div style="${box}background:var(--gold-soft);color:var(--ink-soft);">O pagamento do sinal não foi concluído. O horário fica reservado, mas só confirma com o sinal. Fale com a profissional pra combinar.</div>`
+      return ''
+    }
+
     async function loadProvider(slug) {
       try {
         const r = await fetch(`/api/agenda/provider?slug=${encodeURIComponent(slug)}`)
@@ -116,7 +128,7 @@
 
         <section class="pro-cover">
           <div class="container">
-            <div class="avatar-circle">${escapeHtml(initials)}</div>
+            <div class="avatar-circle"${httpUrl(provider.avatar_url) ? ` style="background-image:url(&quot;${escapeHtml(httpUrl(provider.avatar_url))}&quot;);background-size:cover;background-position:center;color:transparent;"` : ''}>${escapeHtml(initials)}</div>
             <div>
               <h1>${escapeHtml(provider.name)}</h1>
               ${provider.specialty ? `<div class="specialty">${escapeHtml(provider.specialty)}</div>` : ''}
@@ -130,6 +142,8 @@
           <section>
             <div class="container-narrow">
               <div class="eyebrow" style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-top:32px;margin-bottom:14px;">PASSO 1 · ESCOLHA O SERVIÇO</div>
+              ${paidBanner()}
+              ${provider.booking_enabled === false ? '<p class="muted" style="font-size:14px;margin-bottom:14px;">Esta agenda ainda não está recebendo agendamentos online.</p>' : ''}
               <div id="services-list">${services.length === 0 ? '<p class="muted">Sem serviços cadastrados ainda.</p>' : services.map(serviceCard).join('')}</div>
               <div id="step2" style="display:none;"></div>
               <div id="step3" style="display:none;"></div>
@@ -138,6 +152,7 @@
           </section>
         </main>
       `
+      if (provider.booking_enabled === false) return
       services.forEach(s => {
         const el = document.querySelector(`[data-svc="${s.id}"]`)
         if (el) el.onclick = () => selectService(s)
@@ -219,6 +234,7 @@
         </div>
         <input id="cName" type="text" placeholder="Seu nome" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;font-family:inherit;font-size:14px;" required />
         <input id="cWa" type="tel" placeholder="WhatsApp (com DDD)" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;font-family:inherit;font-size:14px;" />
+        <input id="cEmail" type="email" autocomplete="email" placeholder="E-mail (pra receber confirmação e lembrete)" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;font-family:inherit;font-size:14px;" />
         <textarea id="cNotes" placeholder="Observações (opcional)" rows="3" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:14px;font-family:inherit;font-size:14px;"></textarea>
         <button id="bookBtn" class="btn btn-primary" style="width:100%;justify-content:center;">Confirmar agendamento →</button>
         <p id="bookErr" style="color:#9F2D2D;font-size:13px;text-align:center;margin-top:10px;display:none;"></p>
@@ -229,9 +245,11 @@
     async function doBook() {
       const name = document.getElementById('cName').value.trim()
       const wa = document.getElementById('cWa').value.trim()
+      const email = document.getElementById('cEmail').value.trim()
       const notes = document.getElementById('cNotes').value.trim()
       const err = document.getElementById('bookErr')
       if (!name) { err.textContent = 'Nome é obrigatório'; err.style.display = 'block'; return }
+      if (!wa && !email) { err.textContent = 'Informe WhatsApp ou e-mail pra contato'; err.style.display = 'block'; return }
       const btn = document.getElementById('bookBtn')
       btn.disabled = true; btn.textContent = 'Confirmando…'
       try {
@@ -243,38 +261,47 @@
             provider_id: provider.id,
             service_id: selected.service.id,
             scheduled_for: sched,
-            client_name: name, client_whatsapp: wa, client_notes: notes,
+            client_name: name, client_whatsapp: wa, client_email: email, client_notes: notes,
           })
         })
         const data = await r.json()
         if (!r.ok) throw new Error(data.error || 'Erro ao agendar')
 
-        if (data.requires_deposit) {
-          const co = await fetch('/api/agenda/checkout', {
-            method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ appointment_id: data.appointment_id }),
-          })
-          const co2 = await co.json()
-          if (co2.checkout_url) { window.location = co2.checkout_url; return }
+        if (data.requires_deposit && data.accepts_card) {
+          // O agendamento ja existe (pendente). Se o pagamento nao abrir, NAO repete o
+          // agendamento: mostra a tela de pendente com a instrucao da profissional.
+          try {
+            const co = await fetch('/api/agenda/checkout', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ appointment_id: data.appointment_id }),
+            })
+            const co2 = await co.json()
+            if (co2.checkout_url) { window.location = co2.checkout_url; return }
+            if (co2.deposit_instructions) data.deposit_instructions = co2.deposit_instructions
+          } catch (_) {}
+          data.card_failed = true
         }
-        renderSuccess(data, name)
+        renderSuccess(data, name, email)
       } catch (e) {
         err.textContent = e.message; err.style.display = 'block'
         btn.disabled = false; btn.textContent = 'Confirmar agendamento →'
       }
     }
 
-    function renderSuccess(data, name) {
+    function renderSuccess(data, name, email) {
+      const pending = !!data.requires_deposit
       root.innerHTML = `
         <header class="site-header">
           <div class="container"><a class="bc-logo" href="/">Brasil<em>Connect</em></a></div>
         </header>
         <main>
           <section><div class="container-narrow" style="text-align:center; padding-top:80px;">
-            <div style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-bottom:12px;">CONFIRMADO</div>
-            <h1 style="font-family:var(--font-display);">Agendamento marcado, ${escapeHtml(name)}!</h1>
+            <div style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-bottom:12px;">${pending ? 'FALTA O SINAL' : 'CONFIRMADO'}</div>
+            <h1 style="font-family:var(--font-display);">${pending ? 'Horário reservado' : 'Agendamento marcado'}, ${escapeHtml(name)}!</h1>
             <p class="lede">Você fica com <strong>${escapeHtml(provider.name)}</strong> em ${selected.date} às ${selected.slot} — ${escapeHtml(selected.service.name)}.</p>
-            <p class="muted">${data.requires_deposit ? 'Depósito recebido. ' : ''}Você vai receber um lembrete no WhatsApp 24 horas antes do horário.</p>
+            ${pending ? `<p class="muted">O horário é confirmado quando ${escapeHtml(provider.name)} receber o sinal de <strong>${fmtUSD(data.deposit_cents)}</strong>.${data.card_failed ? ' Não conseguimos abrir o pagamento no cartão agora.' : ''}</p>
+            ${data.deposit_instructions ? `<p class="lede" style="font-size:1rem;">Como pagar: <strong>${escapeHtml(data.deposit_instructions)}</strong></p>` : `<p class="muted">Combine o pagamento do sinal direto com ${escapeHtml(provider.name)}.</p>`}` : ''}
+            <p class="muted">${email ? 'Mandamos a confirmação pro seu e-mail. O lembrete chega 24 horas antes do horário.' : 'Anote a data e o horário: sem e-mail, não conseguimos mandar lembrete.'}</p>
             <a href="/agenda/${escapeHtml(provider.slug)}" class="btn btn-secondary" style="margin-top:20px;">Voltar pro perfil</a>
           </div></section>
         </main>

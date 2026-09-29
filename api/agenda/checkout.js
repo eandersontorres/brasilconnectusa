@@ -1,7 +1,11 @@
 /**
  * POST /api/agenda/checkout
  * Body: { appointment_id }
- * Cria Stripe Checkout Session pro depósito antecipado.
+ * Cria a sessao do Stripe pro sinal, com repasse direto pra conta da profissional.
+ *
+ * Se a profissional nao conectou o Stripe, responde 409 com `offline: true` e as
+ * instrucoes dela (Zelle, dinheiro...). Antes o sinal caia na conta da plataforma
+ * e ninguem repassava.
  */
 import { createClient } from '@supabase/supabase-js'
 
@@ -19,12 +23,24 @@ export default async function handler(req, res) {
 
     const { data: apt, error } = await supabase
       .from('ag_appointments')
-      .select('*, ag_providers(slug, name, email), ag_services(name)')
+      .select('*, ag_providers(slug, name, email, stripe_account_id, stripe_charges_enabled, deposit_instructions), ag_services(name)')
       .eq('id', appointment_id)
       .single()
     if (error || !apt) return res.status(404).json({ error: 'Agendamento não encontrado' })
     if (apt.deposit_paid) return res.status(400).json({ error: 'Depósito já pago' })
     if ((apt.deposit_cents || 0) <= 0) return res.status(400).json({ error: 'Sem depósito a pagar' })
+    if (['canceled', 'no_show', 'completed'].includes(apt.status)) {
+      return res.status(400).json({ error: 'Esse agendamento não está mais aberto' })
+    }
+
+    const prov = apt.ag_providers || {}
+    if (!prov.stripe_account_id || !prov.stripe_charges_enabled) {
+      return res.status(409).json({
+        offline: true,
+        error: 'Essa profissional recebe o sinal por fora.',
+        deposit_instructions: prov.deposit_instructions || null,
+      })
+    }
 
     const Stripe = (await import('stripe')).default
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
@@ -38,16 +54,21 @@ export default async function handler(req, res) {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: `Depósito · ${apt.ag_services.name}`,
-            description: `Profissional: ${apt.ag_providers.name}`,
+            name: `Sinal · ${apt.ag_services.name}`,
+            description: `Profissional: ${prov.name}`,
           },
           unit_amount: apt.deposit_cents,
         },
         quantity: 1,
       }],
+      // Repasse integral pra profissional: sem application_fee_amount (0% de comissao).
+      payment_intent_data: {
+        transfer_data: { destination: prov.stripe_account_id },
+        metadata: { appointment_id, type: 'deposit' },
+      },
       metadata: { appointment_id, type: 'deposit' },
-      success_url: `${baseUrl}/agenda/${apt.ag_providers.slug}?paid=1&apt=${appointment_id}`,
-      cancel_url: `${baseUrl}/agenda/${apt.ag_providers.slug}?canceled=1`,
+      success_url: `${baseUrl}/agenda/${prov.slug}?paid=1&apt=${appointment_id}`,
+      cancel_url: `${baseUrl}/agenda/${prov.slug}?canceled=1`,
     })
 
     // Registra pagamento como pending

@@ -53,12 +53,24 @@ export default async function handler(req, res) {
             paid_at: new Date().toISOString(),
           }).eq('stripe_session_id', session.id)
         } else if (meta.type === 'subscription' && meta.provider_id) {
-          // Assinatura ativada
+          // Assinatura criada. Busca o status real no Stripe: durante os 14 dias de
+          // teste e 'trialing', nao 'active'.
+          let status = 'trialing', periodEnd = null, trialEnd = null
+          try {
+            const sub = await stripe.subscriptions.retrieve(session.subscription)
+            status = sub.status
+            periodEnd = sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null
+            trialEnd = sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null
+          } catch (subErr) {
+            console.error('subscription retrieve failed:', subErr.message)
+          }
           await supabase.from('ag_providers').update({
             stripe_customer_id: session.customer,
             stripe_subscription_id: session.subscription,
             plan: meta.plan || 'starter',
-            plan_status: 'active',
+            plan_status: status,
+            current_period_end: periodEnd,
+            trial_ends_at: trialEnd,
           }).eq('id', meta.provider_id)
         }
         break
@@ -71,11 +83,20 @@ export default async function handler(req, res) {
         if (planId === process.env.STRIPE_PRICE_PRO) plan = 'pro'
         else if (planId === process.env.STRIPE_PRICE_PREMIUM) plan = 'premium'
 
-        await supabase.from('ag_providers').update({
+        const subPatch = {
           plan,
           plan_status: sub.status,
-          current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
-        }).eq('stripe_subscription_id', sub.id)
+          current_period_end: sub.current_period_end ? new Date(sub.current_period_end * 1000).toISOString() : null,
+          trial_ends_at: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
+        }
+        if (sub.metadata?.provider_id) {
+          // Esse evento pode chegar antes do checkout.session.completed
+          await supabase.from('ag_providers').update({
+            ...subPatch, stripe_subscription_id: sub.id, stripe_customer_id: sub.customer,
+          }).eq('id', sub.metadata.provider_id)
+        } else {
+          await supabase.from('ag_providers').update(subPatch).eq('stripe_subscription_id', sub.id)
+        }
         break
       }
       case 'customer.subscription.deleted': {
@@ -94,9 +115,43 @@ export default async function handler(req, res) {
         }
         break
       }
-      // Restaurant: Stripe Connect Express
+      // Fim do teste em 3 dias: avisa a profissional (a pagina de planos promete esse aviso)
+      case 'customer.subscription.trial_will_end': {
+        const sub = event.data.object
+        const { data: prov } = await supabase.from('ag_providers')
+          .select('name, email, plan').eq('stripe_subscription_id', sub.id).maybeSingle()
+        if (prov?.email) {
+          try {
+            const { sendTransactional } = await import('../_lib/mailer.js')
+            const { escapeHtml } = await import('../_lib/emailShell.js')
+            const fim = sub.trial_end
+              ? new Date(sub.trial_end * 1000).toLocaleDateString('pt-BR', { timeZone: 'America/New_York', day: '2-digit', month: 'long' })
+              : 'em 3 dias'
+            await sendTransactional({
+              to: prov.email,
+              subject: 'Seu teste grátis do AgendaPro termina em 3 dias',
+              kicker: 'AGENDAPRO',
+              title: 'Seu teste termina em 3 dias',
+              paragraphs: [
+                `Oi, ${escapeHtml(String(prov.name || '').split(' ')[0])}! O teste grátis do plano <strong>${escapeHtml(String(prov.plan || 'starter').toUpperCase())}</strong> termina em <strong>${escapeHtml(fim)}</strong>.`,
+                'Depois dessa data a assinatura é cobrada no cartão cadastrado. Se não quiser continuar, cancele antes pelo painel, sem custo.',
+              ],
+              ctaUrl: 'https://brasilconnectusa.com/assinante',
+              ctaLabel: 'Abrir meu painel',
+            })
+          } catch (mailErr) {
+            console.error('email trial_will_end failed:', mailErr.message)
+          }
+        }
+        break
+      }
+      // Stripe Connect Express: conta de um negocio (pedidos) ou de uma profissional (sinal)
       case 'account.updated': {
         const acc = event.data.object
+        await supabase.from('ag_providers').update({
+          stripe_onboarded: acc.details_submitted,
+          stripe_charges_enabled: acc.charges_enabled,
+        }).eq('stripe_account_id', acc.id)
         await supabase.from('bc_businesses').update({
           stripe_onboarded: acc.details_submitted,
           stripe_charges_enabled: acc.charges_enabled,
