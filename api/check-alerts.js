@@ -7,6 +7,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { unsubscribeUrl, unsubscribeHeaders, loadOptOuts } from './_lib/unsubscribe.js'
 
 const FALLBACK_RATE = 5.10
 
@@ -25,7 +26,9 @@ async function getCurrentRate() {
   }
 }
 
-async function sendAlertEmail(email, targetRate, direction, currentRate) {
+async function sendAlertEmail(email, targetRate, direction, currentRate, alertId) {
+  const unsubLink = unsubscribeUrl('a', alertId)
+  const unsubUrl = unsubLink || 'https://brasilconnectusa.com/privacidade.html'
   const resendKey = process.env.RESEND_API_KEY
   if (!resendKey) {
     console.log(`[email skip] RESEND_API_KEY não configurado. Alerta p/ ${email}`)
@@ -65,7 +68,7 @@ async function sendAlertEmail(email, targetRate, direction, currentRate) {
       <hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0">
       <p style="color:#9ca3af;font-size:11px;text-align:center;margin:0">
         Você recebeu este email porque criou um alerta no BrasilConnect.<br>
-        <a href="https://brasilconnectusa.com/api/alerts?id=UNSUBSCRIBE&email=${encodeURIComponent(email)}"
+        <a href="${unsubUrl}"
            style="color:#9ca3af">Cancelar alertas</a>
       </p>
     </div>
@@ -82,6 +85,7 @@ async function sendAlertEmail(email, targetRate, direction, currentRate) {
       to: [email],
       subject: `${emoji} Câmbio ${dirLabel} R$${targetRate.toFixed(2)} — Agora está R$${currentRate.toFixed(4)}`,
       html,
+      headers: unsubscribeHeaders(unsubLink),
     }),
   })
 
@@ -127,10 +131,14 @@ export default async function handler(req, res) {
     })
   }
 
+  // Descadastro: quem pediu pra sair nao recebe alerta
+  const optedOut = await loadOptOuts(supabase, alerts.map(a => a.email))
+
   let triggered = 0
   const triggeredAlerts = []
 
   for (const alert of alerts) {
+    if (optedOut.has(String(alert.email || '').toLowerCase())) continue
     const shouldTrigger =
       (alert.direction === 'above' && currentRate >= alert.target_rate) ||
       (alert.direction === 'below' && currentRate <= alert.target_rate)
@@ -145,7 +153,8 @@ export default async function handler(req, res) {
       alert.email,
       alert.target_rate,
       alert.direction,
-      currentRate
+      currentRate,
+      alert.id
     )
 
     // Marcar alerta como disparado

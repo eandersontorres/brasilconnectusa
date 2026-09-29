@@ -126,7 +126,9 @@ export default async function handler(req, res) {
     // Calcula totais
     const deliveryFee = type === 'delivery' ? (biz.delivery_fee_cents || 0) : 0
     const tip = Math.max(0, parseInt(tip_cents) || 0)
-    const platformFeePct = parseFloat(biz.platform_fee_pct || 2.5)
+    // 0% de comissao (decisao 28/09/2026): a receita vem da assinatura, como o site promete.
+    // So cobra fee se o negocio tiver platform_fee_pct > 0 definido pelo admin.
+    const platformFeePct = Math.max(0, Number(biz.platform_fee_pct) || 0)
     const platformFee = Math.round(subtotal * (platformFeePct / 100))   // nossa fee soh sobre subtotal (nao sobre tip nem delivery)
     const total = subtotal + deliveryFee + tip
 

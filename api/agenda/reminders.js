@@ -1,13 +1,20 @@
 /**
- * GET /api/agenda/reminders?secret=...
+ * GET /api/agenda/reminders
  * Cron: roda diariamente. Encontra agendamentos pra amanhã que ainda não tiveram reminder.
- * Por enquanto apenas LOGA o que enviaria — quando integrar Z-API, troca o console.log
- * por uma chamada real à API.
+ *
+ * O ENVIO AINDA NAO ESTA IMPLEMENTADO (falta integrar Z-API/Twilio ou email).
+ * Por isso o cron so LOGA o que enviaria e NAO marca `reminder_24h_sent`:
+ * marcar sem enviar queimaria o lembrete real quando o envio existir.
+ *
+ * Autenticacao: `Authorization: Bearer <CRON_SECRET>` (Vercel Cron),
+ * header `x-cron-secret` ou `?secret=` (chamadas manuais).
  */
 import { createClient } from '@supabase/supabase-js'
 
 export default async function handler(req, res) {
-  const secret = req.headers['x-cron-secret'] || req.query.secret
+  const auth = req.headers['authorization'] || ''
+  const bearerSecret = auth.startsWith('Bearer ') ? auth.slice(7) : null
+  const secret = bearerSecret || req.headers['x-cron-secret'] || req.query.secret
   if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) return res.status(401).json({ error: 'Unauthorized' })
 
   try {
@@ -26,18 +33,14 @@ export default async function handler(req, res) {
 
     if (error) return res.status(500).json({ error: error.message })
 
-    let sent = 0
     for (const apt of appointments || []) {
       const time = new Date(apt.scheduled_for).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-      const message = `Oi ${apt.client_name}! Lembrete do seu agendamento amanhã às ${time} com ${apt.ag_providers.name} — ${apt.ag_services.name}. Até lá!`
-      console.log(`[REMINDER] ${apt.client_whatsapp}: ${message}`)
-      // TODO: integrar Z-API aqui
-      // await fetch(`https://api.z-api.io/instances/${process.env.ZAPI_INSTANCE}/token/${process.env.ZAPI_TOKEN}/send-text`, ...)
-      await supabase.from('ag_appointments').update({ reminder_24h_sent: true }).eq('id', apt.id)
-      sent++
+      const message = `Oi ${apt.client_name}! Lembrete do seu agendamento amanhã às ${time} com ${apt.ag_providers?.name} — ${apt.ag_services?.name}. Até lá!`
+      console.log(`[REMINDER nao enviado: envio nao implementado] apt=${apt.id}: ${message}`)
+      // TODO: integrar envio real (Z-API/Twilio/email) e SO ENTAO marcar reminder_24h_sent = true
     }
 
-    return res.status(200).json({ ok: true, total: appointments?.length || 0, sent })
+    return res.status(200).json({ ok: true, total: appointments?.length || 0, sent: 0, note: 'envio de lembrete ainda nao implementado' })
   } catch (e) {
     return res.status(500).json({ error: e.message })
   }

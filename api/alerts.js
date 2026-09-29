@@ -1,11 +1,15 @@
 /**
- * POST /api/alerts  → criar alerta
- * DELETE /api/alerts?id=xxx → cancelar alerta
+ * POST   /api/alerts                     → criar alerta
+ * DELETE /api/alerts?id=<uuid>&t=<hmac>  → cancelar alerta (token assinado)
  *
  * Body POST: { email, target_rate, direction: 'above'|'below' }
+ *
+ * O link "Cancelar alertas" dos e-mails aponta pra /api/unsubscribe (k=a),
+ * que pede confirmacao e cancela todos os alertas ativos do e-mail.
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { verifyUnsubToken } from './_lib/unsubscribe.js'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY)
@@ -53,6 +57,9 @@ export default async function handler(req, res) {
         return res.status(409).json({ error: 'Já existe um alerta ativo para esses parâmetros' })
       }
 
+      // Quem cria um alerta novo esta pedindo pra receber de novo: sai da lista de descadastro.
+      await supabase.from('bc_email_optouts').delete().eq('email', email.toLowerCase())
+
       const { data, error } = await supabase
         .from('bc_rate_alerts')
         .insert({
@@ -75,10 +82,15 @@ export default async function handler(req, res) {
   }
 
   // ── DELETE: cancelar alerta ──────────────────────────────────
+  // Exige o token assinado do link do e-mail: sem isso, qualquer pessoa com um id
+  // cancelava o alerta de outra.
   if (req.method === 'DELETE') {
     const alertId = req.query?.id
     if (!alertId) {
       return res.status(400).json({ error: 'id é obrigatório' })
+    }
+    if (!verifyUnsubToken('a', String(alertId), String(req.query?.t || ''))) {
+      return res.status(403).json({ error: 'Token inválido' })
     }
 
     try {

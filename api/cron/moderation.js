@@ -135,7 +135,10 @@ Se você não conseguir avaliar um item (texto vazio, ilegível), use severity='
 // HANDLER
 // ────────────────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
-  const secret = req.headers['x-cron-secret'] || req.query.secret
+  // Vercel Cron manda `Authorization: Bearer <CRON_SECRET>`; x-cron-secret e ?secret= pra chamadas manuais
+  const auth = req.headers['authorization'] || ''
+  const bearerSecret = auth.startsWith('Bearer ') ? auth.slice(7) : null
+  const secret = bearerSecret || req.headers['x-cron-secret'] || req.query.secret
   if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' })
   }

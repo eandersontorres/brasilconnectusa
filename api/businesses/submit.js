@@ -4,7 +4,7 @@ function slugify(s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
-  const { name, category, city, state, phone, whatsapp, website, description, address, hours, submitted_email, listing_plan, module: moduleInput } = req.body || {}
+  const { name, category, city, state, phone, whatsapp, website, description, address, hours, submitted_email, module: moduleInput } = req.body || {}
   if (!name || !category || !city || !state || !submitted_email) {
     return res.status(400).json({ error: 'name, category, city, state e submitted_email obrigatórios' })
   }
@@ -33,7 +33,9 @@ export default async function handler(req, res) {
       slug, name, category, module: module_, city, state, phone, whatsapp, website, description, address, hours,
       submitted_email: emailLower,
       owner_email: emailLower,
-      listing_plan: listing_plan || 'free', status: 'pending', active: false
+      // Plano SEMPRE nasce 'free'. Upgrade so via checkout/admin — nunca pelo body
+      // (antes o cadastrante podia mandar 'premium' e ir pro topo da busca).
+      listing_plan: 'free', status: 'pending', active: false
     }).select().single()
     if (error) return res.status(500).json({ error: error.message })
     await supabase.from('bc_business_leads').insert({ business_id: data.id, source_email: submitted_email, type: 'submission' })
