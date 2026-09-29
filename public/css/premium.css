@@ -1261,3 +1261,11 @@ h1 em, h2 em, .hero-product em { font-style: normal; font-weight: inherit; }
 .related-card .related-title,
 .biz-name,
 .biz-photo .biz-initials { font-weight: 600; letter-spacing: -0.015em; }
+
+/* Selo "em breve": recurso anunciado que ainda esta em desenvolvimento */
+.soon {
+  display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
+  background: var(--gold-soft); color: var(--accent-deep);
+  font-family: var(--font-sans); font-size: 10px; font-weight: 600; font-style: normal;
+  letter-spacing: 0.08em; text-transform: uppercase; vertical-align: middle; white-space: nowrap;
+}

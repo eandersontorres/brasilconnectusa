@@ -1353,7 +1353,7 @@ export default function App() {
           ? <Suspense fallback={<TabFallback />}><MarketplaceScreen /></Suspense>
           : <LoginGate emoji="🛍️" title="Entre pra usar o Marketplace"
               message="Compre, venda e doe entre brasileiros na sua cidade. Móveis, eletrônicos, roupa, carro, serviços — direto com gente da comunidade."
-              perks={['Anunciar é grátis', 'Sem comissão por venda', 'Chat direto com vendedor']} />
+              perks={['Anunciar é grátis', 'Sem comissão por venda', 'Contato direto pelo WhatsApp']} />
         )}
         {tab === 'comunidades' && (user
           ? <Suspense fallback={<TabFallback />}><ComunidadesScreen onNavigate={setTab} /></Suspense>

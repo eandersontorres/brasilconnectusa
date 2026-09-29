@@ -19,7 +19,7 @@ ALTER TABLE bc_businesses
   ADD COLUMN IF NOT EXISTS delivery_radius_miles INT,
   ADD COLUMN IF NOT EXISTS delivery_fee_cents INT DEFAULT 0,
   ADD COLUMN IF NOT EXISTS min_order_cents INT DEFAULT 1000,         -- $10 minimo
-  ADD COLUMN IF NOT EXISTS platform_fee_pct DECIMAL(4,2) DEFAULT 2.5,-- 2.5% nossa fee
+  ADD COLUMN IF NOT EXISTS platform_fee_pct DECIMAL(4,2) DEFAULT 0,  -- 0% de comissao (decisao 28/09/2026)
   ADD COLUMN IF NOT EXISTS owner_email TEXT;                         -- pra notif de pedido novo
 
 CREATE INDEX IF NOT EXISTS idx_businesses_orders ON bc_businesses(accepts_orders) WHERE accepts_orders = true;

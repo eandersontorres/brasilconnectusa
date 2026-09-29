@@ -22,7 +22,7 @@
       label: 'Restaurante',
       emoji: '🍽️',
       tagline: 'Cardápio online + pedidos com pagamento.',
-      blurb: 'Aceite pedidos pela web com cardápio, modificadores e pagamento via Stripe. Sem comissão por pedido — você paga só o plano mensal. O que vender é seu.',
+      blurb: 'Aceite pedidos pela web com cardápio e pagamento via Stripe. Sem comissão por pedido — você paga só o plano mensal. O que vender é seu.',
       tabs: [
         { key: 'negocio',  label: 'Meu Negócio' },
         { key: 'cardapio', label: 'Cardápio' },
@@ -30,7 +30,7 @@
       ],
       features: {
         free:    ['Perfil público', 'Cardápio com até 20 itens'],
-        pro:     ['Cardápio ilimitado', 'Modificadores', 'Pedidos online sem comissão', 'Stripe Connect'],
+        pro:     ['Cardápio ilimitado', 'Modificadores (em breve)', 'Pedidos online sem comissão', 'Stripe Connect'],
         premium: ['Tudo do Pro', 'Destaque na busca', 'Badge verificado', 'Analytics'],
       },
     },
@@ -40,7 +40,7 @@
       label: 'Mercado',
       emoji: '🛒',
       tagline: 'Catálogo de produtos + pedidos sem comissão.',
-      blurb: 'Coloque seu mercado online — produtos com foto, preço e estoque, pedidos com entrega ou retirada. Sem comissão por venda. Mesmo motor do Cardápio, otimizado pra mercearia.',
+      blurb: 'Coloque seu mercado online — produtos com foto e preço, pedidos com entrega ou retirada. Sem comissão por venda. Mesmo motor do Cardápio, otimizado pra mercearia.',
       tabs: [
         { key: 'negocio',  label: 'Meu Negócio' },
         { key: 'cardapio', label: 'Catálogo' },
@@ -58,7 +58,7 @@
       label: 'Loja (Retail)',
       emoji: '🛍️',
       tagline: 'Vitrine de produtos + pedidos sem comissão.',
-      blurb: 'Vitrine pra lojas físicas — roupas, artesanato, importados. Cliente vê estoque, faz pedido com pagamento online. Sem comissão por venda — só mensalidade.',
+      blurb: 'Vitrine pra lojas físicas — roupas, artesanato, importados. Cliente vê os produtos, faz pedido com pagamento online. Sem comissão por venda — só mensalidade.',
       tabs: [
         { key: 'negocio',  label: 'Meu Negócio' },
         { key: 'cardapio', label: 'Catálogo' },
@@ -83,8 +83,8 @@
       ],
       features: {
         free:    ['Perfil público', 'Até 20 agendamentos/mês'],
-        pro:     ['Agendamentos ilimitados', 'Lembretes por SMS/email', 'Pagamento online sem comissão'],
-        premium: ['Tudo do Pro', 'Multi-profissional', 'Reviews pós-atendimento', 'Analytics'],
+        pro:     ['Agendamentos ilimitados', 'Lembretes por SMS/email (em breve)', 'Pagamento online sem comissão'],
+        premium: ['Tudo do Pro', 'Multi-profissional (em breve)', 'Reviews pós-atendimento (em breve)', 'Analytics'],
       },
     },
 

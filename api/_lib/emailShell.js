@@ -38,7 +38,10 @@ export function callout(title, text) {
   </div>`
 }
 
-export function shellHtml({ kicker, title, bodyHtml, ctaUrl, ctaLabel, footerNote }) {
+// Trocado pelo link real de cada destinatario na hora do envio (ver api/_lib/unsubscribe.js).
+export const UNSUB_PLACEHOLDER = '%%UNSUB_URL%%'
+
+export function shellHtml({ kicker, title, bodyHtml, ctaUrl, ctaLabel, footerNote, unsubscribeUrl }) {
   return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -75,7 +78,7 @@ export function shellHtml({ kicker, title, bodyHtml, ctaUrl, ctaLabel, footerNot
           <td style="background:${COLORS.greenDk};padding:24px 32px;text-align:center;color:${COLORS.paperSft};">
             <div style="font-size:13px;opacity:0.75;">Feito por brasileiros, para brasileiros</div>
             <div style="font-size:11px;opacity:0.5;margin-top:6px;">© 2026 BrasilConnect USA</div>
-            <div style="font-size:11px;opacity:0.5;margin-top:8px;">Cancelar inscrição: responda este email com "remover"</div>
+            <div style="font-size:11px;opacity:0.7;margin-top:8px;"><a href="${unsubscribeUrl || UNSUB_PLACEHOLDER}" style="color:${COLORS.paperSft};text-decoration:underline;">Cancelar inscrição</a></div>
           </td>
         </tr>
       </table>

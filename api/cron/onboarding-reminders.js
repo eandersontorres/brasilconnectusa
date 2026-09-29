@@ -19,7 +19,8 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
-import { shellHtml, block, callout, escapeHtml } from '../_lib/emailShell.js'
+import { shellHtml, block, callout, escapeHtml, UNSUB_PLACEHOLDER } from '../_lib/emailShell.js'
+import { unsubscribeUrl, unsubscribeHeaders, loadOptOuts } from '../_lib/unsubscribe.js'
 
 const FROM_EMAIL = process.env.WAITLIST_FROM_EMAIL || 'BrasilConnect USA <oi@brasilconnectusa.com>'
 const SITE_URL = 'https://brasilconnectusa.com'
@@ -60,12 +61,17 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, processed: 0, message: 'Nenhum email pendente' })
   }
 
+  // Descadastro: pula quem pediu pra sair
+  const optedOut = await loadOptOuts(supabase, candidates.map(c => c.email))
+
   let sent = 0
   let failed = 0
+  let skipped = 0
   const errors = []
 
   for (const c of candidates) {
     const step = c.next_step_due
+    if (optedOut.has(String(c.email || '').toLowerCase())) { skipped++; continue }
     const tpl = TEMPLATES[step]
     if (!tpl) {
       errors.push({ email: c.email, error: `Step ${step} sem template` })
@@ -73,13 +79,19 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { html, text, subject } = tpl({ email: c.email, city: c.city, full_name: c.full_name })
+      const tplOut = tpl({ email: c.email, city: c.city, full_name: c.full_name })
+      const unsubLink = unsubscribeUrl('u', c.user_id)
+      const unsubUrl = unsubLink || `${SITE_URL}/privacidade.html`
+      const { subject } = tplOut
+      const html = tplOut.html.split(UNSUB_PLACEHOLDER).join(unsubUrl)
+      const text = `${tplOut.text}\n\nCancelar inscrição: ${unsubUrl}`
       const result = await resend.emails.send({
         from: FROM_EMAIL,
         to: c.email,
         subject,
         html,
         text,
+        headers: unsubscribeHeaders(unsubLink),
       })
 
       await supabase.from('bc_onboarding_drip_log').insert({
@@ -108,6 +120,7 @@ export default async function handler(req, res) {
     processed: candidates.length,
     sent,
     failed,
+    skipped_optout: skipped,
     errors: errors.slice(0, 10),
   })
 }

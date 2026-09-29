@@ -9,21 +9,26 @@
  *   D+14 → Email 4: Guia de chegada nos EUA (lead magnet)
  *   D+21 → Email 5: Custo de vida em 12 cidades — qual escolher
  *
- * Autenticação: header `x-cron-secret` ou query param `?secret=` igual a CRON_SECRET
+ * Autenticação: `Authorization: Bearer <CRON_SECRET>` (Vercel Cron), header
+ * `x-cron-secret` ou `?secret=` (chamadas manuais)
  *
  * Limita a 80 emails por execução (Resend free tier = 100/dia).
  */
 
 import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
-import { COLORS, shellHtml, block, callout, escapeHtml } from '../_lib/emailShell.js'
+import { COLORS, shellHtml, block, callout, escapeHtml, UNSUB_PLACEHOLDER } from '../_lib/emailShell.js'
+import { unsubscribeUrl, unsubscribeHeaders, loadOptOuts } from '../_lib/unsubscribe.js'
 
 const FROM_EMAIL = process.env.WAITLIST_FROM_EMAIL || 'BrasilConnect USA <oi@brasilconnectusa.com>'
 const SITE_URL = 'https://brasilconnectusa.com'
 const MAX_PER_RUN = 80
 
 export default async function handler(req, res) {
-  const secret = req.headers['x-cron-secret'] || req.query.secret
+  // Vercel Cron manda `Authorization: Bearer <CRON_SECRET>`; x-cron-secret e ?secret= pra chamadas manuais
+  const auth = req.headers['authorization'] || ''
+  const bearerSecret = auth.startsWith('Bearer ') ? auth.slice(7) : null
+  const secret = bearerSecret || req.headers['x-cron-secret'] || req.query.secret
   if (!process.env.CRON_SECRET || secret !== process.env.CRON_SECRET) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
@@ -54,12 +59,21 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, processed: 0, message: 'Nenhum email pendente' })
   }
 
+  // Descadastro: pula quem pediu pra sair e monta o link real de cada destinatario
+  const emails = candidates.map(c => String(c.email || '').toLowerCase())
+  const optedOut = await loadOptOuts(supabase, emails)
+  const { data: wlRows } = await supabase.from('bc_waitlist').select('id, email').in('email', emails)
+  const waitlistId = new Map((wlRows || []).map(r => [String(r.email).toLowerCase(), r.id]))
+
   let sent = 0
   let failed = 0
+  let skipped = 0
   const errors = []
 
   for (const c of candidates) {
     const step = c.next_step_due
+    const emailKey = String(c.email || '').toLowerCase()
+    if (optedOut.has(emailKey)) { skipped++; continue }
     const tpl = TEMPLATES[step]
     if (!tpl) {
       errors.push({ email: c.email, error: `Step ${step} sem template` })
@@ -67,13 +81,19 @@ export default async function handler(req, res) {
     }
 
     try {
-      const { html, text, subject } = tpl({ email: c.email, city: c.city })
+      const tplOut = tpl({ email: c.email, city: c.city })
+      const unsubLink = unsubscribeUrl('w', waitlistId.get(emailKey))
+      const unsubUrl = unsubLink || `${SITE_URL}/privacidade.html`
+      const { subject } = tplOut
+      const html = tplOut.html.split(UNSUB_PLACEHOLDER).join(unsubUrl)
+      const text = `${tplOut.text}\n\nCancelar inscrição: ${unsubUrl}`
       const result = await resend.emails.send({
         from: FROM_EMAIL,
         to: c.email,
         subject,
         html,
         text,
+        headers: unsubscribeHeaders(unsubLink),
       })
 
       // Log no Supabase
@@ -102,6 +122,7 @@ export default async function handler(req, res) {
     processed: candidates.length,
     sent,
     failed,
+    skipped_optout: skipped,
     errors: errors.slice(0, 10), // só primeiros 10 pra resposta não inflar
   })
 }
