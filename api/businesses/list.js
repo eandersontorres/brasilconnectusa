@@ -20,7 +20,7 @@ function haversineMiles(lat1, lng1, lat2, lng2) {
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
-  const { category, state, city, q, sort, owner_email, status, user_id, limit = 100 } = req.query
+  const { category, state, city, q, sort, owner_email, status, user_id, slug, limit = 100 } = req.query
 
   try {
     const supabase = createClient(
@@ -49,6 +49,7 @@ export default async function handler(req, res) {
     const useTable = effectiveOwnerEmail || status ? 'bc_businesses' : 'bc_businesses_public'
     let query = supabase.from(useTable).select('*')
 
+    if (slug)                 query = query.eq('slug', String(slug).toLowerCase())
     if (category)             query = query.eq('category', category)
     if (state)                query = query.eq('state', state)
     if (city)                 query = query.ilike('city', `%${city}%`)

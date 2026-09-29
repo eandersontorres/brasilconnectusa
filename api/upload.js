@@ -1,14 +1,18 @@
 /**
  * POST /api/upload
- * Body: { file_data: 'data:image/jpeg;base64,...', folder?: 'businesses'|'providers'|'posts', email?: string }
+ * Header: Authorization: Bearer <JWT do Supabase>  (obrigatorio)
+ * Body: { file_data: 'data:image/jpeg;base64,...', folder?: 'businesses'|'providers'|'posts'|'communities' }
  * Faz upload pro bucket Supabase Storage 'uploads' e retorna URL publica.
  *
  * Validacoes server-side:
+ * - Login obrigatorio (antes qualquer pessoa subia arquivo, sem limite)
  * - Tamanho max: 500KB (frontend ja deve comprimir antes)
  * - MIME: jpeg/png/webp/gif
- * - Email obrigatorio (rate limit basico por email)
+ * - Limite de 30 uploads por minuto por IP
  */
 import { createClient } from '@supabase/supabase-js'
+import { requireAuthOnly } from './_lib/businessAuth.js'
+import { rateLimit } from './_lib/rateLimit.js'
 
 const MAX_BYTES = 500 * 1024
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
@@ -20,8 +24,20 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
+  const _rl = rateLimit(req, { windowMs: 60000, max: 30 })
+  if (_rl) return res.status(429).json({ error: 'Muitos envios. Tenta de novo em ' + _rl.retryAfter + 's.' })
+
   try {
-    const { file_data, folder = 'misc', email } = req.body || {}
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY,
+      { auth: { persistSession: false } }
+    )
+
+    const auth = await requireAuthOnly(req, supabase)
+    if (!auth.ok) return res.status(auth.status).json({ error: 'Faça login para enviar imagens.' })
+
+    const { file_data, folder = 'misc' } = req.body || {}
     if (!file_data) return res.status(400).json({ error: 'file_data obrigatorio' })
 
     // Parse data URL
@@ -43,18 +59,11 @@ export default async function handler(req, res) {
     // Sanitiza folder
     const safeFolder = String(folder).replace(/[^a-z0-9_-]/gi, '').slice(0, 30) || 'misc'
 
-    // Path: {folder}/{email-sanitized}/{timestamp}.{ext}
+    // Path: {folder}/{user_id}/{timestamp}.{ext}  (id do usuario logado, nao o e-mail do body)
     const ext = EXT_BY_MIME[mime]
     const ts = Date.now()
     const rand = Math.random().toString(36).slice(2, 8)
-    const safeEmail = String(email || 'anon').replace(/[^a-z0-9]/gi, '_').slice(0, 50)
-    const path = `${safeFolder}/${safeEmail}/${ts}_${rand}.${ext}`
-
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_SERVICE_KEY,
-      { auth: { persistSession: false } }
-    )
+    const path = `${safeFolder}/${auth.user.id}/${ts}_${rand}.${ext}`
 
     const { error: upErr } = await supabase.storage
       .from('uploads')

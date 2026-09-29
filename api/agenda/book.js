@@ -69,6 +69,34 @@ export default async function handler(req, res) {
 
     if (aErr) return res.status(500).json({ error: aErr.message })
 
+    // Avisa a profissional por e-mail (best effort: nao derruba o agendamento)
+    try {
+      const { data: prov } = await supabase
+        .from('ag_providers').select('name, email, state').eq('id', provider_id).maybeSingle()
+      if (prov?.email) {
+        const { sendTransactional, formatWhen } = await import('../_lib/mailer.js')
+        const { escapeHtml } = await import('../_lib/emailShell.js')
+        const pending = appointment.status === 'pending'
+        await sendTransactional({
+          to: prov.email,
+          subject: `Novo agendamento: ${client_name.trim()} · ${service.name}`,
+          kicker: 'NOVO AGENDAMENTO',
+          title: pending ? 'Novo agendamento aguardando sinal' : 'Novo agendamento confirmado',
+          paragraphs: [
+            `<strong>${escapeHtml(client_name.trim())}</strong> agendou <strong>${escapeHtml(service.name)}</strong>.`,
+            `Quando: <strong>${escapeHtml(formatWhen(scheduled_for, prov.state))}</strong>`,
+            client_whatsapp ? `WhatsApp da cliente: ${escapeHtml(client_whatsapp.trim())}` : '',
+            client_notes ? `Observação: ${escapeHtml(String(client_notes).slice(0, 500))}` : '',
+            pending ? `O horário fica reservado e é confirmado quando o sinal de $${((service.deposit_cents || 0) / 100).toFixed(2)} for pago.` : '',
+          ].filter(Boolean),
+          ctaUrl: 'https://brasilconnectusa.com/assinante',
+          ctaLabel: 'Abrir meu painel',
+        })
+      }
+    } catch (mailErr) {
+      console.error('email novo agendamento falhou:', mailErr.message)
+    }
+
     return res.status(200).json({
       appointment_id: appointment.id,
       status: appointment.status,

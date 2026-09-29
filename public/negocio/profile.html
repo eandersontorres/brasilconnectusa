@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Negócio · BrasilConnect USA</title>
+  <meta name="description" content="Negócio brasileiro nos Estados Unidos, no diretório BrasilConnect USA.">
+  <meta name="theme-color" content="#1F4D3F">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BrasilConnect USA">
+  <meta property="og:image" content="https://brasilconnectusa.com/og-image.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    /* Página pública do negócio (prefixo np- pra não colidir com o premium.css) */
+    .np-wrap { max-width: 920px; margin: 0 auto; padding: 96px 24px 72px; }
+    .np-back { display: inline-block; font-size: 14px; color: var(--ink-muted); text-decoration: none; margin-bottom: 18px; }
+    .np-back:hover { color: var(--ink); }
+    .np-cover { height: 240px; border-radius: 20px; background: var(--green-deep) center / cover no-repeat; }
+    .np-head { display: flex; gap: 20px; align-items: flex-end; margin: -44px 0 0 24px; position: relative; }
+    .np-logo { width: 104px; height: 104px; flex: none; border-radius: 22px; border: 4px solid var(--paper); background: var(--paper-soft) center / cover no-repeat;
+               display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 34px; color: var(--green-deep); }
+    .np-title { padding-bottom: 6px; min-width: 0; }
+    .np-title h1 { font-size: clamp(28px, 4.4vw, 40px); margin: 0 0 4px; line-height: 1.08; overflow-wrap: anywhere; }
+    .np-meta { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 14px; color: var(--ink-muted); }
+    .np-badge { font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px;
+                background: var(--green-soft); color: var(--green-deep); }
+    .np-actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 28px 0 0; }
+    .np-btn { display: inline-flex; align-items: center; padding: 12px 20px; border-radius: 999px; font-size: 15px; font-weight: 600; text-decoration: none;
+              border: 1px solid var(--line-strong); color: var(--ink); background: var(--paper-elevated); }
+    .np-btn:hover { border-color: var(--green-deep); color: var(--ink); }
+    .np-btn.primary { background: var(--green-deep); border-color: var(--green-deep); color: #fff; }
+    .np-btn.primary:hover { background: var(--green-deep-hover); color: #fff; }
+    .np-btn:focus-visible { outline: 2px solid var(--green-deep); outline-offset: 3px; }
+    .np-section { margin-top: 44px; }
+    .np-section h2 { font-size: 22px; margin: 0 0 14px; }
+    .np-desc { font-size: 16px; line-height: 1.7; color: var(--ink-soft); white-space: pre-line; max-width: 68ch; margin: 0; }
+    .np-info { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .np-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; min-width: 0; }
+    .np-card h3 { font-family: var(--font-sans); font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-muted); margin: 0 0 8px; }
+    .np-card p, .np-card li { font-size: 15px; line-height: 1.55; color: var(--ink-soft); margin: 0; overflow-wrap: anywhere; }
+    .np-card ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+    .np-card li { display: flex; justify-content: space-between; gap: 16px; }
+    .np-card li b { font-weight: 600; color: var(--ink); }
+    .np-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+    .np-gallery a { display: block; aspect-ratio: 4 / 3; border-radius: 14px; overflow: hidden; background: var(--paper-soft); }
+    .np-gallery img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .np-state { text-align: center; padding: 96px 0; color: var(--ink-muted); }
+    .np-state h1 { font-size: 28px; margin-bottom: 10px; }
+    @media (max-width: 640px) {
+      .np-wrap { padding: 84px 16px 56px; }
+      .np-cover { height: 170px; border-radius: 16px; }
+      .np-head { flex-direction: column; align-items: flex-start; gap: 12px; margin: -40px 0 0 14px; }
+      .np-logo { width: 84px; height: 84px; font-size: 28px; }
+      .np-info { grid-template-columns: 1fr; }
+      .np-btn { flex: 1 1 auto; justify-content: center; }
+    }
+  </style>
+</head>
+<body class="has-flag-stripe">
+  <nav class="bc-nav">
+    <a href="/" class="bc-logo">Brasil<em>Connect</em></a>
+    <div class="bc-nav-links">
+      <a href="/negocio" class="bc-nl active">Negócios</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/para/" class="bc-nl">Para seu negócio</a>
+    </div>
+  </nav>
+
+  <main class="np-wrap">
+    <a class="np-back" href="/negocio">← Todos os negócios</a>
+    <div id="np-root"><div class="np-state">Carregando…</div></div>
+  </main>
+
+  <footer class="bc-footer">
+    <div class="container">
+      <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
+      <p class="footer-tagline">A plataforma para brasileiros nos EUA — feita por brasileiros, para brasileiros.</p>
+      <div class="footer-bottom">© 2026 BrasilConnect USA · <a href="/termos.html">Termos</a> · <a href="/privacidade.html">Privacidade</a></div>
+    </div>
+  </footer>
+
+<script>
+(function () {
+  var root = document.getElementById('np-root')
+  var slug = decodeURIComponent((location.pathname.split('/')[2] || '').trim()).toLowerCase()
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]
+    })
+  }
+  // Só http(s): bloqueia javascript:, data: etc.
+  function safeUrl(u) {
+    var s = String(u || '').trim()
+    if (!s) return ''
+    if (/^https?:\/\//i.test(s)) return s
+    if (/^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(s)) return 'https://' + s
+    return ''
+  }
+  function handle(v) { return String(v || '').trim().replace(/^@/, '').replace(/[^a-zA-Z0-9._]/g, '') }
+  function initials(name) {
+    return String(name || '?').trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase() }).join('')
+  }
+  var CATS = { restaurant: 'Restaurante', restaurante: 'Restaurante', grocery: 'Mercado', mercado: 'Mercado', beleza: 'Salão & Beleza',
+               servicos: 'Serviços', saude: 'Saúde', advocacia: 'Advocacia', construcao: 'Construção' }
+  function catLabel(c) { var k = String(c || '').toLowerCase(); return CATS[k] || c || '' }
+
+  var DAYS = { mon: 'Segunda', tue: 'Terça', wed: 'Quarta', thu: 'Quinta', fri: 'Sexta', sat: 'Sábado', sun: 'Domingo',
+               monday: 'Segunda', tuesday: 'Terça', wednesday: 'Quarta', thursday: 'Quinta', friday: 'Sexta', saturday: 'Sábado', sunday: 'Domingo',
+               seg: 'Segunda', ter: 'Terça', qua: 'Quarta', qui: 'Quinta', sex: 'Sexta', sab: 'Sábado', dom: 'Domingo' }
+  function hoursHtml(h) {
+    if (!h) return ''
+    if (typeof h === 'string') return '<p>' + esc(h) + '</p>'
+    if (typeof h !== 'object') return ''
+    var rows = Object.keys(h).map(function (k) {
+      var v = h[k], txt = ''
+      if (v == null || v === false) txt = 'Fechado'
+      else if (typeof v === 'string') txt = v
+      else if (typeof v === 'object') {
+        if (v.closed) txt = 'Fechado'
+        else if (v.open && v.close) txt = v.open + ' – ' + v.close
+      }
+      if (!txt) return ''
+      return '<li><b>' + esc(DAYS[String(k).toLowerCase()] || k) + '</b><span>' + esc(txt) + '</span></li>'
+    }).filter(Boolean)
+    return rows.length ? '<ul>' + rows.join('') + '</ul>' : ''
+  }
+
+  function notFound() {
+    document.title = 'Negócio não encontrado · BrasilConnect USA'
+    root.innerHTML = '<div class="np-state"><h1>Negócio não encontrado</h1>' +
+      '<p>Esse endereço não corresponde a nenhum negócio aprovado no diretório.</p>' +
+      '<p style="margin-top:20px"><a class="np-btn primary" href="/negocio">Ver todos os negócios</a></p></div>'
+  }
+
+  function render(b) {
+    document.title = b.name + ' · ' + (b.city ? b.city + ', ' + b.state + ' · ' : '') + 'BrasilConnect USA'
+    var desc = document.querySelector('meta[name="description"]')
+    if (desc && (b.short_desc || b.description)) desc.setAttribute('content', String(b.short_desc || b.description).slice(0, 155))
+
+    var cover = safeUrl(b.cover_url), logo = safeUrl(b.logo_url)
+    var wa = String(b.whatsapp || '').replace(/\D/g, '')
+    var site = safeUrl(b.website), ig = handle(b.instagram), video = safeUrl(b.video_url)
+    var gallery = (Array.isArray(b.gallery_urls) ? b.gallery_urls : []).map(safeUrl).filter(Boolean).slice(0, 10)
+    var canOrder = b.accepts_orders && ['restaurant', 'grocery', 'retail'].indexOf(String(b.module)) !== -1
+    var orderLabel = b.module === 'restaurant' ? 'Ver cardápio e pedir' : 'Ver catálogo e pedir'
+
+    var actions = []
+    if (canOrder) actions.push('<a class="np-btn primary" href="/negocio/' + encodeURIComponent(b.slug) + '/cardapio">' + orderLabel + '</a>')
+    if (wa) actions.push('<a class="np-btn' + (canOrder ? '' : ' primary') + '" href="https://wa.me/' + wa + '" target="_blank" rel="noopener">WhatsApp</a>')
+    if (b.phone) actions.push('<a class="np-btn" href="tel:' + esc(String(b.phone).replace(/[^0-9+]/g, '')) + '">Ligar</a>')
+    if (site) actions.push('<a class="np-btn" href="' + esc(site) + '" target="_blank" rel="noopener">Site</a>')
+    if (ig) actions.push('<a class="np-btn" href="https://instagram.com/' + esc(ig) + '" target="_blank" rel="noopener">Instagram</a>')
+    if (video) actions.push('<a class="np-btn" href="' + esc(video) + '" target="_blank" rel="noopener">Vídeo</a>')
+
+    var cards = []
+    if (b.address) cards.push('<div class="np-card"><h3>Endereço</h3><p>' + esc(b.address) + '</p><p>' + esc(b.city) + ', ' + esc(b.state) + '</p></div>')
+    var hh = hoursHtml(b.hours)
+    if (hh) cards.push('<div class="np-card"><h3>Horário</h3>' + hh + '</div>')
+    if (b.phone || wa) cards.push('<div class="np-card"><h3>Contato</h3>' +
+      (b.phone ? '<p>Telefone: ' + esc(b.phone) + '</p>' : '') + (b.whatsapp ? '<p>WhatsApp: ' + esc(b.whatsapp) + '</p>' : '') + '</div>')
+
+    root.innerHTML =
+      '<div class="np-cover"' + (cover ? ' style="background-image:url(&quot;' + esc(cover) + '&quot;)"' : '') + '></div>' +
+      '<div class="np-head">' +
+        '<div class="np-logo"' + (logo ? ' style="background-image:url(&quot;' + esc(logo) + '&quot;)" role="img" aria-label="Logo de ' + esc(b.name) + '"' : '') + '>' + (logo ? '' : esc(initials(b.name))) + '</div>' +
+        '<div class="np-title"><h1>' + esc(b.name) + '</h1><div class="np-meta">' +
+          '<span>' + esc(catLabel(b.category)) + '</span>' +
+          (b.city ? '<span>' + esc(b.city) + ', ' + esc(b.state) + '</span>' : '') +
+          (Number(b.rating_avg) > 0 ? '<span>★ ' + esc(b.rating_avg) + ' (' + esc(b.reviews_count) + ')</span>' : '') +
+          (b.verified ? '<span class="np-badge">Verificado</span>' : '') +
+        '</div></div>' +
+      '</div>' +
+      (actions.length ? '<div class="np-actions">' + actions.join('') + '</div>' : '') +
+      (b.description ? '<section class="np-section"><h2>Sobre</h2><p class="np-desc">' + esc(b.description) + '</p></section>' : '') +
+      (cards.length ? '<section class="np-section"><h2>Informações</h2><div class="np-info">' + cards.join('') + '</div></section>' : '') +
+      (gallery.length ? '<section class="np-section"><h2>Fotos</h2><div class="np-gallery">' + gallery.map(function (u, i) {
+        return '<a href="' + esc(u) + '" target="_blank" rel="noopener"><img src="' + esc(u) + '" alt="Foto ' + (i + 1) + ' de ' + esc(b.name) + '" loading="lazy"></a>'
+      }).join('') + '</div></section>' : '')
+  }
+
+  if (!slug) { notFound(); return }
+  fetch('/api/businesses/list?slug=' + encodeURIComponent(slug) + '&limit=1')
+    .then(function (r) { return r.json() })
+    .then(function (d) {
+      var b = (d.businesses || [])[0]
+      if (!b) notFound(); else render(b)
+    })
+    .catch(function () {
+      root.innerHTML = '<div class="np-state"><h1>Não deu pra carregar</h1><p>Confira a conexão e recarregue a página.</p></div>'
+    })
+})()
+</script>
+</body>
+</html>

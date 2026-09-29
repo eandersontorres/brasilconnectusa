@@ -1,9 +1,15 @@
 /**
  * POST /api/restaurant/onboard
- * Body: { business_id, owner_email }
+ * Header: Authorization: Bearer <JWT>  (precisa ser o dono do negocio)
+ * Body: { business_id }
  * Cria/recupera Stripe Express account pro negocio + retorna URL de onboarding.
+ *
+ * Antes bastava mandar um owner_email no body: num negocio sem owner_email,
+ * qualquer pessoa virava dona e ligava a propria conta Stripe. Agora o dono
+ * vem do token (requireBusinessAuth).
  */
 import { createClient } from '@supabase/supabase-js'
+import { requireBusinessAuth } from '../_lib/businessAuth.js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
@@ -13,9 +19,9 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Stripe nao configurado' })
   }
 
-  const { business_id, owner_email } = req.body || {}
-  if (!business_id || !owner_email) {
-    return res.status(400).json({ error: 'business_id e owner_email obrigatorios' })
+  const { business_id } = req.body || {}
+  if (!business_id) {
+    return res.status(400).json({ error: 'business_id obrigatorio' })
   }
 
   try {
@@ -25,19 +31,10 @@ export default async function handler(req, res) {
       { auth: { persistSession: false } }
     )
 
-    const { data: biz, error: bizErr } = await supabase
-      .from('bc_businesses')
-      .select('id, name, slug, owner_email, stripe_account_id, stripe_onboarded, accepts_orders')
-      .eq('id', business_id)
-      .single()
-
-    if (bizErr || !biz) return res.status(404).json({ error: 'Negocio nao encontrado' })
-
-    const ownerOnRecord = (biz.owner_email || '').toLowerCase().trim()
-    const requested = String(owner_email).toLowerCase().trim()
-    if (ownerOnRecord && ownerOnRecord !== requested) {
-      return res.status(403).json({ error: 'Email nao bate com o dono cadastrado' })
-    }
+    const auth = await requireBusinessAuth(req, supabase, business_id)
+    if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
+    const biz = auth.business
+    const ownerEmail = String(auth.user.email || '').toLowerCase().trim()
 
     const Stripe = (await import('stripe')).default
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
@@ -48,7 +45,7 @@ export default async function handler(req, res) {
       const account = await stripe.accounts.create({
         type: 'express',
         country: 'US',
-        email: requested,
+        email: ownerEmail,
         capabilities: {
           card_payments: { requested: true },
           transfers: { requested: true },
@@ -65,7 +62,6 @@ export default async function handler(req, res) {
       accountId = account.id
       await supabase.from('bc_businesses').update({
         stripe_account_id: accountId,
-        owner_email: requested,
       }).eq('id', business_id)
     }
 
