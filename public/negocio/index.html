@@ -296,6 +296,15 @@
       }
     }
 
+    // So http(s): bloqueia javascript:, data: etc. em links e imagens vindos do cadastro
+    function safeUrl(u) {
+      const s = String(u || '').trim()
+      if (!s) return ''
+      if (/^https?:\/\//i.test(s)) return s
+      if (/^[a-z0-9.-]+\.[a-z]{2,}(\/|$)/i.test(s)) return 'https://' + s
+      return ''
+    }
+
     function render() {
       const list = allBiz.filter(b =>
         (!filterCat || b.category === filterCat) &&
@@ -308,19 +317,20 @@
         : list.map(b => `
           <article class="biz-card${b.listing_plan === 'premium' || b.verified ? ' premium' : ''}">
             <div class="biz-photo">
-              <div class="biz-initials">${escapeHtml(initials(b.name))}</div>
+              ${safeUrl(b.logo_url) ? `<img class="biz-logo" src="${escapeHtml(safeUrl(b.logo_url))}" alt="" loading="lazy">` : `<div class="biz-initials">${escapeHtml(initials(b.name))}</div>`}
               ${b.verified ? '<span class="verified-flag">Verificado</span>' : ''}
             </div>
             <div class="biz-body">
               <span class="biz-cat">${escapeHtml(catLabel(b.category))}</span>
-              <h3 class="biz-name">${escapeHtml(b.name)}</h3>
+              <h3 class="biz-name"><a href="/negocio/${encodeURIComponent(b.slug)}">${escapeHtml(b.name)}</a></h3>
               <div class="biz-loc">${escapeHtml(b.city)}, ${escapeHtml(b.state)}</div>
               ${b.rating_avg ? `<div class="biz-rating"><span class="star">★</span> <strong>${b.rating_avg}</strong> <span class="reviews">(${b.reviews_count} ${b.reviews_count === 1 ? 'avaliação' : 'avaliações'})</span></div>` : ''}
               ${b.description ? `<p class="biz-desc">${escapeHtml(b.description.slice(0,140))}${b.description.length > 140 ? '…' : ''}</p>` : ''}
               <div class="biz-actions">
                 ${b.whatsapp ? `<a class="wa" href="https://wa.me/${b.whatsapp.replace(/\D/g,'')}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
-                ${b.phone ? `<a href="tel:${b.phone}">Ligar</a>` : ''}
-                ${b.website ? `<a href="${b.website}" target="_blank" rel="noopener">Site</a>` : ''}
+                ${b.phone ? `<a href="tel:${escapeHtml(String(b.phone).replace(/[^0-9+]/g, ''))}">Ligar</a>` : ''}
+                ${safeUrl(b.website) ? `<a href="${escapeHtml(safeUrl(b.website))}" target="_blank" rel="noopener">Site</a>` : ''}
+                <a href="/negocio/${encodeURIComponent(b.slug)}">Ver perfil</a>
               </div>
             </div>
           </article>

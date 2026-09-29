@@ -145,6 +145,37 @@ export default async function handler(req, res) {
           } catch (pushErr) {
             console.error('push order new failed:', pushErr.message)
           }
+
+          // E-mail pro dono (o push so chega se ele ativou notificacoes no app)
+          try {
+            const { data: order } = await supabase
+              .from('bc_orders')
+              .select('order_number, customer_name, customer_phone, type, total_cents, business_id')
+              .eq('id', meta.order_id)
+              .single()
+            const { data: biz } = order
+              ? await supabase.from('bc_businesses').select('owner_email, name').eq('id', order.business_id).single()
+              : { data: null }
+            if (order && biz?.owner_email) {
+              const { sendTransactional } = await import('../_lib/mailer.js')
+              const { escapeHtml } = await import('../_lib/emailShell.js')
+              await sendTransactional({
+                to: biz.owner_email,
+                subject: `Novo pedido #${order.order_number} · $${(order.total_cents / 100).toFixed(2)}`,
+                kicker: 'NOVO PEDIDO',
+                title: `Pedido #${order.order_number} pago`,
+                paragraphs: [
+                  `<strong>${escapeHtml(order.customer_name || 'Cliente')}</strong> fez um pedido em <strong>${escapeHtml(biz.name)}</strong>.`,
+                  `Total: <strong>$${(order.total_cents / 100).toFixed(2)}</strong> · ${order.type === 'delivery' ? 'Entrega' : 'Retirada'}${order.customer_phone ? ' · ' + escapeHtml(order.customer_phone) : ''}`,
+                  'O pagamento já foi confirmado. Os itens estão no painel.',
+                ],
+                ctaUrl: 'https://brasilconnectusa.com/assinante?tab=pedidos',
+                ctaLabel: 'Abrir pedidos',
+              })
+            }
+          } catch (mailErr) {
+            console.error('email order new failed:', mailErr.message)
+          }
         }
         break
       }

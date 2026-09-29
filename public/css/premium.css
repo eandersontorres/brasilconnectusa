@@ -1269,3 +1269,8 @@ h1 em, h2 em, .hero-product em { font-style: normal; font-weight: inherit; }
   font-family: var(--font-sans); font-size: 10px; font-weight: 600; font-style: normal;
   letter-spacing: 0.08em; text-transform: uppercase; vertical-align: middle; white-space: nowrap;
 }
+
+/* Diretorio: logo do negocio no card e nome como link pro perfil */
+.biz-photo .biz-logo { width: 100%; height: 100%; object-fit: cover; display: block; }
+.biz-name a { color: inherit; text-decoration: none; }
+.biz-name a:hover { text-decoration: underline; text-decoration-color: var(--accent); }

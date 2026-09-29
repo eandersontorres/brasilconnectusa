@@ -39,6 +39,29 @@ export default async function handler(req, res) {
     }).select().single()
     if (error) return res.status(500).json({ error: error.message })
     await supabase.from('bc_business_leads').insert({ business_id: data.id, source_email: submitted_email, type: 'submission' })
+
+    // Avisa o admin: sem isso o cadastro ficava parado ate alguem abrir o painel
+    // (e a pagina promete aprovacao em 48h). Best effort.
+    try {
+      const { sendTransactional, adminEmail } = await import('../_lib/mailer.js')
+      const { escapeHtml } = await import('../_lib/emailShell.js')
+      await sendTransactional({
+        to: adminEmail(),
+        subject: `Novo negócio pra aprovar: ${String(name).slice(0, 80)}`,
+        kicker: 'CADASTRO NOVO',
+        title: 'Negócio aguardando aprovação',
+        paragraphs: [
+          `<strong>${escapeHtml(name)}</strong> · ${escapeHtml(category)} · ${escapeHtml(city)}, ${escapeHtml(state)}`,
+          `Módulo: ${escapeHtml(module_)} · Contato: ${escapeHtml(emailLower)}`,
+          description ? escapeHtml(String(description).slice(0, 400)) : '',
+        ].filter(Boolean),
+        ctaUrl: 'https://brasilconnectusa.com/admin/manage',
+        ctaLabel: 'Abrir painel de aprovação',
+      })
+    } catch (mailErr) {
+      console.error('email novo negocio falhou:', mailErr.message)
+    }
+
     return res.status(200).json({ ok: true, slug, message: 'Cadastro recebido. Aprovação em até 48h.' })
   } catch (e) { return res.status(500).json({ error: e.message }) }
 }

@@ -1,10 +1,12 @@
 /**
  * POST /api/agenda/request-review
+ * Header: Authorization: Bearer <JWT>  (a profissional dona do agendamento)
  * Body: { appointment_id }
  * Gera token único, retorna link pronto pro WhatsApp.
  */
 import { createClient } from '@supabase/supabase-js'
 import { randomBytes } from 'crypto'
+import { requireAuthOnly } from '../_lib/businessAuth.js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
@@ -16,12 +18,23 @@ export default async function handler(req, res) {
   try {
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
 
+    const auth = await requireAuthOnly(req, supabase)
+    if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
+
     const { data: apt } = await supabase
       .from('ag_appointments')
-      .select('*, ag_providers(slug, name)')
+      .select('*, ag_providers(slug, name, email, owner_user_id)')
       .eq('id', appointment_id)
       .single()
     if (!apt) return res.status(404).json({ error: 'Agendamento não encontrado' })
+
+    // Só a profissional dona do agendamento pode pedir avaliação
+    const prov = apt.ag_providers || {}
+    const userEmail = String(auth.user.email || '').toLowerCase().trim()
+    const owns = (prov.owner_user_id && prov.owner_user_id === auth.user.id)
+      || (prov.email && String(prov.email).toLowerCase().trim() === userEmail)
+    if (!owns) return res.status(403).json({ error: 'Esse agendamento não é seu' })
+
     if (apt.status !== 'completed') return res.status(400).json({ error: 'Apenas agendamentos completos' })
 
     const token = randomBytes(16).toString('hex')
