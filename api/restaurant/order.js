@@ -15,6 +15,7 @@
  * Retorna o pedido (status check)
  */
 import { createClient } from '@supabase/supabase-js'
+import { canTakeOrders } from '../_lib/listingPlans.js'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
@@ -77,11 +78,11 @@ export default async function handler(req, res) {
     // Busca business + valida que aceita pedidos
     const { data: biz, error: bizErr } = await supabase
       .from('bc_businesses')
-      .select('id, name, slug, accepts_orders, stripe_account_id, stripe_charges_enabled, delivery_fee_cents, min_order_cents, platform_fee_pct, pickup_only')
+      .select('id, name, slug, module, listing_plan, plan, listing_plan_status, stripe_subscription_id, accepts_orders, stripe_account_id, stripe_charges_enabled, delivery_fee_cents, min_order_cents, platform_fee_pct, pickup_only')
       .eq('id', business_id)
       .single()
     if (bizErr || !biz) return res.status(404).json({ error: 'Negocio nao encontrado' })
-    if (!biz.accepts_orders) return res.status(400).json({ error: 'Negocio nao esta aceitando pedidos no momento' })
+    if (!biz.accepts_orders || !canTakeOrders(biz)) return res.status(400).json({ error: 'Negocio nao esta aceitando pedidos no momento' })
     if (!biz.stripe_charges_enabled || !biz.stripe_account_id) return res.status(400).json({ error: 'Negocio nao terminou setup de pagamentos' })
     if (type === 'delivery' && biz.pickup_only) return res.status(400).json({ error: 'Negocio so aceita retirada' })
 

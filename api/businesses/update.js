@@ -18,6 +18,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { requireBusinessAuth } from '../_lib/businessAuth.js'
 import { VALID_MODULES } from '../_lib/modules.js'
+import { PLAN_COLS, hasLiveSubscription } from '../_lib/listingPlans.js'
 
 // Whitelist de campos editaveis pelo dono (TUDO que nao esta aqui sera ignorado)
 const EDITABLE_FIELDS = [
@@ -63,6 +64,13 @@ export default async function handler(req, res) {
         // Strings vazias viram null
         if (typeof v === 'string' && v.trim() === '') v = null
         payload[k] = v
+      }
+    }
+    // Cada modulo tem seu preco: com assinatura ativa, troca de modulo so depois de cancelar
+    if (payload.module) {
+      const { data: cur } = await supabase.from('bc_businesses').select(PLAN_COLS).eq('id', id).maybeSingle()
+      if (cur && String(cur.module || '') !== payload.module && hasLiveSubscription(cur)) {
+        return res.status(409).json({ error: 'Esse negócio tem um plano pago ativo. Cancele a assinatura em Gerenciar cobrança antes de trocar de módulo.' })
       }
     }
     payload.updated_at = new Date().toISOString()

@@ -872,6 +872,7 @@
                     ${statusBadge(b.status, b.active)}
                     ${stripeBadge(b)}
                     ${ordersBadge(b)}
+                    ${planBadges(b)}
                   </div>
                   <div class="meta">📍 ${escapeHtml(b.city || '—')}, ${escapeHtml(b.state || '—')} · ✉️ ${escapeHtml(b.submitted_email || b.owner_email || '')}</div>
                 </div>
@@ -894,6 +895,10 @@
                   ${detail('Slug', b.slug)}
                   ${detail('Stripe Account ID', b.stripe_account_id)}
                   ${detail('Platform fee %', b.platform_fee_pct)}
+                  ${detail('Módulo', b.module)}
+                  ${detail('Plano', b.listing_plan || b.plan)}
+                  ${detail('Status da assinatura', b.listing_plan_status)}
+                  ${detail('Assinatura Stripe', b.stripe_subscription_id)}
                   ${detail('Cliques', b.clicks_count)}
                   ${detail('ID', b.id)}
                 </div>
@@ -907,6 +912,8 @@
                 ` : ''}
                 ${b.status === 'approved' ? `
                   <a href="/negocio/${escapeHtml(b.slug || '')}" target="_blank" class="btn-mini btn-approve" style="text-decoration:none;display:inline-block;">🌐 Ver página pública</a>
+                  <button class="btn-mini" onclick="bizFlag('${b.id}', '${b.verified ? 'unverify' : 'verify'}')" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);">${b.verified ? 'Tirar selo' : 'Dar selo de verificado'}</button>
+                  <button class="btn-mini" onclick="bizFlag('${b.id}', '${b.featured ? 'unfeature' : 'feature'}')" style="background:transparent;border:1px solid var(--line);color:var(--ink-soft);">${b.featured ? 'Tirar destaque' : 'Dar destaque'}</button>
                   <button class="btn-mini" onclick="bizAction('${b.id}', 'archive')" style="background:transparent;border:1px solid var(--ink-muted);color:var(--ink-muted);">📦 Arquivar</button>
                 ` : ''}
                 ${b.status === 'rejected' || b.status === 'archived' ? `
@@ -1027,14 +1034,52 @@
     }
 
     // Aprovar / rejeitar negócio (com email automático via Resend)
+    function planBadges(b) {
+      const plan = String(b.listing_plan || b.plan || 'free').toLowerCase()
+      const pill = (txt, bg, fg) => `<span style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:${bg};color:${fg};margin-left:4px;">${txt}</span>`
+      let out = ''
+      if (plan === 'pro' || plan === 'premium') out += pill(plan, '#1F4D3F', '#fff')
+      if (b.listing_plan_status === 'past_due') out += pill('pagamento atrasado', '#FEF3C7', '#92400E')
+      if (b.verified) out += pill('verificado', '#DCFCE7', '#166534')
+      if (b.featured) out += pill('destaque', '#FEF9C3', '#713F12')
+      return out
+    }
+
+    // Selo de verificado e destaque na busca (nao manda e-mail)
+    async function bizFlag(id, action) {
+      const texts = {
+        verify: 'Dar o selo de verificado a esse negócio? Confirme antes que os dados foram conferidos.',
+        unverify: 'Tirar o selo de verificado desse negócio?',
+        feature: 'Colocar esse negócio em destaque na busca?',
+        unfeature: 'Tirar esse negócio do destaque?',
+      }
+      if (!confirm(texts[action])) return
+      const msg = document.getElementById('msg-biz-' + id)
+      if (msg) { msg.style.color = 'var(--ink-muted)'; msg.textContent = 'Salvando…' }
+      try {
+        const r = await fetch('/api/admin/business-action', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-secret': getSecret() },
+          body: JSON.stringify({ business_id: id, action }),
+        })
+        const d = await r.json().catch(() => ({}))
+        if (!r.ok) throw new Error(d.error || 'Erro')
+        loadTab('businesses')
+      } catch (e) {
+        if (msg) { msg.style.color = '#DC2626'; msg.textContent = e.message }
+      }
+    }
+
     async function bizAction(id, action) {
-      const label = action === 'approve' ? 'aprovar' : 'rejeitar'
+      const VERB = { approve: ['Aprovando', '✓ Aprovado'], reject: ['Rejeitando', '✗ Rejeitado'], archive: ['Arquivando', 'Arquivado'] }[action] || ['Salvando', 'Salvo']
 
       // Pra rejeitar, pede motivo (opcional mas recomendado — vai no email)
       let reason = null
       if (action === 'reject') {
         reason = prompt('Motivo da rejeição (opcional — vai no email pro dono):\n\nEx: "Não conseguimos confirmar o endereço, ou o telefone não atende."', '')
         if (reason === null) return // cancelou
+      } else if (action === 'archive') {
+        if (!confirm('Arquivar esse negócio? Ele sai do diretório. O dono não recebe e-mail.')) return
       } else {
         if (!confirm('Aprovar esse negócio? Vamos mandar email automático pro dono confirmando.')) return
       }
@@ -1042,9 +1087,10 @@
       const msg = document.getElementById('msg-biz-' + id)
       const aBtn = document.getElementById('appr-' + id)
       const rBtn = document.getElementById('rej-' + id)
-      aBtn.disabled = true; rBtn.disabled = true
+      if (aBtn) aBtn.disabled = true
+      if (rBtn) rBtn.disabled = true
       msg.style.color = 'var(--ink-muted)'
-      msg.textContent = (action === 'approve' ? 'Aprovando' : 'Rejeitando') + ' + mandando email…'
+      msg.textContent = VERB[0] + (action === 'archive' ? '…' : ' + mandando email…')
 
       try {
         const r = await fetch('/api/admin/business-action', {
@@ -1056,8 +1102,8 @@
         if (!r.ok) throw new Error(d.error || 'Erro')
 
         msg.style.color = action === 'approve' ? '#166534' : '#DC2626'
-        const emailNote = d.email_sent ? ' · email enviado pra ' + (d.email_to || 'dono') : ' · email NÃO enviado'
-        msg.textContent = (action === 'approve' ? '✓ Aprovado' : '✗ Rejeitado') + emailNote
+        const emailNote = action === 'archive' ? '' : d.email_sent ? ' · email enviado pra ' + (d.email_to || 'dono') : ' · email NÃO enviado'
+        msg.textContent = VERB[1] + emailNote
         // Some o item da lista em 1.8s
         setTimeout(() => {
           const el = document.getElementById('biz-' + id)
@@ -1066,7 +1112,8 @@
       } catch (e) {
         msg.style.color = '#DC2626'
         msg.textContent = '⚠️ ' + e.message
-        aBtn.disabled = false; rBtn.disabled = false
+        if (aBtn) aBtn.disabled = false
+        if (rBtn) rBtn.disabled = false
       }
     }
 

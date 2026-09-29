@@ -5,7 +5,8 @@
  * Manda email automatico pro dono via Resend com template HTML branded.
  *
  * Body: { business_id, action, reason? }
- *   action: 'approve' | 'reject' | 'archive'
+ *   action: 'approve' | 'reject' | 'archive' | 'verify' | 'unverify' | 'feature' | 'unfeature'
+ *   verify/unverify = selo de verificado · feature/unfeature = destaque na busca (sem e-mail)
  *   reason: opcional (usado no email de rejeicao)
  *
  * Headers: x-admin-secret
@@ -15,7 +16,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const VALID_ACTIONS = new Set(['approve', 'reject', 'archive'])
+const VALID_ACTIONS = new Set(['approve', 'reject', 'archive', 'verify', 'unverify', 'feature', 'unfeature'])
 const REPLY_FROM = process.env.WAITLIST_FROM_EMAIL || 'BrasilConnect USA <oi@brasilconnectusa.com>'
 
 function escapeHtml(s) {
@@ -159,13 +160,17 @@ export default async function handler(req, res) {
 
   const { business_id, action, reason } = req.body || {}
   if (!business_id || !VALID_ACTIONS.has(action)) {
-    return res.status(400).json({ error: 'business_id e action (approve|reject|archive) obrigatorios' })
+    return res.status(400).json({ error: 'business_id e action validos obrigatorios' })
   }
 
   const update =
     action === 'approve'  ? { status: 'approved', active: true }  :
     action === 'reject'   ? { status: 'rejected', active: false } :
     action === 'archive'  ? { status: 'archived', active: false } :
+    action === 'verify'    ? { verified: true }  :
+    action === 'unverify'  ? { verified: false } :
+    action === 'feature'   ? { featured: true }  :
+    action === 'unfeature' ? { featured: false } :
     null
 
   try {
@@ -193,7 +198,7 @@ export default async function handler(req, res) {
       .from('bc_businesses')
       .update(safeUpdate)
       .eq('id', business_id)
-      .select('id, name, slug, status, active, owner_email')
+      .select('id, name, slug, status, active, owner_email, verified, featured')
       .single()
 
     if (error || !data) throw new Error(error?.message || 'Update falhou')

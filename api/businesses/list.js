@@ -7,6 +7,7 @@
  */
 import { createClient } from '@supabase/supabase-js'
 import { requireAuthOnly } from '../_lib/businessAuth.js'
+import { stripForPlan } from '../_lib/listingPlans.js'
 
 function haversineMiles(lat1, lng1, lat2, lng2) {
   const R = 3958.8
@@ -64,6 +65,8 @@ export default async function handler(req, res) {
     if (error) return res.status(500).json({ error: error.message })
 
     let businesses = data || []
+    // Lista publica: esconde o que o plano nao inclui. O dono ve tudo no painel.
+    if (useTable === 'bc_businesses_public') businesses = businesses.map(stripForPlan)
 
     // === Filtro por raio (so se user_id fornecido) ===
     let userMeta = null

@@ -18,6 +18,7 @@
  */
 import { createClient } from '@supabase/supabase-js'
 import { requireBusinessAuth } from '../_lib/businessAuth.js'
+import { PLAN_COLS, itemLimit, canTakeOrders, moduleConfig } from '../_lib/listingPlans.js'
 
 function getSupabase() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
@@ -49,10 +50,14 @@ export default async function handler(req, res) {
         .eq('business_id', business_id)
         .order('display_order', { ascending: true })
 
+      const { data: planBiz } = await supabase.from('bc_businesses').select(PLAN_COLS).eq('id', business_id).maybeSingle()
+
       return res.status(200).json({
         success: true,
         categories: categories || [],
         items: items || [],
+        item_limit: planBiz ? itemLimit(planBiz) : null,
+        can_take_orders: planBiz ? canTakeOrders(planBiz) : false,
       })
     }
 
@@ -159,6 +164,23 @@ export default async function handler(req, res) {
       if (!payload.name) return res.status(400).json({ error: 'Nome obrigatorio' })
       if (payload.price_cents === 0) return res.status(400).json({ error: 'Preco obrigatorio' })
 
+      // Plano gratis tem limite de itens (so na criacao; editar sempre pode)
+      if (!item.id) {
+        const { data: planBiz } = await supabase.from('bc_businesses').select(PLAN_COLS).eq('id', business_id).maybeSingle()
+        const limit = planBiz ? itemLimit(planBiz) : null
+        if (limit != null) {
+          const { count } = await supabase.from('bc_menu_items')
+            .select('id', { count: 'exact', head: true }).eq('business_id', business_id)
+          if ((count || 0) >= limit) {
+            return res.status(403).json({
+              upgrade: true,
+              limit,
+              error: `O plano grátis vai até ${limit} ${moduleConfig(planBiz.module)?.itemNoun || 'itens'}. Assine o Pro na aba Meu Negócio pra cadastrar mais.`,
+            })
+          }
+        }
+      }
+
       let result
       if (item.id) {
         result = await supabase.from('bc_menu_items').update(payload).eq('id', item.id).eq('business_id', business_id).select().single()
@@ -208,9 +230,12 @@ export default async function handler(req, res) {
 
       const { data: biz } = await supabase
         .from('bc_businesses')
-        .select('stripe_charges_enabled, stripe_account_id')
+        .select(PLAN_COLS + ', stripe_charges_enabled, stripe_account_id')
         .eq('id', business_id)
         .single()
+      if (accepts_orders && !canTakeOrders(biz)) {
+        return res.status(403).json({ upgrade: true, error: 'Pedidos online fazem parte do plano Pro. Assine na aba Meu Negócio.' })
+      }
       if (accepts_orders && !biz?.stripe_charges_enabled) {
         return res.status(400).json({ error: 'Stripe nao esta pronto. Termina o setup primeiro.' })
       }
