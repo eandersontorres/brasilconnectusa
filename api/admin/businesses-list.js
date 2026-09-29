@@ -52,7 +52,8 @@ export default async function handler(req, res) {
         status, active, featured, verified,
         rating, reviews, clicks_count,
         accepts_orders, stripe_charges_enabled, stripe_onboarded, stripe_account_id,
-        platform_fee_pct, listing_plan, plan,
+        platform_fee_pct, listing_plan, plan, module,
+        listing_plan_status, stripe_subscription_id,
         created_at, updated_at
       `)
       .order('created_at', { ascending: false })

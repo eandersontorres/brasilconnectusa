@@ -31,7 +31,7 @@
       features: {
         free:    ['Perfil público', 'Cardápio com até 20 itens'],
         pro:     ['Cardápio ilimitado', 'Modificadores (em breve)', 'Pedidos online sem comissão', 'Stripe Connect'],
-        premium: ['Tudo do Pro', 'Destaque na busca', 'Badge verificado', 'Analytics'],
+        premium: ['Tudo do Pro', 'Destaque na busca', 'Selo de verificado (após conferência)', 'Analytics (em breve)'],
       },
     },
 
@@ -49,7 +49,7 @@
       features: {
         free:    ['Perfil público', 'Catálogo com até 30 itens'],
         pro:     ['Catálogo ilimitado', 'Pedidos online sem comissão', 'Stripe Connect'],
-        premium: ['Tudo do Pro', 'Destaque na busca', 'Badge verificado', 'Analytics'],
+        premium: ['Tudo do Pro', 'Destaque na busca', 'Selo de verificado (após conferência)', 'Analytics (em breve)'],
       },
     },
 
@@ -67,7 +67,7 @@
       features: {
         free:    ['Perfil público', 'Catálogo com até 20 itens'],
         pro:     ['Catálogo ilimitado', 'Pedidos online sem comissão', 'Stripe Connect'],
-        premium: ['Tudo do Pro', 'Destaque na busca', 'Badge verificado', 'Analytics'],
+        premium: ['Tudo do Pro', 'Destaque na busca', 'Selo de verificado (após conferência)', 'Analytics (em breve)'],
       },
     },
 
@@ -84,7 +84,7 @@
       features: {
         free:    ['Perfil público', 'Até 20 agendamentos/mês'],
         pro:     ['Agendamentos ilimitados', 'Lembretes por SMS/email (em breve)', 'Pagamento online sem comissão'],
-        premium: ['Tudo do Pro', 'Multi-profissional (em breve)', 'Reviews pós-atendimento (em breve)', 'Analytics'],
+        premium: ['Tudo do Pro', 'Multi-profissional (em breve)', 'Reviews pós-atendimento (em breve)', 'Analytics (em breve)'],
       },
     },
 
@@ -100,7 +100,7 @@
       features: {
         free:    ['Perfil público', 'Telefone + WhatsApp', 'Aprovação em 48h'],
         pro:     ['Logo, fotos, galeria', 'Descrição completa', 'Instagram/Facebook'],
-        premium: ['Tudo do Pro', 'Badge verificado', 'Destaque no topo', 'Analytics'],
+        premium: ['Tudo do Pro', 'Selo de verificado (após conferência)', 'Destaque no topo', 'Analytics (em breve)'],
       },
     },
   }

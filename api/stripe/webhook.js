@@ -4,6 +4,7 @@
  * Importante: bodyParser deve ficar OFF pra signature verification funcionar.
  */
 import { createClient } from '@supabase/supabase-js'
+import { applyListingSubscription, endListingSubscription } from '../_lib/listingWebhook.js'
 
 export const config = { api: { bodyParser: false } }
 
@@ -52,6 +53,10 @@ export default async function handler(req, res) {
             stripe_payment_intent_id: session.payment_intent,
             paid_at: new Date().toISOString(),
           }).eq('stripe_session_id', session.id)
+        } else if (meta.type === 'listing' && meta.business_id) {
+          // Plano do diretorio (Pro/Premium) de um negocio
+          const sub = await stripe.subscriptions.retrieve(session.subscription)
+          await applyListingSubscription(supabase, { businessId: meta.business_id, sub, plan: meta.listing_plan })
         } else if (meta.type === 'subscription' && meta.provider_id) {
           // Assinatura criada. Busca o status real no Stripe: durante os 14 dias de
           // teste e 'trialing', nao 'active'.
@@ -78,6 +83,10 @@ export default async function handler(req, res) {
       case 'customer.subscription.updated':
       case 'customer.subscription.created': {
         const sub = event.data.object
+        if (sub.metadata?.type === 'listing' && sub.metadata?.business_id) {
+          await applyListingSubscription(supabase, { businessId: sub.metadata.business_id, sub, plan: sub.metadata.listing_plan })
+          break
+        }
         const planId = sub.items?.data?.[0]?.price?.id
         let plan = 'starter'
         if (planId === process.env.STRIPE_PRICE_PRO) plan = 'pro'
@@ -104,6 +113,7 @@ export default async function handler(req, res) {
         await supabase.from('ag_providers').update({
           plan_status: 'canceled',
         }).eq('stripe_subscription_id', sub.id)
+        await endListingSubscription(supabase, sub.id)
         break
       }
       case 'invoice.payment_failed': {
@@ -111,6 +121,9 @@ export default async function handler(req, res) {
         if (invoice.subscription) {
           await supabase.from('ag_providers').update({
             plan_status: 'past_due',
+          }).eq('stripe_subscription_id', invoice.subscription)
+          await supabase.from('bc_businesses').update({
+            listing_plan_status: 'past_due',
           }).eq('stripe_subscription_id', invoice.subscription)
         }
         break
