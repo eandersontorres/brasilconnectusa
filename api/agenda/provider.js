@@ -10,8 +10,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { requireAuthOnly } from '../_lib/businessAuth.js'
 
-const FULL_COLS = 'id, name, email, slug, specialty, bio, city, state, avatar_url, cover_color, cover_url, gallery_urls, video_url, instagram, whatsapp, plan, plan_status, current_period_end, active'
-const PUBLIC_COLS = 'id, name, slug, specialty, bio, city, state, avatar_url, cover_color, cover_url, gallery_urls, video_url, instagram, plan, plan_status'
+const FULL_COLS = 'id, name, email, slug, specialty, bio, city, state, avatar_url, cover_color, cover_url, gallery_urls, video_url, instagram, whatsapp, plan, plan_status, current_period_end, trial_ends_at, active, stripe_onboarded, stripe_charges_enabled, deposit_instructions'
+const PUBLIC_COLS = 'id, name, slug, specialty, bio, city, state, avatar_url, cover_color, cover_url, gallery_urls, video_url, instagram, plan, plan_status, stripe_charges_enabled, deposit_instructions'
 
 function slugify(s) {
   return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -62,6 +62,7 @@ export default async function handler(req, res) {
         state: clip(String(b.state || '').toUpperCase(), 2),
         whatsapp: clip(b.whatsapp, 30),
         instagram: clip(b.instagram, 60),
+        deposit_instructions: clip(b.deposit_instructions, 300),
         avatar_url: safeUrl(b.avatar_url),
         cover_url: safeUrl(b.cover_url),
         video_url: safeUrl(b.video_url),
@@ -153,8 +154,16 @@ export default async function handler(req, res) {
       : null
 
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300')
+    // Publico nao ve dados do Stripe: so se a agenda esta aberta e se aceita cartao
+    const { stripe_charges_enabled, ...pub } = provider
+    const publicProvider = {
+      ...pub,
+      booking_enabled: ['trialing', 'active'].includes(provider.plan_status),
+      accepts_card: !!stripe_charges_enabled,
+    }
+
     return res.status(200).json({
-      provider,
+      provider: publicProvider,
       services: services || [],
       reviews: { count: reviews.length, average: avgRating },
     })

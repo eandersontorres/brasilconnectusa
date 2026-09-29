@@ -420,15 +420,13 @@
     <div id="msg"></div>
 
     <div id="login-section" class="login-box">
-      <label for="email">Email do seu cadastro de profissional</label>
-      <input id="email" type="email" placeholder="seu@email.com" />
-      <button onclick="login()">Continuar</button>
-      <div id="login-msg" style="margin-top:10px;font-size:12px;color:#6b7280;"></div>
+      <div class="who" id="login-msg">Conferindo seu login…</div>
+      <a id="login-link" href="/assinante" style="display:none;margin-top:10px;padding:10px 20px;background:var(--navy);color:#fff;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none;">Entrar no painel →</a>
     </div>
 
     <div id="logged-in" class="login-box" style="display:none;">
       <div class="who">Assinando como: <b id="who-name"></b> (<span id="who-email"></span>)</div>
-      <button onclick="logout()" style="background:transparent;color:#6b7280;border:1px solid #e5e7eb;margin-top:6px;">Trocar conta</button>
+      <a href="/assinante" style="display:inline-block;margin-top:8px;font-size:13px;color:var(--muted);">Abrir meu painel</a>
     </div>
 
     <div class="plans">
@@ -593,6 +591,27 @@
     </div>
   </div>
 
+<!-- Sessao do Supabase: a mesma do /assinante (mesmo dominio, mesmo armazenamento). -->
+<script type="module">
+  try {
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2')
+    const supabase = createClient('https://ggwppcbdnemjuddnzbdw.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdnd3BwY2JkbmVtanVkZG56YmR3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MzI3MDgsImV4cCI6MjA5MzAwODcwOH0.-oeVAtpfqUJiHSUMErBEnfvGX_waABpNgaIh-UPJdlY', {
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storage: window.localStorage },
+    })
+    const { data: { session } } = await supabase.auth.getSession()
+    window.__bcSession__ = session
+    supabase.auth.onAuthStateChange((_event, sess) => {
+      window.__bcSession__ = sess
+      window.dispatchEvent(new Event('bc-auth-ready'))
+    })
+  } catch (e) {
+    console.error('[planos] auth falhou:', e)
+    window.__bcSession__ = null
+  }
+  window.__bcAuthLoaded__ = true
+  window.dispatchEvent(new Event('bc-auth-ready'))
+</script>
+
 <script>
 let currentProvider = null;
 
@@ -603,20 +622,10 @@ async function detectMode() {
     const banner = document.getElementById('banner');
     if (!d.configured) {
       banner.className = 'warn-banner';
-      banner.textContent = '⚠️ Stripe não configurado no servidor. Veja SETUP_STRIPE_TEST.md no projeto.';
+      banner.textContent = 'Pagamento indisponível no momento. Tente de novo mais tarde.';
     } else if (d.mode === 'test') {
       banner.className = 'test-banner';
-      banner.innerHTML = '🧪 <b>MODO TESTE</b> · Use cartão fake <code>4242 4242 4242 4242</code> · qualquer CVC e data futura · NÃO há cobrança real';
-    } else if (d.mode === 'live') {
-      banner.className = 'live-banner';
-      banner.textContent = '✅ Modo produção — cobranças reais habilitadas';
-    }
-    if (d.configured && (!d.has_starter || !d.has_pro || !d.has_premium)) {
-      const missing = [];
-      if (!d.has_starter) missing.push('STRIPE_PRICE_STARTER');
-      if (!d.has_pro)     missing.push('STRIPE_PRICE_PRO');
-      if (!d.has_premium) missing.push('STRIPE_PRICE_PREMIUM');
-      showMsg('Faltam env vars no Vercel: ' + missing.join(', '), 'err');
+      banner.innerHTML = '<b>MODO TESTE</b> · Use o cartão <code>4242 4242 4242 4242</code>, qualquer CVC e data futura · Não há cobrança real';
     }
   } catch(e) {
     console.error('Erro ao verificar Stripe', e);
@@ -630,25 +639,42 @@ function showMsg(text, type) {
   setTimeout(() => { m.className=''; m.textContent=''; }, 8000);
 }
 
-async function login() {
-  const email = document.getElementById('email').value.trim().toLowerCase();
-  const lmsg = document.getElementById('login-msg');
-  if (!email || !email.includes('@')) { lmsg.textContent = 'Email inválido'; return; }
-  lmsg.textContent = 'Buscando seu cadastro...';
+function authHeaders() {
+  const s = window.__bcSession__;
+  return s && s.access_token ? { Authorization: 'Bearer ' + s.access_token } : {};
+}
+
+function showLoginBox(text, linkLabel) {
+  currentProvider = null;
+  document.getElementById('login-section').style.display = 'block';
+  document.getElementById('logged-in').style.display = 'none';
+  document.getElementById('login-msg').textContent = text;
+  const link = document.getElementById('login-link');
+  link.textContent = linkLabel;
+  link.style.display = 'inline-block';
+}
+
+// Quem assina e a profissional logada: o perfil vem do token, nao de um e-mail digitado.
+async function loadProvider() {
+  const s = window.__bcSession__;
+  if (!s || !s.user || !s.user.email) {
+    showLoginBox('Pra assinar, entre no painel com o e-mail do seu perfil de profissional e volte pra esta página.', 'Entrar no painel →');
+    return;
+  }
   try {
-    const r = await fetch('/api/agenda/provider?email=' + encodeURIComponent(email));
+    const r = await fetch('/api/agenda/provider?email=' + encodeURIComponent(s.user.email), { headers: authHeaders() });
     const d = await r.json();
     if (!d.provider) {
-      lmsg.innerHTML = 'Não achamos cadastro com esse email. Cadastre-se primeiro em <a href="/assinante">/assinante</a>';
+      showLoginBox('Você entrou como ' + s.user.email + ', mas ainda não criou o perfil de profissional. Crie no painel, na aba Profissional, e volte aqui.', 'Criar meu perfil →');
       return;
     }
     currentProvider = d.provider;
-    localStorage.setItem('bc_planos_provider', JSON.stringify(d.provider));
     showLoggedIn();
   } catch(e) {
-    lmsg.textContent = 'Erro: ' + e.message;
+    showLoginBox('Não deu pra carregar seu perfil. Recarregue a página.', 'Abrir o painel →');
   }
 }
+window.addEventListener('bc-auth-ready', loadProvider);
 
 function showLoggedIn() {
   document.getElementById('login-section').style.display = 'none';
@@ -657,17 +683,16 @@ function showLoggedIn() {
   document.getElementById('who-email').textContent = currentProvider.email;
 }
 
-function logout() {
-  currentProvider = null;
-  localStorage.removeItem('bc_planos_provider');
-  document.getElementById('login-section').style.display = 'block';
-  document.getElementById('logged-in').style.display = 'none';
-  document.getElementById('email').value = '';
+async function openPortal() {
+  const r = await fetch('/api/stripe/portal', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()) });
+  const d = await r.json();
+  if (!r.ok) throw new Error(d.error || 'Erro ao abrir o portal de cobrança');
+  window.location.href = d.portal_url;
 }
 
 async function subscribe(plan) {
   if (!currentProvider) {
-    showMsg('Faz login primeiro com seu email cadastrado', 'err');
+    showMsg('Entre no painel primeiro, com o e-mail do seu perfil de profissional.', 'err');
     return;
   }
   const btn = document.getElementById('btn-' + plan);
@@ -677,10 +702,11 @@ async function subscribe(plan) {
   try {
     const r = await fetch('/api/stripe/subscribe', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ provider_id: currentProvider.id, plan }),
+      headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
+      body: JSON.stringify({ plan }),
     });
     const d = await r.json();
+    if (r.status === 409 && d.use_portal) { await openPortal(); return; }
     if (!r.ok) throw new Error(d.error || 'Erro ao criar checkout');
     window.location.href = d.checkout_url;
   } catch(e) {
@@ -732,15 +758,9 @@ async function submitEnterprise(e) {
 
 window.addEventListener('DOMContentLoaded', () => {
   detectMode();
-  try {
-    const cached = localStorage.getItem('bc_planos_provider');
-    if (cached) {
-      currentProvider = JSON.parse(cached);
-      showLoggedIn();
-    }
-  } catch(_) {}
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('subscribed') === '1') showMsg('🎉 Assinatura ativada! Seu trial de 14 dias começou.', 'ok');
+  try { localStorage.removeItem('bc_planos_provider'); } catch(_) {}
+  // Se o modulo de login ja terminou antes deste script, carrega o perfil agora
+  if (window.__bcAuthLoaded__) loadProvider();
 });
 </script>
 </body>

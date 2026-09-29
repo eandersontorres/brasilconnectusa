@@ -44,24 +44,14 @@ export async function sendTransactional({ to, subject, kicker, title, paragraphs
   }
 }
 
-// Fuso por estado, pra mostrar o horario do agendamento no relogio da profissional.
-const TZ_BY_STATE = {
-  FL: 'America/New_York', MA: 'America/New_York', NY: 'America/New_York', NJ: 'America/New_York',
-  CT: 'America/New_York', GA: 'America/New_York', PA: 'America/New_York', NC: 'America/New_York',
-  SC: 'America/New_York', VA: 'America/New_York', MD: 'America/New_York', DC: 'America/New_York',
-  OH: 'America/New_York', MI: 'America/New_York',
-  TX: 'America/Chicago', IL: 'America/Chicago', TN: 'America/Chicago', LA: 'America/Chicago',
-  MN: 'America/Chicago', MO: 'America/Chicago', WI: 'America/Chicago',
-  CO: 'America/Denver', UT: 'America/Denver', AZ: 'America/Phoenix',
-  CA: 'America/Los_Angeles', WA: 'America/Los_Angeles', OR: 'America/Los_Angeles', NV: 'America/Los_Angeles',
-}
-
-export function formatWhen(iso, state) {
-  const tz = TZ_BY_STATE[String(state || '').toUpperCase()] || 'America/New_York'
+// Os horarios do AgendaPro sao guardados como hora do relogio da profissional,
+// sem fuso (a pagina manda "2026-10-02T10:00:00" e o banco guarda como UTC).
+// Por isso formata em UTC: converter pra um fuso deslocaria a hora.
+export function formatWhen(iso) {
   try {
     return new Date(iso).toLocaleString('pt-BR', {
-      timeZone: tz, weekday: 'long', day: '2-digit', month: 'long',
-      hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+      timeZone: 'UTC', weekday: 'long', day: '2-digit', month: 'long',
+      hour: '2-digit', minute: '2-digit',
     })
   } catch (_) {
     return String(iso)

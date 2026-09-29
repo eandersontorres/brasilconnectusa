@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,200;1,9..144,300&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/premium.css">
   <script src="/js/bc-modules.js"></script>
+  <script src="/js/agenda-painel.js"></script>
 
   <style>
     /* Container do painel (max 900px) */
@@ -482,6 +483,14 @@
     // Hook pra atualizar status do Restaurant quando voltar do Stripe
     window.addEventListener('DOMContentLoaded', () => {
       const params = new URLSearchParams(window.location.search)
+      if (params.get('subscribed') === '1') {
+        currentTab = 'profissional'
+        showToast('Assinatura criada. Seu teste de 14 dias começou.')
+      }
+      if (params.get('agenda_stripe')) {
+        currentTab = 'profissional'
+        showToast(params.get('agenda_stripe') === 'done' ? 'Stripe conectado. Conferindo a conta…' : 'Cadastro no Stripe interrompido. Clique em conectar de novo.')
+      }
       if (params.get('stripe_done') === '1' || params.get('stripe_refresh') === '1') {
         showToast(params.get('stripe_done') ? 'Stripe configurado! Verificando...' : 'Setup interrompido. Clica em ativar de novo.')
       }
@@ -801,24 +810,10 @@
 
       root.innerHTML = `
         <div class="panel">
-          ${prov ? '' : '<div class="help-box">Nenhum perfil de profissional encontrado pra <strong>' + email + '</strong>. <a href="/agenda" style="color:var(--green);">Cadastre seu perfil aqui</a> primeiro.</div>'}
+          ${prov ? '' : '<div class="help-box">Você ainda não tem perfil de profissional. Preencha e salve o formulário abaixo pra criar o seu.</div>'}
 
           <h2>${prov ? prov.name : 'Cadastrar novo perfil'}</h2>
           <p class="sub">${prov ? 'Logado como ' + email : 'Preencha pra aparecer no AgendaPro'} · <button class="btn-link" onclick="logout()">Sair</button></p>
-
-          ${prov ? `
-            <div style="background:linear-gradient(135deg,#002776 0%,#0f2340 100%);color:#fff;padding:16px 18px;border-radius:12px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
-              <div>
-                <div style="font-weight:700;font-size:15px;margin-bottom:2px;">
-                  ${prov.plan_status === 'active' || prov.plan_status === 'trialing' ? '✅ Plano: ' + (prov.plan || 'starter').toUpperCase() : '🔓 Sem plano ativo'}
-                </div>
-                <div style="font-size:12px;opacity:0.85;">
-                  ${prov.plan_status === 'trialing' ? 'Em trial gratuito de 14 dias' : prov.plan_status === 'active' ? 'Assinatura ativa' : 'Assine pra liberar agendamentos, lembretes e página própria'}
-                </div>
-              </div>
-              <a href="/agenda/planos" style="background:#ffdf00;color:#002776;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap;">${prov.plan_status === 'active' || prov.plan_status === 'trialing' ? 'Trocar plano' : 'Ver planos →'}</a>
-            </div>
-          ` : ''}
 
           <form id="provForm" class="form-grid" onsubmit="saveProv(event)">
             <div class="row-2">
@@ -859,6 +854,11 @@
               </div>
             </div>
 
+            <div>
+              <label>Como pagar o sinal (Zelle, dinheiro…)</label>
+              <input name="deposit_instructions" maxlength="300" placeholder="Ex.: Zelle para (512) 555-0100 em nome de Ana Torres" value="${esc(prov?.deposit_instructions)}" />
+            </div>
+
             <div class="help-box">
               <strong>Portfólio (fotos antes/depois, vídeo)</strong> — cole URLs públicas. Em breve: upload direto.
             </div>
@@ -886,7 +886,10 @@
             </div>
           </form>
         </div>
+        <div id="agenda-painel"></div>
       `
+      // Servicos, horarios, agendamentos, sinal e plano (public/js/agenda-painel.js)
+      if (prov && window.BCAgendaPainel) window.BCAgendaPainel.mount(document.getElementById('agenda-painel'), prov)
     }
 
     async function saveProv(e) {
