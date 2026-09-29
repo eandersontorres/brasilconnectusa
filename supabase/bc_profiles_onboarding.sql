@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ═════════════════════════════════════════════════════════════════════════════
 -- BrasilConnect — Estende bc_profiles para suportar onboarding
 -- Adiciona colunas, cria tabela de checklist e re-cria perfis necessários
@@ -60,8 +63,8 @@ CREATE TABLE bc_profile_checklist (
 CREATE INDEX idx_checklist_user ON bc_profile_checklist(user_id);
 
 -- ── 4. RLS off (APIs usam service key) ───────────────────────────────────
-ALTER TABLE bc_profiles            DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_profile_checklist   DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_profiles            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_profile_checklist   ENABLE ROW LEVEL SECURITY;
 
 -- ── 5. Verificação ───────────────────────────────────────────────────────
 SELECT

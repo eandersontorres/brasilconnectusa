@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ─────────────────────────────────────────────────────────────────────────────
 -- BrasilConnect – Bolão Copa 2026
 -- Execute no SQL Editor do Supabase (https://supabase.com/dashboard)
@@ -53,10 +56,10 @@ CREATE INDEX IF NOT EXISTS idx_predictions_mem  ON bc_bolao_predictions(member_i
 CREATE INDEX IF NOT EXISTS idx_predictions_match ON bc_bolao_predictions(match_id);
 
 -- ── RLS: desabilitar (API usa service key) ───────────────────────────────────
-ALTER TABLE bc_copa_matches        DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_bolao_groups        DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_bolao_members       DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_bolao_predictions   DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_copa_matches        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_bolao_groups        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_bolao_members       ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_bolao_predictions   ENABLE ROW LEVEL SECURITY;
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- SEED: Fase de Grupos – Copa 2026 (grupos A–D como exemplo)

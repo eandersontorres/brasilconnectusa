@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ════════════════════════════════════════════════════════════════════════
 -- Moderacao: status nos reports + acoes de admin
 -- ════════════════════════════════════════════════════════════════════════
@@ -22,4 +25,4 @@ CREATE TABLE IF NOT EXISTS bc_banned_users (
   expires_at  TIMESTAMPTZ                                  -- NULL = permanente
 );
 
-ALTER TABLE bc_banned_users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_banned_users ENABLE ROW LEVEL SECURITY;

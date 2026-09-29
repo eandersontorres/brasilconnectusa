@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ═══════════════════════════════════════════════════════════════════════════
 -- FIX: bc_profiles sem coluna user_id
 -- Erro: "Could not find the 'user_id' column of 'bc_profiles' in schema cache"
@@ -67,8 +70,8 @@ CREATE TABLE IF NOT EXISTS bc_profile_checklist (
 CREATE INDEX IF NOT EXISTS idx_checklist_user ON bc_profile_checklist(user_id);
 
 -- 6. RLS off (APIs usam service key)
-ALTER TABLE bc_profiles          DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_profile_checklist DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_profiles          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_profile_checklist ENABLE ROW LEVEL SECURITY;
 
 -- 7. Verificacao final — confirma que user_id foi criado
 SELECT

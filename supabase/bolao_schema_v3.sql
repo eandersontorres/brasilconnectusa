@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ─────────────────────────────────────────────────────────────────────────────
 -- BrasilConnect — Bolão Copa 2026 — V3
 -- Adiciona:
@@ -83,7 +86,7 @@ JOIN bc_bolao_groups g ON g.id = mb.group_id
 LEFT JOIN member_points mp ON mp.member_id = mb.id;
 
 -- ── 5. RLS desabilitado (API usa service key) ──────────────────────────────
-ALTER TABLE bc_bolao_config DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_bolao_config ENABLE ROW LEVEL SECURITY;
 
 -- ── 6. VERIFICAÇÃO ─────────────────────────────────────────────────────────
 SELECT 'Schema v3 aplicado com sucesso' AS status,

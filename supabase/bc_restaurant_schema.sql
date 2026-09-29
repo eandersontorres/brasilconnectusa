@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ════════════════════════════════════════════════════════════════════════════
 -- RESTAURANT MODE — Schema completo
 -- Permite negocios (restaurantes, bakeries, grocery) terem cardapio +
@@ -136,11 +139,11 @@ CREATE TABLE IF NOT EXISTS bc_order_items (
 CREATE INDEX IF NOT EXISTS idx_order_items_order ON bc_order_items(order_id);
 
 -- ── 7. RLS off (APIs usam service key) ──────────────────────────────────────
-ALTER TABLE bc_menu_categories DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_menu_items      DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_menu_modifiers  DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_orders          DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_order_items     DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_menu_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_menu_items      ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_menu_modifiers  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_orders          ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_order_items     ENABLE ROW LEVEL SECURITY;
 
 -- ── 8. Verificacao ──────────────────────────────────────────────────────────
 SELECT

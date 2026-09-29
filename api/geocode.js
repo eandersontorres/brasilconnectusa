@@ -58,7 +58,7 @@ export async function geocodeWithCache(city, state) {
 
   if (cached?.latitude != null) {
     // bump hit counter (best effort, no await)
-    supabase.rpc('increment_geocode_hits', { city_in: cityNorm, state_in: stateNorm }).catch(() => {})
+    supabase.rpc('increment_geocode_hits', { city_in: cityNorm, state_in: stateNorm }).then(() => {}, () => {})
     return { latitude: cached.latitude, longitude: cached.longitude, display: cached.display, cached: true }
   }
 

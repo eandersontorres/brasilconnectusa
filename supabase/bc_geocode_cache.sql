@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ════════════════════════════════════════════════════════════════════════════
 -- Cache de geocoding (city, state -> lat, lng)
 -- Evita bater no Nominatim/Mapbox toda hora.
@@ -28,7 +31,7 @@ ALTER TABLE bc_communities
 CREATE INDEX IF NOT EXISTS idx_communities_geo ON bc_communities(latitude, longitude)
   WHERE latitude IS NOT NULL;
 
-ALTER TABLE bc_geocode_cache DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_geocode_cache ENABLE ROW LEVEL SECURITY;
 
 -- Verificacao
 SELECT 'OK' AS status;

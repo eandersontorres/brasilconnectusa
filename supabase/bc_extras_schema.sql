@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ═════════════════════════════════════════════════════════════════════════════
 -- BrasilConnect — Schema Extras
 -- Adiciona:
@@ -24,7 +27,7 @@ CREATE TABLE IF NOT EXISTS bc_contact_messages (
   created_at  TIMESTAMPTZ DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS idx_contact_status ON bc_contact_messages(status, created_at DESC);
-ALTER TABLE bc_contact_messages DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_contact_messages ENABLE ROW LEVEL SECURITY;
 
 -- ── 2. ESTENDE bc_communities com pre-requisitos ────────────────────────
 ALTER TABLE bc_communities
@@ -49,7 +52,7 @@ CREATE TABLE IF NOT EXISTS bc_community_join_requests (
 );
 CREATE INDEX IF NOT EXISTS idx_join_req_status ON bc_community_join_requests(community_id, status);
 CREATE INDEX IF NOT EXISTS idx_join_req_user ON bc_community_join_requests(user_id);
-ALTER TABLE bc_community_join_requests DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_community_join_requests ENABLE ROW LEVEL SECURITY;
 
 -- ── 4. ESTENDE bc_businesses com fotos/videos/portfolio ─────────────────
 ALTER TABLE bc_businesses

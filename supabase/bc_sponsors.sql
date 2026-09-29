@@ -1,3 +1,6 @@
+-- NOTA (29/09/2026): este arquivo desligava o RLS. Trocado por ENABLE: o site so acessa o banco
+-- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
+-- Ver supabase/README.md.
 -- ════════════════════════════════════════════════════════════════════════
 -- Sponsors / Patrocinadores
 --
@@ -75,5 +78,5 @@ CREATE INDEX IF NOT EXISTS idx_sp_events_sponsor ON bc_sponsor_events(sponsor_id
 CREATE INDEX IF NOT EXISTS idx_sp_events_type    ON bc_sponsor_events(event_type, created_at DESC);
 
 -- RLS off (API usa service key)
-ALTER TABLE bc_sponsors        DISABLE ROW LEVEL SECURITY;
-ALTER TABLE bc_sponsor_events  DISABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_sponsors        ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bc_sponsor_events  ENABLE ROW LEVEL SECURITY;
