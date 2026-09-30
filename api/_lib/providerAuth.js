@@ -1,3 +1,4 @@
+import { identifyAdmin } from './adminAuth.js'
 /**
  * Auth da profissional do AgendaPro.
  *
@@ -41,8 +42,8 @@ export function planActive(provider) {
   return ['trialing', 'active'].includes(provider?.plan_status)
 }
 
-/** Chamada administrativa (painel admin / scripts). */
-export function isAdmin(req) {
-  const s = req.headers?.['x-admin-secret']
-  return !!s && !!process.env.ADMIN_SECRET && s === process.env.ADMIN_SECRET
+/** Chamada administrativa (painel admin / scripts): senha compartilhada ou conta com papel admin. */
+export async function isAdmin(req) {
+  const a = await identifyAdmin(req)
+  return !!a.ok
 }

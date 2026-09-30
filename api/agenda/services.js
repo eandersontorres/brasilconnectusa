@@ -17,7 +17,7 @@ const int = (v, min, max, def) => {
 const clip = (v, n) => (v == null ? null : String(v).trim().slice(0, n) || null)
 
 async function resolveProviderId(req, res, supabase) {
-  if (isAdmin(req)) {
+  if (await isAdmin(req)) {
     const id = req.body?.provider_id || req.query?.provider_id
     if (!id) { res.status(400).json({ error: 'provider_id obrigatório' }); return null }
     return id

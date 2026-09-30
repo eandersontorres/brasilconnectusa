@@ -74,6 +74,7 @@
     .legend strong { color: var(--ink); }
     .legend code { background: var(--paper-soft); padding: 1px 6px; border-radius: 4px; font-size: 0.9em; color: var(--brand-navy); }
   </style>
+  <script src="/js/admin-auth.js"></script>
 </head>
 <body>
   <div id="app"></div>
@@ -84,7 +85,7 @@
     const root = document.getElementById('app');
     const getSecret = () => { try { return sessionStorage.getItem(STORAGE_KEY) || ''; } catch (e) { return ''; } };
     const setSecret = s => { try { sessionStorage.setItem(STORAGE_KEY, s); } catch (e) {} };
-    const clearSecret = () => { try { sessionStorage.removeItem(STORAGE_KEY); } catch (e) {} };
+    const clearSecret = () => { try { sessionStorage.removeItem(STORAGE_KEY) } catch (e) {}; if (window.bcAdminLogout) window.bcAdminLogout() };
     const escapeHtml = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
 
     function topbar(metaLine) {
@@ -114,7 +115,7 @@
           <h2>Painel de Parceiros</h2>
           <p>Use o segredo administrativo (variável <code style="font-size:0.85rem;background:var(--paper-soft);padding:1px 6px;border-radius:4px;">ADMIN_SECRET</code>) para entrar.</p>
           ${errMsg ? `<div class="err-banner">${escapeHtml(errMsg)}</div>` : ''}
-          <input id="secret" type="password" placeholder="ADMIN_SECRET" autocomplete="off" />
+          <input id="secret" type="password" placeholder="senha compartilhada (ADMIN_SECRET)" autocomplete="off" />
           <button class="btn btn-primary" id="loginBtn" style="width:100%;">Entrar</button>
         </div>
       `;

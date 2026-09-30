@@ -14,6 +14,8 @@
  *   Header: x-admin-secret: <ADMIN_SECRET do .env>
  */
 
+import { requireAdmin } from '../_lib/adminAuth.js'
+
 // Espelho do registry em api/go.js — manter em sincronia.
 const PARTNERS = [
   // Tier 0 — quick wins
@@ -49,13 +51,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
-  const adminSecret = req.headers['x-admin-secret']
-  if (!process.env.ADMIN_SECRET) {
-    return res.status(500).json({ error: 'ADMIN_SECRET não configurado' })
-  }
-  if (!adminSecret || adminSecret !== process.env.ADMIN_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' })
-  }
+  const admin = await requireAdmin(req)
+  if (!admin.ok) return res.status(admin.status).json({ error: admin.error })
 
   const rows = PARTNERS.map((p) => {
     const raw = process.env[p.env]

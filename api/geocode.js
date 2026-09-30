@@ -7,6 +7,7 @@
  * Body: { cities: [{ city, state }] }
  */
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from './_lib/adminAuth.js'
 import { rateLimit } from './_lib/rateLimit.js'
 
 function getSupabase() {
@@ -104,10 +105,8 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     // Batch geocoding (interno, admin only)
-    const adminSecret = req.headers['x-admin-secret']
-    if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
+    const admin = await requireAdmin(req)
+    if (!admin.ok) return res.status(admin.status).json({ error: admin.error })
     const { cities = [] } = req.body || {}
     const results = []
     for (const c of cities.slice(0, 50)) {

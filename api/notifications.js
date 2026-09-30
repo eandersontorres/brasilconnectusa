@@ -5,6 +5,7 @@
  * POST ?action=create               body: { user_id|user_email, type, title, body, url, icon, metadata }  [interno/admin]
  */
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from './_lib/adminAuth.js'
 import { rateLimit } from './_lib/rateLimit.js'
 import { requireAuthOnly } from './_lib/businessAuth.js'
 
@@ -63,10 +64,8 @@ export default async function handler(req, res) {
 
     if (req.method === 'POST' && action === 'create') {
       // Auth: x-admin-secret OU vem de outro endpoint via fetch interno (dificil de validar)
-      const adminSecret = req.headers['x-admin-secret']
-      if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
-        return res.status(401).json({ error: 'Unauthorized' })
-      }
+      const admin = await requireAdmin(req)
+      if (!admin.ok) return res.status(admin.status).json({ error: admin.error })
       const { user_id, user_email, type, title, body, url, icon, metadata } = req.body || {}
       if ((!user_id && !user_email) || !type || !title) return res.status(400).json({ error: 'campos obrigatorios' })
 

@@ -109,6 +109,7 @@
     .modal textarea { min-height: 180px; resize: vertical; line-height: 1.55; }
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 8px; }
   </style>
+  <script src="/js/admin-auth.js"></script>
 </head>
 <body>
   <div id="app"></div>
@@ -118,7 +119,7 @@
     const root = document.getElementById('app')
     const getSecret = () => { try { return sessionStorage.getItem(STORAGE_KEY) || '' } catch (e) { return '' } }
     const setSecret = s => { try { sessionStorage.setItem(STORAGE_KEY, s) } catch (e) {} }
-    const clearSecret = () => { try { sessionStorage.removeItem(STORAGE_KEY) } catch (e) {} }
+    const clearSecret = () => { try { sessionStorage.removeItem(STORAGE_KEY) } catch (e) {}; if (window.bcAdminLogout) window.bcAdminLogout() }
     const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
 
     let currentTab = 'requests'
@@ -150,7 +151,7 @@
           <h2>Gerenciar plataforma</h2>
           <p class="muted">Aprove pedidos de comunidades restritas, leia mensagens, gerencie negócios.</p>
           ${errMsg ? `<div class="err-banner">${escapeHtml(errMsg)}</div>` : ''}
-          <input id="secret" type="password" placeholder="ADMIN_SECRET" autocomplete="off" />
+          <input id="secret" type="password" placeholder="senha compartilhada (ADMIN_SECRET)" autocomplete="off" />
           <button class="btn btn-primary" id="loginBtn" style="width:100%;">Entrar</button>
         </div>
       `
@@ -189,6 +190,7 @@
             <button class="tab-btn ${currentTab==='users'?'active':''}" onclick="switchTab('users')">Usuários</button>
             <button class="tab-btn ${currentTab==='sponsors'?'active':''}" onclick="switchTab('sponsors')">Patrocinadores</button>
             <button class="tab-btn ${currentTab==='usage'?'active':''}" onclick="switchTab('usage')">Uso & Limites</button>
+            <button class="tab-btn ${currentTab==='audit'?'active':''}" onclick="switchTab('audit')">Auditoria</button>
           </div>
           <div id="tab-content"><p class="muted">Carregando…</p></div>
         </div>
@@ -212,6 +214,7 @@
         else if (tab === 'users')      await loadUsers(c)
         else if (tab === 'sponsors')   await loadSponsors(c)
         else if (tab === 'usage')      await loadUsage(c)
+        else if (tab === 'audit')      await loadAudit(c)
       } catch (e) {
         c.innerHTML = '<div class="err-banner">' + escapeHtml(e.message) + '</div>'
       }
@@ -2248,6 +2251,35 @@
           </div>
           ${sub ? `<div style="font-size:11px;color:var(--ink-muted);margin-top:2px;">${escapeHtml(sub)}</div>` : ''}
         </div>
+      `
+    }
+
+    // Quem fez o que no painel (bc_admin_audit)
+    async function loadAudit(c) {
+      const r = await fetch('/api/admin/audit-log?limit=200', { headers: { 'x-admin-secret': getSecret() } })
+      const d = await r.json().catch(() => ({}))
+      if (!r.ok) { c.innerHTML = `<div class="err-banner">${escapeHtml(d.error || 'Erro')}</div>`; return }
+      const rows = d.entries || []
+      const when = iso => new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/New_York', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+      c.innerHTML = `
+        <p class="muted" style="margin-bottom:12px;">Últimas ${rows.length} ações que alteraram algo. Você está como <strong>${escapeHtml(d.you || '')}</strong>${d.you === 'secret' ? ' (senha compartilhada: entre com sua conta pra ficar identificado)' : ''}.</p>
+        ${rows.length === 0 ? '<p class="muted">Nenhuma ação registrada ainda.</p>' : `
+        <div style="overflow:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+          <thead><tr style="text-align:left;color:var(--ink-muted);border-bottom:1px solid var(--line);">
+            <th style="padding:6px 8px;">Quando</th><th style="padding:6px 8px;">Quem</th><th style="padding:6px 8px;">Rota</th><th style="padding:6px 8px;">Ação</th><th style="padding:6px 8px;">Alvo</th><th style="padding:6px 8px;">Detalhes</th>
+          </tr></thead>
+          <tbody>${rows.map(e => `
+            <tr style="border-bottom:1px solid var(--line);vertical-align:top;">
+              <td style="padding:6px 8px;white-space:nowrap;">${when(e.at)}</td>
+              <td style="padding:6px 8px;">${escapeHtml(e.actor_email)}</td>
+              <td style="padding:6px 8px;font-family:monospace;">${escapeHtml(e.path.replace('/api/', ''))}</td>
+              <td style="padding:6px 8px;">${escapeHtml(e.action || '')}</td>
+              <td style="padding:6px 8px;font-family:monospace;font-size:11px;">${escapeHtml((e.target_id || '').slice(0, 8))}</td>
+              <td style="padding:6px 8px;color:var(--ink-muted);max-width:360px;word-break:break-word;">${escapeHtml(Object.entries(e.details || {}).filter(([k]) => !['action'].includes(k)).map(([k, v]) => k + '=' + (typeof v === 'string' ? v : JSON.stringify(v))).join(' · ').slice(0, 240))}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table></div>`}
       `
     }
 
