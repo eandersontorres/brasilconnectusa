@@ -18,6 +18,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '../_lib/adminAuth.js'
 
 const PROFILE_EDITABLE = new Set([
   'full_name', 'display_name', 'avatar_url', 'bio',
@@ -33,10 +34,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const adminSecret = req.headers['x-admin-secret']
-  if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' })
-  }
+  const admin = await requireAdmin(req)
+  if (!admin.ok) return res.status(admin.status).json({ error: admin.error })
 
   const { user_id, action, ...payload } = req.body || {}
   if (!user_id || !action) return res.status(400).json({ error: 'user_id e action obrigatorios' })

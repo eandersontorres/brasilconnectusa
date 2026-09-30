@@ -27,6 +27,7 @@ Migrations aplicadas em produção a partir de 28/09/2026, em ordem:
 | `agendapro_operavel` | `ag_agendapro_operavel.sql` |
 | `bc_listing_subscriptions` | `bc_listing_subscriptions.sql` |
 | `bc_geocode_hits_fn` | `bc_geocode_hits_fn.sql` |
+| `bc_admin_audit` | `bc_admin_audit.sql` |
 
 ## Regra para mudanças novas
 

@@ -13,6 +13,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '../_lib/adminAuth.js'
 
 // CPA estimado por parceiro (em USD) — usado para projetar receita
 const CPA = {
@@ -40,9 +41,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
-  const adminSecret = req.headers['x-admin-secret']
-  if (!process.env.ADMIN_SECRET) return res.status(500).json({ error: 'ADMIN_SECRET ausente' })
-  if (!adminSecret || adminSecret !== process.env.ADMIN_SECRET) return res.status(401).json({ error: 'Unauthorized' })
+  const admin = await requireAdmin(req)
+  if (!admin.ok) return res.status(admin.status).json({ error: admin.error })
 
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_KEY) {
     return res.status(500).json({ error: 'Supabase env vars ausentes' })

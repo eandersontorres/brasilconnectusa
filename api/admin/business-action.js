@@ -15,6 +15,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '../_lib/adminAuth.js'
 
 const VALID_ACTIONS = new Set(['approve', 'reject', 'archive', 'verify', 'unverify', 'feature', 'unfeature'])
 const REPLY_FROM = process.env.WAITLIST_FROM_EMAIL || 'BrasilConnect USA <oi@brasilconnectusa.com>'
@@ -153,10 +154,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const adminSecret = req.headers['x-admin-secret']
-  if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' })
-  }
+  const admin = await requireAdmin(req)
+  if (!admin.ok) return res.status(admin.status).json({ error: admin.error })
 
   const { business_id, action, reason } = req.body || {}
   if (!business_id || !VALID_ACTIONS.has(action)) {

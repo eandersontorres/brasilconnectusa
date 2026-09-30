@@ -13,6 +13,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from './_lib/adminAuth.js'
 import { captureLead } from './_lib/leadCapture.js'
 
 function getSupabase() {
@@ -690,10 +691,8 @@ export default async function handler(req, res) {
 
   // POST: set-result (admin global) — view recalcula auto
   if (req.method === 'POST' && action === 'set-result') {
-    const adminSecret = req.headers['x-admin-secret']
-    if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
+    const admin = await requireAdmin(req)
+    if (!admin.ok) return res.status(admin.status).json({ error: admin.error })
     const { match_id, home_score, away_score, status } = req.body || {}
     if (!match_id || home_score === undefined || away_score === undefined) {
       return res.status(400).json({ error: 'match_id, home_score e away_score obrigatorios' })
@@ -729,10 +728,8 @@ export default async function handler(req, res) {
 
   // GET: admin-matches (lista todas com contagem de palpites)
   if (req.method === 'GET' && action === 'admin-matches') {
-    const adminSecret = req.headers['x-admin-secret']
-    if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
+    const admin = await requireAdmin(req)
+    if (!admin.ok) return res.status(admin.status).json({ error: admin.error })
     try {
       const supabase = getSupabase()
       const { data, error } = await supabase
@@ -803,10 +800,8 @@ export default async function handler(req, res) {
 
   // ══ GET: prize-claims (admin lista os resgates) — header x-admin-secret ════
   if (req.method === 'GET' && action === 'prize-claims') {
-    const adminSecret = req.headers['x-admin-secret']
-    if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
-      return res.status(401).json({ error: 'Unauthorized' })
-    }
+    const admin = await requireAdmin(req)
+    if (!admin.ok) return res.status(admin.status).json({ error: admin.error })
     try {
       const supabase = getSupabase()
       const { data, error } = await supabase

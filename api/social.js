@@ -21,6 +21,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from './_lib/adminAuth.js'
 import { requireAuthOnly } from './_lib/businessAuth.js'
 
 function getSupabase() {
@@ -359,8 +360,8 @@ export default async function handler(req, res) {
 
     // ══════════ GET: pending join requests (admin) ═══════════════════════
     if (req.method === 'GET' && action === 'pending-requests') {
-      const admin_secret = req.headers['x-admin-secret'] || req.query.admin_secret
-      if (admin_secret !== process.env.ADMIN_SECRET) return err(res, 401, 'Unauthorized')
+      const admin = await requireAdmin(req)
+      if (!admin.ok) return err(res, admin.status, admin.error)
 
       const { data, error } = await supabase
         .from('bc_community_join_requests')
@@ -374,8 +375,8 @@ export default async function handler(req, res) {
 
     // ══════════ POST: approve / reject (admin) ═══════════════════════════
     if (req.method === 'POST' && (action === 'approve-request' || action === 'reject-request')) {
-      const adminSecret = req.headers['x-admin-secret'] || (req.body && req.body.admin_secret)
-      if (adminSecret !== process.env.ADMIN_SECRET) return err(res, 401, 'Unauthorized')
+      const admin = await requireAdmin(req)
+      if (!admin.ok) return err(res, admin.status, admin.error)
       const { request_id, notes } = req.body || {}
       if (!request_id) return err(res, 400, 'request_id obrigatório')
 

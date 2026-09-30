@@ -16,6 +16,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '../_lib/adminAuth.js'
 
 // ─── Limites dos planos atuais (Supabase Pro + Vercel Pro) ──────────────
 const LIMITS = {
@@ -80,10 +81,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' })
 
-  const adminSecret = req.headers['x-admin-secret']
-  if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' })
-  }
+  const admin = await requireAdmin(req)
+  if (!admin.ok) return res.status(admin.status).json({ error: admin.error })
 
   const supabase = getSupabase()
   const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()

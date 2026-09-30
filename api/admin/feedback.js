@@ -9,13 +9,12 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { requireAdmin } from '../_lib/adminAuth.js'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
-  const adminSecret = req.headers['x-admin-secret']
-  if (!process.env.ADMIN_SECRET || adminSecret !== process.env.ADMIN_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' })
-  }
+  const admin = await requireAdmin(req)
+  if (!admin.ok) return res.status(admin.status).json({ error: admin.error })
 
   const sb = createClient(
     process.env.SUPABASE_URL,

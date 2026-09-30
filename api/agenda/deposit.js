@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
 
     let q = supabase.from('ag_appointments').select('id, provider_id, deposit_cents, deposit_paid').eq('id', appointment_id)
-    if (!isAdmin(req)) {
+    if (!(await isAdmin(req))) {
       const auth = await requireProviderAuth(req, supabase)
       if (!auth.ok) return res.status(auth.status).json({ error: auth.error })
       q = q.eq('provider_id', auth.provider.id)
