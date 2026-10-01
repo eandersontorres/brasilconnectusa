@@ -19,10 +19,11 @@ function isPreviewMode() {
   } catch (e) { return false }
 }
 
-// Deep-link explícito (/app/<tab> ou ?tab=...) destrava o app — features prontas
+// Deep-link explícito (/app/<tab>, /post/<id> ou ?tab=...) destrava o app — features prontas
 function isDeepLink() {
   try {
-    if (/^\/app(\/|$)/.test(window.location.pathname)) return true
+    // /post/<id> é o link das notificações de comentário
+    if (/^\/(app|post)(\/|$)/.test(window.location.pathname)) return true
     const params = new URLSearchParams(window.location.search)
     if (params.get('tab')) return true
   } catch (_) {}
