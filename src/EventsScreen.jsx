@@ -27,6 +27,7 @@ function fmtDateLong(iso) {
 export default function EventsScreen({ onNavigate }) {
   const { user } = useAuth()
   const [events, setEvents] = useState([])
+  const [myRsvps, setMyRsvps] = useState({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -38,6 +39,7 @@ export default function EventsScreen({ onNavigate }) {
       const d = await r.json()
       if (!r.ok) throw new Error(d.error || 'Erro')
       setEvents(d.posts || [])
+      apiFetch('/api/social?action=my-rsvps').then(r => r.json()).then(x => setMyRsvps(x.rsvps || {})).catch(() => {})
     } catch (e) {
       setError(e.message)
       setEvents([])
@@ -66,6 +68,20 @@ export default function EventsScreen({ onNavigate }) {
     ps.sort((a, b) => new Date(b.event_date) - new Date(a.event_date))
     return { upcoming: up, past: ps }
   }, [events])
+
+  async function rsvp(post, status) {
+    if (!user) return
+    try {
+      const r = await apiFetch('/api/social?action=rsvp', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ post_id: post.id, status }),
+      })
+      const d = await r.json()
+      if (!r.ok) throw new Error(d.error || 'Não deu pra confirmar.')
+      setMyRsvps(prev => ({ ...prev, [post.id]: status }))
+      setEvents(prev => prev.map(e => e.id === post.id ? { ...e, event_rsvp_count: d.going_count } : e))
+    } catch (e) { alert(e.message) }
+  }
 
   function openCreate() {
     // Reusa o PostButton picker direto no flow de eventos
@@ -120,11 +136,14 @@ export default function EventsScreen({ onNavigate }) {
               />
             )}
             events={upcoming}
+            myRsvps={myRsvps}
+            onRsvp={rsvp}
+            onOpen={e => onNavigate && onNavigate('post', e.id)}
           />
 
           {past.length > 0 && (
             <div style={{ marginTop: 32 }}>
-              <Section label="Passados" count={past.length} events={past} compact />
+              <Section label="Passados" count={past.length} events={past} compact onOpen={e => onNavigate && onNavigate('post', e.id)} />
             </div>
           )}
         </>
@@ -136,7 +155,7 @@ export default function EventsScreen({ onNavigate }) {
 // ────────────────────────────────────────────────────────────────────────────
 //   Section
 // ────────────────────────────────────────────────────────────────────────────
-function Section({ label, count, events, empty, compact }) {
+function Section({ label, count, events, empty, compact, myRsvps, onRsvp, onOpen }) {
   return (
     <div>
       <div style={{
@@ -150,7 +169,7 @@ function Section({ label, count, events, empty, compact }) {
         <div style={{ fontSize: 12, color: C.inkMuted, fontWeight: 500 }}>{count}</div>
       </div>
       {events.length === 0 ? empty : (
-        <div>{events.map(e => <EventCard key={e.id} event={e} compact={compact} />)}</div>
+        <div>{events.map(e => <EventCard key={e.id} event={e} compact={compact} mine={myRsvps ? myRsvps[e.id] : null} onRsvp={onRsvp} onOpen={onOpen} />)}</div>
       )}
     </div>
   )
@@ -159,7 +178,13 @@ function Section({ label, count, events, empty, compact }) {
 // ────────────────────────────────────────────────────────────────────────────
 //   EventCard — date badge + content
 // ────────────────────────────────────────────────────────────────────────────
-function EventCard({ event: e, compact }) {
+const RSVP_OPTS = [
+  { key: 'going', label: 'Vou', color: C.green },
+  { key: 'maybe', label: 'Talvez', color: '#B45309' },
+  { key: 'not_going', label: 'Não vou', color: '#6B7280' },
+]
+
+function EventCard({ event: e, compact, mine, onRsvp, onOpen }) {
   const d = new Date(e.event_date)
   const day = d.getDate()
   const month = MONTH_PT[d.getMonth()]
@@ -169,7 +194,8 @@ function EventCard({ event: e, compact }) {
       padding: compact ? '10px 14px' : '14px 16px', marginBottom: 10,
       display: 'flex', gap: 14, alignItems: 'flex-start',
       opacity: compact ? 0.7 : 1,
-    }}>
+      cursor: onOpen ? 'pointer' : 'default',
+    }} onClick={() => onOpen && onOpen(e)}>
       {/* Badge da data */}
       <div style={{
         width: 56, height: 64, flexShrink: 0,
@@ -212,14 +238,23 @@ function EventCard({ event: e, compact }) {
             overflow: 'hidden',
           }}>{e.body}</p>
         )}
-        {e.event_rsvp_count > 0 && (
-          <div style={{
-            fontSize: 11, fontWeight: 600, color: C.green,
-            marginTop: 6, display: 'inline-block',
-          }}>
-            ✓ {e.event_rsvp_count} confirmado{e.event_rsvp_count > 1 ? 's' : ''}
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+          {!compact && onRsvp && RSVP_OPTS.map(o => {
+            const on = mine === o.key
+            return (
+              <button key={o.key} type="button" onClick={ev => { ev.stopPropagation(); onRsvp(e, o.key) }} style={{
+                fontFamily: FONT.sans, fontSize: 12, fontWeight: 700, padding: '6px 12px', borderRadius: 16, cursor: 'pointer',
+                background: on ? o.color : C.white, color: on ? '#fff' : o.color, border: '1px solid ' + (on ? o.color : C.line),
+              }}>{o.label}</button>
+            )
+          })}
+          {e.event_rsvp_count > 0 && (
+            <span style={{ fontSize: 11, fontWeight: 600, color: C.green }}>
+              ✓ {e.event_rsvp_count} confirmado{e.event_rsvp_count > 1 ? 's' : ''}
+            </span>
+          )}
+          <span style={{ fontSize: 11, color: C.inkMuted, marginLeft: 'auto' }}>{e.comment_count || 0} comentários</span>
+        </div>
       </div>
     </article>
   )

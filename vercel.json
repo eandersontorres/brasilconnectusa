@@ -31,6 +31,18 @@
       "destination": "/app.html"
     },
     {
+      "source": "/app/community/:slug",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/app/post/:id",
+      "destination": "/app.html"
+    },
+    {
+      "source": "/post/:id",
+      "destination": "/app.html"
+    },
+    {
       "source": "/go/sponsor/:id",
       "destination": "/api/sponsor-click?id=:id"
     },
