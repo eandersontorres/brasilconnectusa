@@ -290,7 +290,16 @@ export default async function handler(req, res) {
       // Esconde author_id do proprio post se for anonimo
       const safePost = post.is_anonymous ? { ...post, author_id: null } : post
       const postWithAuthor = (await attachAuthors(supabase, [safePost]))[0]
-      return res.status(200).json({ success: true, post: postWithAuthor, community, comments: commentsWithAuthor })
+      // Com sessao: presenca da propria pessoa no evento (login e opcional aqui)
+      let my_rsvp = null
+      if (post.type === 'event' && /^Bearer\s+/i.test(String(req.headers.authorization || ''))) {
+        const auth = await requireAuthOnly(req, supabase)
+        if (auth.ok) {
+          const { data: mine } = await supabase.from('bc_event_rsvps').select('status').eq('post_id', id).eq('user_id', auth.user.id).maybeSingle()
+          my_rsvp = mine?.status || null
+        }
+      }
+      return res.status(200).json({ success: true, post: postWithAuthor, community, comments: commentsWithAuthor, my_rsvp })
     }
 
     // ══════════ GET: minhas comunidades ════════════════════════════════════
@@ -851,6 +860,16 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true, rsvp: data, going_count: count || 0 })
     }
 
+    // ══════════ GET: my-rsvps (presenca da pessoa nos eventos listados) ════
+    if (req.method === 'GET' && action === 'my-rsvps') {
+      const auth = await requireAuthOnly(req, supabase)
+      if (!auth.ok) return err(res, auth.status, auth.error)
+      const { data } = await supabase.from('bc_event_rsvps').select('post_id, status').eq('user_id', auth.user.id).limit(500)
+      const rsvps = {}
+      for (const r of data || []) rsvps[r.post_id] = r.status
+      return res.status(200).json({ success: true, rsvps })
+    }
+
     // ══════════ POST: report ═══════════════════════════════════════════════
     if (req.method === 'POST' && action === 'report') {
       const auth = await requireAuthOnly(req, supabase)
@@ -924,12 +943,18 @@ export default async function handler(req, res) {
       const { id } = req.query
       if (!id) return err(res, 400, 'id obrigatório')
 
-      const { data: comment } = await supabase.from('bc_comments').select('author_id').eq('id', id).single()
+      const { data: comment } = await supabase.from('bc_comments').select('author_id, post_id, is_deleted').eq('id', id).single()
       if (!comment) return err(res, 404, 'Comentário não encontrado')
       if (comment.author_id !== user_id) return err(res, 403, 'Apenas o autor pode deletar')
+      if (comment.is_deleted) return res.status(200).json({ success: true })
 
       const { error } = await supabase.from('bc_comments').update({ is_deleted: true }).eq('id', id)
       if (error) throw error
+
+      // Contador do post acompanha os comentarios visiveis
+      const { count } = await supabase.from('bc_comments').select('id', { count: 'exact', head: true })
+        .eq('post_id', comment.post_id).eq('is_deleted', false)
+      await supabase.from('bc_posts').update({ comment_count: count || 0 }).eq('id', comment.post_id)
       return res.status(200).json({ success: true })
     }
 

@@ -104,7 +104,7 @@ function AuthorBadge({ post }) {
 // ────────────────────────────────────────────────────────────────────────────
 //   PostCard — exportado pra reuso em CommunityDetailScreen
 // ────────────────────────────────────────────────────────────────────────────
-export function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold }) {
+export function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold, full = false }) {
   const t = POST_TYPES[post.type] || POST_TYPES.question
   const score = (post.upvotes || 0) - (post.downvotes || 0)
   const [voted, setVoted] = useState(0)
@@ -151,10 +151,10 @@ export function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold 
   return (
     <div onClick={onClick} style={{
       background: C.white, border: '1px solid ' + C.line, borderRadius: 12,
-      padding: '14px 16px', marginBottom: 10, cursor: 'pointer',
+      padding: '14px 16px', marginBottom: 10, cursor: full ? 'default' : 'pointer',
       transition: 'border-color .15s, box-shadow .15s',
     }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = C.gold; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,.04)' }}
+      onMouseEnter={e => { if (full) return; e.currentTarget.style.borderColor = C.gold; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,.04)' }}
       onMouseLeave={e => { e.currentTarget.style.borderColor = C.line; e.currentTarget.style.boxShadow = 'none' }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap', fontSize: 11 }}>
@@ -179,8 +179,10 @@ export function PostCard({ post, currentUser, onClick, onVote, onClassifiedSold 
 
       {post.body && (
         <div style={{
-          fontSize: 13, color: C.inkSoft, lineHeight: 1.5, marginBottom: 8,
-          overflow: 'hidden', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 3,
+          fontSize: full ? 14 : 13, color: C.inkSoft, lineHeight: 1.5, marginBottom: 8,
+          ...(full
+            ? { whiteSpace: 'pre-wrap' }
+            : { overflow: 'hidden', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 3 }),
         }}>
           {post.body}
         </div>
@@ -678,7 +680,7 @@ export default function FeedScreen({ onNavigate }) {
               key={p.id}
               post={p}
               currentUser={user}
-              onClick={() => alert('Detalhe do post — em breve')}
+              onClick={() => onNavigate && onNavigate('post', p.id)}
               onVote={r => { if (r === 'need-auth') setNeedAuthMsg(true) }}
             />
           ))}

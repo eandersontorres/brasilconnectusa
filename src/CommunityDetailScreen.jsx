@@ -239,7 +239,7 @@ export default function CommunityDetailScreen({ slug, onNavigate }) {
           <>
             {(!user ? posts.slice(0, 5) : posts).map(p => (
               <PostCard key={p.id} post={p} currentUser={user}
-                onClick={() => alert('Detalhe do post — em breve')}
+                onClick={() => onNavigate && onNavigate('post', p.id)}
                 onVote={r => { if (r === 'need-auth') window.dispatchEvent(new CustomEvent('bc-open-auth')) }}
                 onClassifiedSold={() => load()}
               />
