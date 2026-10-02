@@ -54,6 +54,8 @@ export default async function handler(req, res) {
           await supabase.from('bc_posts').update({ is_deleted: true }).eq('id', report.target_id)
         } else if (report.target_type === 'comment') {
           await supabase.from('bc_comments').update({ is_deleted: true }).eq('id', report.target_id)
+        } else if (report.target_type === 'dm_message') {
+          await supabase.from('bc_dm_messages').delete().eq('id', report.target_id)
         }
       }
 

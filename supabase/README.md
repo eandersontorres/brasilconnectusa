@@ -28,6 +28,7 @@ Migrations aplicadas em produção a partir de 28/09/2026, em ordem:
 | `bc_listing_subscriptions` | `bc_listing_subscriptions.sql` |
 | `bc_geocode_hits_fn` | `bc_geocode_hits_fn.sql` |
 | `bc_admin_audit` | `bc_admin_audit.sql` |
+| `bc_direct_messages` | `bc_direct_messages.sql` |
 
 ## Regra para mudanças novas
 

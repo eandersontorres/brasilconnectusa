@@ -35,6 +35,10 @@
       "destination": "/app.html"
     },
     {
+      "source": "/app/mensagens/:id",
+      "destination": "/app.html"
+    },
+    {
       "source": "/app/post/:id",
       "destination": "/app.html"
     },

@@ -3,6 +3,7 @@ import { C, FONT, useIsMobile } from './lib/colors'
 import { useAuth } from './AuthModal'
 import OnboardingFlow from './OnboardingFlow'
 import NotificationBell from './NotificationBell'
+import MessagesButton from './MessagesButton'
 import PostButton from './PostButton'
 import FeedbackButton from './FeedbackButton'
 import { apiFetch } from './lib/apiFetch'
@@ -14,6 +15,7 @@ const ICP = {
   stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round', strokeLinejoin: 'round',
 }
 const SIcons = {
+  chat:     <svg {...ICP}><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
   home:     <svg {...ICP}><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2h-4v-7H9v7H5a2 2 0 0 1-2-2z"/></svg>,
   search:   <svg {...ICP}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
   globe:    <svg {...ICP}><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10A15.3 15.3 0 0 1 8 12a15.3 15.3 0 0 1 4-10z"/></svg>,
@@ -209,6 +211,7 @@ function MobileTopBar({ user, onSignIn, onSignOut }) {
     }}>
       <Logo size={20} />
       <div style={{ flex: 1 }} />
+      {user && <MessagesButton user={user} />}
       {user && <NotificationBell user={user} />}
       {user ? (
         <UserMenu user={user} onSignOut={onSignOut} size={32} />
@@ -281,6 +284,7 @@ function DesktopTopBar({ user, onSignIn, onSignOut, search, setSearch }) {
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {user && <MessagesButton user={user} />}
         {user && <NotificationBell user={user} />}
         {user ? (
           <UserMenu user={user} onSignOut={onSignOut} size={34} />
@@ -345,6 +349,7 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
       {item(tab === 'feed',         SIcons.home,   'Feed',        () => setTab('feed'))}
       {item(tab === 'discover',     SIcons.search, 'Buscar',      () => setTab('discover'))}
       {item(tab === 'comunidades',  SIcons.globe,  'Comunidades', () => setTab('comunidades'))}
+      {user && item(tab === 'mensagens', SIcons.chat, 'Mensagens', () => setTab('mensagens'))}
 
       {user && myCommunities.length > 0 && (
         <>
