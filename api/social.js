@@ -879,8 +879,19 @@ export default async function handler(req, res) {
       if (!target_type || !target_id || !reason) return err(res, 400, 'campos obrigatórios faltando')
       if (!VALID_REPORT_REASONS.has(reason)) return err(res, 400, 'reason inválido')
 
+      // Mensagem direta: só quem está na conversa denuncia, e o texto guardado é o real
+      let reportDetails = details || null
+      if (target_type === 'dm_message') {
+        const { data: msg } = await supabase.from('bc_dm_messages').select('body, sender_id, thread_id').eq('id', target_id).maybeSingle()
+        if (!msg) return err(res, 404, 'Mensagem não encontrada')
+        const { data: th } = await supabase.from('bc_dm_threads').select('user_a, user_b').eq('id', msg.thread_id).maybeSingle()
+        if (!th || (th.user_a !== reporter_id && th.user_b !== reporter_id)) return err(res, 403, 'Você não participa dessa conversa')
+        if (msg.sender_id === reporter_id) return err(res, 400, 'Não dá pra denunciar a própria mensagem')
+        reportDetails = '[remetente ' + msg.sender_id + '] ' + String(msg.body).slice(0, 1500)
+      }
+
       const { data, error } = await supabase.from('bc_reports')
-        .insert({ reporter_id, target_type, target_id, reason, details: details || null })
+        .insert({ reporter_id, target_type, target_id, reason, details: reportDetails })
         .select()
         .single()
       if (error) throw error

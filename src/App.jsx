@@ -13,6 +13,7 @@ const CommunityDetailScreen  = lazy(() => import('./CommunityDetailScreen'))
 const SettingsScreen         = lazy(() => import('./SettingsScreen'))
 const EventsScreen           = lazy(() => import('./EventsScreen'))
 const PostDetailScreen       = lazy(() => import('./PostDetailScreen'))
+const MessagesScreen         = lazy(() => import('./MessagesScreen'))
 
 function TabFallback() {
   return (
@@ -1244,7 +1245,7 @@ function VoosScreen({ affiliateLinks }) {
 
 // ─── App Principal (usa AppShell responsivo) ──────────────────────────────
 
-const VALID_TABS = ['feed', 'discover', 'comunidades', 'community', 'post', 'eventos', 'remessas', 'voos', 'agenda', 'marketplace', 'settings']
+const VALID_TABS = ['feed', 'discover', 'comunidades', 'community', 'post', 'mensagens', 'eventos', 'remessas', 'voos', 'agenda', 'marketplace', 'settings']
 const TAB_ALIASES = { cambio: 'remessas', comparador: 'remessas', 'venda-troca': 'marketplace', classifieds: 'marketplace' }
 // Slugs antigos que agora redirecionam pra páginas estáticas (1 source of truth)
 const REDIRECT_SLUGS = { negocios: '/negocio', negocio: '/negocio' }
@@ -1258,6 +1259,9 @@ function readTabFromUrl() {
     // Detalhe do post: /post/<id> (link das notificações) ou /app/post/<id>
     const pm = window.location.pathname.match(/^\/(?:app\/)?post\/([^\/?#]+)\/?$/)
     if (pm) return { tab: 'post', slug: decodeURIComponent(pm[1]) }
+    // Conversa: /app/mensagens/<threadId>
+    const mm = window.location.pathname.match(/^\/app\/mensagens\/([^\/?#]+)\/?$/)
+    if (mm) return { tab: 'mensagens', slug: decodeURIComponent(mm[1]) }
 
     // Slug único: /app/<tab>
     const m = window.location.pathname.match(/^\/app(?:\/([^\/?#]+))?\/?$/)
@@ -1376,6 +1380,12 @@ export default function App() {
           : <LoginGate emoji="💬" title="Entre pra ver esse post"
               message="Posts e comentários são exclusivos pra membros. Faça login pra ler e participar."
               perks={['Comentar e responder', 'Confirmar presença em eventos', 'Notificações de quem responde']} />
+        )}
+        {tab === 'mensagens' && (user
+          ? <Suspense fallback={<TabFallback />}><MessagesScreen slug={routeSlug} onNavigate={setTab} /></Suspense>
+          : <LoginGate emoji="✉️" title="Entre pra ver suas mensagens"
+              message="Converse em particular com quem participa das mesmas comunidades que você."
+              perks={['Conversas particulares', 'Bloqueio e denúncia', 'Aviso quando chega mensagem']} />
         )}
         {tab === 'settings' && (user
           ? <Suspense fallback={<TabFallback />}><SettingsScreen onNavigate={setTab} /></Suspense>

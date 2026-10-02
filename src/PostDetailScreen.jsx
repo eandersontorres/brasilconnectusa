@@ -148,6 +148,9 @@ export default function PostDetailScreen({ postId, onNavigate }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, marginBottom: 4, flexWrap: 'wrap' }}>
             <Who item={c} />
             <span style={{ color: C.inkMuted }}>· {timeAgo(c.created_at)}</span>
+            {user && !c.is_anonymous && !c.is_deleted && c.author_id && c.author_id !== user.id && (
+              <button onClick={() => onNavigate && onNavigate('mensagens', 'u-' + c.author_id)} style={{ ...linkBtn, fontSize: 12, marginLeft: 'auto' }}>Mensagem</button>
+            )}
           </div>
           <div style={{ fontSize: 14, color: c.is_deleted ? C.inkMuted : C.ink, lineHeight: 1.5, whiteSpace: 'pre-wrap', fontStyle: c.is_deleted ? 'italic' : 'normal' }}>
             {c.is_deleted ? 'Comentário apagado.' : <Mentions text={c.body} />}
@@ -176,6 +179,12 @@ export default function PostDetailScreen({ postId, onNavigate }) {
       </div>
 
       <PostCard post={post} currentUser={user} full onClick={() => {}} onVote={() => {}} />
+
+      {user && !post.is_anonymous && post.author_id && post.author_id !== user.id && (
+        <div style={{ margin: '-2px 0 12px', fontSize: 13 }}>
+          <button onClick={() => onNavigate && onNavigate('mensagens', 'u-' + post.author_id)} style={linkBtn}>Mandar mensagem pra quem postou</button>
+        </div>
+      )}
 
       {isEvent && (
         <div style={{ background: C.white, border: '1px solid ' + C.line, borderRadius: 12, padding: '14px 16px', marginBottom: 12 }}>
