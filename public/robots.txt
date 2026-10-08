@@ -5,6 +5,7 @@ User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /admin/
+Disallow: /investidores
 Disallow: /go/
 
 # Bloquear bots que sugam conteúdo sem retornar tráfego

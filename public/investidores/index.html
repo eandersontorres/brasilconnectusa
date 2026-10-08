@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<title>Plano de Crescimento BrasilConnect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@500;600&family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  img { max-width: 100%; }
+  /* Layout: memorando de uma coluna; faixa da marca no topo, gráfico das fases em escala no meio. */
+  :root {
+    --bg: #FAF7F0;
+    --surface: #FFFFFF;
+    --ink: #17241F;
+    --muted: #5B6862;
+    --line: #DED8CA;
+    --brand: #1F4D3F;
+    --flag: #009C3B;
+    --gold: #9C7A2C;
+    --band: #1F4D3F;
+    --on-band: #FAF7F0;
+    --band-muted: #C9D6CF;
+    --yellow: #FFDF00;
+    --bar: #1F4D3F;
+    --bar-soft: #D7E5DD;
+    --font-text: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-label: "Barlow", "Arial Narrow", Arial, sans-serif;
+    --font-brand: "Fraunces", Georgia, serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1714; --surface: #16211C; --ink: #ECF0EC; --muted: #9EABA4; --line: #2B3A33;
+      --brand: #7CCBA2; --flag: #44C27A; --gold: #D6B566; --band: #123328; --on-band: #F3F1EA;
+      --band-muted: #9FB4A9; --bar: #5DB88A; --bar-soft: #213A2F; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1714; --surface: #16211C; --ink: #ECF0EC; --muted: #9EABA4; --line: #2B3A33;
+    --brand: #7CCBA2; --flag: #44C27A; --gold: #D6B566; --band: #123328; --on-band: #F3F1EA;
+    --band-muted: #9FB4A9; --bar: #5DB88A; --bar-soft: #213A2F; color-scheme: dark;
+  }
+
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-text); font-size: 16px; line-height: 1.6; }
+  .wrap { max-width: 780px; margin: 0 auto; padding-inline: 20px; }
+
+  .band { background: var(--band); color: var(--on-band); padding-block: 40px 44px; }
+  .logo { font-family: var(--font-brand); font-weight: 600; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+  .logo em { font-style: italic; font-weight: 400; color: var(--yellow); }
+  .logo svg { width: 28px; height: 28px; flex: none; }
+  .eyebrow { font-family: var(--font-label); font-weight: 600; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; }
+  .band .eyebrow { color: var(--band-muted); margin-top: 36px; }
+  h1 { font-size: clamp(30px, 6vw, 46px); line-height: 1.08; letter-spacing: -.03em; font-weight: 700; margin: 10px 0 14px; text-wrap: balance; }
+  h1 span { color: var(--yellow); }
+  .lede { font-size: 18px; color: var(--band-muted); max-width: 62ch; margin: 0; }
+
+  .figures { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 30px; }
+  .fig { border-top: 1px solid color-mix(in srgb, var(--on-band) 30%, transparent); padding-top: 12px; min-width: 0; }
+  .fig b { display: block; font-size: clamp(22px, 4.4vw, 32px); font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .fig span { font-size: 13px; color: var(--band-muted); line-height: 1.4; display: block; }
+
+  main { padding-block: 12px 56px; }
+  section { padding-block: 34px 6px; border-bottom: 1px solid var(--line); }
+  section:last-of-type { border-bottom: 0; }
+  section > .eyebrow { color: var(--gold); }
+  h2 { font-size: 26px; line-height: 1.2; letter-spacing: -.02em; font-weight: 700; margin: 6px 0 12px; text-wrap: balance; }
+  h3 { font-size: 17px; font-weight: 600; margin: 0 0 4px; letter-spacing: -.01em; }
+  p { margin: 0 0 14px; max-width: 66ch; }
+  .muted { color: var(--muted); }
+  .small { font-size: 14px; }
+
+  .metros { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 18px; padding: 0; list-style: none; }
+  .metros li { font-size: 14px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; background: var(--surface); }
+  .metros li.lab { border-color: var(--brand); color: var(--brand); font-weight: 600; }
+
+  .levers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 28px; margin: 14px 0 22px; }
+  .lever { min-width: 0; }
+  .lever p { font-size: 15px; color: var(--muted); margin: 0; }
+  .lever h3 { display: flex; align-items: baseline; gap: 8px; }
+  .lever h3 i { font-style: normal; font-family: var(--font-label); font-size: 12px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--flag); }
+
+  .chart { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px 18px 10px; margin: 8px 0 18px; overflow-x: auto; }
+  .chart svg { display: block; width: 100%; min-width: 520px; height: auto; }
+  .chart .axis { stroke: var(--line); }
+  .chart .tick { fill: var(--muted); font: 500 11px var(--font-label); letter-spacing: .04em; }
+  .chart .lbl { fill: var(--ink); font: 600 13px var(--font-text); }
+  .chart .sub { fill: var(--muted); font: 400 12px var(--font-text); }
+  .chart .val { fill: var(--ink); font: 700 13px var(--font-text); }
+  .chart .bar { fill: var(--bar); }
+  .chart .val.in { fill: var(--surface); }
+  .chart .range { fill: var(--bar-soft); }
+  .legend { font-size: 12px; color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap; padding: 6px 0 4px; }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--bar); }
+  .legend span.r::before { background: var(--bar-soft); }
+
+  .tbl { overflow-x: auto; margin: 6px 0 18px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; font-variant-numeric: tabular-nums; }
+  th { text-align: left; font-family: var(--font-label); font-weight: 600; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  td.n, th.n { text-align: right; white-space: nowrap; }
+  tr.total td { font-weight: 700; border-bottom: 0; }
+  .phase { font-weight: 600; white-space: nowrap; }
+
+  .gates { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 10px 0 20px; }
+  .gate { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+  .gate b { display: block; font-size: 22px; letter-spacing: -.02em; color: var(--brand); font-variant-numeric: tabular-nums; }
+  .gate span { font-size: 14px; color: var(--muted); }
+
+  .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin: 8px 0 20px; }
+  .two > div { min-width: 0; }
+  .two ul { margin: 6px 0 0; padding-left: 18px; font-size: 15px; }
+  .two li { margin-bottom: 6px; }
+  .two li::marker { color: var(--flag); }
+  .two .todo li::marker { color: var(--gold); }
+
+  .ask { display: inline-flex; align-items: center; margin-top: 24px; font-family: var(--font-label); font-weight: 600; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; color: var(--band); background: var(--yellow); padding: 8px 16px; border-radius: 999px; text-decoration: none; }
+  .ask:hover { filter: brightness(1.05); }
+  .ask:focus-visible { outline: 2px solid var(--on-band); outline-offset: 3px; }
+
+  .terms { display: grid; grid-template-columns: minmax(130px, 30%) minmax(0, 1fr); margin: 12px 0 26px; border-top: 1px solid var(--line); }
+  .terms dt, .terms dd { margin: 0; padding-block: 12px; border-bottom: 1px solid var(--line); }
+  .terms dt { font-family: var(--font-label); font-weight: 600; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding-right: 16px; padding-top: 15px; }
+  .terms dd { font-size: 15px; min-width: 0; }
+  .terms dd strong { font-weight: 600; }
+  h3.block { margin: 24px 0 6px; }
+  .cell-sub { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .disclaimer { font-size: 13px; color: var(--muted); border-left: 2px solid var(--line); padding: 2px 0 2px 12px; margin: 4px 0 24px; max-width: 66ch; }
+
+  footer a { color: inherit; }
+  footer { padding-block: 26px 40px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+
+  @media (max-width: 640px) {
+    .levers, .gates, .two { grid-template-columns: 1fr; }
+    .figures { grid-template-columns: 1fr; gap: 4px; }
+    .band { padding-block: 28px 32px; }
+    .terms { grid-template-columns: 1fr; }
+    .terms dt { border-bottom: 0; padding-bottom: 0; }
+  }
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="wrap">
+    <div class="logo">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="11" fill="#009C3B"/><path d="M 14 18 L 50 32 L 14 46" fill="none" stroke="#FFDF00" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="27" cy="32" r="7" fill="#002776"/></svg>
+      <span>Brasil<em>Connect</em></span>
+    </div>
+    <div class="eyebrow">Plano de crescimento · outubro de 2026</div>
+    <h1>Meio milhão de brasileiros nos EUA <span>em três anos</span></h1>
+    <p class="lede">Crescer cidade por cidade, usando os negócios brasileiros e os grupos de WhatsApp como canal principal. Anúncio pago entra só como reforço.</p>
+    <div class="figures">
+      <div class="fig"><b>~2 milhões</b><span>brasileiros nos EUA, pela estimativa do Itamaraty</span></div>
+      <div class="fig"><b>450–500 mil</b><span>cadastros em 36 meses, cerca de 25% do público</span></div>
+      <div class="fig"><b>US$ 2–2,7 mi</b><span>investimento total em marketing e operação de campo</span></div>
+    </div>
+    <a class="ask" href="#rodada">Rodada anjo aberta · US$ 200 mil em SAFE</a>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section id="publico">
+    <div class="eyebrow">O público</div>
+    <h2>Concentrado em poucas regiões, e isso ajuda</h2>
+    <p>O censo americano conta bem menos brasileiros que o Itamaraty, porque muita gente não responde. Para planejar, usamos a estimativa de cerca de 2 milhões. Esse público se concentra em poucas regiões metropolitanas, o que permite ganhar densidade sem campanha nacional.</p>
+    <ul class="metros" aria-label="Regiões prioritárias">
+      <li>Orlando</li><li>Sul da Flórida</li><li>Boston</li><li>Nova Jersey</li><li>Nova York</li><li>Atlanta</li><li>Texas</li><li>Los Angeles</li><li class="lab">Austin · laboratório</li>
+    </ul>
+    <p>Uma plataforma sozinha dificilmente passa de 25% desse público em três anos. Acima disso, o custo por pessoa sobe rápido e a conta passaria de US$ 5 milhões, com mídia de massa.</p>
+  </section>
+
+  <section id="estrategia">
+    <div class="eyebrow">A estratégia</div>
+    <h2>Seis frentes, todas ancoradas na cidade</h2>
+    <p>Diretório, eventos e comunidades só têm valor quando há muita gente na mesma cidade. Por isso cada frente roda numa região de cada vez, até ela ficar densa.</p>
+    <div class="levers">
+      <div class="lever"><h3>Negócios como canal <i>principal</i></h3><p>Cada restaurante, mercado ou salão atende centenas de brasileiros. Plano grátis, QR code no balcão e o link do AgendaPro levam os clientes deles para o site. Uma pessoa de campo por cidade faz o cadastro porta a porta.</p></div>
+      <div class="lever"><h3>Grupos de WhatsApp e Facebook <i>principal</i></h3><p>Grupos como "Brasileiros em Orlando" reúnem dezenas de milhares de pessoas. Parceria com os administradores: pagamento fixo, divisão de receita ou plano Premium.</p></div>
+      <div class="lever"><h3>Câmbio como hábito</h3><p>O alerta da cotação do dólar traz a pessoa de volta toda semana. A comissão das remessas paga parte do custo de aquisição.</p></div>
+      <div class="lever"><h3>Igrejas, consulados e eventos</h3><p>Igrejas brasileiras são o maior ponto de encontro da comunidade. Estandes no Brazilian Day, em festas juninas e em jogos da Seleção geram cadastros baratos.</p></div>
+      <div class="lever"><h3>Conteúdo que o Google encontra</h3><p>Guias de ITIN, CNH, conta bancária e LLC, mais custo de vida por cidade, trazem visitas sem custo por clique.</p></div>
+      <div class="lever"><h3>Influência e indicação</h3><p>Microinfluenciadores brasileiros nos EUA, com 10 a 100 mil seguidores, e o programa de indicação que já está no ar.</p></div>
+    </div>
+  </section>
+
+  <section id="fases">
+    <div class="eyebrow">Fases e investimento</div>
+    <h2>Três fases, cada uma liberada pelos números da anterior</h2>
+    <p>O custo por cadastro sobe com o tempo, porque as pessoas mais fáceis de alcançar entram primeiro. A fase 3 custa o dobro por pessoa da fase 1.</p>
+
+    <div class="chart" role="img" aria-label="Cadastros acumulados por fase: cerca de 25 mil no mês 6, 150 mil no mês 18 e 475 mil no mês 36.">
+      <svg viewBox="0 0 640 214" xmlns="http://www.w3.org/2000/svg">
+        <!-- escala: 0 a 500 mil cadastros = x 170 a 610 (440 px) -->
+        <line class="axis" x1="170" y1="20" x2="170" y2="176"/>
+        <line class="axis" x1="280" y1="20" x2="280" y2="176" stroke-dasharray="2 4"/>
+        <line class="axis" x1="390" y1="20" x2="390" y2="176" stroke-dasharray="2 4"/>
+        <line class="axis" x1="500" y1="20" x2="500" y2="176" stroke-dasharray="2 4"/>
+        <line class="axis" x1="610" y1="20" x2="610" y2="176" stroke-dasharray="2 4"/>
+        <text class="tick" x="170" y="196" text-anchor="middle">0</text>
+        <text class="tick" x="280" y="196" text-anchor="middle">125 mil</text>
+        <text class="tick" x="390" y="196" text-anchor="middle">250 mil</text>
+        <text class="tick" x="500" y="196" text-anchor="middle">375 mil</text>
+        <text class="tick" x="610" y="196" text-anchor="middle">500 mil</text>
+
+        <!-- Fase 1: 20 a 30 mil -->
+        <text class="lbl" x="0" y="42">Fase 1 · mês 6</text>
+        <text class="sub" x="0" y="60">US$ 60–90 mil</text>
+        <rect class="range" x="170" y="34" width="26.4" height="26" rx="3"/>
+        <rect class="bar" x="170" y="34" width="17.6" height="26" rx="3"/>
+        <text class="val" x="204" y="52">20–30 mil</text>
+
+        <!-- Fase 2: ~150 mil -->
+        <text class="lbl" x="0" y="96">Fase 2 · mês 18</text>
+        <text class="sub" x="0" y="114">+US$ 350–500 mil</text>
+        <rect class="range" x="170" y="88" width="140.8" height="26" rx="3"/>
+        <rect class="bar" x="170" y="88" width="123.2" height="26" rx="3"/>
+        <text class="val" x="319" y="106">~150 mil</text>
+
+        <!-- Fase 3: 450 a 500 mil -->
+        <text class="lbl" x="0" y="150">Fase 3 · mês 36</text>
+        <text class="sub" x="0" y="168">+US$ 1,5–2 mi</text>
+        <rect class="range" x="170" y="142" width="440" height="26" rx="3"/>
+        <rect class="bar" x="170" y="142" width="396" height="26" rx="3"/>
+        <text class="val in" x="556" y="160" text-anchor="end">450–500 mil</text>
+      </svg>
+      <div class="legend"><span>Cenário conservador</span><span class="r">Cenário otimista</span></div>
+    </div>
+
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Fase</th><th>Prazo</th><th>Onde</th><th class="n">Investimento</th><th class="n">Cadastros acumulados</th><th class="n">Custo por cadastro</th></tr></thead>
+        <tbody>
+          <tr><td class="phase">1. Prova</td><td>meses 1 a 6</td><td>Austin, Orlando e Boston</td><td class="n">US$ 60–90 mil</td><td class="n">20–30 mil</td><td class="n">~US$ 3</td></tr>
+          <tr><td class="phase">2. Expansão</td><td>meses 7 a 18</td><td>as 8 maiores regiões</td><td class="n">US$ 350–500 mil</td><td class="n">~150 mil</td><td class="n">US$ 3–4</td></tr>
+          <tr><td class="phase">3. Nacional</td><td>meses 19 a 36</td><td>país todo</td><td class="n">US$ 1,5–2 mi</td><td class="n">450–500 mil</td><td class="n">US$ 5–6</td></tr>
+          <tr class="total"><td>Total</td><td>36 meses</td><td></td><td class="n">US$ 2–2,7 mi</td><td class="n">450–500 mil</td><td class="n"></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">Cerca de um terço dos cadastrados deve usar o site todo mês. Meio milhão de cadastros vira algo entre 150 e 200 mil pessoas ativas.</p>
+  </section>
+
+  <section id="fase1">
+    <div class="eyebrow">Fase 1 por dentro</div>
+    <h2>Cerca de US$ 12,5 mil por mês, durante seis meses</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Item</th><th>Para quê</th><th class="n">Por mês</th></tr></thead>
+        <tbody>
+          <tr><td>Anúncios no Instagram e Facebook</td><td>Públicos em português nas três cidades</td><td class="n">US$ 4.000</td></tr>
+          <tr><td>Representante de campo</td><td>Cadastro de negócios porta a porta</td><td class="n">US$ 3.000</td></tr>
+          <tr><td>Microinfluenciadores</td><td>Vídeos curtos com dicas práticas</td><td class="n">US$ 2.500</td></tr>
+          <tr><td>Grupos de WhatsApp e Facebook</td><td>Parceria com administradores</td><td class="n">US$ 1.500</td></tr>
+          <tr><td>Eventos e material impresso</td><td>Estandes, QR codes de balcão</td><td class="n">US$ 1.500</td></tr>
+          <tr class="total"><td>Total</td><td></td><td class="n">US$ 12.500</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="metas">
+    <div class="eyebrow">Critério para seguir</div>
+    <h2>A fase 2 só começa se a fase 1 bater estas metas</h2>
+    <div class="gates">
+      <div class="gate"><b>≤ US$ 3</b><span>de custo por cadastro, somando todos os canais</span></div>
+      <div class="gate"><b>≥ 35%</b><span>dos cadastrados ainda ativos no segundo mês</span></div>
+      <div class="gate"><b>300</b><span>negócios cadastrados nas três cidades</span></div>
+      <div class="gate"><b>5%</b><span>desses negócios num plano pago</span></div>
+    </div>
+    <p>Daí em diante, parte da expansão deve ser paga pela receita. O plano de negócios mira cerca de US$ 780 mil por ano em assinaturas de negócios e do AgendaPro, somados às comissões de remessas.</p>
+  </section>
+
+  <section id="base">
+    <div class="eyebrow">Ponto de partida</div>
+    <h2>O que já está no ar e o que falta antes de investir</h2>
+    <div class="two">
+      <div>
+        <h3>Já funciona</h3>
+        <ul>
+          <li>Comparador de câmbio e remessas, e busca de voos</li>
+          <li>Guias práticos e custo de vida em 12 cidades</li>
+          <li>Diretório de negócios com planos Pro e Premium</li>
+          <li>AgendaPro para profissionais de beleza e serviços</li>
+          <li>Comunidades, eventos, comentários e mensagens diretas</li>
+          <li>Programa de indicação e loja da Coleção 01</li>
+        </ul>
+      </div>
+      <div class="todo">
+        <h3>Falta antes do primeiro dólar</h3>
+        <ul>
+          <li>Ligar o Google Analytics, para saber qual canal funciona</li>
+          <li>Cadastrar os IDs de afiliado das remessas, para a comissão entrar</li>
+          <li>Passar o Stripe para o modo real, para os negócios pagarem</li>
+          <li>Abrir o app para todos, sem a tela de "em construção"</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="rodada">
+    <div class="eyebrow">A rodada anjo</div>
+    <h2>US$ 200 mil para provar o modelo em três cidades</h2>
+    <p>O dinheiro cobre doze meses de operação. Paga a fase 1 inteira, a equipe em dedicação integral e a folga até a rodada da fase 2. A emissora é a BrasilConnect, Inc., uma corporação americana, e o instrumento é o SAFE, o contrato padrão do mercado americano para investimento anjo. O valor da empresa só é fixado na próxima rodada. O SAFE define apenas um teto.</p>
+
+    <dl class="terms">
+      <dt>Emissora</dt><dd>BrasilConnect, Inc., C-Corp</dd>
+      <dt>Instrumento</dt><dd>SAFE pós-money, modelo da Y Combinator, com teto de valor e sem desconto</dd>
+      <dt>Captação</dt><dd><strong>US$ 200 mil</strong>, aceitando de US$ 150 a 250 mil</dd>
+      <dt>Teto de valor</dt><dd>US$ 1,7 milhão depois do aporte, o equivalente a US$ 1,5 milhão antes</dd>
+      <dt>Participação</dt><dd>Cada <strong>US$ 17 mil</strong> garante pelo menos 1% da empresa na conversão. Os US$ 200 mil somam cerca de 11,8%.</dd>
+      <dt>Conversão</dt><dd>Em ações, na próxima rodada com preço por ação, esperada para a fase 2</dd>
+      <dt>Direitos do anjo</dt><dd>Relatório mensal com as métricas da fase 1 e direito de investir de novo na rodada seguinte, na mesma proporção</dd>
+      <dt>Fechamento</dt><dd>Em até duas etapas. Quem entra na primeira garante o teto de US$ 1,7 milhão. A segunda pode ter teto maior, conforme os números do piloto em Austin.</dd>
+    </dl>
+
+    <h3 class="block">Uso do dinheiro</h3>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Categoria</th><th class="n">Valor</th></tr></thead>
+        <tbody>
+          <tr><td>Marketing e operação de campo<span class="cell-sub">Fase 1 em Austin, Orlando e Boston, por seis meses</span></td><td class="n">US$ 75.000</td></tr>
+          <tr><td>Equipe<span class="cell-sub">Fundador em dedicação integral por doze meses, com encargos de folha</span></td><td class="n">US$ 90.000</td></tr>
+          <tr><td>Jurídico e contabilidade<span class="cell-sub">Registro da empresa, documentos do SAFE e impostos</span></td><td class="n">US$ 10.000</td></tr>
+          <tr><td>Infraestrutura<span class="cell-sub">Servidores, e-mail e ferramentas por doze meses</span></td><td class="n">US$ 7.000</td></tr>
+          <tr><td>Continuidade<span class="cell-sub">Marketing em ritmo menor nos meses 7 a 12 e imprevistos, até a rodada da fase 2</span></td><td class="n">US$ 18.000</td></tr>
+          <tr class="total"><td>Total</td><td class="n">US$ 200.000</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="block">Participação estimada depois da fase 2</h3>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Grupo</th><th class="n">Participação</th></tr></thead>
+        <tbody>
+          <tr><td>Time fundador</td><td class="n">cerca de 71%</td></tr>
+          <tr><td>Anjos desta rodada</td><td class="n">cerca de 9%</td></tr>
+          <tr><td>Investidores da fase 2</td><td class="n">10%</td></tr>
+          <tr><td>Reserva de ações para futuros funcionários</td><td class="n">10%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">A conta supõe que a rodada da fase 2 venda 10% da empresa e crie uma reserva de 10% para a equipe. Na conversão, antes da nova rodada, os anjos têm pelo menos 11,8%.</p>
+
+    <p class="disclaimer">Material informativo para conversas com investidores. Não é uma oferta pública de valores mobiliários. Os termos só valem quando assinados em documento definitivo, revisado por advogado.</p>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">BrasilConnect USA · documento interno para sócios e investidores. Os valores são um cenário com premissas de mercado, não uma previsão. Os custos por cadastro devem ser revistos com os dados reais da fase 1. <a href="/investidores?sair=1">Sair da área de investidores</a></div>
+</footer>
+</body>
+</html>
