@@ -18,8 +18,19 @@
 import { createClient } from '@supabase/supabase-js'
 import { requireProviderAuth } from '../_lib/providerAuth.js'
 
-const LIST_COLS = 'id, scheduled_for, duration_min, status, client_name, client_whatsapp, client_email, client_notes, total_cents, deposit_cents, deposit_paid, payment_method, review_requested, created_at, ag_services(name)'
+const LIST_COLS = 'id, scheduled_for, duration_min, status, client_name, client_whatsapp, client_email, client_notes, total_cents, deposit_cents, deposit_paid, payment_method, review_requested, created_at, cancel_reason, external_uid, ical_next_checkin, ag_services(name), ag_ical_feeds(label, source, notes)'
 const METHODS = ['zelle', 'cash', 'card', 'other']
+
+// Turnover (external_uid preenchido) traz a casa sincronizada no lugar do servico
+const shape = a => ({
+  ...a,
+  service_name: a.ag_services?.name || null,
+  feed_label: a.ag_ical_feeds?.label || null,
+  feed_source: a.ag_ical_feeds?.source || null,
+  feed_notes: a.ag_ical_feeds?.notes || null,
+  ag_services: undefined,
+  ag_ical_feeds: undefined,
+})
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
@@ -43,7 +54,7 @@ export default async function handler(req, res) {
 
       res.setHeader('Cache-Control', 'private, no-store')
       return res.status(200).json({
-        appointments: (data || []).map(a => ({ ...a, service_name: a.ag_services?.name || null, ag_services: undefined })),
+        appointments: (data || []).map(shape),
       })
     }
 
@@ -86,7 +97,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       ok: true,
-      appointment: { ...updated, service_name: updated.ag_services?.name || null, ag_services: undefined },
+      appointment: shape(updated),
     })
   } catch (e) {
     return res.status(500).json({ error: e.message })
