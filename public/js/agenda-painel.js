@@ -4,7 +4,9 @@
  * Uso:  BCAgendaPainel.mount(container, provider)
  * Depende de window.bcFetch (fetch com o token da sessao) e window.showToast.
  *
- * Secoes: link publico · plano · sinal · servicos · horarios · agendamentos.
+ * Secoes: link publico · plano · sinal · servicos · horarios · turnover · agendamentos.
+ * Turnover: casas de Airbnb/Vrbo/Booking sincronizadas pelo link .ics
+ * (/api/agenda/ical); cada reserva vira uma limpeza no dia do checkout.
  * Os horarios dos agendamentos sao hora do relogio da profissional guardada sem
  * fuso, por isso tudo e formatado em UTC (sem conversao).
  */
@@ -19,6 +21,8 @@
     canceled: ['Cancelado', '#9F2D2D', '#F9E2DF'],
     no_show: ['Faltou', '#9F2D2D', '#F9E2DF'],
   }
+
+  var SOURCES = { airbnb: 'Airbnb', vrbo: 'Vrbo', booking: 'Booking', outro: 'Calendário' }
 
   var el, provider, state
 
@@ -36,6 +40,21 @@
     try {
       return new Date(iso).toLocaleString('pt-BR', { timeZone: 'UTC', weekday: 'short', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })
     } catch (e) { return String(iso) }
+  }
+  function day(dateKey) {
+    try {
+      return new Date(dateKey + 'T12:00:00Z').toLocaleDateString('pt-BR', { timeZone: 'UTC', weekday: 'short', day: '2-digit', month: 'short' })
+    } catch (e) { return String(dateKey) }
+  }
+  function ago(iso) {
+    var min = Math.round((Date.now() - new Date(iso).getTime()) / 60000)
+    if (!isFinite(min)) return ''
+    if (min < 2) return 'agora há pouco'
+    if (min < 60) return 'há ' + min + ' min'
+    var h = Math.round(min / 60)
+    if (h < 24) return 'há ' + h + 'h'
+    var d = Math.round(h / 24)
+    return 'há ' + d + (d === 1 ? ' dia' : ' dias')
   }
   function toast(msg, isError) {
     if (typeof window.showToast === 'function') window.showToast(msg, isError)
@@ -86,6 +105,12 @@
       '.ap-link input{flex:1;min-width:200px;font-family:monospace;font-size:13px}',
       '.ap-note{background:var(--gold-soft);border-left:3px solid var(--accent);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--ink-soft);line-height:1.55;margin-bottom:16px}',
       '.ap-empty{font-size:14px;color:var(--ink-muted);padding:6px 0}',
+      '.ap-err{color:#9F2D2D}',
+      '.ap-hot{display:inline-block;margin-top:4px;font-size:12px;font-weight:700;color:#8A5A00;background:#F7EBCF;border-radius:6px;padding:2px 8px}',
+      '.ap-how{font-size:13px;color:var(--ink-soft);line-height:1.6;margin:0 0 16px}',
+      '.ap-how summary{cursor:pointer;font-weight:600;color:var(--green-deep)}',
+      '.ap-how ol{margin:8px 0 0;padding-left:20px}',
+      '.ap-how li{margin-top:4px}',
       '@media(max-width:640px){.ap-sec{padding:22px 18px}.ap-grid{grid-template-columns:1fr}.ap-day{grid-template-columns:1fr 1fr}.ap-day label{grid-column:1/-1}}',
     ].join('\n')
     document.head.appendChild(s)
@@ -93,7 +118,7 @@
 
   // ── Render ──────────────────────────────────────────────────────────────
   function render() {
-    el.innerHTML = secLink() + secPlan() + secDeposit() + secServices() + secHours() + secAppointments()
+    el.innerHTML = secLink() + secPlan() + secDeposit() + secServices() + secHours() + secTurnover() + secAppointments()
   }
 
   function secLink() {
@@ -191,6 +216,55 @@
       '<div style="margin-top:14px"><button class="ap-btn pri" data-act="hours-save">Salvar horários</button></div></section>'
   }
 
+  function secTurnover() {
+    var list = state.feeds
+    var rows = !list ? '<div class="ap-empty">Carregando…</div>'
+      : list.length === 0 ? '<div class="ap-empty">Nenhuma casa sincronizada ainda.</div>'
+      : list.map(feedRow).join('')
+    return '<section class="ap-sec"><h2>Turnover de Airbnb, Vrbo e Booking</h2>' +
+      '<p class="ap-sub">Cole o link do calendário de cada casa. A limpeza entra sozinha na sua agenda no dia do checkout, muda se a reserva mudar e sai se for cancelada. Atualiza de hora em hora.</p>' +
+      '<details class="ap-how"><summary>Como pegar o link com o host</summary><ol>' +
+      '<li><strong>Airbnb</strong> (no computador): Calendário → escolha o anúncio → Disponibilidade → Conectar calendários → Conectar a outro site → copiar o link.</li>' +
+      '<li><strong>Vrbo e Booking</strong>: no calendário do anúncio, procure “Exportar calendário” ou “Sincronizar calendários” e copie o link.</li>' +
+      '<li>O link termina em <code>.ics</code> e mostra as datas da casa: guarde como senha e não compartilhe.</li>' +
+      '</ol></details>' +
+      (planOn() ? '' : '<div class="ap-note">Pra sincronizar, você precisa de um plano ativo. Os 14 dias de teste grátis valem.</div>') +
+      rows +
+      (state.feedForm ? feedForm(state.feedForm) : '<div style="margin-top:14px"><button class="ap-btn pri" data-act="feed-new"' + (planOn() ? '' : ' disabled') + '>Adicionar casa</button></div>') +
+      '</section>'
+  }
+
+  function feedRow(f) {
+    var status = !f.last_synced_at ? 'Ainda não sincronizou'
+      : f.last_status === 'error' ? '<span class="ap-err">Erro ' + esc(ago(f.last_synced_at)) + ': ' + esc(f.last_error || 'não deu certo') + '</span>'
+      : 'Sincronizado ' + esc(ago(f.last_synced_at)) + ' · ' + esc(f.reservations_count) + (f.reservations_count === 1 ? ' reserva por vir' : ' reservas por vir')
+    return '<div class="ap-row"><div class="ap-main"><div class="ap-name">' + esc(f.label) +
+      ' <span class="ap-pill" style="color:#1F4D3F;background:#E4EEE7">' + esc(SOURCES[f.source] || 'Calendário') + '</span></div>' +
+      '<div class="ap-meta">Checkout ' + esc(f.checkout_time) + ' · ' + esc(f.duration_min) + ' min · ' + usd(f.price_cents) + '<br>' + status +
+      (f.notes ? '<br>Obs.: ' + esc(f.notes) : '') + '</div></div>' +
+      '<div class="ap-actions">' +
+      '<button class="ap-btn" data-act="feed-sync" data-id="' + esc(f.id) + '"' + (planOn() ? '' : ' disabled') + '>Sincronizar agora</button>' +
+      '<button class="ap-btn" data-act="feed-edit" data-id="' + esc(f.id) + '">Editar</button>' +
+      '<button class="ap-btn danger" data-act="feed-del" data-id="' + esc(f.id) + '">Remover</button></div></div>'
+  }
+
+  function feedForm(f) {
+    var editing = !!f.id
+    return '<form class="ap-form" id="ap-feed-form">' +
+      '<div><label for="ap-f-label">Nome da casa *</label><input id="ap-f-label" name="label" required maxlength="80" value="' + esc(f.label) + '" placeholder="Ex.: Casa do lago, Kissimmee"></div>' +
+      '<div><label for="ap-f-url">Link do calendário (.ics)' + (editing ? '' : ' *') + '</label>' +
+      '<input id="ap-f-url" name="url" type="url" inputmode="url" autocomplete="off" spellcheck="false"' + (editing ? '' : ' required') +
+      ' placeholder="' + (editing ? 'Deixe em branco pra manter: ' + esc(f.url_hint || 'link atual') : 'https://www.airbnb.com/calendar/ical/….ics') + '"></div>' +
+      '<div class="ap-grid">' +
+      '<div><label for="ap-f-time">Horário do checkout</label><input id="ap-f-time" name="checkout_time" type="time" required value="' + esc(f.checkout_time || '11:00') + '"></div>' +
+      '<div><label for="ap-f-dur">Duração da limpeza (min)</label><input id="ap-f-dur" name="duration_min" type="number" min="15" max="720" step="15" required value="' + esc(f.duration_min || 180) + '"></div>' +
+      '<div><label for="ap-f-price">Valor da limpeza (US$)</label><input id="ap-f-price" name="price" type="number" min="0" step="0.01" value="' + esc(f.price_cents != null ? (f.price_cents / 100).toFixed(2) : '') + '" placeholder="0.00"></div>' +
+      '</div>' +
+      '<div><label for="ap-f-notes">Observações</label><textarea id="ap-f-notes" name="notes" rows="2" maxlength="500" placeholder="Endereço, código da porta, onde fica a roupa de cama">' + esc(f.notes) + '</textarea></div>' +
+      '<div class="ap-actions"><button type="submit" class="ap-btn pri">' + (editing ? 'Salvar casa' : 'Adicionar e sincronizar') + '</button>' +
+      '<button type="button" class="ap-btn" data-act="feed-cancel">Cancelar</button></div></form>'
+  }
+
   function secAppointments() {
     var list = state.appointments
     var scope = state.scope
@@ -204,6 +278,7 @@
   }
 
   function aptRow(a) {
+    if (a.external_uid) return turnoverRow(a)
     var st = STATUS[a.status] || [a.status, '#4B4F4D', '#EDEBE4']
     var wa = String(a.client_whatsapp || '').replace(/\D/g, '')
     var acts = []
@@ -232,19 +307,51 @@
       '<div class="ap-actions">' + acts.join('') + '</div></div>'
   }
 
+  // Limpeza de turnover: nao tem cliente pra avisar; o que importa e quando chega o proximo hospede
+  function turnoverRow(a) {
+    var st = STATUS[a.status] || [a.status, '#4B4F4D', '#EDEBE4']
+    var open = a.status === 'pending' || a.status === 'confirmed'
+    var next = ''
+    if (open) {
+      next = !a.ical_next_checkin ? '<br>Sem próxima reserva no calendário'
+        : a.ical_next_checkin === String(a.scheduled_for).slice(0, 10) ? '<br><span class="ap-hot">Próximo hóspede chega no mesmo dia</span>'
+        : '<br>Próximo check-in: ' + esc(day(a.ical_next_checkin))
+    }
+    var acts = []
+    if (open) {
+      acts.push('<button class="ap-btn pri" data-act="apt" data-do="complete" data-id="' + esc(a.id) + '">Concluir</button>')
+      acts.push('<button class="ap-btn danger" data-act="apt" data-do="cancel" data-id="' + esc(a.id) + '">Cancelar</button>')
+    }
+    return '<div class="ap-row"><div class="ap-main">' +
+      '<div class="ap-name">' + esc(when(a.scheduled_for)) + ' · ' + esc(a.feed_label || a.client_name) +
+      ' <span class="ap-pill" style="color:' + st[1] + ';background:' + st[2] + '">' + esc(st[0]) + '</span></div>' +
+      '<div class="ap-meta">Turnover' + (a.feed_source ? ' ' + esc(SOURCES[a.feed_source] || '') : '') + ' · ' + esc(a.duration_min) + ' min · ' + usd(a.total_cents) + next +
+      (a.status === 'canceled' && a.cancel_reason ? '<br>' + esc(a.cancel_reason) : '') +
+      (open && a.feed_notes ? '<br>Obs.: ' + esc(a.feed_notes) : '') + '</div></div>' +
+      '<div class="ap-actions">' + acts.join('') + '</div></div>'
+  }
+
   // ── Dados ───────────────────────────────────────────────────────────────
   async function loadAll() {
     var jobs = [
       api('/api/agenda/services?mine=1').then(function (d) { state.services = d.services || [] }),
       api('/api/agenda/hours').then(function (d) { state.hours = d.hours || [] }),
+      loadFeeds(true),
       loadAppointments(true),
       api('/api/agenda/connect').then(function (d) { state.connect = d }).catch(function () { state.connect = { connected: false, charges_enabled: false } }),
     ]
     await Promise.all(jobs.map(function (p) { return p.catch(function (e) { toast(e.message, true) }) }))
     state.services = state.services || []
     state.hours = state.hours || []
+    state.feeds = state.feeds || []
     state.appointments = state.appointments || []
     render()
+  }
+  function loadFeeds(silent) {
+    return api('/api/agenda/ical').then(function (d) {
+      state.feeds = d.feeds || []
+      if (!silent) render()
+    })
   }
   function loadAppointments(silent) {
     return api('/api/agenda/appointments?scope=' + state.scope).then(function (d) {
@@ -284,6 +391,26 @@
         toast(r.paused ? 'Serviço pausado (tem agendamentos no histórico)' : 'Serviço removido')
         state.services = (await api('/api/agenda/services?mine=1')).services || []
         render()
+      } else if (act === 'feed-new') {
+        state.feedForm = { checkout_time: '11:00', duration_min: 180 }; render(); focus('ap-f-label')
+      } else if (act === 'feed-edit') {
+        state.feedForm = Object.assign({}, state.feeds.find(function (f) { return f.id === b.dataset.id }))
+        render(); focus('ap-f-label')
+      } else if (act === 'feed-cancel') {
+        state.feedForm = null; render()
+      } else if (act === 'feed-sync') {
+        b.disabled = true; b.textContent = 'Sincronizando…'
+        var sr = await post('/api/agenda/ical', { action: 'sync', id: b.dataset.id })
+        syncToast(sr.sync)
+        await Promise.all([loadFeeds(true), loadAppointments(true)])
+        render()
+      } else if (act === 'feed-del') {
+        if (!confirm('Remover esta casa? As limpezas por vir dela saem da agenda. As já feitas continuam no histórico.')) return
+        b.disabled = true
+        await post('/api/agenda/ical', { action: 'delete', id: b.dataset.id })
+        toast('Casa removida')
+        await Promise.all([loadFeeds(true), loadAppointments(true)])
+        render()
       } else if (act === 'hours-save') {
         await saveHours(b)
       } else if (act === 'scope') {
@@ -306,6 +433,7 @@
   function focus(id) { setTimeout(function () { var n = document.getElementById(id); if (n) n.focus() }, 50) }
 
   async function onSubmit(e) {
+    if (e.target.id === 'ap-feed-form') return saveFeed(e)
     if (e.target.id !== 'ap-svc-form') return
     e.preventDefault()
     var f = e.target, btn = f.querySelector('button[type=submit]')
@@ -326,6 +454,39 @@
       render()
     } catch (err) {
       btn.disabled = false
+      toast(err.message, true)
+    }
+  }
+
+  function syncToast(r) {
+    if (!r) { toast('Casa salva'); return }
+    if (!r.ok) { toast('Não deu pra sincronizar: ' + r.error, true); return }
+    var parts = []
+    if (r.created) parts.push(r.created + (r.created === 1 ? ' limpeza nova' : ' limpezas novas'))
+    if (r.updated) parts.push(r.updated + (r.updated === 1 ? ' atualizada' : ' atualizadas'))
+    if (r.canceled) parts.push(r.canceled + (r.canceled === 1 ? ' cancelada' : ' canceladas'))
+    toast(parts.length ? 'Sincronizado: ' + parts.join(', ') : 'Sincronizado. Nada mudou.')
+  }
+
+  async function saveFeed(e) {
+    e.preventDefault()
+    var f = e.target, btn = f.querySelector('button[type=submit]')
+    var editing = !!(state.feedForm && state.feedForm.id)
+    var body = {
+      action: editing ? 'update' : 'create',
+      id: editing ? state.feedForm.id : undefined,
+      label: f.label.value, url: f.url.value.trim(), checkout_time: f.checkout_time.value,
+      duration_min: Number(f.duration_min.value), price_cents: toCents(f.price.value), notes: f.notes.value,
+    }
+    btn.disabled = true; btn.textContent = editing ? 'Salvando…' : 'Lendo o calendário…'
+    try {
+      var r = await post('/api/agenda/ical', body)
+      syncToast(r.sync)
+      state.feedForm = null
+      await Promise.all([loadFeeds(true), loadAppointments(true)])
+      render()
+    } catch (err) {
+      btn.disabled = false; btn.textContent = editing ? 'Salvar casa' : 'Adicionar e sincronizar'
       toast(err.message, true)
     }
   }
@@ -373,7 +534,7 @@
       // Remonta limpo: o /assinante recria o container a cada render
       el = container
       provider = prov
-      state = { services: null, hours: null, appointments: null, connect: null, scope: 'upcoming', svcForm: null }
+      state = { services: null, hours: null, feeds: null, appointments: null, connect: null, scope: 'upcoming', svcForm: null, feedForm: null }
       el.addEventListener('click', onClick)
       el.addEventListener('submit', onSubmit)
       render()

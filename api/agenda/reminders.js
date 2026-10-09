@@ -33,6 +33,8 @@ export default async function handler(req, res) {
       .select('id, scheduled_for, client_name, client_email, ag_services(name), ag_providers(name, slug, whatsapp)')
       .eq('status', 'confirmed')
       .eq('reminder_24h_sent', false)
+      // Turnover (limpeza de Airbnb/Vrbo) nao tem cliente pra lembrar e nao pode ocupar o limite da execucao
+      .is('external_uid', null)
       .gte('scheduled_for', tomorrowStart.toISOString())
       .lte('scheduled_for', tomorrowEnd.toISOString())
       .limit(MAX_PER_RUN)
