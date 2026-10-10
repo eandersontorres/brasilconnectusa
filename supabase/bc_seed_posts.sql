@@ -3,8 +3,8 @@
 --
 -- Cria:
 --   1. Profile oficial @brasilconnect (UUID fixo, sem auth.users — nao loga)
---   2. 27 posts ancora distribuidos em:
---      - brasil (geral): 7 posts
+--   2. 26 posts ancora distribuidos em:
+--      - brasil (geral): 6 posts
 --      - 8 cidades top: 2 posts cada (16 posts)
 --      - 4 interesses populares: 1 post cada (4 posts)
 --
@@ -103,14 +103,7 @@ Importante: paga sempre na data, nunca usa mais de 30% do limite. Em 6-12 meses 
 • **Brigadeiro pronto** — Amazon (busca "Bee Buzz" ou "My Sweet Brigadeiro")
 
 Acharam outras? Compartilha aí o achado da semana 😋',
-     false, NOW() - INTERVAL '3 days' + INTERVAL '5 hours'),
-
-    ((SELECT id FROM bc_communities WHERE slug='brasil'), oficial_uuid, 'event',
-     'Brasil x Marrocos — 13 de Junho: onde assistir aí na sua cidade?',
-     'Faltam 3 semanas pro primeiro jogo do Brasil na Copa 2026 — no MetLife Stadium (NJ)! Pra quem não vai conseguir ingresso, vamos mapear os melhores pontos pra assistir.
-
-Restaurante brasileiro? Bar que passa? Casa de amigo abrindo as portas? Comenta cidade + lugar. Vamos montar uma lista pública até o jogo. 🇧🇷⚽',
-     false, NOW() - INTERVAL '1 day');
+     false, NOW() - INTERVAL '3 days' + INTERVAL '5 hours');
 
   -- ── 3. Posts: Boston ──────────────────────────────────────────────────────
   INSERT INTO bc_posts (community_id, author_id, type, title, body, created_at) VALUES
