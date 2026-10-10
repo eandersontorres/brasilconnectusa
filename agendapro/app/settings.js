@@ -13,6 +13,7 @@ import { supabase } from '../lib/supabase'
 import { ensureFeature, featureInfo, showError } from '../lib/gate'
 import { choose, confirm, notify } from '../lib/dialog'
 import { PRIVACY_URL, SUPPORT_EMAIL, TERMS_URL } from '../lib/config'
+import { BRAND, IS_WORKPRO } from '../lib/variant'
 import { LANGS } from '../lib/whatsapp'
 import { fmtAgo } from '../lib/format'
 import { pushPermission, registerForPush, lastPushError, unregisterPush } from '../lib/push'
@@ -29,6 +30,7 @@ const DEFAULTS = {
   notify_cancellation: true,
   notify_review: true,
   notify_daily_summary: false,
+  notify_documents: true,
   calendar_sync: false,
   week_starts_monday: false,
   default_language: 'pt',
@@ -47,7 +49,17 @@ const TIMEZONES = [
 const VERTICALS = [
   { value: 'services', label: 'Beleza e serviços' },
   { value: 'cleaning', label: 'Limpeza' },
+  { value: 'trades', label: 'Obras e reparos' },
 ]
+// Cada app mostra os tipos dele (WorkPro: obras e limpeza; AgendaPro: beleza e limpeza),
+// mais o tipo atual se for de fora da lista (pra continuar aparecendo marcado)
+const VERTICALS_OF_APP = IS_WORKPRO ? ['trades', 'cleaning'] : ['services', 'cleaning']
+const verticalOptions = (current) => (VERTICALS_OF_APP.includes(current) ? VERTICALS_OF_APP : [...VERTICALS_OF_APP, current])
+  .map((k) => VERTICALS.find((v) => v.value === k)).filter(Boolean)
+
+// Mesma conta (e mesma assinatura) nos dois apps: excluir apaga os dados dos dois
+const OTHER_APP = IS_WORKPRO ? 'AgendaPro' : 'WorkPro'
+const BOTH_APPS = `no ${BRAND.name} e no ${OTHER_APP}`
 
 const LANG_SHORT = { pt: 'Português', en: 'English', es: 'Español' }
 
@@ -160,7 +172,7 @@ export default function Settings() {
       if (token) { notify('Pronto!', 'Você vai receber aviso aqui no celular quando chegar agendamento novo.'); return }
       const why = lastPushError()
       if (why === 'denied') {
-        if (await confirm('Notificações bloqueadas', 'Pra receber os avisos, libere as notificações do AgendaPro nos Ajustes do celular.', { ok: 'Abrir Ajustes', cancel: 'Agora não' })) openDeviceSettings()
+        if (await confirm('Notificações bloqueadas', `Pra receber os avisos, libere as notificações do ${BRAND.name} nos Ajustes do celular.`, { ok: 'Abrir Ajustes', cancel: 'Agora não' })) openDeviceSettings()
       } else if (why === 'no_project') {
         notify('Ainda não disponível', 'As notificações chegam na versão do app baixada da loja. Atualize o app e tente de novo.')
       } else {
@@ -200,7 +212,7 @@ export default function Settings() {
       setLastSync(await lastCalendarSync())
       setCalPerm(await calendarPermission())
       if (err === 'permission') {
-        if (await confirm('Sem acesso ao calendário', 'Libere o AgendaPro nos Ajustes do celular (Privacidade → Calendários).', { ok: 'Abrir Ajustes', cancel: 'Agora não' })) openDeviceSettings()
+        if (await confirm('Sem acesso ao calendário', `Libere o ${BRAND.name} nos Ajustes do celular (Privacidade → Calendários).`, { ok: 'Abrir Ajustes', cancel: 'Agora não' })) openDeviceSettings()
         return
       }
       if (err) {
@@ -210,7 +222,7 @@ export default function Settings() {
       if (!silent) {
         const parts = [`${r.added} ${r.added === 1 ? 'novo' : 'novos'}`, `${r.updated} ${r.updated === 1 ? 'atualizado' : 'atualizados'}`]
         if (r.removed) parts.push(`${r.removed} ${r.removed === 1 ? 'removido' : 'removidos'}`)
-        notify('Calendário em dia', `Próximos 60 dias no calendário "AgendaPro": ${parts.join(', ')}.${r.failed ? ` ${r.failed} não entraram; tente de novo.` : ''}`)
+        notify('Calendário em dia', `Próximos 60 dias no calendário "${BRAND.name}":${parts.join(', ')}.${r.failed ? ` ${r.failed} não entraram; tente de novo.` : ''}`)
       }
     } catch (e) {
       showError(e, 'Não sincronizou')
@@ -225,7 +237,7 @@ export default function Settings() {
       const ok = await requestCalendarAccess()
       setCalPerm(await calendarPermission())
       if (!ok) {
-        if (await confirm('Sem acesso ao calendário', 'Pra mandar seus agendamentos pro calendário, libere o AgendaPro nos Ajustes do celular.', { ok: 'Abrir Ajustes', cancel: 'Agora não' })) openDeviceSettings()
+        if (await confirm('Sem acesso ao calendário', `Pra mandar seus agendamentos pro calendário, libere o ${BRAND.name} nos Ajustes do celular.`, { ok: 'Abrir Ajustes', cancel: 'Agora não' })) openDeviceSettings()
         return
       }
       await save('calendar_sync', true)
@@ -233,7 +245,7 @@ export default function Settings() {
       return
     }
     await save('calendar_sync', false)
-    const wipe = await confirm('Tirar do calendário do celular?', 'Apagamos os eventos do calendário "AgendaPro" deste celular. Seus agendamentos continuam no app.', { ok: 'Apagar eventos', cancel: 'Deixar lá' })
+    const wipe = await confirm('Tirar do calendário do celular?', `Apagamos os eventos do calendário "${BRAND.name}" deste celular. Seus agendamentos continuam no app.`, { ok: 'Apagar eventos', cancel: 'Deixar lá' })
     if (wipe) { await clearCalendar(); setLastSync(null) }
   }
 
@@ -323,7 +335,7 @@ export default function Settings() {
   async function startDelete() {
     const ok = await confirm(
       'Excluir sua conta?',
-      'Vamos apagar para sempre seu perfil, sua página, agenda, clientes, serviços, finanças e avaliações. Não dá pra desfazer.',
+      `Vamos apagar para sempre seu perfil, sua página, agenda, clientes, serviços, orçamentos, faturas, finanças e avaliações, ${BOTH_APPS} (a conta é a mesma). Não dá pra desfazer.`,
       { ok: 'Continuar', cancel: 'Cancelar', destructive: true },
     )
     if (ok) { setDelText(''); setDelLogin(true); setDelOpen(true) }
@@ -334,8 +346,8 @@ export default function Settings() {
     const ok = await confirm(
       'Última confirmação',
       (provider?.has_subscription
-        ? 'Sua assinatura será cancelada agora e todos os dados do AgendaPro serão apagados.'
-        : 'Todos os dados do AgendaPro serão apagados.')
+        ? `Sua assinatura será cancelada agora e todos os seus dados ${BOTH_APPS} serão apagados.`
+        : `Todos os seus dados ${BOTH_APPS} serão apagados.`)
         + (delLogin ? ' Seu login e sua conta do site BrasilConnect também.' : '') + ' Tem certeza?',
       { ok: 'Excluir para sempre', cancel: 'Voltar', destructive: true },
     )
@@ -352,10 +364,10 @@ export default function Settings() {
       notify(
         'Conta excluída',
         delLogin && !r?.login_deleted
-          ? `Apagamos seus dados do AgendaPro, mas o login não saiu agora. Escreva para ${SUPPORT_EMAIL} que a gente apaga.`
+          ? `Apagamos seus dados ${BOTH_APPS}, mas o login não saiu agora. Escreva para ${SUPPORT_EMAIL} que a gente apaga.`
           : delLogin
-            ? 'Seus dados e seu login BrasilConnect foram apagados. Obrigada por ter usado o AgendaPro.'
-            : 'Seus dados foram apagados. Obrigada por ter usado o AgendaPro.',
+            ? `Seus dados ${BOTH_APPS} e seu login BrasilConnect foram apagados. Obrigada por ter usado o ${BRAND.name}.`
+            : `Seus dados ${BOTH_APPS} foram apagados. Obrigada por ter usado o ${BRAND.name}.`,
       )
     } catch (e) {
       showError(e, 'Não excluiu')
@@ -374,6 +386,8 @@ export default function Settings() {
   }
 
   const canPush = app.can('push_notifications')
+  // Avisos de orçamento/fatura: no WorkPro sempre; no AgendaPro, quando o plano tem o recurso
+  const showDocs = IS_WORKPRO || app.can('quotes') || app.can('invoices')
   const canCal = app.can('calendar_sync')
   const calOn = !!value('calendar_sync')
   const lang = value('default_language')
@@ -398,14 +412,14 @@ export default function Settings() {
             <Row icon="notifications-outline" title="Avisos no celular" subtitle={featureInfo(ent, 'push_notifications').desc}
               right={lockBadge('push_notifications')} onPress={() => ensureFeature(app, 'push_notifications')} />
           ) : pushPerm === 'granted' ? (
-            <Row icon="notifications" title="Notificações ligadas" subtitle="Este celular recebe os avisos do AgendaPro."
+            <Row icon="notifications" title="Notificações ligadas" subtitle={`Este celular recebe os avisos do ${BRAND.name}.`}
               right={<Badge text="Ligado" tone="green" />} />
           ) : (
             <View style={{ padding: spacing.lg }}>
               <P style={{ fontWeight: '600' }}>{pushPerm === 'denied' ? 'Notificações bloqueadas' : 'Saiba na hora quando chegar agendamento'}</P>
               <Muted style={{ marginTop: 4 }}>
                 {pushPerm === 'denied'
-                  ? 'Libere as notificações do AgendaPro nos Ajustes do celular.'
+                  ? `Libere as notificações do ${BRAND.name} nos Ajustes do celular.`
                   : 'Ligue as notificações pra receber aviso de agendamento novo, cancelamento e avaliação.'}
               </Muted>
               <Button title={pushPerm === 'denied' ? 'Abrir Ajustes' : 'Ativar notificações'} icon="notifications-outline" small
@@ -419,6 +433,11 @@ export default function Settings() {
             value={value('notify_cancellation')} onValueChange={(v) => toggleNotify('notify_cancellation', v)} disabled={saving === 'notify_cancellation'} />
           <ToggleRow title="Avaliação nova" subtitle={app.can('reviews') ? 'Quando uma cliente deixar avaliação' : 'Quando uma cliente deixar avaliação (avaliações são do plano Pro)'}
             value={value('notify_review')} onValueChange={(v) => toggleNotify('notify_review', v)} disabled={saving === 'notify_review'} />
+          {showDocs ? (
+            <ToggleRow title="Orçamentos, faturas e pedidos de orçamento"
+              subtitle="Orçamento aberto, aprovado ou recusado pela cliente, fatura paga ou vencida e pedido de orçamento novo"
+              value={value('notify_documents')} onValueChange={(v) => toggleNotify('notify_documents', v)} disabled={saving === 'notify_documents'} />
+          ) : null}
           <ToggleRow title="Resumo de amanhã" subtitle="Todo dia à tarde: quantos atendimentos você tem amanhã, o primeiro horário e quem faz aniversário"
             value={value('notify_daily_summary')} onValueChange={(v) => toggleNotify('notify_daily_summary', v)} disabled={saving === 'notify_daily_summary'} />
           {canPush && pushPerm === 'granted' ? (
@@ -442,14 +461,14 @@ export default function Settings() {
           ) : (
             <>
               <ToggleRow title="Mandar pro calendário do celular"
-                subtitle='Seus agendamentos aparecem no calendário "AgendaPro" do iPhone ou Android, com aviso 1 hora antes.'
+                subtitle={`Seus agendamentos aparecem no calendário "${BRAND.name}" do iPhone ou Android, com aviso 1 hora antes.`}
                 value={calOn} onValueChange={toggleCalendar} disabled={saving === 'calendar_sync' || calBusy} />
               {calOn ? (
                 <>
                   <Divider style={{ marginVertical: 0 }} />
                   {calPerm === 'denied' ? (
                     <Row icon="alert-circle-outline" iconColor={colors.warning} title="Sem acesso ao calendário"
-                      subtitle="Toque pra liberar o AgendaPro nos Ajustes do celular." onPress={openDeviceSettings} chevron />
+                      subtitle={`Toque pra liberar o ${BRAND.name} nos Ajustes do celular.`} onPress={openDeviceSettings} chevron />
                   ) : (
                     <Row icon="sync-outline" title="Sincronizar agora"
                       subtitle={lastSync?.at ? `Última vez ${fmtAgo(lastSync.at)}` : 'Próximos 60 dias. Também sincroniza sozinho quando você abre o app.'}
@@ -503,7 +522,7 @@ export default function Settings() {
         <Card>
           <P style={{ fontWeight: '500' }}>Tipo de negócio</P>
           <Muted style={{ marginTop: 2, marginBottom: spacing.md }}>Muda a ordem do menu e os atalhos. Limpeza mostra o turnover do Airbnb primeiro.</Muted>
-          <Segmented options={VERTICALS} value={provider.vertical || 'services'} onChange={bizBusy ? () => {} : pickVertical} />
+          <Segmented options={verticalOptions(provider.vertical || 'services')} value={provider.vertical || 'services'} onChange={bizBusy ? () => {} : pickVertical} />
         </Card>
         <Card padded={false} style={{ marginTop: spacing.md }}>
           <Row icon="globe-outline" title="Fuso horário" subtitle={tzLabel(provider.timezone)} onPress={bizBusy ? undefined : pickTimezone} chevron
@@ -537,16 +556,19 @@ export default function Settings() {
       <Section title="Zona de perigo">
         {!delOpen ? (
           <Card padded={false}>
-            <Row icon="trash-outline" title="Excluir minha conta" subtitle="Apaga todos os seus dados do AgendaPro" danger onPress={startDelete} />
+            <Row icon="trash-outline" title="Excluir minha conta" subtitle={`Apaga todos os seus dados ${BOTH_APPS} (é a mesma conta)`} danger onPress={startDelete} />
           </Card>
         ) : (
           <Card style={{ borderColor: colors.danger, borderWidth: 1 }}>
             <P style={{ fontWeight: '700', color: colors.danger }}>Excluir conta para sempre</P>
             <P style={{ marginTop: spacing.sm, color: colors.inkSoft }}>
-              Apagamos seu perfil e página pública, agenda, clientes, serviços, horários, finanças, avaliações e equipe. Não dá pra desfazer.
+              Apagamos seu perfil e página pública, agenda, clientes, serviços, horários, orçamentos, faturas, tabela de preços, finanças, avaliações e equipe. Não dá pra desfazer.
+            </P>
+            <P style={{ marginTop: spacing.sm, color: colors.inkSoft }}>
+              A conta é a mesma {BOTH_APPS}: os dados somem dos dois apps juntos.
             </P>
             {provider.has_subscription ? (
-              <P style={{ marginTop: spacing.sm, color: colors.inkSoft }}>Sua assinatura é cancelada na hora, sem novas cobranças.</P>
+              <P style={{ marginTop: spacing.sm, color: colors.inkSoft }}>Sua assinatura (a mesma nos dois apps) é cancelada na hora, sem novas cobranças.</P>
             ) : null}
             <Muted style={{ marginTop: spacing.sm }}>Dica: se precisar do histórico pro imposto, exporte antes em Finanças → Relatórios.</Muted>
             <View style={{ marginHorizontal: -spacing.lg, marginTop: spacing.sm }}>
@@ -573,11 +595,11 @@ export default function Settings() {
           <Row icon="shield-checkmark-outline" title="Política de privacidade" chevron onPress={() => openUrl(PRIVACY_URL)} />
           <Divider style={{ marginVertical: 0, marginLeft: 60 }} />
           <Row icon="help-buoy-outline" title="Falar com o suporte" subtitle={SUPPORT_EMAIL} chevron
-            onPress={() => Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=AgendaPro`).catch(() => notify('Suporte', `Escreva para ${SUPPORT_EMAIL}`))} />
+            onPress={() => Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(BRAND.name)}`).catch(() => notify('Suporte', `Escreva para ${SUPPORT_EMAIL}`))} />
         </Card>
       </Section>
 
-      <Muted style={{ textAlign: 'center', marginTop: spacing.xl }}>AgendaPro · BrasilConnect</Muted>
+      <Muted style={{ textAlign: 'center', marginTop: spacing.xl }}>{BRAND.name} · BrasilConnect</Muted>
     </Screen>
   )
 }

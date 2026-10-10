@@ -132,9 +132,44 @@
     .pro-foot { text-align: center; font-size: 12px; color: var(--ink-muted); padding: 48px 20px 40px; }
     .pro-foot a { color: var(--brand-green); text-decoration: none; font-weight: 600; }
 
+    /* Pedir orçamento (WorkPro / tipo 'trades') */
+    .qf-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px; }
+    .qf-intro { color: var(--ink-soft); font-size: 14.5px; margin: 0 0 16px; line-height: 1.55; }
+    .qf-langs { display: inline-flex; gap: 4px; padding: 3px; background: var(--paper-soft); border-radius: 999px; margin-bottom: 16px; }
+    .qf-langs button { border: 0; background: transparent; padding: 6px 12px; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+    .qf-langs button.on { background: var(--paper-elevated); color: var(--ink); box-shadow: var(--shadow-sm); }
+    .qf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; }
+    .qf-grid .full { grid-column: 1 / -1; }
+    .qf-field label { display: block; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+    .qf-field label small { font-weight: 400; color: var(--ink-muted); }
+    .qf-field input, .qf-field textarea {
+      width: 100%; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: var(--r-md);
+      font-family: inherit; font-size: 16px; color: var(--ink); background: #fff;
+    }
+    .qf-field textarea { min-height: 96px; resize: vertical; }
+    .qf-field input:focus, .qf-field textarea:focus { outline: 2px solid var(--brand-green); outline-offset: 1px; border-color: transparent; }
+    .qf-photos { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .qf-thumb { position: relative; width: 84px; height: 84px; border-radius: var(--r-md); overflow: hidden; background: var(--paper-soft); }
+    .qf-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .qf-thumb button { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; border-radius: 50%; border: 0; background: rgba(0, 0, 0, 0.6); color: #fff; cursor: pointer; font-size: 15px; line-height: 24px; padding: 0; }
+    .qf-add {
+      width: 84px; height: 84px; border-radius: var(--r-md); border: 1.5px dashed var(--line-strong); background: transparent;
+      color: var(--ink-soft); font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    }
+    .qf-add span { font-size: 22px; line-height: 1; }
+    .qf-hp { position: absolute !important; left: -10000px !important; width: 1px; height: 1px; overflow: hidden; }
+    .qf-err { color: #9F2D2D; font-size: 13.5px; margin-top: 10px; min-height: 1em; }
+    .qf-done { text-align: center; padding: 10px 4px; }
+    .qf-done .ok { width: 52px; height: 52px; border-radius: 50%; background: var(--green-soft); color: var(--green-deep); font-size: 26px; line-height: 52px; margin: 0 auto 12px; }
+    .qf-done h3 { margin: 0 0 6px; }
+    .qf-done p { color: var(--ink-soft); font-size: 14.5px; margin: 0 0 14px; }
+    .qf-done .qf-warn { background: var(--gold-soft); color: var(--ink); border-radius: var(--r-md); padding: 10px 14px; font-size: 14px; }
+
     @media (max-width: 720px) {
       .pro-cover { padding: 44px 0 56px; }
       .gallery-grid { gap: 6px; }
+      .qf-grid { grid-template-columns: 1fr; }
+      .qf-card { padding: 18px 16px; }
     }
   </style>
   <script src="/js/site.js" defer></script>
@@ -161,6 +196,8 @@
     }
 
     let provider, services, reviews, selected = { service: null, date: null, slot: null }
+    // Formulário "Pedir orçamento" (WorkPro): obra, reparo, serviço técnico, tradutor...
+    let quoteForm = false
 
     // So http(s): bloqueia javascript:, data: etc.
     function httpUrl(u) { const s = String(u || '').trim(); return /^https?:\/\//i.test(s) ? s : '' }
@@ -244,7 +281,9 @@
         provider = data.provider
         services = data.services || []
         reviews = data.reviews || { count: 0, average: null, items: [] }
-        document.title = branded() ? `${provider.name} — Agendar | BrasilConnect` : `${provider.name} — Agendar`
+        quoteForm = await quoteFormFor(provider)
+        const what = quoteForm ? 'Pedir orçamento' : 'Agendar'
+        document.title = branded() ? `${provider.name} — ${what} | BrasilConnect` : `${provider.name} — ${what}`
         renderProfile()
       } catch (e) {
         root.innerHTML = `<div style="padding:60px;text-align:center;"><h1>Profissional não encontrada</h1><p>O perfil <code>${escapeHtml(slug)}</code> não existe ou está inativo.</p><p><a href="/agenda/">Ver todos os profissionais</a></p></div>`
@@ -261,9 +300,26 @@
       const photos = gallery()
       const ig = igUrl(provider.instagram)
       const hasReviews = (reviews.count || 0) > 0 && (reviews.items || []).length > 0
-      const wa = waUrl(provider.whatsapp, `Oi ${firstName(provider.name)}! Vi sua página e queria marcar um horário.`)
+      const wa = waUrl(provider.whatsapp, quoteForm
+        ? `Oi ${firstName(provider.name)}! Vi sua página e queria pedir um orçamento.`
+        : `Oi ${firstName(provider.name)}! Vi sua página e queria marcar um horário.`)
+
+      // Agenda online (igual pra todos). No tipo 'trades' com orçamento, fica abaixo do
+      // formulário e só aparece se houver serviços cadastrados.
+      const bookingBlock = `
+              <div class="step-eyebrow">${open ? (quoteForm ? 'AGENDAR UM HORÁRIO · ESCOLHA O SERVIÇO' : 'PASSO 1 · ESCOLHA O SERVIÇO') : 'SERVIÇOS E PREÇOS'}</div>
+              ${quoteForm ? '' : paidBanner()}
+              ${open ? '' : closedBox(wa, ig)}
+              <div id="services-list">${services.length === 0 ? '<p class="muted">Sem serviços cadastrados ainda.</p>' : services.map(s => serviceCard(s, open)).join('')}</div>
+              <div id="step2" style="display:none;"></div>
+              <div id="step3" style="display:none;"></div>
+              <div id="step4" style="display:none;"></div>`
+      const mainTop = quoteForm
+        ? `${paidBanner()}${quoteSection()}${services.length ? `<div class="page-section" id="agendar">${bookingBlock}</div>` : ''}`
+        : bookingBlock
 
       const links = [
+        quoteForm ? `<a class="pill" href="#orcamento">Pedir orçamento</a>` : '',
         hasReviews ? `<a class="pill" href="#avaliacoes"><span class="gold">★</span> ${fmtAvg(reviews.average)} · ${reviews.count} ${reviews.count === 1 ? 'avaliação' : 'avaliações'}</a>` : '',
         photos.length ? `<a class="pill" href="#trabalhos">Ver trabalhos</a>` : '',
         ig ? `<a class="pill" href="${escapeHtml(ig)}" target="_blank" rel="noopener">Instagram</a>` : '',
@@ -288,13 +344,7 @@
         <main>
           <section>
             <div class="container-narrow">
-              <div class="step-eyebrow">${open ? 'PASSO 1 · ESCOLHA O SERVIÇO' : 'SERVIÇOS E PREÇOS'}</div>
-              ${paidBanner()}
-              ${open ? '' : closedBox(wa, ig)}
-              <div id="services-list">${services.length === 0 ? '<p class="muted">Sem serviços cadastrados ainda.</p>' : services.map(s => serviceCard(s, open)).join('')}</div>
-              <div id="step2" style="display:none;"></div>
-              <div id="step3" style="display:none;"></div>
-              <div id="step4" style="display:none;"></div>
+              ${mainTop}
 
               ${photos.length ? `
                 <div class="page-section" id="trabalhos">
@@ -335,12 +385,303 @@
       }
 
       document.querySelectorAll('[data-photo]').forEach(b => { b.onclick = () => openLightbox(Number(b.dataset.photo)) })
+      if (quoteForm) wireQuoteForm()
 
       if (!open) return
       services.forEach(s => {
         const el = document.querySelector(`[data-svc="${s.id}"]`)
         if (el) el.onclick = () => selectService(s)
       })
+    }
+
+    // ── Pedir orçamento ───────────────────────────────────────────────────
+    // provider.quote_requests_enabled (api/agenda/provider.js) decide; sem o campo, pergunta
+    // pra rota dos pedidos (mesma regra) e, se ela falhar, mostra pro tipo 'trades'.
+    async function quoteFormFor(p) {
+      if (!p) return false
+      if (typeof p.quote_requests_enabled === 'boolean') return p.quote_requests_enabled
+      try {
+        const r = await fetch(`/api/agenda/quote-requests?slug=${encodeURIComponent(p.slug || slug)}`)
+        if (r.ok) return !!(await r.json()).enabled
+      } catch (_) {}
+      return p.vertical === 'trades'
+    }
+
+    const QF = {
+      pt: {
+        intro: n => `Conte o que você precisa e mande fotos. ${n} responde com o orçamento pelo telefone ou e-mail.`,
+        name: 'Seu nome', phone: 'Telefone / WhatsApp', email: 'E-mail', address: 'Endereço do serviço',
+        service: 'O que você precisa?', service_ph: 'ex.: reforma de banheiro, pintura, tradução de certidão',
+        desc: 'Detalhes', desc_ph: 'Medidas, materiais, prazo, o que for importante…', date: 'Data desejada',
+        photos: 'Fotos', photos_hint: 'até 3', add: 'Adicionar', optional: 'opcional', one_contact: 'telefone ou e-mail',
+        send: 'Pedir orçamento', sending: 'Enviando…', compressing: 'Preparando foto…',
+        e_name: 'Diga seu nome.', e_contact: 'Informe telefone ou e-mail pra receber o orçamento.', e_phone: 'Telefone incompleto. Coloque o código de área.',
+        e_email: 'E-mail inválido.', e_photo: 'Não deu pra usar essa foto. Tente outra (JPG ou PNG).', e_max: 'No máximo 3 fotos.',
+        e_rate: 'Muitos pedidos seguidos. Espere um pouco e tente de novo.', e_off: 'Este perfil não está recebendo pedidos de orçamento agora. Fale direto pelo WhatsApp.',
+        e_generic: 'Não conseguimos enviar agora. Confira os campos e tente de novo.',
+        done_t: 'Pedido enviado!', done_p: n => `${n} recebeu seu pedido e vai responder em breve com o orçamento.`, again: 'Fazer outro pedido', wa: 'Chamar no WhatsApp',
+        remove: 'Remover foto',
+        e_date: 'Data inválida. Escolha de novo no calendário.', e_date_far: 'Escolha uma data mais próxima.',
+        e_date_past: 'Escolha uma data mais pra frente (onde o serviço é feito, pode já ser o dia seguinte).',
+        e_photo_big: 'Uma foto ficou grande demais. Tire ou escolha outra.',
+        photos_failed: (n, p) => `${n === 1 ? 'Uma foto não chegou' : n + ' fotos não chegaram'}. Mande direto pra ${p}.`,
+      },
+      en: {
+        intro: n => `Tell us what you need and add photos. ${n} will reply with a quote by phone or email.`,
+        name: 'Your name', phone: 'Phone / WhatsApp', email: 'Email', address: 'Job address',
+        service: 'What do you need?', service_ph: 'e.g. bathroom remodel, painting, certified translation',
+        desc: 'Details', desc_ph: 'Measurements, materials, timeline, anything important…', date: 'Preferred date',
+        photos: 'Photos', photos_hint: 'up to 3', add: 'Add', optional: 'optional', one_contact: 'phone or email',
+        send: 'Request a quote', sending: 'Sending…', compressing: 'Preparing photo…',
+        e_name: 'Please enter your name.', e_contact: 'Enter a phone or email to receive your quote.', e_phone: 'Incomplete phone number. Include the area code.',
+        e_email: 'Invalid email.', e_photo: 'We could not use this photo. Try another one (JPG or PNG).', e_max: 'Up to 3 photos.',
+        e_rate: 'Too many requests. Please wait a bit and try again.', e_off: 'This profile is not taking quote requests right now. Please reach out directly.',
+        e_generic: 'We could not send your request. Check the fields and try again.',
+        done_t: 'Request sent!', done_p: n => `${n} got your request and will get back to you soon with a quote.`, again: 'Send another request', wa: 'Message on WhatsApp',
+        remove: 'Remove photo',
+        e_date: 'Invalid date. Please pick it again on the calendar.', e_date_far: 'Please choose a closer date.',
+        e_date_past: 'Please choose a later date (where the work is done, it may already be the next day).',
+        e_photo_big: 'One photo is too large. Please take or choose another one.',
+        photos_failed: (n, p) => `${n === 1 ? 'One photo' : n + ' photos'} could not be uploaded. Please send ${n === 1 ? 'it' : 'them'} to ${p} directly.`,
+      },
+      es: {
+        intro: n => `Cuéntenos qué necesita y agregue fotos. ${n} le responderá con la cotización por teléfono o correo.`,
+        name: 'Su nombre', phone: 'Teléfono / WhatsApp', email: 'Correo', address: 'Dirección del trabajo',
+        service: '¿Qué necesita?', service_ph: 'ej.: remodelación de baño, pintura, traducción certificada',
+        desc: 'Detalles', desc_ph: 'Medidas, materiales, plazo, lo que sea importante…', date: 'Fecha deseada',
+        photos: 'Fotos', photos_hint: 'hasta 3', add: 'Agregar', optional: 'opcional', one_contact: 'teléfono o correo',
+        send: 'Pedir cotización', sending: 'Enviando…', compressing: 'Preparando foto…',
+        e_name: 'Escriba su nombre.', e_contact: 'Indique teléfono o correo para recibir la cotización.', e_phone: 'Teléfono incompleto. Incluya el código de área.',
+        e_email: 'Correo inválido.', e_photo: 'No pudimos usar esta foto. Pruebe con otra (JPG o PNG).', e_max: 'Máximo 3 fotos.',
+        e_rate: 'Demasiadas solicitudes. Espere un poco e intente de nuevo.', e_off: 'Este perfil no está recibiendo solicitudes de cotización ahora. Comuníquese directamente.',
+        e_generic: 'No pudimos enviar su solicitud. Revise los campos e intente de nuevo.',
+        done_t: '¡Solicitud enviada!', done_p: n => `${n} recibió su solicitud y le responderá pronto con la cotización.`, again: 'Enviar otra solicitud', wa: 'Escribir por WhatsApp',
+        remove: 'Quitar foto',
+        e_date: 'Fecha inválida. Elíjala de nuevo en el calendario.', e_date_far: 'Elija una fecha más cercana.',
+        e_date_past: 'Elija una fecha posterior (donde se hace el trabajo, puede que ya sea el día siguiente).',
+        e_photo_big: 'Una foto es demasiado grande. Tome o elija otra.',
+        photos_failed: (n, p) => `${n === 1 ? 'Una foto no se pudo subir. Envíela' : n + ' fotos no se pudieron subir. Envíelas'} directamente a ${p}.`,
+      },
+    }
+    const qfState = { lang: (() => { const l = String(navigator.language || 'pt').slice(0, 2).toLowerCase(); return QF[l] ? l : 'pt' })(), photos: [], busy: false }
+    const qt = k => QF[qfState.lang][k]
+
+    // Erro do servidor → texto no idioma do formulário. Pelo code; servidor que só manda
+    // code 'invalid' + frase em português: acha o tipo pela frase.
+    const QF_CODES = {
+      rate_limited: 'e_rate', disabled: 'e_off', name: 'e_name', invalid_name: 'e_name', contact: 'e_contact',
+      phone: 'e_phone', invalid_phone: 'e_phone', email: 'e_email', invalid_email: 'e_email',
+      date: 'e_date', invalid_date: 'e_date', date_past: 'e_date_past', date_far: 'e_date_far',
+      photo_big: 'e_photo_big', photo_format: 'e_photo', photos: 'e_photo', photos_max: 'e_max',
+    }
+    const QF_MSGS = [
+      [/a partir de hoje/i, 'e_date_past'], [/data mais próxima/i, 'e_date_far'], [/^data inválida/i, 'e_date'],
+      [/telefone ou e-mail/i, 'e_contact'], [/^telefone/i, 'e_phone'], [/^e-mail inválido/i, 'e_email'],
+      [/seu nome/i, 'e_name'], [/grande demais/i, 'e_photo_big'], [/^fotos? inválida/i, 'e_photo'], [/no máximo/i, 'e_max'],
+    ]
+    function qfErrorKey(status, data) {
+      if (status === 429) return 'e_rate'
+      if (status === 403) return 'e_off'
+      const code = data && data.code
+      if (code && QF_CODES[code]) return QF_CODES[code]
+      const msg = String((data && data.error) || '')
+      const hit = QF_MSGS.find(([re]) => re.test(msg))
+      return hit ? hit[1] : null
+    }
+
+    function quoteSection() {
+      return `
+        <div class="page-section" id="orcamento" style="margin-top:32px;">
+          <div class="step-eyebrow" style="margin-top:0;">PEDIR ORÇAMENTO · REQUEST A QUOTE</div>
+          <div class="qf-card" id="qfCard"></div>
+        </div>`
+    }
+
+    function quoteFormHtml(values = {}) {
+      const L = qfState.lang
+      const v = k => escapeHtml(values[k] || '')
+      const today = localKey(new Date())
+      const max = localKey(new Date(Date.now() + 365 * 24 * 3600 * 1000))
+      return `
+        <div class="qf-langs" role="group" aria-label="Idioma / Language">
+          ${['pt', 'en', 'es'].map(l => `<button type="button" data-qlang="${l}" class="${l === L ? 'on' : ''}" aria-pressed="${l === L}">${{ pt: 'Português', en: 'English', es: 'Español' }[l]}</button>`).join('')}
+        </div>
+        <p class="qf-intro">${escapeHtml(qt('intro')(firstName(provider.name) || provider.name))}</p>
+        <form id="qfForm" novalidate>
+          <div class="qf-grid">
+            <div class="qf-field full"><label for="qfName">${qt('name')}</label><input id="qfName" name="name" type="text" autocomplete="name" maxlength="120" value="${v('name')}" required></div>
+            <div class="qf-field"><label for="qfPhone">${qt('phone')}</label><input id="qfPhone" name="phone" type="tel" autocomplete="tel" maxlength="40" value="${v('phone')}"></div>
+            <div class="qf-field"><label for="qfEmail">${qt('email')}</label><input id="qfEmail" name="email" type="email" autocomplete="email" maxlength="254" value="${v('email')}"></div>
+            <div class="qf-field full"><label for="qfAddress">${qt('address')} <small>(${qt('optional')})</small></label><input id="qfAddress" name="address" type="text" autocomplete="street-address" maxlength="300" value="${v('address')}"></div>
+            <div class="qf-field full"><label for="qfService">${qt('service')}</label><input id="qfService" name="service" type="text" maxlength="120" placeholder="${escapeHtml(qt('service_ph'))}" value="${v('service')}"></div>
+            <div class="qf-field full"><label for="qfDesc">${qt('desc')} <small>(${qt('optional')})</small></label><textarea id="qfDesc" name="description" maxlength="3000" placeholder="${escapeHtml(qt('desc_ph'))}">${v('description')}</textarea></div>
+            <div class="qf-field"><label for="qfDate">${qt('date')} <small>(${qt('optional')})</small></label><input id="qfDate" name="preferred_date" type="date" min="${today}" max="${max}" value="${v('preferred_date')}"></div>
+            <div class="qf-field full"><label>${qt('photos')} <small>(${qt('photos_hint')})</small></label>
+              <div class="qf-photos" id="qfPhotos"></div>
+              <input id="qfFile" type="file" accept="image/*" multiple hidden>
+            </div>
+          </div>
+          <div class="qf-hp" aria-hidden="true"><label>Website<input type="text" name="website" id="qfWebsite" tabindex="-1" autocomplete="off"></label></div>
+          <button id="qfSend" type="submit" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:16px;">${qt('send')} →</button>
+          <p class="qf-err" id="qfErr" role="alert"></p>
+        </form>`
+    }
+
+    function formValues() {
+      const f = document.getElementById('qfForm')
+      if (!f) return {}
+      const out = {}
+      ;['name', 'phone', 'email', 'address', 'service', 'description', 'preferred_date'].forEach(k => { out[k] = f.elements[k] ? f.elements[k].value : '' })
+      return out
+    }
+
+    function renderQuoteForm(values) {
+      const card = document.getElementById('qfCard')
+      if (!card) return
+      card.innerHTML = quoteFormHtml(values)
+      card.querySelectorAll('[data-qlang]').forEach(b => {
+        b.onclick = () => { const keep = formValues(); qfState.lang = b.dataset.qlang; renderQuoteForm(keep) }
+      })
+      renderThumbs()
+      document.getElementById('qfFile').onchange = e => { addPhotos(e.target.files); e.target.value = '' }
+      document.getElementById('qfForm').onsubmit = e => { e.preventDefault(); sendQuote() }
+    }
+
+    function renderThumbs() {
+      const box = document.getElementById('qfPhotos')
+      if (!box) return
+      box.innerHTML = qfState.photos.map((p, i) => `<div class="qf-thumb"><img src="${p}" alt=""><button type="button" data-qrm="${i}" aria-label="${escapeHtml(qt('remove'))}">×</button></div>`).join('') +
+        (qfState.photos.length < 3 ? `<button type="button" class="qf-add" id="qfAdd"><span>+</span>${qt('add')}</button>` : '')
+      box.querySelectorAll('[data-qrm]').forEach(b => { b.onclick = () => { qfState.photos.splice(Number(b.dataset.qrm), 1); renderThumbs() } })
+      const add = document.getElementById('qfAdd')
+      if (add) add.onclick = () => document.getElementById('qfFile').click()
+    }
+
+    // Foto do celular → JPEG abaixo de ~480 KB (o servidor aceita até 500 KB)
+    async function compressImage(file) {
+      const url = URL.createObjectURL(file)
+      try {
+        const img = await new Promise((resolve, reject) => { const i = new Image(); i.onload = () => resolve(i); i.onerror = reject; i.src = url })
+        const W = img.naturalWidth, H = img.naturalHeight
+        if (!W || !H) return null
+        for (const maxSide of [1600, 1280, 1024, 800]) {
+          const scale = Math.min(1, maxSide / Math.max(W, H))
+          const c = document.createElement('canvas')
+          c.width = Math.max(1, Math.round(W * scale)); c.height = Math.max(1, Math.round(H * scale))
+          const ctx = c.getContext('2d')
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height)
+          ctx.drawImage(img, 0, 0, c.width, c.height)
+          for (const q of [0.82, 0.7, 0.6, 0.5]) {
+            const data = c.toDataURL('image/jpeg', q)
+            const bytes = Math.floor((data.length - data.indexOf(',') - 1) * 3 / 4)
+            if (data.startsWith('data:image/jpeg') && bytes <= 480 * 1024) return data
+          }
+        }
+        return null
+      } catch (_) {
+        return null
+      } finally {
+        URL.revokeObjectURL(url)
+      }
+    }
+
+    async function addPhotos(files) {
+      const err = document.getElementById('qfErr')
+      const send = document.getElementById('qfSend')
+      const list = Array.from(files || [])
+      if (!list.length) return
+      if (qfState.photos.length + list.length > 3) err.textContent = qt('e_max')
+      else err.textContent = ''
+      send.disabled = true
+      const label = send.textContent
+      send.textContent = qt('compressing')
+      for (const file of list.slice(0, 3 - qfState.photos.length)) {
+        if (!/^image\//.test(file.type || 'image/')) { err.textContent = qt('e_photo'); continue }
+        const data = await compressImage(file)
+        if (data) qfState.photos.push(data)
+        else err.textContent = qt('e_photo')
+      }
+      send.disabled = false
+      send.textContent = label
+      renderThumbs()
+    }
+
+    async function sendQuote() {
+      if (qfState.busy) return
+      const v = formValues()
+      const err = document.getElementById('qfErr')
+      const btn = document.getElementById('qfSend')
+      err.textContent = ''
+      const name = v.name.replace(/\s+/g, ' ').trim()
+      const phone = v.phone.trim(), email = v.email.trim()
+      if (name.length < 2) { err.textContent = qt('e_name'); document.getElementById('qfName').focus(); return }
+      if (!phone && !email) { err.textContent = qt('e_contact'); document.getElementById('qfPhone').focus(); return }
+      if (phone && phone.replace(/\D/g, '').length < 10) { err.textContent = qt('e_phone'); document.getElementById('qfPhone').focus(); return }
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { err.textContent = qt('e_email'); document.getElementById('qfEmail').focus(); return }
+
+      qfState.busy = true
+      btn.disabled = true
+      const label = btn.textContent
+      btn.textContent = qt('sending')
+      try {
+        const r = await fetch('/api/agenda/quote-requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            slug: provider.slug, name, phone, email,
+            address: v.address.trim(), service: v.service.trim(), description: v.description.trim(),
+            preferred_date: v.preferred_date || null, language: qfState.lang, photos: qfState.photos,
+            website: (document.getElementById('qfWebsite') || {}).value || '',
+          }),
+        })
+        const data = await r.json().catch(() => ({}))
+        if (!r.ok) {
+          const key = qfErrorKey(r.status, data)
+          err.textContent = key ? qt(key) : (qfState.lang === 'pt' && data.error) ? data.error : qt('e_generic')
+          if (key && key.startsWith('e_date')) document.getElementById('qfDate').focus()
+          qfState.busy = false
+          btn.disabled = false
+          btn.textContent = label
+          return
+        }
+        qfState.photos = []
+        qfState.busy = false
+        // Foto que o servidor não conseguiu salvar: o pedido foi, mas avisa pra mandar por fora
+        quoteDone(name, Math.max(0, Math.round(Number(data.photos_failed) || 0)))
+      } catch (_) {
+        err.textContent = qt('e_generic')
+        qfState.busy = false
+        btn.disabled = false
+        btn.textContent = label
+      }
+    }
+
+    function quoteDone(name, photosFailed = 0) {
+      const card = document.getElementById('qfCard')
+      if (!card) return
+      const pro = firstName(provider.name) || provider.name
+      const wa = waUrl(provider.whatsapp, qfState.lang === 'en'
+        ? `Hi ${pro}! I just sent a quote request on your page (${name}).`
+        : qfState.lang === 'es'
+          ? `¡Hola ${pro}! Acabo de enviar una solicitud de cotización en su página (${name}).`
+          : `Oi ${pro}! Acabei de pedir um orçamento pela sua página (${name}).`)
+      card.innerHTML = `
+        <div class="qf-done">
+          <div class="ok" aria-hidden="true">✓</div>
+          <h3>${escapeHtml(qt('done_t'))}</h3>
+          <p>${escapeHtml(qt('done_p')(pro))}</p>
+          ${photosFailed > 0 ? `<p class="qf-warn" role="status">${escapeHtml(qt('photos_failed')(photosFailed, pro))}</p>` : ''}
+          <div class="contact-row" style="justify-content:center;">
+            ${wa ? `<a class="btn btn-whatsapp" href="${escapeHtml(wa)}" target="_blank" rel="noopener">${escapeHtml(qt('wa'))}</a>` : ''}
+            <button type="button" class="btn btn-secondary" id="qfAgain">${escapeHtml(qt('again'))}</button>
+          </div>
+        </div>`
+      document.getElementById('qfAgain').onclick = () => renderQuoteForm({})
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+
+    function wireQuoteForm() {
+      renderQuoteForm({})
     }
 
     function closedBox(wa, ig) {

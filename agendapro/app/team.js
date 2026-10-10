@@ -12,6 +12,7 @@ import { choose, notify } from '../lib/dialog'
 import { openWhatsApp } from '../lib/whatsapp'
 import { dayRange, todayKey } from '../lib/format'
 import { colors, spacing } from '../lib/theme'
+import { BRAND } from '../lib/variant'
 import Locked from '../components/Locked'
 import { Avatar, Badge, Banner, Button, Card, Divider, Empty, ErrorBox, Fab, KPI, Loading, Muted, Row, Screen, Section } from '../components/ui'
 
@@ -21,7 +22,7 @@ const BUSY = ['pending', 'confirmed', 'completed']
 export function dayLinkMessage(member, provider) {
   const first = String(member?.name || '').trim().split(/\s+/)[0] || ''
   const what = provider?.vertical === 'cleaning' ? 'os endereços e as observações de cada casa' : 'os horários, endereços e observações de cada atendimento'
-  return `Oi${first ? ' ' + first : ''}! Esta é sua rota do dia no AgendaPro, com ${what}. Abra no celular (não precisa de senha): ${member.day_link_url}`
+  return `Oi${first ? ' ' + first : ''}! Esta é sua rota do dia no ${BRAND.name}, com ${what}. Abra no celular (não precisa de senha): ${member.day_link_url}`
 }
 
 /** Copiar, compartilhar, mandar no WhatsApp ou abrir o link da rota do dia. */

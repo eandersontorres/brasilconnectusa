@@ -55,6 +55,10 @@ export const FEATURES = {
   payments_log:       { min: 'starter', label: 'Controle de pagamento', desc: 'Marca pago, forma de pagamento e gorjeta' },
   share_qr:           { min: 'starter', label: 'Link e QR code', desc: 'Compartilha sua página e imprime o QR pro balcão' },
   turnover_ical:      { min: 'starter', label: 'Turnover Airbnb, Vrbo e Booking', desc: 'Limpeza criada sozinha no dia do checkout' },
+  quotes:             { min: 'starter', label: 'Orçamentos', desc: 'Orçamento com itens, desconto e imposto; a cliente aprova pelo link com assinatura' },
+  invoices:           { min: 'starter', label: 'Faturas (invoices)', desc: 'Fatura em PDF e link, com controle de quem pagou e quem está devendo' },
+  price_book:         { min: 'starter', label: 'Tabela de preços', desc: 'Serviços e materiais salvos pra montar o orçamento em segundos' },
+  quote_requests:     { min: 'starter', label: 'Pedidos de orçamento', desc: 'Formulário na sua página pra cliente pedir orçamento, com fotos' },
 
   // ── Pro ────────────────────────────────────────────────────────────────
   deposit_stripe:     { min: 'pro', label: 'Sinal com cartão', desc: 'Cliente paga o sinal no cartão e o dinheiro cai na sua conta Stripe' },
@@ -66,21 +70,25 @@ export const FEATURES = {
   finance:            { min: 'pro', label: 'Finanças', desc: 'Despesas, lucro do mês, meta e reserva pro imposto' },
   mileage:            { min: 'pro', label: 'Milhagem', desc: 'Registra as milhas rodadas a trabalho (dedução no imposto)' },
   multilang_messages: { min: 'pro', label: 'Mensagens em inglês e espanhol', desc: 'Lembretes e mensagens no idioma da cliente' },
+  invoice_payments:   { min: 'pro', label: 'Pagamento online da fatura', desc: 'A cliente paga a fatura no cartão pelo link e o dinheiro cai na sua conta Stripe' },
+  payment_reminders:  { min: 'pro', label: 'Cobrança automática', desc: 'Lembrete por e-mail quando a fatura vence, sem você precisar cobrar' },
+  progress_billing:   { min: 'pro', label: 'Entrada e pagamento por etapa', desc: 'Fatura de entrada e por etapas a partir do orçamento aprovado' },
+  job_photos:         { min: 'pro', label: 'Fotos do trabalho', desc: 'Fotos de antes e depois no orçamento e na fatura' },
 
   // ── Premium ────────────────────────────────────────────────────────────
   team:               { min: 'premium', label: 'Equipe', desc: 'Até 10 profissionais ou equipes, cada um com sua cor na agenda' },
   team_day_link:      { min: 'premium', label: 'Rota do dia da equipe', desc: 'Link sem senha com as paradas do dia, endereço e observações' },
   reports:            { min: 'premium', label: 'Relatórios e exportação', desc: 'Relatório mensal por serviço, cliente e equipe, com CSV pro contador' },
   receipts:           { min: 'premium', label: 'Recibos em PDF', desc: 'Recibo com sua marca pra mandar pra cliente' },
-  no_branding:        { min: 'premium', label: 'Sem a marca BrasilConnect', desc: 'Página pública só com a sua marca' },
+  no_branding:        { min: 'premium', label: 'Sem a marca BrasilConnect', desc: 'Página pública, orçamentos e faturas só com a sua marca' },
 }
 
 /** Limites por plano (null = ilimitado). */
 export const LIMITS = {
-  none:    { staff: 0,  ical_feeds: 0,    recurring: 0 },
-  starter: { staff: 0,  ical_feeds: 3,    recurring: 0 },
-  pro:     { staff: 0,  ical_feeds: 15,   recurring: null },
-  premium: { staff: 10, ical_feeds: null, recurring: null },
+  none:    { staff: 0,  ical_feeds: 0,    recurring: 0,    documents_month: 0 },
+  starter: { staff: 0,  ical_feeds: 3,    recurring: 0,    documents_month: 20 },
+  pro:     { staff: 0,  ical_feeds: 15,   recurring: null, documents_month: null },
+  premium: { staff: 10, ical_feeds: null, recurring: null, documents_month: null },
 }
 
 const rank = (tier) => Math.max(0, PLAN_ORDER.indexOf(tier))

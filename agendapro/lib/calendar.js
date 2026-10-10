@@ -1,7 +1,10 @@
 // Calendário do celular (expo-calendar). Os agendamentos vão pra um calendário
-// "AgendaPro" no iPhone/Android; o mesmo agendamento é ATUALIZADO (não duplica):
-// guardamos appointmentId → eventId no aparelho. Nada disso existe no preview web.
-// Cada evento leva nas notas a linha "ID AgendaPro: <id>". O mapa é do aparelho
+// com o nome do app (BRAND.name: "AgendaPro" ou "WorkPro") no iPhone/Android; o
+// mesmo agendamento é ATUALIZADO (não duplica): guardamos appointmentId → eventId
+// no aparelho. Nada disso existe no preview web.
+// Cada evento leva nas notas a linha "ID AgendaPro: <id>" (no WorkPro, "ID WorkPro: <id>").
+// Cada app só reconhece o próprio calendário e a própria marca: o AgendaPro continua
+// achando o "AgendaPro" de sempre e o WorkPro cria o dele. O mapa é do aparelho
 // (some ao reinstalar; iPhone e iPad têm um cada), mas o calendário do iCloud é
 // o mesmo: pela marca o app reconhece os eventos que já existem, adota em vez de
 // criar outro e apaga os repetidos e os de agendamento que não existe mais.
@@ -29,17 +32,19 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { api } from './api'
 import { addDays, fmtPhone, todayKey } from './format'
 import { colors, statusStyle } from './theme'
+import { BRAND, VARIANT } from './variant'
 
 const isWeb = Platform.OS === 'web'
 const CAL_KEY = 'agendapro.calendar.id.v1'      // { id, own, adopted? } adopted = achado pelo nome, ainda não conferido
 const MAP_KEY = 'agendapro.calendar.map.v1'     // { [appointmentId]: { e: eventId, t: startMs } }
 const LAST_KEY = 'agendapro.calendar.last.v1'   // { at, added, updated, removed }
-const CAL_TITLE = 'AgendaPro'
+const CAL_TITLE = BRAND.name                    // 'AgendaPro' (o de sempre) | 'WorkPro'
 const SYNC_DAYS = 60
 const DONE = ['canceled', 'no_show']
 const DAY_MS = 86400e3
-const MARK = 'ID AgendaPro: '
-const MARK_RE = /(?:^|\n)ID AgendaPro: (\S+)\s*$/   // só a última linha (obs. da cliente vem antes)
+const MARK = `ID ${BRAND.name}: `
+// Só a última linha (obs. da cliente vem antes). AgendaPro: /(?:^|\n)ID AgendaPro: (\S+)\s*$/
+const MARK_RE = new RegExp(`(?:^|\\n)${MARK.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\S+)\\s*$`)
 
 const Cal = () => require('expo-calendar')
 
@@ -119,7 +124,7 @@ export async function requestCalendarAccess() {
   }
 }
 
-/** Acha (ou cria) o calendário AgendaPro. → { id, own } */
+/** Acha (ou cria) o calendário do app (CAL_TITLE). → { id, own } */
 async function getCalendar() {
   const C = Cal()
   const saved = await readJson(CAL_KEY, null)
@@ -151,7 +156,7 @@ async function getCalendar() {
       entityType: C.EntityTypes.EVENT,
       sourceId: source?.id,
       source,
-      name: 'agendapro',
+      name: VARIANT,                           // 'agendapro' (como antes) | 'workpro'
       ownerAccount: Platform.OS === 'ios' ? 'personal' : CAL_TITLE,
       accessLevel: C.CalendarAccessLevel?.OWNER || 'owner',
     })
@@ -188,7 +193,7 @@ function eventFor(apt, provider) {
     apt.feed_notes ? `Casa: ${apt.feed_notes}` : '',
   ].filter(Boolean)
   // A marca fica sempre no fim, fora do corte de tamanho
-  const tail = `Criado pelo AgendaPro\n${MARK}${String(apt.id).slice(0, 64)}`
+  const tail = `Criado pelo ${BRAND.name}\n${MARK}${String(apt.id).slice(0, 64)}`
   const body = lines.join('\n').slice(0, 2000 - tail.length - 1)
 
   return {
@@ -384,7 +389,7 @@ export async function syncUpcoming(appointments, provider, { window } = {}) {
           if (seen.has(id)) continue
           for (const m of list) if (inWin(m.t)) await drop(m.e)
         }
-        // Calendário AgendaPro achado pelo nome: os eventos sem marca são de uma versão
+        // Calendário do app achado pelo nome: os eventos sem marca são de uma versão
         // antiga ou de outra instalação e nunca seriam atualizados. Uma vez só.
         if (ctx.cal.adopted) {
           if (ctx.cal.own) {
@@ -428,7 +433,7 @@ export async function removeFromCalendar(appointmentId) {
   }
 }
 
-/** Tira tudo do AgendaPro do celular (desligou a sincronização / excluiu a conta). */
+/** Tira tudo do app do celular (desligou a sincronização / excluiu a conta). */
 export async function clearCalendar() {
   if (isWeb) return
   try {

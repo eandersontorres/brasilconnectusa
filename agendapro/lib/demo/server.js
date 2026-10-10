@@ -4,17 +4,20 @@
 //   lib/api.js (só com EXPO_PUBLIC_DEMO=1) chama demo.fetch(path, init) em vez do
 //   fetch de verdade. Aqui respondem as MESMAS rotas, métodos, query, actions e
 //   formatos de api/agenda/*.js, api/stripe/*.js e api/upload.js (nomes de campo
-//   copiados de lá). O estado muda de verdade (criar, cancelar, pagar…) e vive só
-//   na memória: recarregar a página volta aos dados de exemplo. Plano sem o
-//   recurso → 402 igual ao servidor (lib/demo/plans.js é cópia da matriz).
+//   copiados de lá). Orçamentos, faturas, tabela de preços e pedidos de orçamento
+//   (WorkPro) ficam em lib/demo/documents.js. O estado muda de verdade (criar,
+//   cancelar, pagar…) e vive só na memória: recarregar a página volta aos dados
+//   de exemplo. Plano sem o recurso → 402 igual ao servidor (lib/demo/plans.js é
+//   cópia da matriz).
 //
 //   JS puro, sem react-native: dá pra testar no node.
-//     const demo = createDemoServer({ plan: 'trial', vertical: 'services' })
+//     const demo = createDemoServer({ plan: 'trial', vertical: 'services' })   // ou 'cleaning' | 'trades'
 //     const r = await demo.request('/api/agenda/me')   // → { status, body }
 // ════════════════════════════════════════════════════════════════════════════
 import { entitlementsFor, hasFeature, limitFor, requireFeature, requireLimit } from './plans.js'
 import { buildFixtures, DEMO_USER, placeholderImage } from './fixtures.js'
 import { financeRoute, HttpError } from './finance.js'
+import { catalogRoute, docPublicRoute, documentsRoute, quoteRequestsRoute } from './documents.js'
 import {
   addDays, clip, clone, diffDays, EMAIL_RE, fold, has, hhmmOf, int, keyOf, localNowWall, localToday,
   normalizePhone, pad, toMin, toWall, uid, weekdayOf,
@@ -131,6 +134,10 @@ export function createDemoServer({ plan = 'trial', vertical = 'services', siteUr
       case '/api/agenda/staff': return staffRoute(c)
       case '/api/agenda/recurring': return recurringRoute(c)
       case '/api/agenda/push-token': return pushRoute(c)
+      case '/api/agenda/documents': return documentsRoute(S, c)
+      case '/api/agenda/catalog': return catalogRoute(S, c)
+      case '/api/agenda/quote-requests': return quoteRequestsRoute(S, c)
+      case '/api/agenda/doc-public': return docPublicRoute(S, c)
       case '/api/upload': return uploadRoute(c)
       case '/api/stripe/subscribe': return subscribeRoute(c)
       case '/api/stripe/portal': return portalRoute(c)
@@ -160,6 +167,29 @@ export function createDemoServer({ plan = 'trial', vertical = 'services', siteUr
     notify_cancellation: (v) => v !== false,
     notify_review: (v) => v !== false,
     notify_daily_summary: (v) => !!v,
+    notify_documents: (v) => v !== false,
+    business: (v) => cleanBusiness(v),
+    doc_defaults: (v) => cleanDocDefaults(v),
+    // Formulário "Pedir orçamento" na página (app/quote-requests.js). Pedido feito pro me.js aceitar também.
+    quote_requests_public: (v) => !!v,
+  }
+  // Iguais a api/agenda/me.js: cabeçalho e padrões dos orçamentos e faturas
+  const str = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '')
+  function cleanBusiness(v) {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return {}
+    return {
+      legal_name: str(v.legal_name, 120), license_no: str(v.license_no, 60), address_line: str(v.address_line, 160), city: str(v.city, 80),
+      state: str(v.state, 2).toUpperCase(), zip: str(v.zip, 10), phone: str(v.phone, 30), email: str(v.email, 120),
+      website: /^https?:\/\//i.test(str(v.website, 200)) ? str(v.website, 200) : '', insurance: str(v.insurance, 160),
+    }
+  }
+  function cleanDocDefaults(v) {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return {}
+    return {
+      tax_rate_bps: clampInt(v.tax_rate_bps, 0, 2500), due_days: clampInt(v.due_days, 0, 120), quote_valid_days: clampInt(v.quote_valid_days, 1, 180),
+      deposit_pct: clampInt(v.deposit_pct, 0, 100), language: LANGS.includes(v.language) ? v.language : 'en',
+      terms: str(v.terms, 3000), notes: str(v.notes, 1000), payment_instructions: str(v.payment_instructions, 1000),
+    }
   }
   function cleanTemplates(obj) {
     const out = {}
@@ -177,7 +207,11 @@ export function createDemoServer({ plan = 'trial', vertical = 'services', siteUr
     if (method !== 'POST') return notAllowed()
     if (b.action === 'delete_account') {
       if (b.confirm !== 'EXCLUIR') fail(400, 'Digite EXCLUIR para confirmar.')
-      const deleted = { ag_appointments: S.appointments.length, ag_clients: S.clients.length, ag_services: S.services.length, ag_expenses: S.expenses.length, ag_providers: 1 }
+      const deleted = {
+        ag_appointments: S.appointments.length, ag_clients: S.clients.length, ag_services: S.services.length, ag_expenses: S.expenses.length,
+        ag_document_events: (S.docEvents || []).length, ag_document_items: (S.docItems || []).length, ag_documents: (S.documents || []).length,
+        ag_catalog_items: (S.catalog || []).length, ag_quote_requests: (S.quoteRequests || []).length, ag_providers: 1,
+      }
       const hadSub = !!P.stripe_subscription_id
       db = null   // demo: volta pros dados de exemplo na próxima entrada
       return ok({ ok: true, subscription_canceled: hadSub, deleted, files_deleted: 0, login_deleted: b.also_login === true, warnings: [] })
@@ -190,7 +224,7 @@ export function createDemoServer({ plan = 'trial', vertical = 'services', siteUr
       return ok({ ok: true, provider: publicSafe(P), entitlements: entitlementsFor(P) })
     }
     if (b.action === 'vertical') {
-      if (['services', 'cleaning'].includes(b.vertical)) P.vertical = b.vertical
+      if (['services', 'cleaning', 'trades'].includes(b.vertical)) P.vertical = b.vertical
       if (typeof b.timezone === 'string' && /^(America|Pacific)\/[A-Za-z_]+(\/[A-Za-z_]+)?$/.test(b.timezone)) P.timezone = b.timezone
       return ok({ ok: true, provider: publicSafe(P), entitlements: entitlementsFor(P) })
     }
@@ -850,6 +884,9 @@ export function createDemoServer({ plan = 'trial', vertical = 'services', siteUr
       }
       for (const a of S.appointments) if (a.client_id === cur.id) a.client_id = null
       for (const w of S.waitlist) if (w.client_id === cur.id) w.client_id = null
+      // Orçamentos e faturas guardam a cópia do nome/contato (ON DELETE SET NULL)
+      for (const d of S.documents || []) if (d.client_id === cur.id) d.client_id = null
+      for (const r of S.quoteRequests || []) if (r.client_id === cur.id) r.client_id = null
       S.clients.splice(S.clients.indexOf(cur), 1)
       return ok({ ok: true, deleted: true })
     }

@@ -12,8 +12,10 @@ import * as Haptics from 'expo-haptics'
 import { useApp } from '../../lib/session'
 import { api, post } from '../../lib/api'
 import { ensureFeature, featureInfo, showError } from '../../lib/gate'
-import { confirm, notify } from '../../lib/dialog'
+import { choose, confirm, notify } from '../../lib/dialog'
+import { appointmentReceived } from '../../lib/documents'
 import { PUBLIC_PAGE } from '../../lib/config'
+import { BRAND, IS_WORKPRO } from '../../lib/variant'
 import {
   DEFAULT_TEMPLATES, LANGS, callPhone, fillTemplate, firstName, messageLang, msgDate, msgTime, openWhatsApp, renderTemplate, sendSms,
 } from '../../lib/whatsapp'
@@ -436,7 +438,7 @@ export default function AppointmentScreen() {
     if (ok) { haptic(); notify('No calendário', 'O horário foi pro calendário do celular.'); return }
     const why = calendarError()
     notify('Não deu pra adicionar', why === 'permission'
-      ? 'Libere o acesso ao calendário pro AgendaPro nos Ajustes do celular.'
+      ? `Libere o acesso ao calendário pro ${BRAND.name} nos Ajustes do celular.`
       : why === 'canceled' ? 'Agendamento cancelado não vai pro calendário.' : 'Tente de novo em instantes.')
   }
 
@@ -461,6 +463,40 @@ export default function AppointmentScreen() {
   async function openReceipt() {
     if (!(await ensureFeature(app, 'receipts'))) return
     router.push(`/receipt/${a.id}`)
+  }
+
+  // Fatura do atendimento realizado (editor pré-preenche serviço, cliente e o saldo:
+  // o que já entrou no atendimento sai do valor). Já tem fatura? Abre a que existe.
+  // Tudo pago? Não tem o que cobrar: oferece o recibo.
+  async function makeInvoice() {
+    if (!(await ensureFeature(app, 'invoices'))) return
+    setBusy('invoice')
+    let existing = null
+    try {
+      const r = await api(`/api/agenda/documents?kind=invoice&status=all${a.client_id ? `&client_id=${encodeURIComponent(a.client_id)}` : ''}`)
+      existing = (r?.documents || []).find((d) => d.appointment_id === a.id && d.status !== 'void') || null
+    } catch (_) {
+      // Sem a lista, segue pro editor (o pior caso é uma fatura a mais, que dá pra anular)
+    } finally {
+      setBusy(null)
+    }
+    if (existing) {
+      const v = await choose('Esse atendimento já tem fatura', [
+        { label: `Abrir a fatura ${existing.number || ''}`.trim(), value: 'open' },
+        { label: 'Criar outra fatura', value: 'new' },
+      ], { message: `${existing.number || 'Fatura'} · ${fmtMoney(existing.total_cents || 0, { decimals: 2 })}. Uma segunda fatura cobra a cliente de novo.` })
+      if (v === 'open') { router.push(`/document/${existing.id}`); return }
+      if (v !== 'new') return
+    }
+    const total = Number(a.total_cents) || 0
+    const got = appointmentReceived(a)
+    if (total > 0 && got.cents >= total) {
+      const v = await choose('Esse atendimento já está pago', [{ label: 'Fazer recibo', value: 'receipt' }],
+        { message: `A cliente já pagou ${fmtMoney(got.cents, { decimals: 2 })}. Não tem saldo pra cobrar numa fatura: mande um recibo.`, cancel: 'Voltar' })
+      if (v === 'receipt') openReceipt()
+      return
+    }
+    router.push({ pathname: '/document/edit', params: { kind: 'invoice', appointment_id: a.id, ...(a.client_id ? { client_id: a.client_id } : {}) } })
   }
 
   const edit = () => router.push({ pathname: '/appointment/new', params: { id: a.id } })
@@ -589,6 +625,7 @@ export default function AppointmentScreen() {
               <View style={{ gap: spacing.sm }}>
                 <Muted>{a.paid_at ? 'Atendimento realizado e pago.' : 'Atendimento realizado. Falta registrar o pagamento.'}</Muted>
                 {!a.paid_at ? <Button title="Registrar pagamento" icon="cash-outline" onPress={() => openPay(false)} /> : null}
+                {IS_WORKPRO && !turnover ? <Button title="Gerar fatura" icon="receipt-outline" variant="secondary" loading={busy === 'invoice'} onPress={makeInvoice} /> : null}
                 {phone ? <Button title="Agradecer no WhatsApp" icon="heart-outline" variant="secondary" onPress={() => (can('whatsapp_templates') ? sendTpl('thanks', { lang: baseLang }) : openWhatsApp(phone, ''))} /> : null}
                 {!turnover ? (
                   <Button title={a.review_requested ? 'Pedir avaliação de novo' : 'Pedir avaliação'} icon="star-outline" variant="secondary" loading={busy === 'review'} onPress={askReview} />
@@ -789,6 +826,12 @@ export default function AppointmentScreen() {
               <>
                 <Divider style={{ marginVertical: 0, marginLeft: 60 }} />
                 <Row icon="document-text-outline" title="Recibo" subtitle="PDF pra mandar pra cliente" chevron onPress={openReceipt} right={lock('receipts')} />
+              </>
+            ) : null}
+            {a.status === 'completed' ? (
+              <>
+                <Divider style={{ marginVertical: 0, marginLeft: 60 }} />
+                <Row icon="receipt-outline" title="Gerar fatura" subtitle="Fatura em PDF e link, com o valor do atendimento" chevron onPress={makeInvoice} right={lock('invoices')} />
               </>
             ) : null}
             {a.status === 'canceled' && isFuture ? (

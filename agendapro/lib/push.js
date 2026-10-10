@@ -11,6 +11,7 @@ import { Platform } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { post } from './api'
 import { EAS_PROJECT_ID } from './config'
+import { VARIANT } from './variant'
 
 const TOKEN_KEY = 'agendapro.push.token.v1'
 const isWeb = Platform.OS === 'web'
@@ -74,6 +75,7 @@ export async function registerForPush({ ask = true } = {}) {
     const d = Dev()
     await post('/api/agenda/push-token', {
       token,
+      app: VARIANT,                       // AgendaPro e WorkPro: cada app recebe os seus avisos
       platform: Platform.OS,
       device_name: d.deviceName || d.modelName || null,
     })

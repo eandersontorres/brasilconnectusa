@@ -7,21 +7,10 @@ import { post } from '../lib/api'
 import { useApp } from '../lib/session'
 import { colors, spacing } from '../lib/theme'
 import { Button, Chip, ErrorBox, H2, Input, Label, Muted, P, Screen } from '../components/ui'
+import { BRAND, SPECIALTY_OPTIONS } from '../lib/variant'
 
-const SPECIALTIES = [
-  { label: 'Cabeleireira', vertical: 'services' },
-  { label: 'Manicure e pedicure', vertical: 'services' },
-  { label: 'Esteticista', vertical: 'services' },
-  { label: 'Lash designer', vertical: 'services' },
-  { label: 'Design de sobrancelha', vertical: 'services' },
-  { label: 'Barbeiro', vertical: 'services' },
-  { label: 'Massagista', vertical: 'services' },
-  { label: 'Maquiadora', vertical: 'services' },
-  { label: 'Personal trainer', vertical: 'services' },
-  { label: 'House cleaning', vertical: 'cleaning' },
-  { label: 'Limpeza de Airbnb', vertical: 'cleaning' },
-  { label: 'Outro', vertical: 'services' },
-]
+// Especialidades por app (lib/variant.js)
+const SPECIALTIES = SPECIALTY_OPTIONS
 
 const deviceTimezone = () => {
   try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/New_York' } catch (_) { return 'America/New_York' }
@@ -66,9 +55,11 @@ export default function Onboarding() {
 
   return (
     <Screen>
-      <H2>Vamos montar sua agenda</H2>
+      <H2>{BRAND.name === 'WorkPro' ? 'Vamos montar seu negócio' : 'Vamos montar sua agenda'}</H2>
       <P style={{ color: colors.inkSoft, marginTop: 6, marginBottom: spacing.xl }}>
-        Leva 1 minuto. Você ganha 14 dias com tudo liberado e uma página pra receber agendamentos.
+        {BRAND.name === 'WorkPro'
+          ? 'Leva 1 minuto. Você ganha 14 dias com tudo liberado: orçamentos, faturas, agenda e uma página pra receber pedidos.'
+          : 'Leva 1 minuto. Você ganha 14 dias com tudo liberado e uma página pra receber agendamentos.'}
       </P>
 
       <Input label="Nome do seu negócio ou seu nome" value={name} onChangeText={setName} placeholder="Ex.: Ana Torres Hair" autoCapitalize="words" />
@@ -92,7 +83,7 @@ export default function Onboarding() {
         hint="Aparece pras clientes falarem com você." />
 
       <ErrorBox error={error} />
-      <Button title="Criar minha agenda" onPress={save} loading={saving} />
+      <Button title={BRAND.name === 'WorkPro' ? 'Começar' : 'Criar minha agenda'} onPress={save} loading={saving} />
       <Muted style={{ textAlign: 'center', marginTop: spacing.lg }}>Conectado como {user?.email}</Muted>
       <Button title="Usar outra conta" variant="ghost" onPress={async () => { await signOut(); router.replace('/login') }} />
     </Screen>

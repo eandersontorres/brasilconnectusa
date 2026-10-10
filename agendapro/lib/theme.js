@@ -1,9 +1,10 @@
 // ════════════════════════════════════════════════════════════════════════════
-//   AgendaPro — tokens visuais. Paleta da marca BrasilConnect (public/css/premium.css):
+//   AgendaPro e WorkPro — tokens visuais. Paleta da marca BrasilConnect (public/css/premium.css):
 //   papel creme, tinta quase preta, verde profundo como cor principal, dourado de acento.
 //   Fonte: a do sistema (SF Pro no iPhone, Roboto no Android), como o site.
 // ════════════════════════════════════════════════════════════════════════════
 import { Platform } from 'react-native'
+import { BRAND } from './variant'
 
 export const colors = {
   paper:      '#FAF7F0',
@@ -15,9 +16,14 @@ export const colors = {
   inkSoft:    '#4B4F4D',
   inkMuted:   '#8B8E89',
 
-  green:      '#1F4D3F',   // cor principal (botões, abas ativas)
-  greenDark:  '#143527',
-  greenSoft:  '#E8F0E9',
+  // Cor principal (botões, abas ativas): verde no AgendaPro, azul-marinho no WorkPro
+  // (lib/variant.js). "green" ficou de nome histórico; use primary em código novo.
+  green:      BRAND.primary,
+  greenDark:  BRAND.primaryDark,
+  greenSoft:  BRAND.primarySoft,
+  primary:    BRAND.primary,
+  primaryDark: BRAND.primaryDark,
+  primarySoft: BRAND.primarySoft,
   flag:       '#009C3B',   // verde bandeira (detalhes, sucesso)
   gold:       '#B8943B',   // acento (planos, destaques)
   goldDark:   '#8C6D3D',

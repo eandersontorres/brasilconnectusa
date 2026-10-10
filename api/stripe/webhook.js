@@ -2,6 +2,20 @@
  * POST /api/stripe/webhook
  * Recebe eventos do Stripe.
  * Importante: bodyParser deve ficar OFF pra signature verification funcionar.
+ *
+ * checkout.session.completed com metadata.type:
+ *   deposit      → sinal do AgendaPro (api/agenda/checkout.js)
+ *   invoice      → fatura do WorkPro paga no cartão (api/agenda/doc-public.js): registra o
+ *                  pagamento em ag_payments (idempotente pelo id da sessão/pagamento) com a data
+ *                  real do pagamento, recalcula a fatura, grava o evento e avisa a profissional.
+ *                  Fatura anulada/paga ou valor acima do saldo: grava mesmo assim (o dinheiro
+ *                  entrou) com metadata.overpaid_cents e avisa a profissional e o admin
+ *                  (destination charge: o reembolso sai pela conta da plataforma)
+ *   listing      → plano do diretório
+ *   subscription → assinatura do AgendaPro/WorkPro
+ * charge.refunded → reembolso (total ou parcial) de pagamento de fatura: ajusta ag_payments
+ *                  (total → status 'refunded'), recalcula a fatura, evento e push.
+ *                  Precisa do evento charge.refunded ligado no endpoint do webhook no Stripe.
  */
 import { createClient } from '@supabase/supabase-js'
 import { applyListingSubscription, endListingSubscription } from '../_lib/listingWebhook.js'
@@ -9,6 +23,251 @@ import { applyListingSubscription, endListingSubscription } from '../_lib/listin
 export const config = { api: { bodyParser: false } }
 
 const LIVE_STATUSES = ['trialing', 'active', 'past_due']
+
+const INVOICE_COLS = 'id, provider_id, kind, number, status, title, client_name, total_cents, amount_paid_cents, stripe_checkout_session_id'
+const PROV_PUSH_COLS = 'id, timezone, app_settings, active, plan, plan_status, trial_ends_at, current_period_end, stripe_subscription_id, created_at'
+const usd = (cents) => '$' + ((Math.round(Number(cents) || 0)) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+const int0 = (v) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? n : 0 }
+const firstWord = (n, def) => String(n || '').trim().split(/\s+/)[0] || def
+
+/**
+ * Quando o pagamento aconteceu no Stripe (não a hora em que o webhook rodou: o Stripe reenvia
+ * evento que falhou por até 3 dias). PaymentIntent expandido → created dele; senão o created do
+ * evento (o mesmo em todo reenvio); sem nada → agora.
+ */
+export function paidAtIso(session, eventCreated) {
+  const pi = session?.payment_intent
+  const sec = (pi && typeof pi === 'object' && Number(pi.created)) || Number(eventCreated) || 0
+  return sec > 0 ? new Date(sec * 1000).toISOString() : new Date().toISOString()
+}
+
+/**
+ * Quanto do pagamento passa do que a fatura devia antes dele.
+ * Anulada → tudo; paga/sem saldo → tudo; acima do saldo → a diferença; senão 0.
+ */
+export function overpaidCents(doc, amount) {
+  if (!doc) return 0
+  if (doc.status === 'void') return Math.max(0, int0(amount))
+  const balance = Math.max(0, int0(doc.total_cents) - int0(doc.amount_paid_cents))
+  return Math.max(0, int0(amount) - balance)
+}
+
+/**
+ * Fatura paga pelo link (checkout.session.completed, metadata.type 'invoice').
+ * Idempotente: o Stripe pode mandar o mesmo evento mais de uma vez. Erro de banco lança
+ * (o webhook responde 500 e o Stripe tenta de novo). A lib dos documentos entra por import
+ * dinâmico: um erro nela nunca derruba os outros eventos (assinatura, sinal, diretório).
+ * eventCreated: event.created (segundos) → paid_at. Também chamado pelo doc-public quando a
+ * cliente tenta pagar de novo e a sessão anterior já está paga (session com payment_intent expandido).
+ */
+export async function handleInvoicePaid(supabase, session, eventCreated) {
+  const meta = session?.metadata || {}
+  if (session?.payment_status && session.payment_status !== 'paid') {
+    console.error(`[stripe] fatura ${meta.document_id}: sessão ${session.id} ainda não paga (${session.payment_status})`)
+    return { skipped: 'unpaid' }
+  }
+  const amount = Math.round(Number(session?.amount_total) || 0)
+  if (amount <= 0) return { skipped: 'no_amount' }
+  const pi = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id || null
+
+  const { data: doc, error } = await supabase.from('ag_documents').select(INVOICE_COLS).eq('id', meta.document_id).maybeSingle()
+  if (error) throw new Error(error.message)
+  if (!doc || doc.kind !== 'invoice') {
+    console.error(`[stripe] fatura ${meta.document_id} não encontrada (sessão ${session.id})`)
+    return { skipped: 'no_doc' }
+  }
+  if (meta.provider_id && meta.provider_id !== doc.provider_id) {
+    console.error(`[stripe] fatura ${doc.id}: provider da sessão ${session.id} não confere`)
+    return { skipped: 'provider_mismatch' }
+  }
+
+  const { data: prov } = await supabase.from('ag_providers').select(PROV_PUSH_COLS).eq('id', doc.provider_id).maybeSingle()
+  // Soma os pagamentos e acerta status/paid_at (api/_lib/documents.js). Idempotente.
+  const { recomputeInvoice, addEvent } = await import('../_lib/documents.js')
+  const recompute = () => recomputeInvoice(supabase, doc.id, { provider: prov || undefined, providerId: doc.provider_id })
+  // Sessão concluída: sai do documento (o pay do doc-public não tenta reaproveitar)
+  const clearOpenSession = async () => {
+    if (doc.stripe_checkout_session_id !== session.id) return
+    const { error: cErr } = await supabase.from('ag_documents')
+      .update({ stripe_checkout_session_id: null, stripe_checkout_expires_at: null })
+      .eq('id', doc.id).eq('stripe_checkout_session_id', session.id)
+    if (cErr) console.error(`[stripe] fatura ${doc.id}: limpar sessão:`, cErr.message)
+  }
+
+  // Já registrado (evento repetido)? Recalcula de novo: se a tentativa anterior caiu depois
+  // de gravar o pagamento, a fatura fica certa agora (sem evento nem aviso repetidos).
+  const bySession = await supabase.from('ag_payments').select('id').eq('stripe_session_id', session.id).limit(1)
+  if (bySession.error) throw new Error(bySession.error.message)
+  let dup = !!bySession.data?.length
+  if (!dup && pi) {
+    const byIntent = await supabase.from('ag_payments').select('id').eq('stripe_payment_intent_id', pi).limit(1)
+    if (byIntent.error) throw new Error(byIntent.error.message)
+    dup = !!byIntent.data?.length
+  }
+  if (dup) {
+    await recompute()
+    await clearOpenSession()
+    return { duplicate: true }
+  }
+
+  // Fatura anulada/paga, ou a cliente pagou mais que o saldo (duas abas, Zelle registrado no
+  // meio do checkout, total baixado depois de abrir a sessão): grava assim mesmo e marca o excesso
+  const excess = overpaidCents(doc, amount)
+  const isVoid = doc.status === 'void'
+  const ins = await supabase.from('ag_payments').insert({
+    provider_id: doc.provider_id,
+    document_id: doc.id,
+    amount_cents: amount,
+    type: 'invoice',
+    status: 'paid',
+    method: 'card',
+    stripe_session_id: session.id,
+    stripe_payment_intent_id: pi,
+    paid_at: paidAtIso(session, eventCreated),
+    metadata: {
+      source: 'stripe',
+      number: doc.number,
+      ...(excess > 0 ? { overpaid_cents: excess, invoice_status_before: doc.status, ...(isVoid ? { void: true } : {}) } : {}),
+    },
+  }).select('id').single()
+  if (ins.error) {
+    if (ins.error.code === '23505') { await recompute(); await clearOpenSession(); return { duplicate: true } }
+    throw new Error(ins.error.message)
+  }
+
+  const rec = await recompute()
+  await clearOpenSession()
+  const status = rec?.status || doc.status
+  const left = rec?.document ? rec.document.balance_cents : Math.max(0, (doc.total_cents || 0) - (doc.amount_paid_cents || 0) - amount)
+  const paymentId = ins.data?.id || null
+  await addEvent(supabase, doc, 'payment', 'stripe', {
+    amount_cents: amount, method: 'card', payment_id: paymentId, ...(excess > 0 ? { overpaid_cents: excess } : {}),
+  })
+  const who = firstWord(doc.client_name, 'A cliente')
+
+  if (excess > 0) {
+    await addEvent(supabase, doc, 'overpaid', 'stripe', { amount_cents: amount, overpaid_cents: excess, payment_id: paymentId, ...(isVoid ? { void: true } : {}) })
+    console.error(`[stripe] PAGAMENTO A MAIS na fatura ${doc.id} (${doc.number}): ${usd(excess)} de ${usd(amount)}${isVoid ? ' (fatura anulada)' : ''} · payment_intent ${pi} · reembolsar pela conta da plataforma`)
+    try {
+      const { sendPushToProvider } = await import('../_lib/agendaPush.js')
+      // Aviso de dinheiro: sempre vai (kind sem chave de preferência no agendaPush)
+      await sendPushToProvider(supabase, doc.provider_id, {
+        kind: 'payment_alert',
+        title: `Pagamento a mais: ${doc.number} · ${usd(excess)}`,
+        body: isVoid
+          ? `${who} pagou ${usd(amount)} no cartão numa fatura anulada. Fale com o suporte do BrasilConnect para devolver o valor.`
+          : `${who} pagou ${usd(amount)} no cartão, ${usd(excess)} além do saldo. Fale com o suporte do BrasilConnect para devolver a diferença.`,
+        data: { type: 'document', id: doc.id },
+        provider: prov || undefined,
+      })
+    } catch (pushErr) {
+      console.error('push invoice overpaid failed:', pushErr.message)
+    }
+    try {
+      const { sendTransactional, adminEmail } = await import('../_lib/mailer.js')
+      const { escapeHtml } = await import('../_lib/emailShell.js')
+      await sendTransactional({
+        to: adminEmail(),
+        subject: `Reembolsar ${usd(excess)}: fatura ${doc.number} paga a mais`,
+        kicker: 'WORKPRO · PAGAMENTO A MAIS',
+        title: `Fatura ${escapeHtml(doc.number)}: ${usd(excess)} a mais`,
+        paragraphs: [
+          `${escapeHtml(doc.client_name || 'A cliente')} pagou <strong>${usd(amount)}</strong> no cartão${isVoid ? ' numa fatura <strong>anulada</strong>' : `, ${usd(excess)} além do saldo`}.`,
+          `Fatura ${escapeHtml(doc.id)} · profissional ${escapeHtml(doc.provider_id)} · payment_intent ${escapeHtml(pi || '-')}.`,
+          'É destination charge: o reembolso sai pela conta da plataforma (Stripe → Payments → Refund, com reverse transfer). O webhook charge.refunded acerta a fatura sozinho.',
+        ],
+      })
+    } catch (mailErr) {
+      console.error('email invoice overpaid failed:', mailErr.message)
+    }
+    return { ok: true, payment_id: paymentId, status, overpaid_cents: excess }
+  }
+
+  try {
+    const { sendPushToProvider } = await import('../_lib/agendaPush.js')
+    await sendPushToProvider(supabase, doc.provider_id, {
+      kind: 'documents',
+      title: status === 'paid' ? `Fatura ${doc.number} paga: ${usd(amount)}` : `Pagamento recebido: ${doc.number} · ${usd(amount)}`,
+      body: status === 'paid'
+        ? `${who} pagou no cartão${doc.title ? ' · ' + doc.title : ''}.`
+        : `${who} pagou ${usd(amount)} no cartão. Falta ${usd(left)}.`,
+      data: { type: 'document', id: doc.id },
+      provider: prov || undefined,
+    })
+  } catch (pushErr) {
+    console.error('push invoice paid failed:', pushErr.message)
+  }
+  return { ok: true, payment_id: paymentId, status }
+}
+
+/**
+ * Reembolso no Stripe (charge.refunded: total ou parcial; amount_refunded é o acumulado).
+ * Acha o pagamento de fatura pela stripe_payment_intent_id. Total → status 'refunded' (sai da
+ * soma da fatura). Parcial → amount_cents vira o valor que ficou (o original fica em
+ * metadata.original_amount_cents) e metadata.refunded_cents guarda o devolvido. Recalcula a
+ * fatura, grava o evento 'refund' e avisa a profissional. Idempotente (reenvio não repete aviso).
+ * Pagamento que não é de fatura (sinal, pedido) → { skipped }.
+ */
+export async function handleChargeRefunded(supabase, charge, eventCreated) {
+  const pi = typeof charge?.payment_intent === 'string' ? charge.payment_intent : charge?.payment_intent?.id || null
+  if (!pi) return { skipped: 'no_intent' }
+  const { data: rows, error } = await supabase.from('ag_payments')
+    .select('id, provider_id, document_id, amount_cents, status, metadata')
+    .eq('stripe_payment_intent_id', pi).eq('type', 'invoice').limit(1)
+  if (error) throw new Error(error.message)
+  const pay = rows?.[0]
+  if (!pay || !pay.document_id) return { skipped: 'not_invoice' }
+
+  const meta = pay.metadata && typeof pay.metadata === 'object' ? pay.metadata : {}
+  const gross = int0(charge.amount) || int0(meta.original_amount_cents) || int0(pay.amount_cents)
+  const refunded = Math.min(gross, Math.max(0, int0(charge.amount_refunded)))
+  if (refunded <= 0) return { skipped: 'no_refund' }
+  const full = charge.refunded === true || refunded >= gross
+  const before = int0(meta.refunded_cents)
+  const delta = refunded - before
+
+  const { recomputeInvoice, addEvent } = await import('../_lib/documents.js')
+  const recompute = () => recomputeInvoice(supabase, pay.document_id, { providerId: pay.provider_id })
+
+  // Reenvio do mesmo reembolso: só garante a fatura certa
+  if (delta <= 0 && (!full || pay.status === 'refunded')) {
+    await recompute()
+    return { duplicate: true }
+  }
+
+  const refundedAt = Number(eventCreated) > 0 ? new Date(Number(eventCreated) * 1000).toISOString() : new Date().toISOString()
+  const upd = await supabase.from('ag_payments').update({
+    status: full ? 'refunded' : 'paid',
+    amount_cents: full ? gross : gross - refunded,
+    metadata: { ...meta, original_amount_cents: gross, refunded_cents: refunded, refunded_at: refundedAt },
+  }).eq('id', pay.id)
+  if (upd.error) throw new Error(upd.error.message)
+
+  const rec = await recompute()
+  const doc = rec?.row || { id: pay.document_id, provider_id: pay.provider_id }
+  await addEvent(supabase, doc, 'refund', 'stripe', {
+    amount_cents: Math.max(0, delta), refunded_cents: refunded, full, payment_id: pay.id,
+  })
+
+  try {
+    const { sendPushToProvider } = await import('../_lib/agendaPush.js')
+    const number = rec?.row?.number || meta.number || ''
+    const isVoid = rec?.status === 'void'
+    const left = rec?.document ? rec.document.balance_cents : null
+    await sendPushToProvider(supabase, pay.provider_id, {
+      kind: 'payment_alert',
+      title: `Reembolso${number ? ' ' + number : ''}: ${usd(Math.max(0, delta))}`,
+      body: (full
+        ? `O pagamento de ${usd(gross)} no cartão foi devolvido à cliente.`
+        : `${usd(Math.max(0, delta))} do pagamento no cartão foi devolvido à cliente.`)
+        + (!isVoid && left != null ? ` Saldo da fatura agora: ${usd(left)}.` : ''),
+      data: { type: 'document', id: pay.document_id },
+    })
+  } catch (pushErr) {
+    console.error('push invoice refund failed:', pushErr.message)
+  }
+  return { ok: true, payment_id: pay.id, refunded_cents: refunded, full, status: rec?.status || null }
+}
 
 /**
  * O perfil ja tem OUTRA assinatura viva gravada? Devolve o id dela (ou null).
@@ -77,6 +336,9 @@ export default async function handler(req, res) {
             stripe_payment_intent_id: session.payment_intent,
             paid_at: new Date().toISOString(),
           }).eq('stripe_session_id', session.id)
+        } else if (meta.type === 'invoice' && meta.document_id) {
+          // Fatura do WorkPro paga pelo link da cliente (paid_at = hora do evento no Stripe)
+          await handleInvoicePaid(supabase, session, event.created)
         } else if (meta.type === 'listing' && meta.business_id) {
           // Plano do diretorio (Pro/Premium) de um negocio
           const sub = await stripe.subscriptions.retrieve(session.subscription)
@@ -328,6 +590,11 @@ export default async function handler(req, res) {
             payment_status: 'failed',
           }).eq('id', meta.order_id)
         }
+        break
+      }
+      // Reembolso (total ou parcial): só mexe se for pagamento de fatura do WorkPro
+      case 'charge.refunded': {
+        await handleChargeRefunded(supabase, event.data.object, event.created)
         break
       }
     }

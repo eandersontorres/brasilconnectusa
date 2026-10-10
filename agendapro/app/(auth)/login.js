@@ -8,6 +8,7 @@ import { colors, radius, spacing, type } from '../../lib/theme'
 import { DEMO, PRIVACY_URL, TERMS_URL } from '../../lib/config'
 import { useApp } from '../../lib/session'
 import { Button, ErrorBox, H1, Input, Muted, P, Segmented } from '../../components/ui'
+import { BRAND } from '../../lib/variant'
 
 export default function Login() {
   const [mode, setMode] = useState('signin')      // signin | signup | code
@@ -87,15 +88,15 @@ export default function Login() {
         <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingTop: spacing.xxl }} keyboardShouldPersistTaps="handled">
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.xl }}>
             <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ color: colors.white, fontWeight: '800', fontSize: 18 }}>A</Text>
+              <Text style={{ color: colors.white, fontWeight: '800', fontSize: 18 }}>{BRAND.letter}</Text>
             </View>
             <View>
-              <Text style={[type.h3, { fontWeight: '700' }]}>AgendaPro</Text>
+              <Text style={[type.h3, { fontWeight: '700' }]}>{BRAND.name}</Text>
               <Muted>por BrasilConnect</Muted>
             </View>
           </View>
 
-          <H1>Sua agenda, seus clientes e seu dinheiro num lugar só.</H1>
+          <H1>{BRAND.tagline}</H1>
           <P style={{ color: colors.inkSoft, marginTop: spacing.sm, marginBottom: spacing.xl }}>
             14 dias grátis com tudo liberado. Sem cartão pra começar.
           </P>
@@ -159,14 +160,14 @@ function DemoEntry({ onEnter }) {
       <ScrollView contentContainerStyle={{ padding: spacing.xl, paddingTop: spacing.xxl }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: spacing.xl }}>
           <View style={{ width: 44, height: 44, borderRadius: 12, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={{ color: colors.white, fontWeight: '800', fontSize: 18 }}>A</Text>
+            <Text style={{ color: colors.white, fontWeight: '800', fontSize: 18 }}>{BRAND.letter}</Text>
           </View>
           <View>
-            <Text style={[type.h3, { fontWeight: '700' }]}>AgendaPro</Text>
+            <Text style={[type.h3, { fontWeight: '700' }]}>{BRAND.name}</Text>
             <Muted>por BrasilConnect</Muted>
           </View>
         </View>
-        <H1>Sua agenda, seus clientes e seu dinheiro num lugar só.</H1>
+        <H1>{BRAND.tagline}</H1>
         <P style={{ color: colors.inkSoft, marginTop: spacing.sm, marginBottom: spacing.xl }}>
           Modo demonstração: tudo aqui é de exemplo, de uma profissional fictícia em Boston. Nada é salvo nem enviado pra ninguém.
         </P>

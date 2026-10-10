@@ -25,7 +25,7 @@ export const EAS_PROJECT_ID = extra.eas?.projectId || Constants.easConfig?.proje
 // (lib/demo). Pra preview web, capturas das lojas e demo de vendas. Nunca em build de loja.
 export const DEMO = extra.demo === true
 export const DEMO_PLAN = extra.demoPlan || 'trial'                                // trial|starter|pro|premium|none
-export const DEMO_VERTICAL = extra.demoVertical === 'cleaning' ? 'cleaning' : 'services'
+export const DEMO_VERTICAL = ['cleaning', 'trades'].includes(extra.demoVertical) ? extra.demoVertical : 'services'
 
 export const PUBLIC_PAGE = (slug) => `${API_BASE}/agenda/${slug}`
 export const SUPPORT_EMAIL = 'oi@brasilconnectusa.com'

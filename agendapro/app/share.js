@@ -21,6 +21,7 @@ import { ensureFeature, openPlans, showError } from '../lib/gate'
 import { choose, notify } from '../lib/dialog'
 import { API_BASE, PUBLIC_PAGE } from '../lib/config'
 import { openWhatsApp } from '../lib/whatsapp'
+import { BRAND } from '../lib/variant'
 import { colors, radius, spacing, type } from '../lib/theme'
 import { Badge, Banner, Button, Card, Empty, H3, Loading, Muted, P, Screen, Section, Segmented, Small } from '../components/ui'
 
@@ -136,7 +137,7 @@ function posterHtml({ p, url, qr, branding }) {
     <div class="cta">Aponte a câmera do celular</div>
     <div class="sub">Escolha o serviço, o dia e o horário. Leva 1 minuto.</div>
     <div class="url">${esc(url.replace(/^https?:\/\//, ''))}</div>
-    ${branding ? '<div class="brand">AgendaPro · BrasilConnect</div>' : ''}
+    ${branding ? `<div class="brand">${esc(BRAND.name)} · BrasilConnect</div>` : ''}
   </div></body></html>`
 }
 
@@ -147,7 +148,7 @@ function cardsHtml({ p, url, qr, branding }) {
         ${p.specialty ? `<div class="spec">${esc(p.specialty)}</div>` : ''}
         <div class="cta">Agende pelo QR code</div>
         <div class="url">${esc(url.replace(/^https?:\/\//, ''))}</div>
-        ${branding ? '<div class="brand">AgendaPro · BrasilConnect</div>' : ''}
+        ${branding ? `<div class="brand">${esc(BRAND.name)} · BrasilConnect</div>` : ''}
       </div>
       <div class="qr">${qr}</div>
     </div>`

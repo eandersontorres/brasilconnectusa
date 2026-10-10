@@ -11,6 +11,9 @@ liberado.
 - **Backend:** as mesmas APIs do site (`api/` na raiz do repositório, Vercel) e
   o mesmo Supabase. Não existe backend separado para o app.
 - **Mesma conta do site:** quem já usa o AgendaPro pelo site entra com o mesmo e-mail.
+- **Dois apps no mesmo projeto:** AgendaPro (padrão) e **WorkPro** (orçamento e
+  fatura pra construção, handyman, tradutor juramentado…), escolhidos pela
+  variável `APP_VARIANT`. Veja ["Dois apps: AgendaPro e WorkPro"](#dois-apps-agendapro-e-workpro).
 
 Visão para o time (arquitetura, como adicionar recurso com cadeado, fluxo de
 assinatura, push): [`docs/agendapro-app.md`](../docs/agendapro-app.md).
@@ -36,8 +39,10 @@ Preencha o `.env`:
 | `EXPO_PUBLIC_SUPABASE_URL` | URL do projeto Supabase (a mesma do site) |
 | `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Chave **anon/publishable** do Supabase (Project Settings → API). Nunca a service key. |
 | `EXPO_PUBLIC_API_BASE` | Onde estão as APIs. Padrão: `https://brasilconnectusa.com`. Para testar API local ou um preview da Vercel, troque aqui. |
-| `EXPO_PUBLIC_EXTERNAL_PURCHASE` | `1` = botão de assinar abre o checkout do site; `0` = botão vira texto (veja "Assinatura") |
-| `EAS_PROJECT_ID` | Id do projeto na Expo (`eas init` mostra; veja "Build e publicação"). Opcional no dia a dia; **sem ele o celular não gera token de push**. Não está no `.env.example`: acrescente a linha se for testar notificação. |
+| `EXPO_PUBLIC_PURCHASE_MODE_IOS` / `EXPO_PUBLIC_PURCHASE_MODE_ANDROID` | `companion` (padrão: sem preço e sem botão de compra) ou `link` (preços e checkout do Stripe no navegador). Veja "Assinatura" |
+| `EAS_PROJECT_ID` | Id do projeto do AgendaPro na Expo (`eas init` mostra; veja "Build e publicação"). Opcional no dia a dia; **sem ele o celular não gera token de push**. Está comentado no `.env.example`. |
+| `APP_VARIANT` | `workpro` monta o app WorkPro; vazio = AgendaPro. Defina no terminal, não no `.env`, pra não misturar os dois apps sem perceber. Veja "Dois apps" |
+| `EAS_PROJECT_ID_WORKPRO` | Id do projeto do WorkPro na Expo (cada app tem o seu). Mesmo papel do `EAS_PROJECT_ID` |
 
 Depois:
 
@@ -107,8 +112,162 @@ Pare e rode o `npx expo start` de novo.
 - Mudou a matriz de planos em `api/_lib/agendaPlans.js`? Copie de novo pra
   `lib/demo/plans.js`.
 - **Nunca ligue em build de loja.** O `app.config.js` recusa o build com
-  `EXPO_PUBLIC_DEMO=1` no perfil `production` do EAS. Não coloque a variável no
-  `.env` nem no `eas.json`.
+  `EXPO_PUBLIC_DEMO=1` em qualquer perfil do EAS que começa com `production`
+  (`production` e `production-workpro`). Não coloque a variável no `.env` nem no
+  `eas.json`.
+
+---
+
+## Dois apps: AgendaPro e WorkPro
+
+Um projeto, dois apps nas lojas. Mesmo código, mesma conta, mesma assinatura e
+mesmas APIs; a variável `APP_VARIANT` escolhe qual app o `app.config.js` monta.
+
+| | AgendaPro | WorkPro |
+|---|---|---|
+| `APP_VARIANT` | `agendapro` (padrão, ou vazio) | `workpro` |
+| Para quem | Beleza, bem-estar e limpeza (agenda online) | Construção e reforma, handyman, marceneiro, pintor, eletricista, encanador, tradutor juramentado, contador (orçamento e fatura) |
+| Bundle id (iOS) e pacote (Android) | `com.brasilconnect.agendapro` | `com.brasilconnect.workpro` |
+| Esquema de link | `agendapro://` | `workpro://` |
+| Abas | Hoje, Agenda, Clientes, Finanças, Mais | Hoje, Agenda, **Vendas**, Clientes, Mais (Finanças vai pro Mais) |
+| Cor principal | Verde `#1F4D3F` | Azul-marinho `#1B2845` |
+| Tipo de negócio padrão no cadastro | `services` | `trades` |
+| Ícones | `assets/` | `assets/workpro/` |
+| Textos e artes da loja | `store/` | `store/workpro/` |
+| Página no site | `/para/agenda-pro/` | `/para/workpro/` |
+| Projeto na Expo (EAS) | `EAS_PROJECT_ID` | `EAS_PROJECT_ID_WORKPRO` |
+| Perfis de build (`eas.json`) | `development`, `development-simulator`, `preview`, `production` | `development-workpro`, `development-simulator-workpro`, `preview-workpro`, `production-workpro` |
+| Perfil de envio (`eas submit`) | `production` | `production-workpro` |
+
+No código: `import { VARIANT, IS_WORKPRO, BRAND, SPECIALTY_OPTIONS } from '../lib/variant'`
+(em cor, prefira `colors.primary`). Orçamentos e faturas existem nos dois apps —
+no AgendaPro ficam em Mais → Vendas; o WorkPro só põe isso no centro. Visão do
+produto: [`docs/workpro.md`](../docs/workpro.md). Regras e formatos das APIs:
+[`CONTRACT.md`](CONTRACT.md) (seção "WorkPro — orçamentos e faturas").
+
+> **Marca:** existe a marca de ferramentas **WORKPRO** nos EUA. Consulte um
+> advogado de marcas **antes de publicar o WorkPro nas lojas** (detalhes e onde
+> trocar o nome em [`store/workpro/review-notes.md`](store/workpro/review-notes.md#nome-do-app)).
+
+### Rodar cada variante
+
+```bash
+npx expo start                              # AgendaPro
+APP_VARIANT=workpro npx expo start          # WorkPro (bash/macOS)
+```
+
+```powershell
+$env:APP_VARIANT='workpro'; npx expo start  # WorkPro (PowerShell)
+Remove-Item Env:APP_VARIANT                 # volta pro AgendaPro
+```
+
+Trocou de variante? Pare o Metro e rode com `--clear` (o `app.config` entra no
+bundle e fica em cache). No Expo Go aparecem o nome e o ícone do Expo Go; nome,
+ícone e splash do WorkPro só aparecem no development build (`development-workpro`).
+
+Modo demonstração do WorkPro (profissional de obra com tabela de preços,
+orçamentos, faturas e pedidos de exemplo, sem login):
+
+```bash
+npm run web:demo -- trial trades 8095 workpro   # plano, ramo, porta e variante
+```
+
+Sem o script, o equivalente no PowerShell é
+`$env:APP_VARIANT='workpro'; $env:EXPO_PUBLIC_DEMO='1'; $env:EXPO_PUBLIC_DEMO_VERTICAL='trades'; npx expo start --web --clear --port 8095`.
+
+### Ícones
+
+`python scripts/make-icons.py workpro` regenera `assets/workpro/*` e
+`store/workpro/play-icon-512.png` / `play-feature-graphic.png` (prancheta creme
+com presilha dourada e check azul-marinho). Sem argumento, gera os dois apps;
+`--out PASTA` grava em outro lugar pra conferir antes. Se faltar algum arquivo
+do WorkPro, o `app.config.js` usa o do AgendaPro.
+
+### EAS por variante
+
+Cada app é um **projeto separado na Expo** (id, credenciais, número de build e
+variáveis próprios). Os perfis `*-workpro` do `eas.json` já fixam
+`APP_VARIANT=workpro` no build; mesmo assim, **use um terminal por app** e
+deixe `APP_VARIANT=workpro` definido no terminal do WorkPro, porque `eas init`,
+`eas env:*`, `eas credentials` e `eas submit` leem o `app.config.js` na sua
+máquina pra descobrir o projeto.
+
+Uma vez só, no terminal do WorkPro:
+
+```powershell
+$env:APP_VARIANT='workpro'
+eas init                                    # cria o projeto "workpro" e mostra o id
+$env:EAS_PROJECT_ID_WORKPRO='<id do workpro>'
+eas env:create --name EAS_PROJECT_ID_WORKPRO --value "<id do workpro>" --environment production --environment preview --environment development --visibility plaintext
+eas env:create --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value "<chave anon>" --environment production --environment preview --environment development --visibility plaintext
+```
+
+Ponha também `EAS_PROJECT_ID_WORKPRO=<id>` no `.env` local (development build do
+WorkPro). As variáveis da Expo são **por projeto**: as do AgendaPro não valem no
+WorkPro, por isso a chave anon é criada de novo acima.
+
+| Perfil | Para quê | Comando |
+|---|---|---|
+| `development-workpro` | Development build do WorkPro, APK no Android | `eas build -p android --profile development-workpro` |
+| `development-simulator-workpro` | Igual, para o simulador do iOS | `eas build -p ios --profile development-simulator-workpro` |
+| `preview-workpro` | Teste com pessoas reais antes da loja | `eas build -p android --profile preview-workpro` |
+| `production-workpro` | Loja (AAB e IPA, build sobe sozinho) | `eas build -p all --profile production-workpro` |
+
+Envio: `eas submit -p ios --profile production-workpro` e
+`eas submit -p android --profile production-workpro`. Antes, crie o app WorkPro
+na App Store Connect (bundle id `com.brasilconnect.workpro`) e no Play Console e
+troque `PREENCHER_ASC_APP_ID_WORKPRO` em `submit.production-workpro` pelo Apple
+ID do app WorkPro (é outro número, diferente do AgendaPro). O `appleTeamId` é o
+mesmo time. A conta de serviço do Google pode ser a mesma, desde que tenha acesso
+aos dois apps no Play Console. Como no AgendaPro, o primeiro AAB do WorkPro vai à
+mão no Play Console.
+
+Os dois perfis de loja saem em modo companheiro (`EXPO_PUBLIC_PURCHASE_MODE_IOS`
+e `_ANDROID` = `companion` no `base` do `eas.json`).
+
+**Push do WorkPro:**
+- iPhone: a EAS cuida da chave APNs no primeiro `eas build -p ios` do projeto
+  WorkPro (pode reaproveitar a chave de push do time Apple).
+- Android: no **mesmo** projeto do Firebase, adicione um segundo app Android com
+  o pacote `com.brasilconnect.workpro` e baixe o `google-services.json` de novo:
+  o arquivo novo traz os dois pacotes e serve pros dois apps. Suba como variável
+  de arquivo `GOOGLE_SERVICES_JSON` **no projeto WorkPro** da Expo e envie a
+  chave FCM v1 em `eas credentials` → Android → `production-workpro`.
+
+### Banco e servidor do WorkPro
+
+- Migration `supabase/ag_app_documents.sql` (aplicada em produção em 10/10/2026) — orçamentos e faturas
+  (`ag_documents`, `ag_document_items`, `ag_document_events`), tabela de preços
+  (`ag_catalog_items`), pedidos de orçamento (`ag_quote_requests`), numeração
+  sem repetição (`ag_doc_counters` + `ag_next_doc_seq`), `ag_payments.document_id`
+  e `method`, e o tipo de negócio `trades`. **NÃO aplicada ainda.** Aplicar
+  depois das 7 `ag_app_*` (já em produção) e **antes** de publicar as rotas
+  `api/agenda/documents.js`, `catalog.js`, `quote-requests.js`, `doc-public.js`
+  e o cron. Sem ela, o cadastro do WorkPro falha (o banco recusa
+  `vertical = 'trades'`) e a aba Vendas dá erro — o WorkPro não pode ir pra loja
+  antes disso.
+- Página do cliente: `https://brasilconnectusa.com/d/<token>` (`public/doc.html`,
+  rewrite `/d/:token` já no `vercel.json`).
+- Cron `/api/cron/agenda-documents`, `0 15 * * *` (já no `vercel.json`): fatura
+  vencida vira "vencida", orçamento passa da validade e lembrete automático de
+  pagamento (plano Pro). Usa o mesmo `CRON_SECRET`.
+- Pagamento online da fatura (plano Pro) usa o Stripe Connect da profissional,
+  o mesmo do sinal no cartão. Confira em `api/stripe/webhook.js` se precisa
+  ligar algum evento novo no painel do Stripe.
+
+### Checklist do WorkPro (além do checklist geral)
+
+- [ ] Advogado de marcas consultado sobre "WorkPro" (ou nome trocado).
+- [x] `supabase/ag_app_documents.sql` aplicada (10/10/2026); rotas de documentos, `doc-public`, `public/doc.html` e cron publicados.
+- [ ] Projeto `workpro` na Expo; `EAS_PROJECT_ID_WORKPRO` no terminal, no `.env` e nas variáveis do projeto; `EXPO_PUBLIC_SUPABASE_ANON_KEY` também no projeto do WorkPro.
+- [ ] App `com.brasilconnect.workpro` criado na App Store Connect e no Play Console; `ascAppId` do WorkPro no `eas.json`.
+- [ ] Firebase com o segundo app Android, `GOOGLE_SERVICES_JSON` e chave FCM v1 no projeto WorkPro.
+- [ ] Ícones conferidos (`python scripts/make-icons.py workpro`).
+- [ ] Nenhum "AgendaPro" escrito fixo nas telas que o WorkPro mostra (use `BRAND.name`): `grep -rn "AgendaPro" app components lib --include=*.js`.
+- [ ] Textos, notas de revisão, privacidade e capturas: [`store/workpro/`](store/workpro/).
+- [ ] Conta de demonstração do WorkPro criada; link `/d/<token>` testado com aprovação por assinatura no Safari e no Chrome.
+- [ ] Excluir conta apaga também documentos, tabela de preços, pedidos de orçamento e as fotos deles.
+- [ ] Google Play com conta pessoal: teste fechado de 14 dias **também** para o WorkPro.
 
 ---
 
@@ -119,7 +278,8 @@ agendapro/
   app/                    telas — cada arquivo é uma rota (expo-router)
     (auth)/login.js       entrar, criar conta, código por e-mail
     onboarding.js         primeiro cadastro do perfil
-    (tabs)/               abas: hoje, agenda, clientes, financas, mais
+    (tabs)/               abas: hoje, agenda, vendas (WorkPro), clientes, financas, mais
+    document/ price-book/ orçamento/fatura e tabela de preços (WorkPro)
     appointment/          detalhe e novo agendamento
     client/               ficha e edição da cliente
     services/ turnover/ recurring/ finance/ receipt/
@@ -139,13 +299,15 @@ agendapro/
     theme.js              cores e espaçamentos da marca
     whatsapp.js           modelos de mensagem PT/EN/ES
     push.js calendar.js biometric.js dialog.js config.js supabase.js
-  assets/                 ícone, ícone adaptável, splash, favicon
-  store/                  textos, notas de revisão, privacidade e artes das lojas
+  assets/                 ícone, ícone adaptável, splash, favicon (AgendaPro)
+    workpro/              os mesmos, do WorkPro
+  store/                  textos, notas de revisão, privacidade e artes das lojas (AgendaPro)
+    workpro/              os mesmos, do WorkPro
   scripts/
     check.js              checagem de sintaxe e imports
-    make-icons.py         gera os ícones (python scripts/make-icons.py)
-  app.config.js           nome, bundle id, permissões, plugins, variáveis
-  eas.json                perfis de build e envio (EAS)
+    make-icons.py         gera os ícones (python scripts/make-icons.py [agendapro|workpro])
+  app.config.js           nome, bundle id, permissões, plugins, variáveis (APP_VARIANT)
+  eas.json                perfis de build e envio (EAS) dos dois apps
   CONTRACT.md             regras de construção do app
 ```
 
@@ -191,8 +353,15 @@ novas. Todos são idempotentes (pode rodar de novo sem estragar):
 
 **As 7 já foram aplicadas em produção em 09/10/2026** (assim como
 `ag_agendapro_operavel.sql` e `ag_turnover_ical.sql`). Ficam aqui pra outro
-ambiente (ex.: um projeto Supabase de teste). Migration nova: cabeçalho com
-`NAO APLICADO ainda` até aplicar, depois `APLICADO em producao em <data>`.
+ambiente (ex.: um projeto Supabase de teste).
+
+8. `supabase/ag_app_documents.sql` — orçamentos, faturas, tabela de preços,
+   pedidos de orçamento e o tipo de negócio `trades` (WorkPro). **Aplicada em
+   produção em 10/10/2026**, depois das 7 acima (veja "Dois apps" → "Banco e
+   servidor do WorkPro").
+
+Migration nova: cabeçalho com `NAO APLICADO ainda` até aplicar, depois
+`APLICADO em producao em <data>`.
 
 ### Variáveis na Vercel
 
@@ -215,6 +384,7 @@ As APIs do app usam as mesmas variáveis do site: `SUPABASE_URL`,
 | `/api/agenda/reminders` | `0 17 * * *` | Lembrete por e-mail das clientes de amanhã e resumo do dia seguinte por push |
 | `/api/cron/ical-sync` | `15 * * * *` | Puxa as reservas novas das casas de turnover (Airbnb/Vrbo/Booking) |
 | `/api/cron/agenda-recurring` | `30 9 * * *` | **Novo:** cria os agendamentos das clientes fixas até 6 semanas à frente (idempotente; só quem tem o recurso `recurring`) |
+| `/api/cron/agenda-documents` | `0 15 * * *` | **Novo (WorkPro):** fatura vencida → vencida, orçamento fora da validade → expirado, lembrete automático de pagamento (recurso `payment_reminders`). Depende de `ag_app_documents.sql` |
 
 Para rodar um cron à mão: `curl -H "Authorization: Bearer $CRON_SECRET" https://brasilconnectusa.com/api/cron/agenda-recurring`.
 
@@ -222,17 +392,26 @@ Para rodar um cron à mão: `curl -H "Authorization: Bearer $CRON_SECRET" https:
 
 ## Assinatura (como o app vende o plano)
 
-O app **não tem compra dentro do app**. A tela "Meu plano" abre o checkout do
-Stripe no navegador (`POST /api/stripe/subscribe`) e o portal de cobrança
-(`POST /api/stripe/portal`) para trocar cartão, mudar de plano ou cancelar. O
-webhook do Stripe atualiza o plano e, quando a usuária volta para o app, a
-sessão recarrega o `/api/agenda/me` sozinha.
+O app **não tem compra dentro do app**. O comportamento depende do modo, por
+plataforma (`EXPO_PUBLIC_PURCHASE_MODE_IOS` / `EXPO_PUBLIC_PURCHASE_MODE_ANDROID`,
+lido em `lib/config.js` → `PURCHASE_MODE`):
 
-Isso é permitido na **App Store dos EUA** (desde maio de 2025) e, segundo a regra
-atual, no **Google Play dos EUA** — por isso o app é publicado só nos EUA.
-`EXPO_PUBLIC_EXTERNAL_PURCHASE=0` tira o botão e o link (fica só um texto), caso a
-revisão exija. Para outros países, além disso, o texto precisa ficar neutro. Detalhes e plano B em
-[`store/review-notes.md`](store/review-notes.md#assinatura-vendida-pelo-site).
+- `companion` (**padrão e o que o `eas.json` usa nos builds de loja**, nos dois
+  apps): sem preço, sem botão de compra e sem "assine no site". A tela "Meu
+  plano" mostra o plano atual e o que cada plano inclui; a assinatura é feita
+  na conta BrasilConnect, fora do app.
+- `link`: a tela "Meu plano" mostra os preços, abre o checkout do Stripe no
+  navegador (`POST /api/stripe/subscribe`) e o portal de cobrança
+  (`POST /api/stripe/portal`) para trocar cartão, mudar de plano ou cancelar.
+  Botão e link para compra fora do app são permitidos na **App Store dos EUA**
+  (desde maio de 2025) e, segundo a regra atual, no **Google Play dos EUA** — só
+  troque depois de confirmar com a revisão.
+
+Nos dois modos, o webhook do Stripe atualiza o plano e, quando a usuária volta
+para o app, a sessão recarrega o `/api/agenda/me` sozinha. O app é publicado só
+nos EUA. Detalhes e plano B em
+[`store/review-notes.md`](store/review-notes.md#assinatura-vendida-pelo-site) e,
+para o WorkPro, em [`store/workpro/review-notes.md`](store/workpro/review-notes.md#assinatura-e-pagamentos).
 
 ### Configurar no painel do Stripe (modo de teste e depois live)
 
@@ -291,8 +470,10 @@ O id não é segredo: se preferir, fixe o valor em `app.config.js` no lugar do
 `process.env.EAS_PROJECT_ID` e pule os passos acima.
 
 Variáveis do build: o `eas.json` já define `EXPO_PUBLIC_API_BASE`,
-`EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_EXTERNAL_PURCHASE`. A chave anon do
-Supabase entra pelo painel de variáveis da Expo, nos três ambientes:
+`EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_PURCHASE_MODE_IOS` e
+`EXPO_PUBLIC_PURCHASE_MODE_ANDROID` (`companion`) e, em cada perfil, o
+`APP_VARIANT`. A chave anon do Supabase entra pelo painel de variáveis da Expo,
+nos três ambientes (no projeto de cada app):
 
 ```bash
 eas env:create --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value "<chave anon>" --environment production --environment preview --environment development --visibility plaintext
@@ -309,6 +490,9 @@ eas env:create --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value "<chave anon>" --env
 | `preview` | Teste com pessoas reais antes da loja: APK no Android, ad hoc no iPhone (registre os aparelhos com `eas device:create`) | `eas build -p android --profile preview` |
 | `production` | Loja: AAB no Android, IPA no iOS. Número do build sobe sozinho (`autoIncrement`, versão gerenciada pela EAS) | `eas build -p all --profile production` |
 
+Esses quatro montam o AgendaPro (`APP_VARIANT=agendapro`). Os do WorkPro têm o
+mesmo nome com `-workpro` no fim — veja ["EAS por variante"](#eas-por-variante).
+
 A versão que aparece na loja (`1.0.0`) vem do `app.config.js` (`version`). O
 número do build (iOS `buildNumber` / Android `versionCode`) fica na EAS
 (`appVersionSource: remote`); para começar de um número específico:
@@ -321,7 +505,9 @@ eas submit -p ios --profile production       # vai pro TestFlight / App Store Co
 eas submit -p android --profile production   # vai pro Google Play (faixa interna, rascunho)
 ```
 
-Antes, troque os marcadores do bloco `submit.production` no `eas.json`:
+Antes, troque os marcadores do bloco `submit.production` no `eas.json`
+(`PREENCHER_ASC_APP_ID_AGENDAPRO` e `PREENCHER_APPLE_TEAM_ID`; o WorkPro tem o
+bloco `submit.production-workpro`):
 
 | Campo | Onde achar |
 |---|---|
@@ -365,7 +551,7 @@ entrega pela Apple e pelo Google. O app pede o token com o `projectId` da EAS.
 ## Checklist de publicação
 
 **Código e configuração**
-- [ ] Migrations aplicadas na ordem acima (base → team → agenda → clients → setup → finance → push); APIs e `vercel.json` (cron `agenda-recurring`) publicados na Vercel.
+- [ ] Migrations aplicadas na ordem acima (base → team → agenda → clients → setup → finance → push → documents); APIs e `vercel.json` (crons `agenda-recurring` e `agenda-documents`) publicados na Vercel.
 - [ ] `CRON_SECRET` na Vercel; `EXPO_ACCESS_TOKEN` só se ligar a segurança extra de push.
 - [ ] Stripe: webhook com os 6 eventos do AgendaPro e Customer Portal com os 3 preços + cancelamento (seção "Assinatura").
 - [ ] `EAS_PROJECT_ID` definido (terminal, `.env` e variáveis da Expo) ou fixo no `app.config.js`; `EXPO_PUBLIC_SUPABASE_ANON_KEY` nas variáveis da Expo.

@@ -2,6 +2,8 @@
 //   1. Registra o celular pra receber notificações, uma vez por login (lib/push.js).
 //   2. Mostra o aviso mesmo com o app aberto e, ao tocar, abre a tela certa:
 //        appointment → /appointment/[id] · review → /reviews · plans → /plans · agenda → /agenda
+//        document → /document/[id] (sem id: /vendas) · quote_request → /quote-requests
+//        documents (resumo do cron de faturas) → /vendas, na aba de faturas
 //   3. Calendário do celular: com "calendar_sync" ligado (Configurações), sincroniza
 //      os próximos 60 dias ao abrir e ao voltar pro app (no máximo a cada 10 min).
 // Nada disso roda no preview web.
@@ -23,6 +25,11 @@ export function routeForNotification(data) {
     case 'review': return '/reviews'
     case 'plans': return '/plans'
     case 'agenda': return '/agenda'
+    // Orçamento visto/aprovado/recusado, fatura paga (doc-public, webhook do Stripe)
+    case 'document': return data.id ? `/document/${encodeURIComponent(String(data.id))}` : '/vendas'
+    case 'quote_request': return '/quote-requests'
+    // Resumo diário (api/cron/agenda-documents.js): fatura vencida / cobrança automática
+    case 'documents': return data.filter === 'overdue' ? '/vendas?tab=invoices&status=overdue' : '/vendas'
     default: return null
   }
 }

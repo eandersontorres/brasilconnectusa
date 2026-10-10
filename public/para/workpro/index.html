@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="canonical" href="https://brasilconnectusa.com/para/workpro/">
+  <title>WorkPro — Orçamento e fatura pelo celular pra profissionais brasileiros nos EUA | BrasilConnect</title>
+  <meta name="description" content="Orçamento com aprovação e assinatura do cliente, fatura em PDF e link, pagamento online e cobrança automática pra construção, handyman, marceneiro, pintor, eletricista, encanador, tradutor juramentado e contador brasileiros nos EUA. App em breve.">
+  <meta name="theme-color" content="#1B2845">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    :root { --wp-navy: #1B2845; --wp-navy-deep: #111A2E; --wp-navy-soft: #E8EBF1; --wp-gold: #B8943B; --wp-gold-light: #E2C77A; --wp-cream: #FAF7F0; }
+
+    .module-hero { background: linear-gradient(135deg, #1B2845 0%, #111A2E 100%); color: #fff; padding: 80px 0 60px; }
+    .module-hero .container-narrow { padding: 0 40px; }
+    .module-hero .emoji-big { font-size: 64px; margin-bottom: 16px; }
+    .module-hero h1 { color: #fff; font-family: var(--font-display); font-size: 56px; font-weight: 700; margin: 0 0 12px 0; letter-spacing: -0.035em; }
+    .module-hero .tagline { color: var(--wp-gold-light); font-size: 18px; font-weight: 600; margin-bottom: 20px; }
+    .module-hero .lede { color: rgba(255,255,255,0.9); font-size: 17px; line-height: 1.65; max-width: 620px; }
+    .module-hero .soon-pill { display: inline-block; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.32); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; padding: 5px 12px; border-radius: 999px; margin-bottom: 18px; text-transform: uppercase; }
+    .module-hero .cta-row { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .module-hero .btn-primary { background: var(--wp-cream); color: var(--wp-navy); border: none; padding: 14px 28px; font-weight: 700; border-radius: 8px; text-decoration: none; font-size: 15px; }
+    .module-hero .btn-ghost-white { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,0.4); padding: 14px 28px; font-weight: 600; border-radius: 8px; text-decoration: none; font-size: 15px; }
+
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 32px 0; }
+    .step-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; position: relative; }
+    .step-card .step-num { position: absolute; top: -14px; left: 24px; background: var(--wp-navy); color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+    .step-card h4 { font-family: var(--font-display); font-size: 18px; margin: 6px 0 8px 0; color: var(--ink); }
+    .step-card p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+
+    .feat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 28px 0 8px; }
+    .feat { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+    .feat .ico { font-size: 22px; margin-bottom: 8px; }
+    .feat h4 { font-family: var(--font-display); font-size: 17px; margin: 0 0 6px 0; color: var(--ink); }
+    .feat p { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin: 0; }
+    .feat .plan { display: inline-block; margin-top: 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--wp-navy); background: var(--wp-navy-soft); padding: 3px 8px; border-radius: 4px; }
+
+    .uses-list { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 28px; margin: 24px 0; }
+    .uses-list h3 { margin: 0 0 14px 0; font-size: 18px; }
+    .uses-list ul { margin: 0; padding-left: 22px; }
+    .uses-list li { padding: 5px 0; color: var(--ink-soft); line-height: 1.7; }
+
+    /* Prévia do orçamento que o cliente recebe (em inglês, como o cliente americano vê) */
+    .mockup { background: #FAFAFA; border: 1px solid var(--line); border-radius: 14px; padding: 32px; margin: 24px 0; }
+    .mockup-header { display: flex; align-items: center; gap: 10px; padding-bottom: 16px; border-bottom: 1px solid var(--line); margin-bottom: 18px; font-size: 13px; color: var(--ink-muted); overflow-wrap: anywhere; }
+    .mockup-header .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--wp-navy-soft); flex: 0 0 auto; }
+    .doc { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 24px; color: var(--ink); font-size: 14px; }
+    .doc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 2px solid var(--wp-navy); }
+    .doc-biz { font-family: var(--font-display); font-size: 19px; font-weight: 600; color: var(--wp-navy); }
+    .doc-biz small { display: block; font-family: inherit; font-size: 12px; font-weight: 400; color: var(--ink-muted); margin-top: 2px; }
+    .doc-num { text-align: right; font-size: 12px; color: var(--ink-muted); line-height: 1.6; }
+    .doc-num strong { display: block; font-size: 15px; color: var(--ink); letter-spacing: 0.04em; }
+    .doc-meta { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 14px 0; font-size: 13px; color: var(--ink-soft); }
+    .doc-meta b { color: var(--ink); }
+    .doc table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .doc th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-muted); padding: 8px 6px; border-bottom: 1px solid var(--line); }
+    .doc td { padding: 9px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .doc .num { text-align: right; white-space: nowrap; }
+    .doc .tag { display: inline-block; font-size: 10px; color: var(--wp-navy); background: var(--wp-navy-soft); border-radius: 3px; padding: 1px 5px; margin-left: 4px; }
+    .doc-totals { margin: 12px 0 0 auto; max-width: 300px; font-size: 13px; }
+    .doc-totals div { display: flex; justify-content: space-between; padding: 4px 6px; color: var(--ink-soft); }
+    .doc-totals .total { border-top: 2px solid var(--wp-navy); margin-top: 4px; padding-top: 8px; font-weight: 700; font-size: 15px; color: var(--ink); }
+    .doc-totals .deposit { color: var(--wp-navy); font-weight: 600; }
+    .doc-sign { margin-top: 20px; padding-top: 16px; border-top: 1px dashed var(--line); display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+    .doc-sign .sig { flex: 1 1 220px; }
+    .doc-sign .sig-line { font-family: 'Segoe Script', 'Brush Script MT', 'Snell Roundhand', cursive; font-size: 26px; color: var(--wp-navy); border-bottom: 1px solid var(--ink-muted); padding: 0 4px 2px; }
+    .doc-sign .sig-cap { font-size: 11px; color: var(--ink-muted); margin-top: 4px; }
+    .doc-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .doc-actions span { display: inline-block; padding: 10px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; }
+    .doc-actions .approve { background: var(--wp-navy); color: #fff; }
+    .doc-actions .decline { border: 1px solid var(--line); color: var(--ink-soft); }
+    .mockup-note { margin-top: 14px; font-size: 12px; color: var(--ink-muted); line-height: 1.6; }
+
+    .plans-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin: 24px 0; }
+    .plan-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+    .plan-card.featured { background: #FFFBEA; color: var(--ink); border-color: var(--brand-gold-dark,#B8860B); border-width: 2px; position: relative; box-shadow: 0 10px 30px rgba(184,134,11,0.12); }
+    .plan-card.featured h4, .plan-card.featured .price { color: var(--ink); }
+    .plan-card.featured .price small { color: var(--ink-muted); }
+    .plan-card.featured li { color: var(--ink-soft); border-bottom-color: rgba(184,134,11,0.10); }
+    .plan-card.featured::before { content: 'POPULAR'; position: absolute; top: -10px; right: 16px; background: var(--brand-gold-dark,#B8860B); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; letter-spacing: 0.08em; }
+    .plan-card h4 { font-family: var(--font-display); font-size: 22px; margin: 0 0 6px 0; color: var(--ink); }
+    .plan-card .price { font-family: var(--font-display); font-size: 32px; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 18px; }
+    .plan-card .price small { font-size: 14px; color: var(--ink-muted); font-weight: 400; }
+    .plan-card .plan-tag { font-size: 13px; color: var(--ink-muted); margin: -10px 0 14px 0; }
+    .plan-card ul { list-style: none; padding: 0; margin: 0; }
+    .plan-card li { padding: 6px 0; font-size: 14px; color: var(--ink-soft); }
+    .plan-card li::before { content: '✓ '; color: var(--wp-navy); font-weight: 700; }
+    .plans-note { font-size: 13px; color: var(--ink-muted); margin-top: 14px; line-height: 1.6; }
+
+    /* App WorkPro (iPhone e Android) — em breve nas lojas */
+    .app-section { background: linear-gradient(135deg, #1B2845 0%, #111A2E 100%); color: #fff; padding: 64px 0; }
+    .app-section .eyebrow { color: var(--wp-gold-light); }
+    .app-section h2 { color: #fff; font-family: var(--font-display); margin: 0 0 12px 0; }
+    .app-section .lede { color: rgba(255,255,255,0.88); font-size: 16px; line-height: 1.65; margin: 0; }
+    .app-soon { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; padding: 7px 14px; border-radius: 999px; background: rgba(250,247,240,0.12); border: 1px solid rgba(250,247,240,0.28); color: var(--wp-cream); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
+    .app-soon .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--wp-gold-light); }
+    .app-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin: 28px 0 8px; }
+    .app-feat { background: rgba(250,247,240,0.07); border: 1px solid rgba(250,247,240,0.16); border-radius: 12px; padding: 18px; }
+    .app-feat .ico { font-size: 22px; margin-bottom: 8px; }
+    .app-feat h4 { color: #fff; font-family: var(--font-display); font-size: 16px; margin: 0 0 6px 0; }
+    .app-feat p { color: rgba(255,255,255,0.78); font-size: 13.5px; line-height: 1.55; margin: 0; }
+    .app-note { color: rgba(255,255,255,0.7); font-size: 13px; margin-top: 18px; }
+    .app-cta { display: inline-block; margin-top: 18px; background: var(--wp-cream); color: var(--wp-navy); padding: 12px 22px; border-radius: 8px; font-weight: 700; font-size: 14px; text-decoration: none; }
+
+    .waitlist-box { background: var(--paper-elevated); border: 2px solid var(--wp-navy); border-radius: 16px; padding: 36px; margin: 24px 0; }
+    .waitlist-box h3 { font-family: var(--font-display); font-size: 26px; margin: 0 0 8px 0; color: var(--ink); }
+    .waitlist-box .sub { color: var(--ink-soft); font-size: 15px; line-height: 1.6; margin-bottom: 22px; }
+    .waitlist-form { display: flex; gap: 12px; flex-wrap: wrap; }
+    .waitlist-form input, .waitlist-form select { flex: 1 1 200px; min-width: 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; font-size: 15px; font-family: inherit; background: #fff; color: var(--ink); }
+    .waitlist-form input:focus, .waitlist-form select:focus { outline: 2px solid var(--wp-navy); border-color: var(--wp-navy); }
+    .waitlist-form button { padding: 14px 28px; background: var(--wp-navy); color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; font-family: inherit; }
+    .waitlist-form button:disabled { opacity: 0.6; cursor: wait; }
+    .waitlist-msg { margin-top: 14px; font-size: 14px; line-height: 1.6; display: none; padding: 12px 16px; border-radius: 8px; }
+    .waitlist-msg.ok { display: block; background: #DCFCE7; color: #14532D; border: 1px solid #86EFAC; }
+    .waitlist-msg.err { display: block; background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+    .waitlist-fine { font-size: 12px; color: var(--ink-muted); margin-top: 12px; line-height: 1.6; }
+
+    .faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+    .faq-item summary { font-weight: 600; cursor: pointer; color: var(--ink); font-size: 15px; }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::before { content: '+ '; color: var(--wp-navy); font-weight: 700; }
+    .faq-item[open] summary::before { content: '− '; }
+    .faq-item p { margin: 10px 0 0 0; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+
+    .support-box { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+    .support-box p { margin: 0 0 8px 0; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+    .support-box p:last-child { margin-bottom: 0; }
+
+    .final-cta { background: var(--paper-soft); padding: 60px 0; text-align: center; margin-top: 40px; }
+    .final-cta h2 { font-family: var(--font-display); font-size: 36px; margin-bottom: 12px; }
+    .final-cta p { color: var(--ink-soft); font-size: 16px; margin-bottom: 24px; }
+
+    @media (max-width: 600px) {
+      .module-hero { padding: 56px 0 44px; }
+      .module-hero .container-narrow { padding: 0 20px; }
+      .module-hero h1 { font-size: 40px; }
+      .mockup { padding: 16px; }
+      .doc { padding: 16px; }
+      .doc .col-rate { display: none; }
+      .doc-num { text-align: left; }
+      .waitlist-box { padding: 24px 18px; }
+      .final-cta h2 { font-size: 28px; }
+    }
+  </style>
+  <script src="/js/site.js" defer></script>
+</head>
+<body class="has-flag-stripe">
+  <nav class="bc-nav">
+    <a href="/" class="bc-logo">Brasil<em>Connect</em></a>
+    <div class="bc-nav-links">
+      <a href="/" class="bc-nl">Início</a>
+      <a href="/custo-de-vida/" class="bc-nl">Cidades</a>
+      <a href="/guias/" class="bc-nl">Guias</a>
+      <a href="/para/" class="bc-nl active">Para seu negócio</a>
+      <a href="/negocio/" class="bc-nl">Negócios</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="module-hero">
+      <div class="container-narrow">
+        <div class="soon-pill">Em breve · lista de espera aberta</div>
+        <div class="emoji-big">📋</div>
+        <h1>WorkPro</h1>
+        <div class="tagline">Orçamento aprovado com assinatura. Fatura paga pelo link.</div>
+        <p class="lede">Pra quem vive de orçamento — construção e reforma, handyman, marceneiro, pintor, eletricista, encanador, tradutor juramentado, contador. Monte o orçamento pelo celular na frente do cliente, mande pelo WhatsApp e receba a aprovação com assinatura. Depois, vira fatura em um toque e você acompanha quem pagou e quem está devendo.</p>
+        <div class="cta-row">
+          <a href="#lista" class="btn-primary">✋ Entrar na lista de espera →</a>
+          <a href="#planos" class="btn-ghost-white">Ver planos</a>
+          <a href="#app" class="btn-ghost-white">📱 App em breve</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Como funciona</div>
+        <h2>Do orçamento ao dinheiro na conta, sem papel.</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <span class="step-num">1</span>
+            <h4>Monta o orçamento</h4>
+            <p>Puxa os itens da sua tabela de preços — mão de obra por hora, material, ft² de drywall, página de tradução — com desconto, sales tax e entrada.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">2</span>
+            <h4>Manda pelo WhatsApp</h4>
+            <p>Ou por e-mail ou link. O documento sai em inglês, português ou espanhol, com a sua marca, número e validade.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">3</span>
+            <h4>Cliente aprova e assina</h4>
+            <p>Abre no celular, sem baixar nada e sem criar conta, e aprova com a assinatura na tela — ou recusa dizendo o motivo. Você recebe o aviso na hora.</p>
+          </div>
+          <div class="step-card">
+            <span class="step-num">4</span>
+            <h4>Vira fatura e você recebe</h4>
+            <p>Fatura do total, da entrada ou por etapa da obra. Registra Zelle, dinheiro ou cheque, ou deixa o cliente pagar no cartão pelo link.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="background:var(--paper-soft);">
+      <div class="container-narrow">
+        <div class="eyebrow">O que tem</div>
+        <h2>Tudo que o seu escritório faria, no seu bolso.</h2>
+        <div class="feat-grid">
+          <div class="feat">
+            <div class="ico">🧾</div>
+            <h4>Orçamento e fatura pelo celular</h4>
+            <p>Itens com quantidade e unidade, desconto, sales tax só no que é tributável, entrada, condições e garantia. PDF e link prontos pra mandar.</p>
+          </div>
+          <div class="feat">
+            <div class="ico">✍️</div>
+            <h4>Aprovação com assinatura</h4>
+            <p>O cliente aprova pelo link digitando o nome e assinando na tela. Fica registrado quem aprovou, quando e de onde.</p>
+          </div>
+          <div class="feat">
+            <div class="ico">💳</div>
+            <h4>Pagamento online</h4>
+            <p>O cliente paga a fatura no cartão pelo link e o dinheiro cai na sua conta Stripe. Sem comissão do BrasilConnect sobre o seu serviço.</p>
+            <span class="plan">Plano Pro</span>
+          </div>
+          <div class="feat">
+            <div class="ico">⏰</div>
+            <h4>Cobrança automática</h4>
+            <p>Venceu e não pagou? O lembrete por e-mail sai sozinho, no idioma do cliente. Você não precisa cobrar.</p>
+            <span class="plan">Plano Pro</span>
+          </div>
+          <div class="feat">
+            <div class="ico">🏗️</div>
+            <h4>Entrada e etapas da obra</h4>
+            <p>Do orçamento aprovado saem a fatura de entrada e as faturas por etapa (30% / 40% / 30%, do seu jeito).</p>
+            <span class="plan">Plano Pro</span>
+          </div>
+          <div class="feat">
+            <div class="ico">📚</div>
+            <h4>Tabela de preços</h4>
+            <p>Serviços, mão de obra, materiais e taxas salvos com unidade e preço. Monta o orçamento em segundos, sempre com o mesmo preço.</p>
+          </div>
+          <div class="feat">
+            <div class="ico">📨</div>
+            <h4>Pedidos de orçamento pela sua página</h4>
+            <p>Formulário na sua página pra o cliente pedir orçamento com fotos do serviço. O pedido chega no app e vira orçamento em um toque.</p>
+          </div>
+          <div class="feat">
+            <div class="ico">📅</div>
+            <h4>Agenda e clientes</h4>
+            <p>Visitas técnicas e serviços na agenda, ficha do cliente com endereço, histórico, orçamentos e faturas, e mensagens prontas no WhatsApp.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Pra quem é</div>
+        <h2>Pra quem vende serviço orçado, não horário.</h2>
+        <div class="uses-list">
+          <h3>Casos de uso típicos</h3>
+          <ul>
+            <li><strong>Construção e reforma</strong> — banheiro, cozinha, deck, basement. Orçamento com mão de obra e material separados, entrada na aprovação e fatura por etapa.</li>
+            <li><strong>Handyman</strong> — vários serviços pequenos na mesma visita. Itens prontos na tabela de preços e fatura na hora, antes de ir embora.</li>
+            <li><strong>Marceneiro</strong> — móvel planejado e acabamento. Fotos do projeto no orçamento e entrada pra comprar o material.</li>
+            <li><strong>Pintor</strong> — interna e externa, por cômodo ou por ft². Desconto e sales tax só na tinta.</li>
+            <li><strong>Eletricista e encanador</strong> — visita técnica, mão de obra por hora e peças. Fatura paga no cartão pelo link.</li>
+            <li><strong>Drywall, pisos, telhado e paisagismo</strong> — medida por ft², etapas da obra e lembrete automático de pagamento.</li>
+            <li><strong>Tradutor juramentado</strong> — preço por página ou por palavra, orçamento aprovado antes de começar e fatura com instruções de Zelle.</li>
+            <li><strong>Contador e impostos</strong> — honorário por declaração ou por projeto, orçamento em inglês, português ou espanhol.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" style="background:var(--paper-soft);">
+      <div class="container-narrow">
+        <div class="eyebrow">Preview</div>
+        <h2>O que seu cliente recebe no celular.</h2>
+        <div class="mockup">
+          <div class="mockup-header">
+            <div class="dot"></div>
+            <span><strong>brasilconnectusa.com</strong>/d/•••••••• (link só do seu cliente)</span>
+          </div>
+          <div class="doc" lang="en" aria-label="Exemplo de orçamento em inglês">
+            <div class="doc-top">
+              <div class="doc-biz">Silva Remodeling LLC<small>Framingham, MA · Lic. #000000 (exemplo)</small></div>
+              <div class="doc-num">ESTIMATE<strong>Q-0012</strong>Valid until Nov 8</div>
+            </div>
+            <div class="doc-meta">
+              <div>For <b>Michael Johnson</b><br>Bathroom remodel</div>
+              <div>Issued Oct 9</div>
+            </div>
+            <table>
+              <thead>
+                <tr><th>Description</th><th class="num">Qty</th><th class="num col-rate">Rate</th><th class="num">Amount</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Demolition &amp; haul-away</td><td class="num">1 project</td><td class="num col-rate">$650.00</td><td class="num">$650.00</td></tr>
+                <tr><td>Drywall install</td><td class="num">220 sq ft</td><td class="num col-rate">$3.20</td><td class="num">$704.00</td></tr>
+                <tr><td>Tile installation labor</td><td class="num">16 hr</td><td class="num col-rate">$55.00</td><td class="num">$880.00</td></tr>
+                <tr><td>Tile, grout &amp; materials <span class="tag">taxable</span></td><td class="num">1 lot</td><td class="num col-rate">$1,240.00</td><td class="num">$1,240.00</td></tr>
+              </tbody>
+            </table>
+            <div class="doc-totals">
+              <div><span>Subtotal</span><span>$3,474.00</span></div>
+              <div><span>Discount (5%)</span><span>−$173.70</span></div>
+              <div><span>Sales tax (6.25%)</span><span>$73.63</span></div>
+              <div class="total"><span>Total</span><span>$3,373.93</span></div>
+              <div class="deposit"><span>Deposit due on approval (30%)</span><span>$1,012.18</span></div>
+            </div>
+            <div class="doc-sign">
+              <div class="sig">
+                <div class="sig-line">Michael Johnson</div>
+                <div class="sig-cap">Signed on screen · Oct 10, 9:41 AM</div>
+              </div>
+              <div class="doc-actions"><span class="approve">Approve &amp; sign</span><span class="decline">Decline</span></div>
+            </div>
+          </div>
+          <p class="mockup-note">Exemplo ilustrativo. O sales tax incide só nos itens tributáveis, depois do desconto. O documento sai no idioma que você escolher (inglês, português ou espanhol) e o seu painel continua em português.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="app-section" id="app">
+      <div class="container-narrow">
+        <div class="eyebrow">Novidade</div>
+        <h2>App WorkPro para iPhone e Android — em breve nas lojas</h2>
+        <p class="lede">O escritório inteiro no seu celular: orçamento na frente do cliente, aprovação na hora e fatura antes de sair da obra. Mesma conta e mesma assinatura do AgendaPro e do site BrasilConnect.</p>
+        <div class="app-soon"><span class="dot"></span> Em breve na App Store e no Google Play</div>
+
+        <div class="app-grid">
+          <div class="app-feat">
+            <div class="ico">📊</div>
+            <h4>Vendas num olhar</h4>
+            <p>Orçamentos em aberto, quanto tem pra receber, o que venceu e o que já entrou no mês.</p>
+          </div>
+          <div class="app-feat">
+            <div class="ico">🔔</div>
+            <h4>Aviso na hora</h4>
+            <p>Notificação quando o cliente abre, aprova ou recusa o orçamento, quando a fatura é paga e quando chega pedido novo.</p>
+          </div>
+          <div class="app-feat">
+            <div class="ico">📸</div>
+            <h4>Fotos de antes e depois</h4>
+            <p>Tira a foto na obra e anexa no orçamento ou na fatura (plano Pro).</p>
+          </div>
+          <div class="app-feat">
+            <div class="ico">🔒</div>
+            <h4>Seguro e no seu bolso</h4>
+            <p>Abre com Face ID ou digital e manda as visitas pro calendário do iPhone ou Android.</p>
+          </div>
+        </div>
+
+        <p class="app-note">Os recursos seguem o seu plano (Starter, Pro ou Premium). Quem já usa o AgendaPro entra no WorkPro com o mesmo e-mail.</p>
+        <a class="app-cta" href="#lista">Quero ser avisado quando sair →</a>
+      </div>
+    </section>
+
+    <section class="section" id="planos">
+      <div class="container-narrow">
+        <div class="eyebrow">Planos</div>
+        <h2>Comece grátis. Atualize quando precisar.</h2>
+        <p class="lede" style="margin-top:14px;margin-bottom:24px;">14 dias grátis com tudo liberado. Cancele quando quiser, sem multa e sem comissão do BrasilConnect sobre o seu serviço.</p>
+
+        <div class="plans-cards">
+          <div class="plan-card">
+            <h4>Starter</h4>
+            <div class="price">$19<small> / mês</small></div>
+            <div class="plan-tag">Pra quem está começando</div>
+            <ul>
+              <li>Orçamentos com itens, desconto e sales tax</li>
+              <li>Aprovação pelo link com assinatura do cliente</li>
+              <li>Faturas em PDF e link, com controle de quem pagou</li>
+              <li>Pagamento por Zelle, dinheiro ou cheque registrado no app</li>
+              <li>Tabela de preços com serviços e materiais</li>
+              <li>Pedidos de orçamento pela sua página, com fotos</li>
+              <li>Até 20 documentos por mês</li>
+              <li>Agenda, clientes e mensagens prontas no WhatsApp</li>
+              <li>Lembrete por e-mail e notificações no celular</li>
+              <li>Link e QR code da sua página</li>
+            </ul>
+          </div>
+          <div class="plan-card featured">
+            <h4>Pro</h4>
+            <div class="price">$39<small> / mês</small></div>
+            <div class="plan-tag">Pra quem já tem clientela e quer crescer</div>
+            <ul>
+              <li>Tudo do Starter</li>
+              <li>Documentos ilimitados</li>
+              <li>Cliente paga a fatura no cartão, direto na sua conta Stripe</li>
+              <li>Cobrança automática por e-mail quando a fatura vence</li>
+              <li>Fatura de entrada e por etapa da obra</li>
+              <li>Fotos de antes e depois no orçamento e na fatura</li>
+              <li>Finanças: despesas, lucro e reserva pro imposto</li>
+              <li>Milhagem pra dedução no imposto</li>
+              <li>Mensagens em inglês e espanhol</li>
+              <li>Avaliações e galeria de fotos na sua página</li>
+            </ul>
+          </div>
+          <div class="plan-card">
+            <h4>Premium</h4>
+            <div class="price">$79<small> / mês</small></div>
+            <div class="plan-tag">Equipes e negócios com vários profissionais</div>
+            <ul>
+              <li>Tudo do Pro</li>
+              <li>Equipe: até 10 profissionais ou equipes, cada um com sua cor</li>
+              <li>Rota do dia da equipe por link, sem senha</li>
+              <li>Relatórios mensais e CSV pro contador</li>
+              <li>Recibos em PDF com a sua marca</li>
+              <li>Orçamentos, faturas e página sem a marca BrasilConnect</li>
+            </ul>
+          </div>
+        </div>
+        <p class="plans-note">Preços em dólar, cobrança mensal. São os mesmos planos e a mesma assinatura do AgendaPro: quem já assina usa os dois apps sem pagar de novo. Pelo app, o teste de 14 dias começa sem cartão. "Documento" = orçamento ou fatura criados no mês.</p>
+        <p style="margin-top:20px;"><a class="btn btn-primary" href="#lista">✋ Entrar na lista de espera →</a></p>
+      </div>
+    </section>
+
+    <section class="section" id="lista">
+      <div class="container-narrow">
+        <div class="eyebrow">Lista de espera</div>
+        <h2>Seja dos primeiros a usar o WorkPro.</h2>
+        <div class="waitlist-box">
+          <h3>Garanta seu lugar</h3>
+          <p class="sub">Deixa seu e-mail, sua cidade e o que você faz. Quem está na lista recebe o convite primeiro, com o teste grátis de 14 dias, e ajuda a decidir o que vem antes. Sem spam — a gente só escreve quando tiver novidade de verdade.</p>
+          <form class="waitlist-form" id="waitlistForm" novalidate>
+            <input type="email" id="wlEmail" placeholder="Seu melhor e-mail" required maxlength="200" autocomplete="email" aria-label="Seu e-mail">
+            <input type="text" id="wlCity" placeholder="Sua cidade (ex: Framingham, MA)" maxlength="80" autocomplete="address-level2" aria-label="Sua cidade">
+            <select id="wlTrade" aria-label="O que você faz">
+              <option value="">O que você faz?</option>
+              <option value="construcao">Construção e reforma</option>
+              <option value="handyman">Handyman</option>
+              <option value="marceneiro">Marceneiro</option>
+              <option value="pintor">Pintor</option>
+              <option value="eletricista">Eletricista</option>
+              <option value="encanador">Encanador</option>
+              <option value="drywall-pisos">Drywall, pisos ou telhado</option>
+              <option value="paisagismo">Paisagismo</option>
+              <option value="tradutor">Tradutor juramentado</option>
+              <option value="contador">Contabilidade e impostos</option>
+              <option value="outro">Outro serviço</option>
+            </select>
+            <button type="submit" id="wlBtn">Entrar na lista →</button>
+          </form>
+          <div class="waitlist-msg" id="wlMsg" role="status" aria-live="polite"></div>
+          <p class="waitlist-fine">Usamos seu e-mail só pra avisar do WorkPro e de novidades da BrasilConnect, com link de descadastro em todo e-mail. Veja a <a href="/privacidade">política de privacidade</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container-narrow">
+        <div class="eyebrow">Perguntas</div>
+        <h2>Dúvidas frequentes</h2>
+
+        <details class="faq-item">
+          <summary>Meus clientes são americanos. O orçamento sai em inglês?</summary>
+          <p>Sai. Em cada orçamento ou fatura você escolhe o idioma do documento — inglês, português ou espanhol — e a página que o cliente abre, o e-mail e o lembrete de pagamento saem nesse idioma. O app continua todo em português pra você.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>O cliente precisa baixar aplicativo ou criar conta?</summary>
+          <p>Não. Ele recebe um link pelo WhatsApp, e-mail ou SMS, abre no navegador do celular ou do computador e aprova com a assinatura na tela. Sem senha, sem cadastro.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Como fica registrada a aprovação?</summary>
+          <p>Quando o cliente aprova, ficam guardados o nome que ele digitou, a assinatura desenhada, a data e a hora, e você recebe o aviso no celular. Pra obras maiores, escreva suas condições (prazo, garantia, pagamento) no campo de condições do orçamento — e, se precisar de contrato, use um modelo revisado por advogado.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Como eu recebo o dinheiro?</summary>
+          <p>Do jeito que você já recebe: Zelle, dinheiro, cheque ou Venmo, registrado no app em qualquer plano (inteiro ou em parte). No plano Pro, o cliente também pode pagar a fatura no cartão pelo link, e o dinheiro cai direto na sua conta Stripe. <strong>Sem comissão do BrasilConnect sobre o seu serviço.</strong></p>
+        </details>
+
+        <details class="faq-item">
+          <summary>E o sales tax?</summary>
+          <p>Você define a taxa no orçamento e marca quais itens são tributáveis (por exemplo, só o material). O imposto é calculado depois do desconto. Cada estado tem regra diferente sobre o que é tributável — na dúvida, confirme com o seu contador.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Posso pedir entrada antes de começar?</summary>
+          <p>Pode. O orçamento já mostra a entrada pedida na aprovação (em % ou em valor). No plano Pro, o orçamento aprovado gera a fatura da entrada e as faturas por etapa da obra, sem digitar nada de novo.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>E se o cliente não pagar?</summary>
+          <p>A fatura vencida aparece destacada no app, com o valor que falta. Você pode mandar um lembrete na hora, e no plano Pro a cobrança automática por e-mail sai sozinha quando a fatura vence.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Quantos orçamentos posso fazer?</summary>
+          <p>No Starter, até 20 documentos por mês (orçamentos e faturas somados). No Pro e no Premium, ilimitados. Os documentos antigos continuam no app pra você consultar.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Já uso o AgendaPro. Preciso de outra conta ou outra assinatura?</summary>
+          <p>Não. É a mesma conta e a mesma assinatura: entre no WorkPro com o mesmo e-mail. Orçamentos e faturas também ficam disponíveis no AgendaPro, em Mais → Vendas.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Como funciona o teste grátis?</summary>
+          <p>São 14 dias com todos os recursos liberados, e pelo app o teste começa sem cartão. Depois você escolhe Starter ($19), Pro ($39) ou Premium ($79). Se não assinar, seus clientes, orçamentos e faturas continuam guardados e você ainda consegue consultar tudo.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Quando o app sai?</summary>
+          <p>Em breve, na App Store e no Google Play. Entre na <a href="#lista">lista de espera</a> e avisamos por e-mail assim que estiver disponível.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="section" id="suporte">
+      <div class="container-narrow">
+        <div class="eyebrow">Suporte</div>
+        <h2>Precisa de ajuda?</h2>
+        <div class="support-box">
+          <p>Escreva pra <a href="mailto:oi@brasilconnectusa.com?subject=WorkPro">oi@brasilconnectusa.com</a>, em português, inglês ou espanhol, com o e-mail da sua conta.</p>
+          <p><strong>Assinatura:</strong> o WorkPro usa a mesma assinatura do AgendaPro. Para assinar, trocar de plano, atualizar o cartão ou cancelar, use a página <a href="/agenda/planos">/agenda/planos</a>.</p>
+          <p><strong>Excluir conta:</strong> no app, vá em Mais → Configurações → Excluir conta. Sem o app, dá pra pedir por e-mail, como explicado em <a href="/excluir-conta.html">Excluir conta</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <div class="container-narrow">
+        <h2>Chega de orçamento no caderno.</h2>
+        <p>O WorkPro leva o orçamento, a aprovação e a cobrança pro seu celular. Entre na lista — é grátis.</p>
+        <a href="#lista" class="btn btn-primary" style="padding:16px 32px;font-size:16px;font-weight:700;">✋ Entrar na lista de espera →</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bc-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="bc-logo" style="font-size:22px;">Brasil<em>Connect</em></div>
+          <p class="footer-tagline">A plataforma para brasileiros nos EUA.</p>
+        </div>
+        <div>
+          <h4>Para seu negócio</h4>
+          <a href="/para/restaurant/">Restaurante</a>
+          <a href="/para/grocery/">Mercado</a>
+          <a href="/para/retail/">Loja (Retail)</a>
+          <a href="/para/agenda-pro/">AgendaPro</a>
+          <a href="/para/workpro/">WorkPro</a>
+          <a href="/para/showcase/">Divulgação</a>
+        </div>
+        <div>
+          <h4>Sobre</h4>
+          <a href="/">Início</a>
+          <a href="/custo-de-vida/">Cidades</a>
+          <a href="/guias/">Guias</a>
+          <a href="/privacidade">Privacidade</a>
+          <a href="/termos">Termos</a>
+        </div>
+      </div>
+      <div class="footer-bottom">© 2026 BrasilConnect USA</div>
+    </div>
+  </footer>
+
+  <script>
+    // Lista de espera do WorkPro: mesma rota da página /para/cleaner (POST /api/waitlist).
+    // A profissão vai junto na origem (source 'workpro' ou 'workpro:<profissão>', até 40 caracteres).
+    (function () {
+      var TRADES = ['construcao', 'handyman', 'marceneiro', 'pintor', 'eletricista', 'encanador', 'drywall-pisos', 'paisagismo', 'tradutor', 'contador', 'outro']
+      var form = document.getElementById('waitlistForm')
+      if (!form) return
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault()
+        var btn = document.getElementById('wlBtn')
+        var msg = document.getElementById('wlMsg')
+        var email = document.getElementById('wlEmail').value.trim().slice(0, 200)
+        var city = document.getElementById('wlCity').value.trim().slice(0, 80)
+        var trade = document.getElementById('wlTrade').value
+        var source = TRADES.indexOf(trade) >= 0 ? 'workpro:' + trade : 'workpro'
+
+        msg.className = 'waitlist-msg'
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          msg.className = 'waitlist-msg err'
+          msg.textContent = 'Confere o e-mail: parece que falta alguma coisa.'
+          return
+        }
+
+        btn.disabled = true
+        btn.textContent = 'Enviando...'
+        try {
+          var res = await fetch('/api/waitlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, city: city, source: source }),
+          })
+          var data = {}
+          try { data = await res.json() } catch (_) {}
+          if (res.ok && data.ok) {
+            msg.className = 'waitlist-msg ok'
+            msg.textContent = data.isNew
+              ? 'Pronto! Você está na lista do WorkPro. Avisamos por e-mail assim que o app sair.'
+              : 'Você já estava na lista — seu lugar continua garantido.'
+            form.reset()
+          } else {
+            msg.className = 'waitlist-msg err'
+            msg.textContent = data.error || 'Não deu certo. Tenta de novo em instantes.'
+          }
+        } catch (err) {
+          msg.className = 'waitlist-msg err'
+          msg.textContent = 'Sem conexão com o servidor. Tenta de novo em instantes.'
+        }
+        btn.disabled = false
+        btn.textContent = 'Entrar na lista →'
+      })
+    })()
+  </script>
+</body>
+</html>

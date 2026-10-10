@@ -21,17 +21,21 @@
  *
  * A pagina publica recebe so o que precisa: booking_enabled, accepts_card, show_branding,
  * galeria e avaliacoes saem do plano (api/_lib/agendaPlans.js). Colunas de plano e de
- * Stripe nao saem daqui.
+ * Stripe nao saem daqui. vertical ('services'|'cleaning'|'trades') e quote_requests_enabled
+ * (formulario "Pedir orcamento": plano + app_settings.quote_requests_public, pela mesma
+ * regra de api/agenda/quote-requests.js); app_settings e lido mas nunca sai cru.
  */
 import { createClient } from '@supabase/supabase-js'
 import { requireAuthOnly } from '../_lib/businessAuth.js'
 import { requireProviderAuth } from '../_lib/providerAuth.js'
 import { hasFeature, requireFeature } from '../_lib/agendaPlans.js'
+import { quoteFormEnabled } from './quote-requests.js'
 
 const FULL_COLS = 'id, name, email, slug, specialty, bio, city, state, avatar_url, cover_color, cover_url, gallery_urls, video_url, instagram, whatsapp, plan, plan_status, current_period_end, trial_ends_at, active, stripe_onboarded, stripe_charges_enabled, deposit_instructions'
 // O que agendaPlans precisa pra calcular o plano efetivo (nunca vai pro publico)
 const PLAN_COLS = 'plan, plan_status, current_period_end, trial_ends_at, active, stripe_subscription_id, created_at'
-const PUBLIC_COLS = `id, name, slug, specialty, bio, city, state, avatar_url, cover_color, cover_url, gallery_urls, video_url, instagram, whatsapp, deposit_instructions, stripe_charges_enabled, ${PLAN_COLS}`
+// vertical e app_settings: so pra decidir o formulario de orcamento (app_settings nao vai pra resposta)
+const PUBLIC_COLS = `id, name, slug, specialty, bio, city, state, avatar_url, cover_color, cover_url, gallery_urls, video_url, instagram, whatsapp, deposit_instructions, stripe_charges_enabled, vertical, app_settings, ${PLAN_COLS}`
 
 const MAX_GALLERY = 10
 const PUBLIC_REVIEWS = 10
@@ -380,6 +384,8 @@ export default async function handler(req, res) {
       booking_enabled: hasFeature(provider, 'online_booking'),
       accepts_card: hasFeature(provider, 'deposit_stripe') && !!provider.stripe_charges_enabled,
       show_branding: !hasFeature(provider, 'no_branding'),
+      vertical: provider.vertical || 'services',
+      quote_requests_enabled: quoteFormEnabled(provider),
     }
 
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300')

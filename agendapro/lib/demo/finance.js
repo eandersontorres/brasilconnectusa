@@ -1,10 +1,15 @@
 // ════════════════════════════════════════════════════════════════════════════
 //   Modo demonstração — /api/agenda/finance em memória. Mesmas contas e formatos
 //   de api/agenda/finance.js (summary, expenses, expense, mileage, year, report,
-//   export CSV e as ações de despesa/milhagem). JS puro, sem react-native.
+//   export CSV e as ações de despesa/milhagem). Pagamentos de fatura (WorkPro)
+//   entram na receita pela data do pagamento, igual ao servidor. Sem contagem dupla:
+//   atendimento com fatura ligada não presume o valor cheio (conta o pago marcado, senão
+//   o sinal pago) e desconta o que as faturas dele já receberam — a fatura do atendimento
+//   já pago nasce com esse valor lançado como pagamento (creditFromAppointment). JS puro.
 // ════════════════════════════════════════════════════════════════════════════
 import { hasFeature, requireFeature } from './plans.js'
-import { addDays, clip, diffDays, pad, uid } from './util.js'
+import { addDays, clip, diffDays, localToday, pad, uid } from './util.js'
+import { invoiceStatus } from '../docCalc.js'
 
 const CATEGORIES = ['produtos', 'gasolina', 'aluguel', 'equipamento', 'marketing', 'taxas', 'celular', 'seguro', 'alimentacao', 'outros']
 const PAY_METHODS = ['card', 'cash', 'zelle', 'venmo', 'cashapp', 'paypal', 'check', 'debit', 'other']
@@ -22,8 +27,16 @@ const SCHEDULE_C = {
   celular: 'Utilities (line 25)', seguro: 'Insurance (line 15)', alimentacao: 'Meals (line 24b, 50%)', outros: 'Other expenses (line 27a)',
 }
 const METHOD_LABEL = {
-  pt: { card: 'Cartão', cash: 'Dinheiro', zelle: 'Zelle', venmo: 'Venmo', cashapp: 'Cash App', paypal: 'PayPal', check: 'Cheque', debit: 'Débito', stripe: 'Cartão (online)', other: 'Outro', free: 'Cortesia' },
-  en: { card: 'Card', cash: 'Cash', zelle: 'Zelle', venmo: 'Venmo', cashapp: 'Cash App', paypal: 'PayPal', check: 'Check', debit: 'Debit', stripe: 'Card (online)', other: 'Other', free: 'Complimentary' },
+  pt: { card: 'Cartão', cash: 'Dinheiro', zelle: 'Zelle', venmo: 'Venmo', cashapp: 'Cash App', paypal: 'PayPal', check: 'Cheque', debit: 'Débito', ach: 'Transferência (ACH)', stripe: 'Cartão (online)', other: 'Outro', free: 'Cortesia' },
+  en: { card: 'Card', cash: 'Cash', zelle: 'Zelle', venmo: 'Venmo', cashapp: 'Cash App', paypal: 'PayPal', check: 'Check', debit: 'Debit', ach: 'ACH transfer', stripe: 'Card (online)', other: 'Other', free: 'Complimentary' },
+}
+const PAYMENT_ORIGIN_LABEL = {
+  pt: { manual: 'Registrado no app', stripe: 'Cartão pelo link', appointment: 'Recebido no atendimento' },
+  en: { manual: 'Recorded in app', stripe: 'Card via link', appointment: 'Received at appointment' },
+}
+const INVOICE_STATUS_LABEL = {
+  pt: { draft: 'Rascunho', sent: 'Enviada', viewed: 'Vista', partial: 'Paga em parte', paid: 'Paga', overdue: 'Vencida', void: 'Anulada' },
+  en: { draft: 'Draft', sent: 'Sent', viewed: 'Viewed', partial: 'Partially paid', paid: 'Paid', overdue: 'Overdue', void: 'Void' },
 }
 const STATUS_LABEL = {
   pt: { pending: 'Aguardando sinal', confirmed: 'Confirmado', completed: 'Realizado', canceled: 'Cancelado', no_show: 'Faltou' },
@@ -105,11 +118,42 @@ function shapeApt(S, a) {
     source: a.source ?? (a.external_uid ? 'ical' : null), staff_id: a.staff_id ?? null,
   }
 }
+/**
+ * Faturas ligadas a atendimento (fora de void): Map(appointment_id → { numbers, real, covered }).
+ * real = tem fatura de verdade (fora de rascunho); numbers = números dessas faturas; covered = soma
+ * de tudo que as faturas do atendimento já receberam (pagos, qualquer data). Igual ao servidor.
+ */
+function invoicedMap(S) {
+  const map = new Map()
+  const aptOfDoc = new Map()
+  for (const d of S.documents || []) {
+    if (d.kind !== 'invoice' || !d.appointment_id || d.status === 'void') continue
+    const e = map.get(d.appointment_id) || { numbers: [], real: false, covered: 0 }
+    if (d.status !== 'draft') {
+      e.real = true
+      if (d.number && !e.numbers.includes(d.number)) e.numbers.push(d.number)
+    }
+    map.set(d.appointment_id, e)
+    aptOfDoc.set(d.id, d.appointment_id)
+  }
+  for (const p of S.docPayments || []) {
+    if (p.type !== 'invoice' || p.status !== 'paid' || !aptOfDoc.has(p.document_id)) continue
+    map.get(aptOfDoc.get(p.document_id)).covered += Math.max(0, Number(p.amount_cents) || 0)
+  }
+  return map
+}
 function loadAppointments(S, fromIso, toIso, statuses = null) {
+  const inv = invoicedMap(S)
   return S.appointments
     .filter((a) => a.scheduled_for >= fromIso && a.scheduled_for < toIso && (!statuses || statuses.includes(a.status)))
     .sort((x, y) => x.scheduled_for.localeCompare(y.scheduled_for) || x.id.localeCompare(y.id))
-    .map((a) => shapeApt(S, a))
+    .map((a) => {
+      const out = shapeApt(S, a)
+      const e = inv.get(a.id)
+      if (e?.real) { out.invoiced = true; out.invoice_numbers = e.numbers }
+      if (e?.covered > 0) out.invoice_covered_cents = e.covered
+      return out
+    })
 }
 const EXP_KEYS = ['id', 'spent_on', 'category', 'description', 'amount_cents', 'payment_method', 'receipt_url', 'created_at', 'updated_at']
 const MIL_KEYS = ['id', 'driven_on', 'miles', 'purpose', 'from_label', 'to_label', 'appointment_id', 'created_at']
@@ -127,16 +171,64 @@ function loadMileage(S, from, to) {
     .map((t) => ({ ...pick(t, MIL_KEYS), miles: Number(t.miles) || 0 }))
 }
 
+/**
+ * Pagamentos de fatura entre duas datas ('YYYY-MM-DD', inclusive) pela data local do pagamento
+ * (loadInvoicePayments do servidor). → [{ amount_cents, method, day, document_id, doc }]
+ */
+function loadInvoicePays(S, fromKey, toKey) {
+  const docs = new Map((S.documents || []).map((d) => [d.id, d]))
+  const out = []
+  for (const p of S.docPayments || []) {
+    if (p.type !== 'invoice' || p.status !== 'paid') continue
+    const day = localToday(new Date(p.paid_at || p.created_at))
+    if (!day || day < fromKey || day > toKey) continue
+    const d = docs.get(p.document_id) || {}
+    out.push({
+      amount_cents: Math.max(0, Math.round(Number(p.amount_cents) || 0)), method: p.method || (p.source === 'stripe' ? 'card' : 'other'), paid_at: p.paid_at, day,
+      document_id: p.document_id || null, doc: { number: d.number || null, client_id: d.client_id || null, client_name: d.client_name || null },
+      origin: p.source === 'stripe' ? 'stripe' : p.metadata?.source === 'appointment' ? 'appointment' : 'manual',
+    })
+  }
+  return out.sort((a, b) => String(a.paid_at).localeCompare(String(b.paid_at)))
+}
+/** Soma os pagamentos de fatura no resumo do mês (receita, dia a dia, forma de pagamento). */
+function addInvoiceRevenue(s, pays) {
+  let cents = 0
+  for (const p of pays) {
+    const amt = Math.max(0, Number(p.amount_cents) || 0)
+    if (!amt) continue
+    cents += amt
+    const d = Number(String(p.day).slice(8, 10)) - 1
+    if (s.daily?.[d]) s.daily[d].cents += amt
+    const m = p.method || 'other'
+    s.by_method[m] = (s.by_method[m] || 0) + amt
+  }
+  s.invoice_revenue_cents = cents
+  s.invoice_payments = pays.filter((p) => (Number(p.amount_cents) || 0) > 0).length
+  s.revenue_cents += cents
+  return s
+}
+const sumPays = (pays, filter = null) => pays.reduce((t, p) => t + (!filter || filter(p) ? Math.max(0, Number(p.amount_cents) || 0) : 0), 0)
+
 // ── Contas (iguais às do servidor) ──────────────────────────────────────────
 const monthOf = (a) => String(a.scheduled_for).slice(0, 7)
 const dayKeyOf = (a) => String(a.scheduled_for).slice(0, 10)
+/**
+ * Dinheiro que entrou por este agendamento (sem gorjeta). Com fatura ligada: não presume o valor
+ * cheio (conta o marcado como pago, senão o sinal pago) e desconta o que as faturas dele já
+ * receberam (invoice_covered_cents), que entra pela fatura. Igual a incomeOf do servidor.
+ */
 export function incomeOf(a) {
-  if (a.status === 'completed') return Math.max(0, a.paid_cents != null ? Number(a.paid_cents) : (Number(a.total_cents) || 0))
-  if (a.status === 'no_show' || a.status === 'canceled') {
-    if (a.paid_cents != null) return Math.max(0, Number(a.paid_cents) || 0)
-    return a.status === 'no_show' && a.deposit_paid ? Math.max(0, Number(a.deposit_cents) || 0) : 0
+  let got = 0
+  if (a.status === 'completed') {
+    if (a.paid_cents != null) got = Number(a.paid_cents) || 0
+    else if (a.invoiced) got = a.deposit_paid ? Number(a.deposit_cents) || 0 : 0
+    else got = Number(a.total_cents) || 0
+  } else if (a.status === 'no_show' || a.status === 'canceled') {
+    if (a.paid_cents != null) got = Number(a.paid_cents) || 0
+    else got = a.status === 'no_show' && a.deposit_paid ? Number(a.deposit_cents) || 0 : 0
   }
-  return 0
+  return Math.max(0, Math.max(0, got) - Math.max(0, Number(a.invoice_covered_cents) || 0))
 }
 const tipOf = (a) => (['completed', 'no_show', 'canceled'].includes(a.status) ? Math.max(0, Number(a.tip_cents) || 0) : 0)
 const methodOf = (a) => a.paid_method || a.payment_method || 'unknown'
@@ -166,13 +258,17 @@ function summarizeMonth(apts, month, today) {
   const daily = Array.from({ length: daysIn(month) }, (_, i) => ({ date: `${month}-${pad(i + 1)}`, cents: 0 }))
   const byMethod = {}
   const bySvc = new Map()
-  const out = { revenue_cents: 0, tips_cents: 0, no_show_deposits_cents: 0, expected_cents: 0, expected_count: 0, unmarked_count: 0, unmarked_cents: 0, completed: 0, completed_cents: 0, no_shows: 0, cancellations: 0 }
+  const out = { revenue_cents: 0, tips_cents: 0, no_show_deposits_cents: 0, expected_cents: 0, expected_count: 0, unmarked_count: 0, unmarked_cents: 0, completed: 0, completed_cents: 0, no_shows: 0, cancellations: 0, invoiced_appointments: 0 }
+  let ticketCount = 0, ticketCents = 0
   for (const a of apts) {
     const key = dayKeyOf(a)
     const inc = incomeOf(a)
+    if (a.invoiced) out.invoiced_appointments++
     if (a.status === 'completed') {
       out.completed++
       out.completed_cents += inc
+      // Ticket médio sem os faturados (o valor deles vem pela fatura)
+      if (!a.invoiced) { ticketCount++; ticketCents += inc }
       const name = serviceOf(a)
       const s = bySvc.get(name) || { name, count: 0, cents: 0 }
       s.count++; s.cents += inc
@@ -182,7 +278,8 @@ function summarizeMonth(apts, month, today) {
       out.no_show_deposits_cents += inc
     } else if (a.status === 'canceled') {
       out.cancellations++
-    } else if (a.status === 'pending' || a.status === 'confirmed') {
+    } else if ((a.status === 'pending' || a.status === 'confirmed') && !a.invoiced) {
+      // Com fatura ligada, o dinheiro vem pela fatura: fica fora de previsto/sem marcar
       if (key >= today) { out.expected_cents += Number(a.total_cents) || 0; out.expected_count++ }
       else { out.unmarked_count++; out.unmarked_cents += Number(a.total_cents) || 0 }
     }
@@ -195,7 +292,7 @@ function summarizeMonth(apts, month, today) {
       byMethod[m] = (byMethod[m] || 0) + inc
     }
   }
-  out.avg_ticket_cents = out.completed ? Math.round(out.completed_cents / out.completed) : 0
+  out.avg_ticket_cents = ticketCount ? Math.round(ticketCents / ticketCount) : 0
   out.by_method = byMethod
   out.by_service = [...bySvc.values()].sort((a, b) => b.cents - a.cents || b.count - a.count).slice(0, 10)
   out.daily = daily
@@ -216,18 +313,22 @@ function viewSummary(S, c, q) {
 
   const cur = apts.filter((a) => monthOf(a) === month)
   const before = apts.filter((a) => monthOf(a) === prev)
-  const s = summarizeMonth(cur, month, c.today)
+  const invPays = loadInvoicePays(S, `${prev}-01`, lastDay(month))
+  const invCur = invPays.filter((p) => p.day.slice(0, 7) === month)
+  const invBefore = invPays.filter((p) => p.day.slice(0, 7) === prev)
+  const s = addInvoiceRevenue(summarizeMonth(cur, month, c.today), invCur)
   let previousSamePeriod = null
   if (c.today.slice(0, 7) === month) {
     const day = Number(c.today.slice(8, 10))
     previousSamePeriod = sumIncome(before, (a) => Number(dayKeyOf(a).slice(8, 10)) <= day)
+      + sumPays(invBefore, (p) => Number(p.day.slice(8, 10)) <= day)
   }
   const settings = S.provider.app_settings || {}
   const pct = taxPct(settings)
   const rate = mileageRate(settings)
   const out = {
     month, today: c.today, ...s,
-    previous_month: prev, previous_revenue_cents: sumIncome(before), previous_same_period_cents: previousSamePeriod,
+    previous_month: prev, previous_revenue_cents: sumIncome(before) + sumPays(invBefore), previous_same_period_cents: previousSamePeriod,
     goal_cents: goalCents(settings), finance_locked: !finance, mileage_locked: !hasFeature(S.provider, 'mileage'),
     tax_reserve_pct: pct, mileage_rate_cents: rate,
     expenses_cents: null, expenses_by_category: null, net_cents: null, taxable_cents: null, tax_reserve_cents: null,
@@ -317,13 +418,20 @@ function viewYear(S, c, q) {
   const apts = loadAppointments(S, `${year}-01-01T00:00:00.000Z`, `${year + 1}-01-01T00:00:00.000Z`)
   const expenses = loadExpenses(S, `${year}-01-01`, `${year}-12-31`)
   const trips = mileage ? loadMileage(S, `${year}-01-01`, `${year}-12-31`) : []
-  const base = Array.from({ length: 12 }, (_, i) => ({ month: `${year}-${pad(i + 1)}`, revenue_cents: 0, tips_cents: 0, completed: 0, expenses_cents: 0, gas: 0, miles: 0 }))
+  const base = Array.from({ length: 12 }, (_, i) => ({ month: `${year}-${pad(i + 1)}`, revenue_cents: 0, invoice_revenue_cents: 0, tips_cents: 0, completed: 0, expenses_cents: 0, gas: 0, miles: 0 }))
   for (const a of apts) {
     const m = base[Number(String(a.scheduled_for).slice(5, 7)) - 1]
     if (!m) continue
     m.revenue_cents += incomeOf(a)
     m.tips_cents += tipOf(a)
     if (a.status === 'completed') m.completed++
+  }
+  for (const p of loadInvoicePays(S, `${year}-01-01`, `${year}-12-31`)) {
+    const m = base[Number(p.day.slice(5, 7)) - 1]
+    const amt = Math.max(0, Number(p.amount_cents) || 0)
+    if (!m || !amt) continue
+    m.revenue_cents += amt
+    m.invoice_revenue_cents += amt
   }
   for (const e of expenses) {
     const m = base[Number(String(e.spent_on).slice(5, 7)) - 1]
@@ -339,12 +447,12 @@ function viewYear(S, c, q) {
   const months = base.map((m) => {
     const miles = Math.round(m.miles * 10) / 10
     const p = profit({ revenue: m.revenue_cents, tips: m.tips_cents, expenses: m.expenses_cents, gas: m.gas, miles, rate, pct, gasExcluded })
-    return { month: m.month, revenue_cents: m.revenue_cents, tips_cents: m.tips_cents, completed: m.completed, expenses_cents: m.expenses_cents, miles, ...p }
+    return { month: m.month, revenue_cents: m.revenue_cents, invoice_revenue_cents: m.invoice_revenue_cents, tips_cents: m.tips_cents, completed: m.completed, expenses_cents: m.expenses_cents, miles, ...p }
   })
   const sum = (k) => months.reduce((t, m) => t + (m[k] || 0), 0)
   const totalTaxable = Math.max(0, sum('taxable_raw_cents'))
   const totals = {
-    revenue_cents: sum('revenue_cents'), tips_cents: sum('tips_cents'), completed: sum('completed'), expenses_cents: sum('expenses_cents'),
+    revenue_cents: sum('revenue_cents'), invoice_revenue_cents: sum('invoice_revenue_cents'), tips_cents: sum('tips_cents'), completed: sum('completed'), expenses_cents: sum('expenses_cents'),
     net_cents: sum('net_cents'), miles: Math.round(sum('miles') * 10) / 10, mileage_deduction_cents: sum('mileage_deduction_cents'),
     taxable_cents: totalTaxable, tax_reserve_cents: Math.round((totalTaxable * pct) / 100),
   }
@@ -377,7 +485,8 @@ function viewReport(S, c, q) {
   const period = reportPeriod(c, q)
   const apts = loadAppointments(S, period.fromIso, period.toIso)
   const staff = S.staff
-  const totals = { appointments: apts.length, completed: 0, no_shows: 0, cancellations: 0, revenue_cents: 0, tips_cents: 0, completed_cents: 0 }
+  const totals = { appointments: apts.length, completed: 0, no_shows: 0, cancellations: 0, revenue_cents: 0, tips_cents: 0, completed_cents: 0, invoice_revenue_cents: 0, invoice_payments: 0, invoiced_appointments: 0 }
+  let ticketCount = 0, ticketCents = 0
   const bySvc = new Map(), byClient = new Map(), byStaff = new Map(), bySource = new Map()
   const byWeekday = Array.from({ length: 7 }, (_, i) => ({ weekday: i, count: 0, cents: 0 }))
   const byHour = Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }))
@@ -391,9 +500,11 @@ function viewReport(S, c, q) {
     if (a.status === 'no_show') totals.no_shows++
     if (a.status === 'canceled') totals.cancellations++
     if (a.staff_id) anyStaff = true
+    if (a.invoiced) totals.invoiced_appointments++
     if (a.status !== 'completed') continue
     totals.completed++
     totals.completed_cents += inc
+    if (!a.invoiced) { ticketCount++; ticketCents += inc }
     const d = new Date(a.scheduled_for)
     byWeekday[d.getUTCDay()].count++
     byWeekday[d.getUTCDay()].cents += inc
@@ -419,6 +530,24 @@ function viewReport(S, c, q) {
     so.count++; so.cents += inc
     bySource.set(src, so)
   }
+  // Pagamentos de fatura: entram na receita, no mês e na cliente da fatura
+  for (const p of loadInvoicePays(S, period.from, period.to)) {
+    const amt = Math.max(0, Number(p.amount_cents) || 0)
+    if (!amt) continue
+    totals.revenue_cents += amt
+    totals.invoice_revenue_cents += amt
+    totals.invoice_payments++
+    if (byMonth) { const m = byMonth[Number(p.day.slice(5, 7)) - 1]; if (m) m.cents += amt }
+    const d = p.doc || {}
+    const nm = String(d.client_name || '').trim()
+    const ck = d.client_id ? 'id:' + d.client_id : (nm ? 'nm:' + nm.toLowerCase() : null)
+    if (ck) {
+      const x = byClient.get(ck) || { key: ck, client_id: d.client_id || null, name: nm || 'Sem nome', count: 0, cents: 0, tips_cents: 0 }
+      x.cents += amt
+      x.invoice_cents = (x.invoice_cents || 0) + amt
+      byClient.set(ck, x)
+    }
+  }
   const prior = new Set(S.appointments.filter((a) => a.status === 'completed' && a.scheduled_for < period.fromIso).map(clientKey).filter(Boolean))
   const clients = { new_count: 0, returning_count: 0, new_cents: 0, returning_cents: 0 }
   for (const x of byClient.values()) {
@@ -438,7 +567,7 @@ function viewReport(S, c, q) {
     period: { kind: period.kind, month: period.month || null, year: period.year || Number(period.from.slice(0, 4)), from: period.from, to: period.to },
     totals: {
       ...totals,
-      avg_ticket_cents: totals.completed ? Math.round(totals.completed_cents / totals.completed) : 0,
+      avg_ticket_cents: ticketCount ? Math.round(ticketCents / ticketCount) : 0,
       no_show_rate: decided ? Math.round((totals.no_shows / decided) * 1000) / 10 : 0,
       cancel_rate: totals.appointments ? Math.round((totals.cancellations / totals.appointments) * 1000) / 10 : 0,
       unique_clients: byClient.size,
@@ -501,10 +630,12 @@ function buildExport(S, c, q) {
   if (kind === 'appointments') {
     const staffById = Object.fromEntries(S.staff.map((s) => [s.id, s.name]))
     const header = en
-      ? ['Date', 'Time', 'Client', 'WhatsApp', 'Email', 'Service', 'Status', 'Service price', 'Amount received', 'Tip', 'Payment method', 'Deposit', 'Deposit paid', 'Staff', 'Source', 'ID']
-      : ['Data', 'Hora', 'Cliente', 'WhatsApp', 'E-mail', 'Serviço', 'Status', 'Valor do serviço', 'Valor recebido', 'Gorjeta', 'Forma de pagamento', 'Sinal', 'Sinal pago', 'Profissional', 'Origem', 'ID']
+      ? ['Date', 'Time', 'Client', 'WhatsApp', 'Email', 'Service', 'Status', 'Service price', 'Amount received', 'Tip', 'Payment method', 'Deposit', 'Deposit paid', 'Staff', 'Source', 'Invoice', 'ID']
+      : ['Data', 'Hora', 'Cliente', 'WhatsApp', 'E-mail', 'Serviço', 'Status', 'Valor do serviço', 'Valor recebido', 'Gorjeta', 'Forma de pagamento', 'Sinal', 'Sinal pago', 'Profissional', 'Origem', 'Fatura', 'ID']
     const rows = loadAppointments(S, fromIso, toIso).map((a) => {
       const iso = String(a.scheduled_for)
+      // Com fatura ligada, aqui fica só o que o atendimento recebeu além da fatura; o que a fatura
+      // recebeu sai no CSV de pagamentos de fatura (kind=invoice_payments). A coluna Fatura mostra o número.
       const received = ['completed', 'no_show', 'canceled'].includes(a.status) ? incomeOf(a) : null
       const method = a.paid_method || a.payment_method
       return [
@@ -513,7 +644,8 @@ function buildExport(S, c, q) {
         received != null ? usd(received) : '', a.tip_cents ? usd(a.tip_cents) : '',
         method ? (METHOD_LABEL[lang][method] || txt(method)) : '',
         a.deposit_cents ? usd(a.deposit_cents) : '', a.deposit_cents ? (a.deposit_paid ? (en ? 'Yes' : 'Sim') : (en ? 'No' : 'Não')) : '',
-        a.staff_id ? txt(staffById[a.staff_id] || '') : '', a.source ? (SOURCE_LABEL[lang][a.source] || a.source) : '', a.id,
+        a.staff_id ? txt(staffById[a.staff_id] || '') : '', a.source ? (SOURCE_LABEL[lang][a.source] || a.source) : '',
+        a.invoiced ? txt((a.invoice_numbers || []).join(' / ')) : '', a.id,
       ]
     })
     return toCsv(header, rows)
@@ -557,6 +689,35 @@ function buildExport(S, c, q) {
       txt(x.name), phoneOut(x.whatsapp), txt(x.email), txt(x.city), txt(x.state), x.birthday_md || '', x.language || '',
       inPeriod[x.id]?.count || 0, usd(inPeriod[x.id]?.cents || 0), total[x.id]?.count || 0, usd(total[x.id]?.cents || 0),
       total[x.id]?.first ? total[x.id].first.slice(0, 10) : '', total[x.id]?.last ? total[x.id].last.slice(0, 10) : '',
+    ])
+    return toCsv(header, rows)
+  }
+  if (kind === 'invoices') {
+    // Faturas emitidas no período (data de emissão)
+    const header = en
+      ? ['Number', 'Client', 'Issue date', 'Due date', 'Total', 'Paid', 'Balance', 'Status']
+      : ['Número', 'Cliente', 'Emissão', 'Vencimento', 'Total', 'Pago', 'Saldo', 'Status']
+    const rows = (S.documents || []).filter((d) => d.kind === 'invoice' && d.issue_date >= r.from && d.issue_date <= r.to)
+      .sort((a, b) => String(a.issue_date).localeCompare(String(b.issue_date)) || String(a.number).localeCompare(String(b.number)))
+      .map((d) => {
+        const st = (Number(d.total_cents) || 0) > 0 ? invoiceStatus(d, c.today) : d.status
+        const balance = d.status === 'void' ? 0 : Math.max(0, (Number(d.total_cents) || 0) - (Number(d.amount_paid_cents) || 0))
+        return [
+          txt(d.number), txt(d.client_name), String(d.issue_date || '').slice(0, 10), d.due_date ? String(d.due_date).slice(0, 10) : '',
+          usd(d.total_cents || 0), usd(d.amount_paid_cents || 0), usd(balance), INVOICE_STATUS_LABEL[lang][st] || st,
+        ]
+      })
+    return toCsv(header, rows)
+  }
+  if (kind === 'invoice_payments') {
+    // Pagamentos de fatura pela data do pagamento: a mesma conta da receita do resumo
+    const header = en
+      ? ['Date', 'Invoice', 'Client', 'Payment method', 'Amount', 'Source']
+      : ['Data', 'Fatura', 'Cliente', 'Forma de pagamento', 'Valor', 'Origem']
+    const rows = loadInvoicePays(S, r.from, r.to).filter((p) => (Number(p.amount_cents) || 0) > 0).map((p) => [
+      p.day, txt(p.doc?.number || ''), txt(p.doc?.client_name || ''),
+      p.method ? (METHOD_LABEL[lang][p.method] || txt(p.method)) : '',
+      usd(p.amount_cents), PAYMENT_ORIGIN_LABEL[lang][p.origin] || '',
     ])
     return toCsv(header, rows)
   }

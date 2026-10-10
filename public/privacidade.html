@@ -86,22 +86,24 @@
         <h2>2. Que dados coletamos</h2>
         <ul>
           <li><strong>Cadastro:</strong> email, nome, foto, cidade, estado, interesses</li>
-          <li><strong>Assinaturas:</strong> plano do AgendaPro e plano do negócio no diretório, com status e datas de cobrança (via Stripe — não armazenamos número de cartão)</li>
+          <li><strong>Assinaturas:</strong> plano do AgendaPro e do WorkPro (é a mesma assinatura) e plano do negócio no diretório, com status e datas de cobrança (via Stripe — não armazenamos número de cartão)</li>
           <li><strong>Pedidos em negócios:</strong> nome, email, telefone, itens, valor e, em entregas, o endereço. Esses dados vão pro negócio que recebe o pedido</li>
           <li><strong>Agendamentos:</strong> nome, email, telefone ou WhatsApp, serviço e horário. Esses dados vão pro profissional que você escolheu</li>
+          <li><strong>Pedidos de orçamento:</strong> nome, telefone, email, endereço, o que você precisa, descrição, data preferida e até 3 fotos que você envia pela página de um profissional. Esses dados vão pro profissional. Do seu IP guardamos só um código embaralhado (hash), pra barrar abuso</li>
+          <li><strong>Orçamentos e faturas que você recebe:</strong> se um profissional te mandar um orçamento ou uma fatura pela BrasilConnect, guardamos o que ele cadastrou (seu nome, contato, endereço, itens e valores). Se você aprovar pelo link, guardamos o nome que você digitou, a assinatura que você desenhou, a data e a hora, o IP e o navegador, como registro da aprovação. Se pagar no cartão, quem processa é o Stripe — não vemos o número do cartão. Esses dados pertencem ao profissional que te atendeu (veja a <a href="#workpro-documentos">seção 11</a>)</li>
           <li><strong>Mensagens diretas:</strong> o texto das conversas particulares entre membros, guardado pra entregar a conversa aos dois lados. A equipe só lê uma mensagem quando ela é denunciada</li>
           <li><strong>Notificações push:</strong> se você ativar, guardamos o identificador do seu navegador ou aparelho pra entregar os avisos</li>
           <li><strong>Conteúdo:</strong> posts, comentários, mensagens, avaliações, reviews</li>
           <li><strong>Localização:</strong> cidade/estado que você informa + raio de interesse (latitude/longitude geocodificados via OpenStreetMap)</li>
           <li><strong>Uso:</strong> páginas visitadas, cliques em afiliados (pra calcular comissão), dispositivo, IP</li>
-          <li><strong>App AgendaPro (profissionais):</strong> clientes, agenda, fotos e finanças que você cadastra no app. Detalhes na <a href="#agendapro">seção 11</a></li>
+          <li><strong>Apps AgendaPro e WorkPro (profissionais):</strong> clientes, agenda, orçamentos e faturas, tabela de preços, fotos e finanças que você cadastra no app. Detalhes na <a href="#agendapro">seção 11</a></li>
         </ul>
 
         <h2>3. Como usamos</h2>
         <ul>
           <li>Operar a plataforma (mostrar feed, processar pedidos, autenticar)</li>
           <li>Personalizar (filtrar conteúdo por raio, sugerir comunidades)</li>
-          <li>Mandar emails transacionais (boas-vindas, pedido, agendamento, lembrete de horário, cobrança)</li>
+          <li>Mandar emails transacionais (boas-vindas, pedido, agendamento, lembrete de horário, orçamento, fatura, lembrete de pagamento, cobrança)</li>
           <li>Mandar emails de novidades e alertas que você pediu (câmbio, voos). Todos têm link de descadastro no rodapé</li>
           <li>Mandar notificações push, só se você ativar. Dá pra desligar no navegador ou no aparelho a qualquer momento</li>
           <li>Antifraude (detectar abuso, spam, contas falsas)</li>
@@ -118,8 +120,8 @@
           <li><strong>OpenStreetMap Nominatim</strong> (geocoding de cidades — sem dados pessoais enviados)</li>
           <li><strong>Travelpayouts</strong> (busca de voos — apenas origem/destino/data, sem dados pessoais)</li>
           <li><strong>Serviços de push do navegador</strong> (Google, Apple, Mozilla) — só pra entregar notificações que você ativou</li>
-          <li><strong>Expo</strong> (entrega das notificações do app AgendaPro, pela Apple e pelo Google) — só o token do aparelho e o texto do aviso</li>
-          <li><strong>Negócios e profissionais</strong> — recebem os dados do pedido ou agendamento que você fez com eles</li>
+          <li><strong>Expo</strong> (entrega das notificações dos apps AgendaPro e WorkPro, pela Apple e pelo Google) — só o token do aparelho e o texto do aviso</li>
+          <li><strong>Negócios e profissionais</strong> — recebem os dados do pedido, agendamento, pedido de orçamento ou aprovação de orçamento que você fez com eles</li>
           <li><strong>Google Analytics e Meta Pixel</strong> — só se você aceitar os cookies de medição (seção 5)</li>
         </ul>
         <p><strong>SMS e WhatsApp:</strong> hoje não enviamos mensagens automáticas por SMS nem WhatsApp. Se esse recurso for ativado, vamos pedir sua autorização no momento do agendamento, e você poderá cancelar respondendo à mensagem.</p>
@@ -142,7 +144,7 @@
         <p>Pra exercer qualquer um, manda email pra <a href="mailto:oi@brasilconnectusa.com">oi@brasilconnectusa.com</a>. Respondemos em até 15 dias.</p>
         <h3 id="excluir-conta">Como excluir sua conta</h3>
         <p>Mande um email pra <a href="mailto:oi@brasilconnectusa.com?subject=Excluir%20minha%20conta">oi@brasilconnectusa.com</a> com o assunto “Excluir minha conta”, usando o mesmo email do cadastro. Em até 15 dias apagamos perfil, posts, comentários, alertas e inscrições em listas. Se você tem um negócio ou perfil profissional, ele sai do diretório e a assinatura é cancelada. Ficam guardados só os registros que a lei exige (seção 8).</p>
-        <p><strong>Profissional do AgendaPro:</strong> dá pra excluir na hora pelo app, em Mais → Configurações → Excluir conta (<a href="#agendapro-excluir">o que é apagado</a>). Sem o app, veja <a href="/excluir-conta.html">como pedir a exclusão do AgendaPro</a>.</p>
+        <p><strong>Profissional do AgendaPro ou do WorkPro:</strong> dá pra excluir na hora pelo app, em Mais → Configurações → Excluir conta (<a href="#agendapro-excluir">o que é apagado</a>). Sem o app, veja <a href="/excluir-conta.html">como pedir a exclusão da conta</a>.</p>
 
         <h2>7. Segurança</h2>
         <p>Usamos HTTPS em tudo, criptografia em repouso (Supabase Postgres), Row Level Security (RLS), e auditamos acesso. Mesmo assim, nenhum sistema é 100% seguro — comunicamos vazamentos em até 72h conforme exigido por lei.</p>
@@ -160,22 +162,35 @@
         <h2>10. Mudanças</h2>
         <p>Avisamos por email com 30 dias de antecedência pra mudanças significativas.</p>
 
-        <h2 id="agendapro">11. App AgendaPro (para profissionais)</h2>
-        <p>O AgendaPro é a agenda da BrasilConnect pra profissionais autônomas (cabeleireira, manicure, esteticista, faxineira…). Esta seção vale pro app no iPhone e no Android e pro painel no site. Tudo o que está acima também vale; aqui está o que é específico.</p>
+        <h2 id="agendapro">11. Apps AgendaPro e WorkPro (para profissionais)</h2>
+        <p>O AgendaPro é a agenda da BrasilConnect pra profissionais autônomas (cabeleireira, manicure, esteticista, faxineira…). O WorkPro é o app de orçamento e fatura da BrasilConnect pra quem trabalha com obra, reparo e serviços (construção e reforma, handyman, marceneiro, pintor, eletricista, encanador, tradutor juramentado, contador…). Os dois usam a mesma conta, a mesma assinatura e os mesmos servidores. Esta seção vale pros dois apps, no iPhone e no Android, e pro painel no site. Tudo o que está acima também vale; aqui está o que é específico.</p>
 
         <h3>Dados das suas clientes</h3>
-        <p>No app você cadastra suas clientes: nome, telefone ou WhatsApp, email, endereço (pra atendimento em casa ou limpeza), aniversário, observações, histórico de atendimentos e pagamentos. Guardamos esses dados só pro app funcionar (agenda, lembretes, relatórios): não usamos pra marketing e nunca vendemos.</p>
-        <p><strong>Você é a responsável por esses dados.</strong> Na linguagem da lei, você é a controladora e nós somos o operador que guarda e processa em seu nome. Cadastre só quem é sua cliente, com o conhecimento dela, e apague o cadastro quando ela pedir. Se uma cliente escrever pra gente pedindo pra ver ou apagar os dados dela, encaminhamos o pedido pra você.</p>
+        <p>No app você cadastra seus clientes: nome, telefone ou WhatsApp, email, endereço (pra atendimento em casa, limpeza ou obra), aniversário, observações, histórico de atendimentos, orçamentos, faturas e pagamentos. Guardamos esses dados só pro app funcionar (agenda, lembretes, documentos, relatórios): não usamos pra marketing e nunca vendemos.</p>
+        <p><strong>Você é quem responde por esses dados.</strong> Na linguagem da lei, você é o controlador e nós somos o operador que guarda e processa em seu nome. Cadastre só quem é seu cliente, com o conhecimento dele, e apague o cadastro quando ele pedir. Se um cliente escrever pra gente pedindo pra ver ou apagar os dados dele, encaminhamos o pedido pra você.</p>
+
+        <h3 id="workpro-documentos">Orçamentos, faturas e pedidos de orçamento</h3>
+        <p>Orçamentos e faturas são o centro do WorkPro e também existem no AgendaPro.</p>
+        <ul>
+          <li><strong>O que guardamos:</strong> os documentos que você cria (cliente, endereço da obra, itens, valores, desconto, imposto, entrada, condições, recado), sua tabela de preços, os pagamentos que você registra e a linha do tempo de cada documento (enviado, visto, aprovado, recusado, pago, lembretes). A anotação interna só você vê.</li>
+          <li><strong>Link do documento:</strong> cada orçamento ou fatura tem um link longo e aleatório (brasilconnectusa.com/d/…) que funciona como senha: quem tem o link vê o documento, por isso mande só pro seu cliente. A página não mostra a anotação interna nem o histórico e não é feita pra aparecer em buscadores.</li>
+          <li><strong>Aprovação com assinatura:</strong> quando seu cliente aprova pelo link, guardamos o nome que ele digitou, a assinatura que ele desenhou na tela, a data e a hora, o IP e o navegador, como registro da aprovação. A assinatura aparece só pra você, no app. Se ele recusar, guardamos o motivo que escreveu.</li>
+          <li><strong>Pagamento online da fatura:</strong> se você conectar sua conta Stripe (plano Pro), o cliente paga no cartão numa página do Stripe e o dinheiro vai pra sua conta. Nós não vemos o número do cartão; recebemos só a confirmação (valor e data).</li>
+          <li><strong>Envio e cobrança automática:</strong> quando você manda um documento por email, ou liga a cobrança automática (plano Pro), enviamos o email pro seu cliente em seu nome, com o nome do seu negócio e o link do documento. Use só o email de quem é seu cliente.</li>
+          <li><strong>Pedidos de orçamento:</strong> o formulário da sua página pública manda pra você os dados e as fotos que a pessoa preencheu (nome, telefone, email, endereço, descrição, data preferida). Do IP guardamos só um código embaralhado (hash), pra barrar robôs e abuso. Os pedidos aparecem só pra você no app.</li>
+        </ul>
 
         <h3>Fotos</h3>
         <ul>
           <li><strong>Foto do perfil e galeria:</strong> as fotos que você envia pra sua página de agendamento são <strong>públicas</strong> — qualquer pessoa com o link da página vê. Não envie foto de cliente sem a autorização dela.</li>
+          <li><strong>Fotos do trabalho nos orçamentos e faturas:</strong> aparecem pra quem tem o link do documento (seu cliente). Não vão pra sua página nem pro diretório. Não fotografe pessoas, documentos ou objetos de valor do cliente sem autorização.</li>
+          <li><strong>Fotos dos pedidos de orçamento:</strong> enviadas pela pessoa que pediu o orçamento; só você vê, no app.</li>
           <li><strong>Comprovantes de despesa:</strong> as fotos de notas e recibos que você anexa em Finanças não aparecem na sua página nem em nenhum outro lugar do site. Ficam no nosso armazenamento, num endereço longo e aleatório que só o seu app usa.</li>
         </ul>
 
         <h3>O que o app usa do seu celular</h3>
         <ul>
-          <li><strong>Notificações:</strong> se você permitir, guardamos o token de notificação do aparelho (um código que a Apple e o Google usam pra entregar os avisos) pra avisar de agendamento novo, cancelamento, avaliação, resumo do dia seguinte e cobrança. Você escolhe os avisos em Mais → Configurações ou desliga tudo nos ajustes do celular. Ao sair da conta, o token é desligado.</li>
+          <li><strong>Notificações:</strong> se você permitir, guardamos o token de notificação do aparelho (um código que a Apple e o Google usam pra entregar os avisos) pra avisar de agendamento novo, cancelamento, avaliação, resumo do dia seguinte, orçamento visto, aprovado ou recusado, fatura paga, pedido de orçamento novo e cobrança. Você escolhe os avisos em Mais → Configurações ou desliga tudo nos ajustes do celular. Ao sair da conta, o token é desligado.</li>
           <li><strong>Face ID e digital:</strong> a trava do app usa a verificação do próprio celular. Nada da sua biometria é enviado pra gente — o app só fica sabendo se deu certo ou não.</li>
           <li><strong>Calendário:</strong> se você ligar, o app <strong>só escreve</strong> seus agendamentos no calendário do celular. Ele não lê seus outros eventos e não envia nada do calendário pros nossos servidores.</li>
           <li><strong>Câmera e fotos:</strong> o app só abre quando você toca pra tirar ou escolher uma foto, e envia só a foto escolhida.</li>
@@ -183,14 +198,14 @@
         </ul>
 
         <h3>Assinatura</h3>
-        <p>O plano do AgendaPro é vendido no nosso site e cobrado pelo Stripe. O app não tem compra dentro dele e nunca vê o número do seu cartão. Guardamos só o plano, o status e as datas de cobrança.</p>
+        <p>O plano do AgendaPro (o mesmo que libera o WorkPro) é vendido no nosso site e cobrado pelo Stripe. Os apps não têm compra dentro deles e nunca veem o número do seu cartão. Guardamos só o plano, o status e as datas de cobrança.</p>
 
-        <h3 id="agendapro-excluir">Excluir sua conta do AgendaPro</h3>
+        <h3 id="agendapro-excluir">Excluir sua conta do AgendaPro ou do WorkPro</h3>
         <p>No app: <strong>Mais → Configurações → Excluir conta</strong>, digite EXCLUIR e confirme. Na hora:</p>
         <ul>
           <li>sua assinatura é cancelada no Stripe e não há novas cobranças (sem reembolso parcial do mês corrente, como diz nos <a href="/termos">Termos</a>);</li>
-          <li>apagamos seu perfil e sua página pública, agenda, clientes, serviços, horários e folgas, equipe, clientes fixas, lista de espera, avaliações, finanças (pagamentos, despesas e milhagem), calendários de turnover e tokens de notificação;</li>
-          <li>apagamos as fotos que você enviou pelo app (perfil, galeria e comprovantes);</li>
+          <li>apagamos seu perfil e sua página pública, agenda, clientes, serviços, horários e folgas, equipe, clientes fixas, lista de espera, avaliações, finanças (pagamentos, despesas e milhagem), calendários de turnover, orçamentos e faturas (com as assinaturas de aprovação e a linha do tempo), tabela de preços, pedidos de orçamento e tokens de notificação. Os links dos seus documentos param de funcionar;</li>
+          <li>apagamos as fotos que você enviou pelo app (perfil, galeria, comprovantes e fotos do trabalho) e as fotos dos pedidos de orçamento;</li>
           <li>apagamos seu login BrasilConnect e as imagens que você enviou pelo site. Essa opção já vem marcada; desmarque se você usa a comunidade BrasilConnect com o mesmo email e quer continuar entrando no site.</li>
         </ul>
         <p>Sem o app? Veja <a href="/excluir-conta.html">como pedir a exclusão por email</a>. Quer apagar também o que está na comunidade BrasilConnect (posts, comentários, negócio no diretório)? Peça pelo email, como na <a href="#excluir-conta">seção 6</a>. Ficam guardados só os registros que a lei exige (seção 8), como as faturas da assinatura.</p>
@@ -199,11 +214,11 @@
         <ul>
           <li><strong>Supabase</strong> — banco de dados, login e armazenamento das fotos (Estados Unidos)</li>
           <li><strong>Vercel</strong> — servidores do site e do app (Estados Unidos)</li>
-          <li><strong>Stripe</strong> — assinatura do plano e, se você ligar, sinal pago no cartão pelas suas clientes</li>
-          <li><strong>Resend</strong> — emails de confirmação e lembrete pra você e pras suas clientes</li>
+          <li><strong>Stripe</strong> — assinatura do plano e, se você ligar, sinal e fatura pagos no cartão pelos seus clientes, na sua conta Stripe</li>
+          <li><strong>Resend</strong> — emails de confirmação, lembrete, orçamento, fatura e cobrança pra você e pros seus clientes</li>
           <li><strong>Expo, Apple e Google</strong> — entrega das notificações no celular</li>
         </ul>
-        <p>Eles recebem só o necessário pra prestar o serviço. Dúvidas sobre o app: <a href="mailto:oi@brasilconnectusa.com?subject=AgendaPro%20-%20privacidade">oi@brasilconnectusa.com</a>.</p>
+        <p>Eles recebem só o necessário pra prestar o serviço. Dúvidas sobre os apps: <a href="mailto:oi@brasilconnectusa.com?subject=AgendaPro%20%2F%20WorkPro%20-%20privacidade">oi@brasilconnectusa.com</a>.</p>
 
         <h2>Contato</h2>
         <p><a href="mailto:oi@brasilconnectusa.com">oi@brasilconnectusa.com</a></p>
@@ -230,6 +245,7 @@
         <div>
           <h4>Produtos</h4>
           <a href="/agenda/">AgendaPro</a>
+          <a href="/para/workpro/">WorkPro</a>
           <a href="/negocio/">Negócios</a>
           <a href="/grupos/">Grupos</a>
         </div>

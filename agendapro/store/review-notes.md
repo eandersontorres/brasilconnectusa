@@ -52,14 +52,16 @@ avaliações). Se trocar, o nome muda em `app.config.js` (`name`), nos textos de
 2. **Exclusão de conta**: confira que Mais → Configurações → Excluir conta
    funciona de ponta a ponta numa conta descartável (não na de demonstração):
    a assinatura do Stripe é cancelada, os dados `ag_*` somem, as fotos saem do
-   Storage (bucket `uploads`, pastas `providers/<user_id>` e
-   `receipts/<user_id>`) e, com "Apagar também meu login BrasilConnect" (vem
+   Storage (bucket `uploads`, pastas `providers/<user_id>`, `receipts/<user_id>`
+   e `requests/<provider_id>`) e, com "Apagar também meu login BrasilConnect" (vem
    marcado), o login some de Authentication → Users. A Apple testa isso.
 3. **Disponibilidade só nos EUA** nas duas lojas (veja abaixo).
-4. **Build de produção** com `EXPO_PUBLIC_EXTERNAL_PURCHASE=1` (já é o padrão do
-   `eas.json`).
+4. **Build de produção**: `eas build -p all --profile production`. Sai em modo
+   companheiro (`EXPO_PUBLIC_PURCHASE_MODE_IOS` e `EXPO_PUBLIC_PURCHASE_MODE_ANDROID`
+   = `companion` no `base` do `eas.json`): sem preço e sem botão de compra. Veja
+   "Assinatura vendida pelo site" abaixo.
 5. **Política de privacidade e página de exclusão no ar** (depois do deploy do
-   site): https://brasilconnectusa.com/privacidade (seção 11, "App AgendaPro":
+   site): https://brasilconnectusa.com/privacidade (seção 11, "Apps AgendaPro e WorkPro":
    dados das clientes, fotos, token de notificação, Face ID, calendário,
    exclusão pelo app, operadores) e https://brasilconnectusa.com/excluir-conta.html
    (pedido sem o app). Respostas das lojas em [`privacy-labels.md`](privacy-labels.md).
@@ -87,8 +89,8 @@ WHERE THINGS ARE
 ACCOUNT DELETION (5.1.1(v))
 Mais > Configuracoes > Excluir conta. After typing EXCLUIR to confirm, the deletion happens immediately: any active subscription is canceled, the professional profile and all of its data (clients, appointments, finances, reviews) are deleted, the photos the user uploaded are removed from storage, and the login itself is deleted too. Deleting the login is checked by default; because the same login is shared with our community website, brasilconnectusa.com, the user may uncheck it to keep using the website. Users who no longer have the app can request deletion as explained at https://brasilconnectusa.com/excluir-conta.html
 
-SUBSCRIPTIONS AND PAYMENTS (3.1.1)
-The app has no in-app purchases. Subscriptions (Starter US$19, Pro US$39, Premium US$79 per month) are sold on our website, brasilconnectusa.com, through Stripe. The app is available only on the United States storefront, where apps may include buttons and links to external purchasing. The "Ver planos" / "Assinar" button opens our website in the browser. Payment of appointment deposits happens between the professional's clients and the professional (Zelle, cash, or the professional's own Stripe account), outside the app.
+SUBSCRIPTIONS AND PAYMENTS
+The app has no in-app purchases, no prices, no purchase buttons and no links to buy anything. The plan screen ("Meu plano") only shows the current plan and what each plan includes; the subscription, if any, is managed in the user's BrasilConnect account outside the app (guideline 3.1.3(f)). Appointment deposits and service payments are for real-world services performed outside the app (guideline 3.1.3(e)): the professional's clients pay the professional directly (Zelle, cash, or by card on our booking web page, into the professional's own Stripe account), outside the app.
 
 PERMISSIONS
 - Face ID: optional app lock that the user turns on in Settings. Biometric data never leaves the device.
@@ -125,32 +127,56 @@ Sign in on the first screen with email and password ("Entrar"). The demo account
 
 ### Assinatura vendida pelo site
 
-- **Apple (EUA):** desde maio de 2025, apps no storefront dos Estados Unidos
-  podem ter botão e link para comprar fora do app (diretriz 3.1.1(a), depois da
-  decisão Epic v. Apple), sem comissão. Por isso o app é publicado **só nos
-  EUA** e o botão "Assinar" abre o checkout do Stripe no navegador.
-- **Google Play (EUA):** desde o fim de outubro de 2025, por causa da decisão
-  Epic v. Google, o Google Play passou a permitir link para pagamento fora do
-  Play para usuários dos EUA. **Antes de enviar, confira no Play Console a regra
-  em vigor** (Políticas → Pagamentos) e se é preciso declarar o link externo.
-- **Como o app decide:** a variável de build `EXPO_PUBLIC_EXTERNAL_PURCHASE`
-  (lida em `app.config.js` → `extra.externalPurchase` → `EXTERNAL_PURCHASE` em
-  `lib/config.js`).
-  - `1` (padrão, builds dos EUA): a tela de planos mostra o botão que abre o
-    checkout no navegador.
-  - `0`: some o botão e o link do portal; a tela de planos mostra só um texto
-    ("Para assinar ou mudar de plano, entre na sua conta pelo site do
-    BrasilConnect…"). Use `0` se a revisão pedir compra dentro do app.
-    **Atenção:** fora dos EUA a Apple também não aceita texto que mande assinar
-    no site (regra anti-steering). Para publicar em outros países, esse texto
-    precisa ficar neutro (só o status do plano, sem convite) ou o app precisa de
-    compra pela Apple.
-  - A variável vale para o build inteiro (não muda por país em tempo de
-    execução); por isso a disponibilidade fica restrita aos EUA.
-- **Plano B, se a Apple exigir compra dentro do app:** gerar build com
-  `EXPO_PUBLIC_EXTERNAL_PURCHASE=0` (o app passa a só mostrar o que a conta já
-  tem, como um app "companion") ou implementar assinatura pela Apple (StoreKit,
-  com comissão de 15% no Small Business Program). Decisão do dono.
+A assinatura é vendida **só no site** (Stripe). O app não tem compra dentro dele
+e, nos builds de loja, também não mostra preço nem manda assinar no site.
+
+- **Como o app decide:** `PURCHASE_MODE` em `lib/config.js`, **por plataforma**,
+  lido de `EXPO_PUBLIC_PURCHASE_MODE_IOS` e `EXPO_PUBLIC_PURCHASE_MODE_ANDROID`
+  (`app.config.js` → `extra.purchaseModeIos` / `extra.purchaseModeAndroid`).
+  Valor ausente ou inválido vira `companion`; no preview web é sempre `link`. As
+  telas usam `EXTERNAL_PURCHASE` (= `PURCHASE_MODE === 'link'`).
+  - `companion` (**padrão nas lojas**; o `base` do `eas.json` usa nos dois
+    apps): app companheiro. Sem preço, sem botão de compra e sem "assine no
+    site". A tela "Meu plano" mostra o plano ativo, o que cada plano inclui e o
+    botão "Atualizar meu plano"; o cadeado (`components/Locked.js`) mostra "Ver o
+    que cada plano inclui" e o aviso do plano (`components/PlanBanner.js`) só
+    "Detalhes".
+  - `link`: a tela mostra os preços, "Assinar o …" abre o checkout do Stripe no
+    navegador (`POST /api/stripe/subscribe`), "Gerenciar assinatura" abre o
+    portal (`POST /api/stripe/portal`) e aparece "Já assinei pelo site".
+  - O modo vale para o build inteiro (não muda por país em tempo de execução);
+    o app sai **só nos EUA**.
+- **Por que `companion`** (análise completa em `docs/agendapro-ideias.md`,
+  seção 4):
+  - **Apple:** a diretriz 3.1.3(f) dispensa a compra pela Apple num app grátis
+    que é companheiro de uma ferramenta paga, "desde que não haja compra dentro
+    do app nem chamadas para compra fora dele" — risco baixo e sem comissão. O
+    botão e o link para comprar fora são permitidos no storefront dos EUA
+    (3.1.1(a), desde maio de 2025, depois da decisão Epic v. Apple), mas
+    desenvolvedores relatam que a App Review ainda trata o link como complemento
+    da compra pela Apple em apps que não são "leitores", e a disputa judicial
+    sobre a comissão continua (a Suprema Corte aceitou revisar o caso em junho
+    de 2026). Só link, sem compra pela Apple, é o caminho com mais relatos de
+    rejeição. Usuária com Apple ID da loja do Brasil também não tem a exceção
+    dos EUA.
+  - **Google Play (EUA):** desde o fim de outubro de 2025 (decisão Epic v.
+    Google), o Play permite link e cobrança fora do Play nos EUA, mas pelo
+    programa *External content links*, com relatório e taxa desde 01/10/2026.
+    Sem link e sem compra no app, não é preciso entrar no programa nem reportar
+    transação. **Antes de enviar, confira no Play Console** (Políticas →
+    Pagamentos) que um app só de acesso, com a conta paga na web, não exige
+    inscrição.
+- **Quando trocar para `link`:** no iOS, só com confirmação por escrito da App
+  Review; no Android, depois de inscrever o app no *External content links* e
+  prever a taxa. A troca é por plataforma, no perfil do `eas.json` (ex.:
+  `EXPO_PUBLIC_PURCHASE_MODE_ANDROID=link`). Fora dos EUA o `link` não pode ser
+  usado (regra anti-steering da Apple).
+- **Plano B, se a Apple exigir compra dentro do app mesmo assim:** assinatura
+  pela Apple (StoreKit, por exemplo com RevenueCat ou `expo-iap`, comissão de 15%
+  no Small Business Program), com o link do site como opção extra nos EUA.
+  Decisão do dono.
+- O teste grátis de 14 dias criado no app, sem cartão, é permitido: é criação de
+  conta grátis, não compra.
 
 ### Exclusão de conta (Apple 5.1.1(v), Google "Data deletion")
 

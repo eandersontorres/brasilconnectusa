@@ -15,6 +15,7 @@ import { featureInfo, showError } from '../lib/gate'
 import { notify } from '../lib/dialog'
 import { EXTERNAL_PURCHASE, PRIVACY_URL, SUPPORT_EMAIL, TERMS_URL } from '../lib/config'
 import { MONTHS_LONG } from '../lib/format'
+import { BRAND } from '../lib/variant'
 import { colors, spacing, type } from '../lib/theme'
 import { Badge, Banner, Button, Card, Divider, ErrorBox, H2, H3, Label, Loading, Muted, P, Screen, Small } from '../components/ui'
 
@@ -87,7 +88,7 @@ export default function Plans() {
           if (p.has_subscription && r.entitlements?.tier !== 'none') {
             notify('Assinatura confirmada!', r.entitlements?.trial
               ? `Seu plano ${name} está garantido. Tudo continua liberado até o fim do teste, e a primeira cobrança só acontece depois.`
-              : `Seu plano ${name} já está valendo. Obrigada por confiar no AgendaPro!`)
+              : `Seu plano ${name} já está valendo. Obrigada por confiar no ${BRAND.name}!`)
           }
           return true
         }
