@@ -2,7 +2,7 @@
 -- 10/10/2026 · WorkPro / AgendaPro · orçamentos, faturas, tabela de preços e pedidos de orçamento
 -- Rotas: api/agenda/documents.js (profissional), api/agenda/doc-public.js (cliente pelo
 -- link /d/<token>), api/agenda/catalog.js, api/agenda/quote-requests.js.
--- NAO APLICADO ainda. Idempotente. Aplicar depois das ag_app_* (base → … → push).
+-- APLICADO em producao em 10/10/2026 (migration ag_app_documents). Idempotente. Depois das ag_app_* (base → … → push).
 -- Valores em centavos de dólar; quantidade com 2 casas; imposto em pontos-base (6,25% = 625).
 -- ═════════════════════════════════════════════════════════════════════════════
 

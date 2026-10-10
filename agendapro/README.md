@@ -236,7 +236,7 @@ e `_ANDROID` = `companion` no `base` do `eas.json`).
 
 ### Banco e servidor do WorkPro
 
-- Migration nova: `supabase/ag_app_documents.sql` — orçamentos e faturas
+- Migration `supabase/ag_app_documents.sql` (aplicada em produção em 10/10/2026) — orçamentos e faturas
   (`ag_documents`, `ag_document_items`, `ag_document_events`), tabela de preços
   (`ag_catalog_items`), pedidos de orçamento (`ag_quote_requests`), numeração
   sem repetição (`ag_doc_counters` + `ag_next_doc_seq`), `ag_payments.document_id`
@@ -258,7 +258,7 @@ e `_ANDROID` = `companion` no `base` do `eas.json`).
 ### Checklist do WorkPro (além do checklist geral)
 
 - [ ] Advogado de marcas consultado sobre "WorkPro" (ou nome trocado).
-- [ ] `supabase/ag_app_documents.sql` aplicada; rotas de documentos, `doc-public`, `public/doc.html` e cron publicados.
+- [x] `supabase/ag_app_documents.sql` aplicada (10/10/2026); rotas de documentos, `doc-public`, `public/doc.html` e cron publicados.
 - [ ] Projeto `workpro` na Expo; `EAS_PROJECT_ID_WORKPRO` no terminal, no `.env` e nas variáveis do projeto; `EXPO_PUBLIC_SUPABASE_ANON_KEY` também no projeto do WorkPro.
 - [ ] App `com.brasilconnect.workpro` criado na App Store Connect e no Play Console; `ascAppId` do WorkPro no `eas.json`.
 - [ ] Firebase com o segundo app Android, `GOOGLE_SERVICES_JSON` e chave FCM v1 no projeto WorkPro.
@@ -356,9 +356,9 @@ novas. Todos são idempotentes (pode rodar de novo sem estragar):
 ambiente (ex.: um projeto Supabase de teste).
 
 8. `supabase/ag_app_documents.sql` — orçamentos, faturas, tabela de preços,
-   pedidos de orçamento e o tipo de negócio `trades` (WorkPro). **NÃO aplicada
-   ainda**; aplicar depois das 7 acima (veja "Dois apps" → "Banco e servidor do
-   WorkPro").
+   pedidos de orçamento e o tipo de negócio `trades` (WorkPro). **Aplicada em
+   produção em 10/10/2026**, depois das 7 acima (veja "Dois apps" → "Banco e
+   servidor do WorkPro").
 
 Migration nova: cabeçalho com `NAO APLICADO ainda` até aplicar, depois
 `APLICADO em producao em <data>`.

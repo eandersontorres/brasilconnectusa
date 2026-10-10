@@ -10,7 +10,7 @@ conta, mesma assinatura, mesmas APIs e os mesmos planos ($19 / $39 / $79).
 Documentos relacionados:
 - [`agendapro/README.md`](../agendapro/README.md#dois-apps-agendapro-e-workpro) — rodar cada app, EAS por variante, checklist do WorkPro.
 - [`agendapro/CONTRACT.md`](../agendapro/CONTRACT.md) — seção "WorkPro — orçamentos e faturas": formatos fixos das APIs e donos de arquivo.
-- [`supabase/ag_app_documents.sql`](../supabase/ag_app_documents.sql) — tabelas, status permitidos e numeração (**não aplicado ainda**).
+- [`supabase/ag_app_documents.sql`](../supabase/ag_app_documents.sql) — tabelas, status permitidos e numeração (**aplicado em produção em 10/10/2026**).
 - [`api/_lib/docCalc.js`](../api/_lib/docCalc.js) — a conta dos valores (cópia no app em `agendapro/lib/docCalc.js`).
 - [`api/_lib/agendaPlans.js`](../api/_lib/agendaPlans.js) — o que cada plano libera (fonte única).
 - [`agendapro/store/workpro/`](../agendapro/store/workpro/) — textos das lojas, notas de revisão, privacidade e capturas.

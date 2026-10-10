@@ -161,7 +161,7 @@ Mesma conta e mesma assinatura nos dois apps.
 |---|---|---|
 | quotes, invoices, price_book, quote_requests (limite `documents_month` = 20 documentos criados por mês) | invoice_payments (fatura paga no cartão via Stripe Connect), payment_reminders (cobrança automática por e-mail), progress_billing (fatura de entrada/etapas a partir do orçamento), job_photos (fotos no documento), documentos ilimitados | no_branding também nos documentos |
 
-## Banco (`supabase/ag_app_documents.sql`, NÃO aplicado)
+## Banco (`supabase/ag_app_documents.sql`, aplicado em produção em 10/10/2026)
 
 `ag_catalog_items`, `ag_documents` (quote e invoice), `ag_document_items`, `ag_document_events`,
 `ag_quote_requests`, `ag_doc_counters` + função `ag_next_doc_seq(provider_id, kind)` (número
@@ -262,4 +262,4 @@ Cron: `/api/cron/agenda-documents` diário 15:00 UTC (já no vercel.json): fatur
 - Pedido de orçamento público não cria ficha de cliente: a ficha nasce ao converter.
 - `ag_push_tokens.app` ('agendapro'|'workpro'): o app manda `app: VARIANT` no registro; o envio agrupa por app.
 - Finanças: export `kind=invoice_payments` (pagamentos pela data em que entraram) e `kind=invoices`.
-- Banco: tudo isso está em `supabase/ag_app_documents.sql` (ainda NÃO aplicado), inclusive as colunas de assinatura/checkout e `ag_push_tokens.app`.
+- Banco: tudo isso está em `supabase/ag_app_documents.sql` (aplicado em produção em 10/10/2026), inclusive as colunas de assinatura/checkout e `ag_push_tokens.app`.
