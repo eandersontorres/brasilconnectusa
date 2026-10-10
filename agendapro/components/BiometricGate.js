@@ -9,6 +9,7 @@ import { useApp } from '../lib/session'
 import { authenticateDetailed, biometricLabel, CANT_AUTH_ERRORS, isLockEnabled, setLockEnabled } from '../lib/biometric'
 import { colors, spacing, type } from '../lib/theme'
 import { Button } from './ui'
+import { BRAND } from '../lib/variant'
 
 const RELOCK_AFTER_MS = 60 * 1000
 const isWeb = Platform.OS === 'web'
@@ -30,7 +31,7 @@ export default function BiometricGate({ children }) {
     authing.current = true
     setBusy(true)
     try {
-      const r = await authenticateDetailed('Desbloquear o AgendaPro')
+      const r = await authenticateDetailed(`Desbloquear o ${BRAND.name}`)
       if (r.success) { setLocked(false); setFailed(false); return }
       // Biometria e senha foram tiradas do celular: não dá pra cobrar, desliga a trava
       if (CANT_AUTH_ERRORS.includes(r.error)) {
@@ -103,7 +104,7 @@ export default function BiometricGate({ children }) {
               <View style={s.icon}>
                 <Ionicons name="lock-closed" size={30} color={colors.green} />
               </View>
-              <Text style={[type.h2, { marginTop: spacing.lg, textAlign: 'center' }]}>AgendaPro bloqueado</Text>
+              <Text style={[type.h2, { marginTop: spacing.lg, textAlign: 'center' }]}>{BRAND.name} bloqueado</Text>
               <Text style={[type.small, { marginTop: spacing.sm, textAlign: 'center' }]}>
                 {failed ? `Não reconheceu. Tente de novo com ${label} ou com a senha do celular.` : `Use ${label} ou a senha do celular pra abrir.`}
               </Text>

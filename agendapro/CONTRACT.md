@@ -139,3 +139,127 @@ APIs que o app chama (donos acima):
 - **Equipe** (`GET /api/agenda/staff` → `{ staff: [...] }`): `id, name, color, whatsapp, email, role, members, active, display_order, day_link_url`. Sem plano Premium a rota responde 402 com `code: 'plan_required'` — trate como "sem equipe".
 - **Perfil**: `POST /api/agenda/provider` é **atualização parcial** (só as chaves enviadas mudam). Ex.: `post('/api/agenda/provider', { deposit_instructions })`. Devolve `{ ok, provider }`.
 - Imagens: `expo-image-manipulator` (redimensionar pra ~1200px, JPEG 0.7, `base64: true`) → `post('/api/upload', { file_data: 'data:image/jpeg;base64,...', folder: 'providers' })` → `{ url }`. Limite do servidor: 500 KB.
+
+
+---
+
+# WorkPro — orçamentos e faturas (rodada 2)
+
+Um projeto, dois apps nas lojas: `APP_VARIANT=agendapro` (padrão) ou `workpro` (app.config.js).
+No código: `import { VARIANT, IS_WORKPRO, BRAND, SPECIALTY_OPTIONS } from '../lib/variant'`.
+`colors.green` agora é a cor principal da variante (verde no AgendaPro, azul-marinho `#1B2845`
+no WorkPro); em código novo prefira `colors.primary` / `primarySoft` / `primaryDark`.
+Abas: AgendaPro = hoje, agenda, clientes, financas, mais. WorkPro = hoje, agenda, **vendas**,
+clientes, mais (Finanças vai pro Mais). Aba fora da lista fica escondida (`href: null`), mas
+a rota continua navegável: o AgendaPro abre `/vendas` pelo menu Mais.
+Tipo de negócio novo: `vertical = 'trades'` (obra, reparo, serviço técnico, tradutor...).
+Mesma conta e mesma assinatura nos dois apps.
+
+## Recursos novos na matriz (`api/_lib/agendaPlans.js`)
+
+| Starter | Pro | Premium |
+|---|---|---|
+| quotes, invoices, price_book, quote_requests (limite `documents_month` = 20 documentos criados por mês) | invoice_payments (fatura paga no cartão via Stripe Connect), payment_reminders (cobrança automática por e-mail), progress_billing (fatura de entrada/etapas a partir do orçamento), job_photos (fotos no documento), documentos ilimitados | no_branding também nos documentos |
+
+## Banco (`supabase/ag_app_documents.sql`, NÃO aplicado)
+
+`ag_catalog_items`, `ag_documents` (quote e invoice), `ag_document_items`, `ag_document_events`,
+`ag_quote_requests`, `ag_doc_counters` + função `ag_next_doc_seq(provider_id, kind)` (número
+sem repetição), `ag_payments.document_id` e `ag_payments.method` (pagamento de fatura = linha com
+`type 'invoice'`), índice único `ag_payments_stripe_session_uniq` (`stripe_session_id`, o webhook trata
+o 23505 como evento repetido) e `idx_quote_requests_iphash` (anti-abuso do formulário público).
+Leia o arquivo inteiro: colunas, CHECKs e status permitidos estão lá.
+
+Status: orçamento `draft → sent → viewed → accepted | declined | expired → converted`;
+fatura `draft → sent → viewed → partial → paid`, `overdue` (vencida), `void` (anulada).
+
+## Conta dos valores (`api/_lib/docCalc.js`, cópia no app em `lib/docCalc.js`)
+
+`computeTotals({ items, discount_pct, discount_cents, tax_rate_bps, deposit_pct, deposit_cents,
+amount_paid_cents })` → `{ lines, subtotal_cents, discount_cents, taxable_cents, tax_cents,
+total_cents, deposit_cents, balance_cents }`; `docNumber(kind, seq)` → `Q-0007` / `INV-0042`;
+`invoiceStatus(doc, todayKey)`; `cleanQty`, `cleanPct`, `UNITS`, `ITEM_KINDS`.
+**O servidor sempre recalcula** com essa função antes de gravar (nunca confia no total do app).
+
+## Preferências (em `ag_providers.app_settings`, via `saveSettings` / POST /api/agenda/me)
+
+- `business`: `{ legal_name, license_no, address_line, city, state, zip, phone, email, website, insurance }`
+- `doc_defaults`: `{ tax_rate_bps, due_days, quote_valid_days, deposit_pct, language, terms, notes, payment_instructions }`
+- `notify_documents` (bool): push de orçamento visto/aprovado/recusado, fatura paga, pedido de orçamento novo.
+- `quote_requests_public` (bool): formulário "Pedir orçamento" na página pública. Sem a preferência,
+  liga sozinho pra `vertical = 'trades'`; sempre exige o recurso `quote_requests` (regra única:
+  `quoteFormEnabled` de `api/agenda/quote-requests.js`).
+
+## APIs (formatos fixos — quem consome confia nisso)
+
+**`/api/agenda/documents`** (JWT)
+- `GET ?kind=quote|invoice&status=all|open|draft|sent|viewed|accepted|declined|expired|converted|partial|paid|overdue|void&q=&client_id=` →
+  `{ documents: [Doc], summary: { open_quotes_cents, open_quotes_count, awaiting_cents, overdue_cents, overdue_count, paid_month_cents, acceptance_rate } }`
+  - `status=open` = aguardando a cliente: orçamento `sent`/`viewed` e fatura `sent`/`viewed`/`partial`/`overdue` (rascunho nunca entra).
+  - O status sai efetivo (fatura vencida → `overdue`, orçamento vencido → `expired`) mesmo antes do cron gravar.
+  - `acceptance_rate` = fração de **0 a 1** (aceitos ÷ aceitos + recusados + expirados, orçamentos dos últimos 180 dias) ou `null` sem dado. O app multiplica por 100 pra mostrar.
+- `GET ?id=` → `{ document: Doc, items: [Item], payments: [Payment], events: [Event] }`
+- `POST { action, ... }`:
+  `create` (kind, client_id **ou** client {name,email,phone,address}, title, job_address, language, issue_date, due_date | valid_until, items[], discount_pct | discount_cents, tax_rate_bps, deposit_pct | deposit_cents, notes, terms, payment_instructions, internal_notes, photos[], appointment_id?, quote_request_id?) ·
+  `update` (id + mesmos campos; items substitui a lista) · `duplicate` (id) ·
+  `send` (id, channel whatsapp|email|sms|link) → `{ document, public_url, message, email_sent, email_error? }` (message = texto pronto no idioma do documento; `email_error` = frase pra mostrar quando o e-mail não saiu) ·
+  `mark_sent` · `mark_accepted` · `decline` (id, reason) ·
+  `convert` (id do orçamento, mode full|deposit|stages, stages?: [{ label, pct }]) → `{ invoices: [Doc], quote: Doc }` (quote = o orçamento já `converted`) ·
+  `record_payment` (id, amount_cents, method, paid_on 'YYYY-MM-DD', note) — aceita valor acima do saldo (o app confirma antes), até **2× o total** · `remove_payment` (id, payment_id) ·
+  `remind` (id, channel?) → mesmo formato do `send`; vale pra fatura com saldo **e** pra orçamento `sent`/`viewed` · `void` (id) · `delete` (id, só rascunho)
+- **Edição travada** → `409 { error, code: 'locked' }`: orçamento `converted` não muda nada; orçamento `accepted` e fatura `paid`/`void` só mudam `internal_notes` e `photos` (itens, valores, cliente, datas e textos ficam como estão — duplique pra refazer).
+- **Doc**: `id, kind, number, status, client_id, client_name, client_email, client_phone, client_address, title, job_address, language, issue_date, due_date, valid_until, subtotal_cents, discount_pct, discount_cents, tax_rate_bps, tax_cents, total_cents, deposit_pct, deposit_cents, amount_paid_cents, balance_cents, notes, terms, payment_instructions, internal_notes, photos, stage_label, quote_id, appointment_id, quote_request_id, sent_at, viewed_at, accepted_at, accepted_name, accepted_signature (só no ?id), declined_at, decline_reason, paid_at, voided_at, reminders_sent, created_at, updated_at, public_url`
+- **Item**: `id, position, catalog_item_id, kind, description, quantity, unit, unit_price_cents, taxable, line_total_cents`
+- **Payment**: `id, amount_cents, method, paid_at, note, source ('manual'|'stripe')` · **Event**: `id, type, channel, detail, created_at`
+
+**`/api/agenda/catalog`** (JWT) — `GET` → `{ items: [CatalogItem] }` · `POST { action: create|update|delete|reorder|seed, ... }` (`seed { specialty }` cria itens de exemplo da especialidade).
+CatalogItem: `id, name, description, kind, unit, unit_price_cents, taxable, active, display_order`.
+
+**`/api/agenda/quote-requests`** — `POST` público `{ slug, name, phone, email, address, service, description, preferred_date, language, photos: [data URL, até 3], website (isca anti-robô) }`;
+com JWT: `GET` → `{ requests: [Req], counts }` · `POST { action: update_status|convert, id, status? }` (`convert` cria orçamento rascunho e devolve `{ document }`).
+Req: `id, name, phone, email, address, service, description, photos, preferred_date, language, status, client_id, document_id, created_at`.
+
+**`/api/agenda/doc-public`** (público, pelo token) — `GET ?t=` → `{ document (sem campos internos), items, provider: { name, slug, avatar_url, cover_color, business, show_branding }, can_pay_online }` (marca visto na primeira abertura) ·
+`POST { t, action: accept, name, signature }` · `{ t, action: decline, reason }` · `{ t, action: pay }` → `{ checkout_url }`.
+
+Link da cliente: `https://brasilconnectusa.com/d/<public_token>` (rewrite `/d/:token` → `/doc.html`, já no vercel.json).
+`public_url?preview=1` = a profissional conferindo pelo app: **não** marca visto e a página desliga as ações (aprovar, recusar, pagar).
+
+**`GET /api/agenda/provider?slug=`** (página pública) também devolve `provider.vertical` ('services'|'cleaning'|'trades')
+e `provider.quote_requests_enabled` (bool, regra `quoteFormEnabled`); `app_settings` nunca sai cru.
+
+**E-mail do documento** (`sendDocEmail` → `sendTransactional` de `api/_lib/mailer.js`): reply-to = e-mail da
+profissional (`business.email`, senão o do perfil), shell/rodapé no idioma do documento, From
+`"<empresa> via BrasilConnect" <oi@brasilconnectusa.com>` e, com `no_branding` (Premium), sem a marca BrasilConnect
+(From só com o nome da empresa, topo com o nome dela, sem rodapé da marca). Opções do mailer: `replyTo`, `lang`,
+`fromName`, `hideBrand` — sem elas, os outros e-mails do site saem iguais.
+
+**Finanças** (`api/agenda/finance.js`): atendimento com fatura ligada (`appointment_id`, fatura fora de
+`draft`/`void`) não soma o próprio valor na receita (entra pelo pagamento da fatura) — resumo, ano, relatório
+e CSV. Continua contando como realizado (fora do ticket médio e de previsto/sem marcar); a gorjeta dele conta.
+Campo novo `invoiced_appointments` (resumo e `report.totals`); CSV de agendamentos ganha a coluna Fatura/Invoice.
+Cron: `/api/cron/agenda-documents` diário 15:00 UTC (já no vercel.json): fatura vencida → overdue; orçamento vencido → expired; lembrete automático (Pro).
+
+## Donos de arquivo (rodada 2)
+
+| Entrega | Arquivos |
+|---|---|
+| **fundação** (pronta) | `app.config.js`, `lib/variant.js`, `lib/theme.js`, `lib/docCalc.js` (cópia), `app/(tabs)/_layout.js`, `app/onboarding.js`, `app/(auth)/login.js`, `api/_lib/agendaPlans.js`, `api/_lib/docCalc.js`, `supabase/ag_app_documents.sql`, `vercel.json` |
+| **docs-api** | `api/agenda/documents.js`, `api/agenda/catalog.js`, `api/_lib/documents.js`, `api/cron/agenda-documents.js`, `api/agenda/finance.js` (receita de fatura), `api/agenda/me.js` (só a lista do delete_account) |
+| **docs-public** | `public/doc.html`, `api/agenda/doc-public.js`, `api/agenda/quote-requests.js`, `api/stripe/webhook.js` (pagamento de fatura), `api/_lib/agendaPush.js` (kind 'documents'), `public/agenda/profile.html` (formulário "Pedir orçamento") |
+| **docs-app** | `app/(tabs)/vendas.js`, `app/document/[id].js`, `app/document/edit.js`, `app/price-book/*`, `app/business.js`, `app/quote-requests.js`, `lib/documents.js` (novo); integração mínima em `app/(tabs)/mais.js`, `app/(tabs)/hoje.js`, `app/client/[id].js`, `app/appointment/[id].js` |
+| **demo** | `lib/demo/*`, `scripts/demo-web.js` |
+| **loja-workpro** | `assets/workpro/*`, `scripts/make-icons.py`, `eas.json`, `store/workpro/*`, `README.md` (seção dos dois apps), `docs/workpro.md`, `public/para/workpro/index.html`, `public/para/index.html`, `public/privacidade.html` |
+
+## WorkPro — decisões da rodada de correções (10/10/2026)
+
+- `POST /api/agenda/documents { action: 'rotate_link', id }` → `{ document }` com link novo; o antigo para de funcionar (liberado sem plano: é proteção).
+- E-mail de documento (send/remind/cron) tem teto: 20/24h por profissional no teste grátis ou sem plano pago ativo, 100/24h com plano pago; 3 envios por e-mail por documento em 24h; 1 lembrete manual por documento em 24h. Passou do teto → `429 { code: 'email_limit' }`. O From só esconde "via BrasilConnect" com Premium **pago** (`emailHidesBrand`), nunca no teste grátis.
+- Fatura em rascunho ganha as datas no primeiro envio (`issue_date` = hoje no fuso dela, `due_date` = hoje + prazo). Faturas de etapa/entrada nascem rascunho. O cron só cobra fatura com `sent_at`. Vencimento padrão sem `doc_defaults.due_days` = **14 dias**.
+- Fatura ligada a atendimento: o que o atendimento já recebeu entra na fatura como pagamento (`metadata.source 'appointment'`, aparece como "Já pago"). O editor do app preenche o valor cheio. Em Finanças, atendimento faturado conta só o que recebeu além da fatura.
+- Pagamento online: a sessão do Checkout fica em `ag_documents.stripe_checkout_session_id`/`stripe_checkout_expires_at`; é reaproveitada se o valor não mudou e encerrada ao anular, apagar, registrar pagamento por fora ou mudar o total. Webhook marca excesso (fatura anulada/paga ou valor acima do saldo) e avisa a profissional. Reembolso (`charge.refunded`) marca o `ag_payments` como `refunded` e a fatura recalcula (só `status 'paid'` conta).
+- Aceite com valor de prova: `POST doc-public { action:'accept', name, signature, consent: true, version }` (`version` = `document.updated_at` carregado; mudou → `409 code 'changed'`). Grava `signed_snapshot` (documento + itens + totais + empresa), `signed_hash` (SHA-256 do snapshot), `consent_at`, `consent_text_version 'esign-v1'`; manda cópia por e-mail à cliente e push à profissional. Doc ganha `signed_hash` e `consent_at`.
+- Pedido de orçamento público não cria ficha de cliente: a ficha nasce ao converter.
+- `ag_push_tokens.app` ('agendapro'|'workpro'): o app manda `app: VARIANT` no registro; o envio agrupa por app.
+- Finanças: export `kind=invoice_payments` (pagamentos pela data em que entraram) e `kind=invoices`.
+- Banco: tudo isso está em `supabase/ag_app_documents.sql` (ainda NÃO aplicado), inclusive as colunas de assinatura/checkout e `ag_push_tokens.app`.

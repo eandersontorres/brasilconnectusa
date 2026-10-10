@@ -4,6 +4,7 @@
  * Usado por:
  *   - api/cron/drip.js                  (drip da waitlist pre-launch)
  *   - api/cron/onboarding-reminders.js  (lembretes pra completar profile)
+ *   - api/_lib/mailer.js                (sendTransactional: avisos e orcamentos/faturas do WorkPro)
  *   - futuros (bolao reminders, etc)
  */
 
@@ -41,9 +42,53 @@ export function callout(title, text) {
 // Trocado pelo link real de cada destinatario na hora do envio (ver api/_lib/unsubscribe.js).
 export const UNSUB_PLACEHOLDER = '%%UNSUB_URL%%'
 
-export function shellHtml({ kicker, title, bodyHtml, ctaUrl, ctaLabel, footerNote, unsubscribeUrl, hideUnsubscribe }) {
+// Textos fixos do shell por idioma. Sem `lang`, vale o pt (o de sempre).
+// en/es: e-mail pra cliente que nao fala portugues (orcamento/fatura do WorkPro).
+export const SHELL_TEXT = {
+  pt: { html: 'pt-BR', cta: 'Ver mais', tagline: 'Feito por brasileiros, para brasileiros', unsub: 'Cancelar inscrição' },
+  en: { html: 'en', cta: 'View more', tagline: 'Sent with BrasilConnect', unsub: 'Unsubscribe' },
+  es: { html: 'es', cta: 'Ver más', tagline: 'Enviado con BrasilConnect', unsub: 'Cancelar suscripción' },
+}
+
+/**
+ * Opcionais:
+ *   lang       'pt' | 'en' | 'es' → <html lang> e textos fixos (botao padrao, rodape)
+ *   hideBrand  true → sem a marca BrasilConnect no topo e no rodape (Premium no_branding);
+ *              brandName (ex.: nome da empresa da profissional) vira o topo, se vier
+ */
+export function shellHtml({ kicker, title, bodyHtml, ctaUrl, ctaLabel, footerNote, unsubscribeUrl, hideUnsubscribe, lang, hideBrand, brandName }) {
+  const T = SHELL_TEXT[lang] || SHELL_TEXT.pt
+  const unsubLink = (color) => `<a href="${unsubscribeUrl || UNSUB_PLACEHOLDER}" style="color:${color};text-decoration:underline;">${T.unsub}</a>`
+  const header = hideBrand
+    ? (brandName ? `
+        <tr>
+          <td style="padding:28px 32px 20px;text-align:center;border-bottom:1px solid ${COLORS.line};">
+            <div style="font-family:Georgia,serif;font-weight:700;font-size:20px;color:${COLORS.ink};">${escapeHtml(brandName)}</div>
+          </td>
+        </tr>` : '')
+    : `
+        <tr>
+          <td style="padding:32px 32px 24px;text-align:center;border-bottom:1px solid ${COLORS.line};">
+            <img src="https://brasilconnectusa.com/img/logo-mark.svg" alt="BrasilConnect" width="48" height="48" style="display:block;margin:0 auto;border:0;" />
+            <div style="font-family:Georgia,serif;font-weight:700;font-size:18px;color:${COLORS.green};margin-top:10px;">Brasil <span style="color:${COLORS.navy};">Connect</span></div>
+            <div style="font-size:9px;color:${COLORS.goldDk};letter-spacing:3px;font-weight:600;margin-top:1px;">USA</div>
+          </td>
+        </tr>`
+  const footer = hideBrand
+    ? (hideUnsubscribe ? '' : `
+        <tr>
+          <td style="padding:16px 32px;text-align:center;border-top:1px solid ${COLORS.line};font-size:11px;color:${COLORS.inkMuted};">${unsubLink(COLORS.inkMuted)}</td>
+        </tr>`)
+    : `
+        <tr>
+          <td style="background:${COLORS.greenDk};padding:24px 32px;text-align:center;color:${COLORS.paperSft};">
+            <div style="font-size:13px;opacity:0.75;">${T.tagline}</div>
+            <div style="font-size:11px;opacity:0.5;margin-top:6px;">© 2026 BrasilConnect USA</div>
+            ${hideUnsubscribe ? '' : `<div style="font-size:11px;opacity:0.7;margin-top:8px;">${unsubLink(COLORS.paperSft)}</div>`}
+          </td>
+        </tr>`
   return `<!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="${T.html}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,14 +97,7 @@ export function shellHtml({ kicker, title, bodyHtml, ctaUrl, ctaLabel, footerNot
 <body style="margin:0;padding:0;background:${COLORS.paper};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:${COLORS.ink};">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:${COLORS.paper};padding:40px 16px;">
     <tr><td align="center">
-      <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;background:${COLORS.paperEl};border:1px solid ${COLORS.line};border-radius:16px;overflow:hidden;">
-        <tr>
-          <td style="padding:32px 32px 24px;text-align:center;border-bottom:1px solid ${COLORS.line};">
-            <img src="https://brasilconnectusa.com/img/logo-mark.svg" alt="BrasilConnect" width="48" height="48" style="display:block;margin:0 auto;border:0;" />
-            <div style="font-family:Georgia,serif;font-weight:700;font-size:18px;color:${COLORS.green};margin-top:10px;">Brasil <span style="color:${COLORS.navy};">Connect</span></div>
-            <div style="font-size:9px;color:${COLORS.goldDk};letter-spacing:3px;font-weight:600;margin-top:1px;">USA</div>
-          </td>
-        </tr>
+      <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width:600px;background:${COLORS.paperEl};border:1px solid ${COLORS.line};border-radius:16px;overflow:hidden;">${header}
         <tr>
           <td style="padding:36px 36px 32px;">
             <div style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:${COLORS.goldDk};margin-bottom:12px;">${escapeHtml(kicker)}</div>
@@ -68,19 +106,12 @@ export function shellHtml({ kicker, title, bodyHtml, ctaUrl, ctaLabel, footerNot
             ${ctaUrl ? `
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:24px 0 8px 0;">
               <tr><td style="border-radius:10px;background:${COLORS.ink};">
-                <a href="${ctaUrl}" style="display:inline-block;padding:13px 26px;color:${COLORS.paper};text-decoration:none;font-weight:600;font-size:14px;letter-spacing:0.01em;">${escapeHtml(ctaLabel || 'Ver mais')}</a>
+                <a href="${ctaUrl}" style="display:inline-block;padding:13px 26px;color:${COLORS.paper};text-decoration:none;font-weight:600;font-size:14px;letter-spacing:0.01em;">${escapeHtml(ctaLabel || T.cta)}</a>
               </td></tr>
             </table>` : ''}
             ${footerNote ? `<p style="margin:32px 0 0 0;font-size:13px;color:${COLORS.inkMuted};line-height:1.6;">${footerNote}</p>` : ''}
           </td>
-        </tr>
-        <tr>
-          <td style="background:${COLORS.greenDk};padding:24px 32px;text-align:center;color:${COLORS.paperSft};">
-            <div style="font-size:13px;opacity:0.75;">Feito por brasileiros, para brasileiros</div>
-            <div style="font-size:11px;opacity:0.5;margin-top:6px;">© 2026 BrasilConnect USA</div>
-            ${hideUnsubscribe ? '' : `<div style="font-size:11px;opacity:0.7;margin-top:8px;"><a href="${unsubscribeUrl || UNSUB_PLACEHOLDER}" style="color:${COLORS.paperSft};text-decoration:underline;">Cancelar inscrição</a></div>`}
-          </td>
-        </tr>
+        </tr>${footer}
       </table>
     </td></tr>
   </table>

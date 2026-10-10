@@ -8,10 +8,40 @@ import { confirm } from '../../lib/dialog'
 import { colors, spacing } from '../../lib/theme'
 import { SUPPORT_EMAIL } from '../../lib/config'
 import { openWhatsApp } from '../../lib/whatsapp'
+import { BRAND, IS_WORKPRO } from '../../lib/variant'
 import { Avatar, Badge, Card, Divider, H3, Muted, Row, Screen, Section } from '../../components/ui'
 import PlanBanner from '../../components/PlanBanner'
 
 const SUPPORT_WHATSAPP = '' // número do suporte (vazio = só e-mail)
+
+// Orçamentos e faturas. No WorkPro "Vendas" já é aba, então aqui ficam os ajustes e
+// Finanças (a aba de Finanças fica escondida no WorkPro).
+const SALES_GROUP = IS_WORKPRO
+  ? {
+    title: 'Vendas',
+    items: [
+      { icon: 'pricetags-outline', title: 'Tabela de preços', href: '/price-book', feature: 'price_book' },
+      { icon: 'mail-unread-outline', title: 'Pedidos de orçamento', href: '/quote-requests', feature: 'quote_requests' },
+      { icon: 'business-outline', title: 'Dados da empresa', href: '/business' },
+      { icon: 'wallet-outline', title: 'Finanças', href: '/financas', feature: 'finance' },
+    ],
+  }
+  : {
+    title: 'Vendas',
+    items: [
+      { icon: 'document-text-outline', title: 'Orçamentos e faturas', href: '/vendas', feature: 'quotes' },
+      { icon: 'mail-unread-outline', title: 'Pedidos de orçamento', href: '/quote-requests', feature: 'quote_requests' },
+      { icon: 'pricetags-outline', title: 'Tabela de preços', href: '/price-book', feature: 'price_book' },
+      { icon: 'business-outline', title: 'Dados da empresa', href: '/business' },
+    ],
+  }
+
+/** WorkPro: Vendas primeiro. AgendaPro: antes de Dinheiro. */
+function withSales(groups) {
+  if (IS_WORKPRO) return [SALES_GROUP, ...groups]
+  const i = groups.findIndex((g) => g.title === 'Dinheiro')
+  return i < 0 ? [...groups, SALES_GROUP] : [...groups.slice(0, i), SALES_GROUP, ...groups.slice(i)]
+}
 
 const GROUPS = [
   {
@@ -53,13 +83,28 @@ const GROUPS = [
   },
 ]
 
+/**
+ * Obra/reparo (vertical 'trades'): sem Limpeza (turnover) nem Lista de espera, e os
+ * serviços da agenda com nome que não confunde com a tabela de preços dos orçamentos.
+ */
+const TRADES_HIDE = ['/turnover', '/waitlist']
+const TRADES_TITLES = { '/services': 'Serviços da agenda online' }
+function forTrades(groups) {
+  return groups
+    .map((g) => ({
+      ...g,
+      items: g.items.filter((it) => !TRADES_HIDE.includes(it.href)).map((it) => (TRADES_TITLES[it.href] ? { ...it, title: TRADES_TITLES[it.href] } : it)),
+    }))
+    .filter((g) => g.items.length)
+}
+
 export default function Mais() {
   const app = useApp()
   const { provider, ent, user, signOut } = app
   const isCleaning = provider?.vertical === 'cleaning'
-  const groups = isCleaning
+  const groups = withSales(isCleaning
     ? [...GROUPS.filter((g) => g.cleaningFirst), ...GROUPS.filter((g) => !g.cleaningFirst)]
-    : GROUPS
+    : provider?.vertical === 'trades' ? forTrades(GROUPS) : GROUPS)
 
   async function logout() {
     if (await confirm('Sair da conta?', 'Seus dados continuam salvos. É só entrar de novo.', { ok: 'Sair', destructive: true })) {
@@ -112,13 +157,13 @@ export default function Mais() {
           <Row icon="settings-outline" title="Configurações" subtitle="Notificações, Face ID, calendário, idioma" chevron onPress={() => router.push('/settings')} />
           <Divider style={{ marginVertical: 0, marginLeft: 60 }} />
           <Row icon="help-buoy-outline" title="Ajuda e suporte" chevron
-            onPress={() => (SUPPORT_WHATSAPP ? openWhatsApp(SUPPORT_WHATSAPP, 'Oi! Preciso de ajuda com o AgendaPro.') : Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=AgendaPro`))} />
+            onPress={() => (SUPPORT_WHATSAPP ? openWhatsApp(SUPPORT_WHATSAPP, `Oi! Preciso de ajuda com o ${BRAND.name}.`) : Linking.openURL(`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(BRAND.name)}`))} />
           <Divider style={{ marginVertical: 0, marginLeft: 60 }} />
           <Row icon="log-out-outline" title="Sair" danger onPress={logout} />
         </Card>
       </Section>
 
-      <Muted style={{ textAlign: 'center', marginTop: spacing.xl }}>AgendaPro · BrasilConnect</Muted>
+      <Muted style={{ textAlign: 'center', marginTop: spacing.xl }}>{`${BRAND.name} · BrasilConnect`}</Muted>
     </Screen>
   )
 }

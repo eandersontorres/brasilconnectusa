@@ -15,6 +15,7 @@ import { ensureFeature, featureInfo, showError } from '../lib/gate'
 import { choose, confirm, notify } from '../lib/dialog'
 import { API_BASE, PUBLIC_PAGE } from '../lib/config'
 import { phoneDigits } from '../lib/format'
+import { BRAND } from '../lib/variant'
 import { colors, radius, spacing, type } from '../lib/theme'
 import { Avatar, Badge, Banner, Button, Card, ErrorBox, H2, Input, Loading, Muted, Screen, Section, Small } from '../components/ui'
 import { LockedCard } from '../components/Locked'
@@ -65,7 +66,7 @@ async function getImages(source, { aspect, multiple = false, limit = 1 } = {}) {
   if (source === 'camera') {
     const perm = await ImagePicker.requestCameraPermissionsAsync()
     if (!perm.granted) {
-      notify('Sem acesso à câmera', 'Libere a câmera para o AgendaPro nos Ajustes do celular.')
+      notify('Sem acesso à câmera', `Libere a câmera para o ${BRAND.name} nos Ajustes do celular.`)
       return []
     }
     const res = await ImagePicker.launchCameraAsync({ mediaTypes: ['images'], allowsEditing: editing, aspect, quality: 1 })
@@ -74,7 +75,7 @@ async function getImages(source, { aspect, multiple = false, limit = 1 } = {}) {
   if (!isWeb) {
     const perm = await ImagePicker.requestMediaLibraryPermissionsAsync()
     if (!perm.granted) {
-      notify('Sem acesso às fotos', 'Libere o acesso às fotos para o AgendaPro nos Ajustes do celular.')
+      notify('Sem acesso às fotos', `Libere o acesso às fotos para o ${BRAND.name} nos Ajustes do celular.`)
       return []
     }
   }

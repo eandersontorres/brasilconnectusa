@@ -23,6 +23,10 @@
   ],
   "rewrites": [
     {
+      "source": "/d/:token",
+      "destination": "/doc.html"
+    },
+    {
       "source": "/app",
       "destination": "/app.html"
     },
@@ -207,6 +211,10 @@
     {
       "path": "/api/cron/moderation",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/agenda-documents",
+      "schedule": "0 15 * * *"
     }
   ],
   "headers": [

@@ -119,6 +119,12 @@ if (!process.argv.slice(2).length) {
       console.log('✗ lib/demo/plans.js: diferente de api/_lib/agendaPlans.js (copie a matriz de novo)')
       errors++
     }
+    const calcBody = (f) => { const t = fs.readFileSync(f, 'utf8'); return t.slice(t.indexOf('export const UNITS')) }
+    const calcSrv = path.resolve(ROOT, '..', 'api', '_lib', 'docCalc.js')
+    if (fs.existsSync(calcSrv) && calcBody(calcSrv) !== calcBody(path.join(ROOT, 'lib', 'docCalc.js'))) {
+      console.log('✗ lib/docCalc.js: diferente de api/_lib/docCalc.js (copie a conta de novo)')
+      errors++
+    }
   } catch (_) {}
 }
 

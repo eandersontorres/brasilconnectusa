@@ -14,6 +14,7 @@ import { openWhatsApp } from '../../lib/whatsapp'
 import { colors, radius, spacing } from '../../lib/theme'
 import Locked from '../../components/Locked'
 import { Badge, Banner, Button, Card, Empty, ErrorBox, Fab, H3, Label, Loading, Muted, P, Screen, Section, Segmented, Small } from '../../components/ui'
+import { BRAND } from '../../lib/variant'
 
 const SOURCES = {
   airbnb: { label: 'Airbnb', tone: 'red' },
@@ -189,7 +190,7 @@ function Turnover() {
             ))}
             <View style={st.step}>
               <View style={st.stepNum}><Small style={{ color: colors.white, fontWeight: '700' }}>{HOW_TO[howTo].length + 1}</Small></View>
-              <P style={{ flex: 1 }}>Aqui no AgendaPro, toque em + e cole o link.</P>
+              <P style={{ flex: 1 }}>Aqui no {BRAND.name}, toque em + e cole o link.</P>
             </View>
             <View style={st.tip}>
               <Label style={{ marginBottom: 4 }}>Não é sua a casa?</Label>

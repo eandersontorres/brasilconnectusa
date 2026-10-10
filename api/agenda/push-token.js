@@ -2,9 +2,12 @@
  * Celular da profissional pra receber notificacao push (app AgendaPro).
  *
  * POST /api/agenda/push-token   com JWT
- *      Body: { token: 'ExponentPushToken[...]', platform: 'ios'|'android', device_name? }
+ *      Body: { token: 'ExponentPushToken[...]', platform: 'ios'|'android', device_name?, app?: 'agendapro'|'workpro' }
  *        registra (ou reativa) o aparelho. O mesmo token passa pra conta que esta
  *        logada agora (celular trocou de dona / outra conta entrou).
+ *        AgendaPro e WorkPro no mesmo celular = dois tokens (projetos Expo diferentes): `app`
+ *        fica gravado (coluna ag_push_tokens.app, se existir) pro envio agrupar por projeto, e o
+ *        limite de aparelhos conta por app, entao registrar um app nunca desliga o token do outro.
  *      Body: { action: 'unregister', token }
  *        ao sair da conta: o aparelho para de receber os avisos dessa profissional.
  *      Body: { action: 'test' }
@@ -22,7 +25,10 @@ import { rateLimit } from '../_lib/rateLimit.js'
 
 const TOKEN_RE = /^Expo(nent)?PushToken\[[A-Za-z0-9_\-]{10,200}\]$/
 const PLATFORMS = ['ios', 'android']
-const MAX_DEVICES = 10
+const APPS = ['agendapro', 'workpro']
+const MAX_DEVICES = 10          // por app; sem a coluna app, o limite vale pros dois juntos (x2)
+
+const isSchemaError = (e) => ['42703', 'PGRST204'].includes(e?.code) || /column .* does not exist|could not find/i.test(e?.message || '')
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
@@ -65,9 +71,10 @@ export default async function handler(req, res) {
 
     const platform = PLATFORMS.includes(b.platform) ? b.platform : null
     const deviceName = b.device_name ? String(b.device_name).trim().slice(0, 80) || null : null
+    const app = APPS.includes(b.app) ? b.app : null
     const now = new Date().toISOString()
 
-    const { error } = await supabase.from('ag_push_tokens').upsert({
+    const row = {
       token,
       provider_id: providerId,
       user_id: auth.user.id,
@@ -75,16 +82,25 @@ export default async function handler(req, res) {
       device_name: deviceName,
       last_seen_at: now,
       disabled_at: null,
-    }, { onConflict: 'token' })
+    }
+    let appSaved = !!app
+    let { error } = await supabase.from('ag_push_tokens').upsert(app ? { ...row, app } : row, { onConflict: 'token' })
+    if (error && app && isSchemaError(error)) {
+      // Banco ainda sem a coluna app: grava sem ela (o envio separa os projetos pelo erro da Expo)
+      appSaved = false
+      ;({ error } = await supabase.from('ag_push_tokens').upsert(row, { onConflict: 'token' }))
+    }
     if (error) return res.status(500).json({ error: error.message })
 
-    // Muitos aparelhos ativos (trocas de celular ao longo do tempo): desliga os mais antigos
-    const { data: active } = await supabase.from('ag_push_tokens')
+    // Muitos aparelhos ativos (trocas de celular ao longo do tempo): desliga os mais antigos.
+    // Conta só os do mesmo app, pra nunca desligar o token do outro app da mesma conta.
+    let q = supabase.from('ag_push_tokens')
       .select('id')
       .eq('provider_id', providerId)
       .is('disabled_at', null)
-      .order('last_seen_at', { ascending: false })
-    const extra = (active || []).slice(MAX_DEVICES).map((r) => r.id)
+    if (appSaved) q = q.eq('app', app)
+    const { data: active } = await q.order('last_seen_at', { ascending: false })
+    const extra = (active || []).slice(appSaved ? MAX_DEVICES : MAX_DEVICES * 2).map((r) => r.id)
     if (extra.length) {
       await supabase.from('ag_push_tokens').update({ disabled_at: now }).in('id', extra).eq('provider_id', providerId)
     }

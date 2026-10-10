@@ -248,7 +248,7 @@ export function KPI({ label, value, sub, tone, style, onPress }) {
   const size = len > 8 ? 16 : len > 6 ? 19 : len > 4 ? 21 : type.kpi.fontSize
   const inner = (
     <View style={[s.card, { padding: spacing.md, flex: 1 }, style]}>
-      <Label style={{ marginBottom: 6 }} numberOfLines={1}>{label}</Label>
+      <Label style={{ marginBottom: 6 }} numberOfLines={2}>{label}</Label>
       <Text style={[type.kpi, { fontSize: size }, tone === 'green' && { color: colors.green }, tone === 'gold' && { color: colors.goldDark }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>{value}</Text>
       {sub ? <Muted style={{ marginTop: 2 }} numberOfLines={2}>{sub}</Muted> : null}
     </View>

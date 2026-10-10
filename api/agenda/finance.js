@@ -10,8 +10,13 @@
  *      ?view=mileage&month=YYYY-MM   viagens do mes + totais do mes e do ano + sugestoes
  *      ?view=year&year=YYYY          12 meses: receita, despesas, lucro, reserva (exige 'finance')
  *      ?view=report&month= | &year=  relatorio por servico, cliente, equipe, dia (exige 'reports')
- *      ?view=export&kind=appointments|expenses|mileage|clients&from=YYYY-MM-DD&to=YYYY-MM-DD[&lang=en]
+ *      ?view=export&kind=appointments|expenses|mileage|clients|invoices|invoice_payments&from=YYYY-MM-DD&to=YYYY-MM-DD[&lang=en]
  *                                    CSV com BOM (exige 'reports'); aceita &month= ou &year= no lugar de from/to
+ *                                    invoices = faturas emitidas no período (número, cliente, emissão,
+ *                                    vencimento, total, pago, saldo, status)
+ *                                    invoice_payments = pagamentos de fatura recebidos no período, pela
+ *                                    data do pagamento no fuso dela (data, fatura, cliente, forma, valor,
+ *                                    origem): é a parte da receita do resumo que vem de fatura
  * POST /api/agenda/finance   com JWT
  *      Body: { action, ... }
  *        expense_create  { spent_on, category, amount_cents, description?, payment_method?, receipt_url? }
@@ -26,10 +31,22 @@
  * a faixa de datas UTC ('2026-10-01T00:00Z' ate '2026-11-01T00:00Z').
  * Valor recebido = paid_cents (marcado no app) ou total_cents quando vazio.
  * Gorjeta (tip_cents) fica separada do faturamento e entra no lucro.
+ * Pagamentos de fatura (ag_payments type 'invoice', status 'paid', orçamentos/faturas do WorkPro)
+ * entram na receita pela data de paid_at no fuso da profissional: campo separado
+ * invoice_revenue_cents e somados em revenue_cents (e no by_method / daily / lucro).
+ * Sem contagem dupla: atendimento com fatura ligada (ag_documents.appointment_id, kind invoice,
+ * status fora de void/draft) não presume o valor cheio: conta só o que entrou nele de fato
+ * (paid_cents marcado, senão o sinal pago) menos o que as faturas dele já receberam (a fatura do
+ * atendimento já pago nasce com esse valor lançado como pagamento: creditFromAppointment em
+ * api/_lib/documents.js). Assim a receita já recebida não some e nada conta duas vezes.
+ * Vale em resumo, ano, relatório e CSV; a gorjeta do atendimento continua contando. O atendimento
+ * ainda conta como realizado (mas fica fora do ticket médio e de previsto/sem marcar);
+ * invoiced_appointments diz quantos foram assim.
  */
 import { createClient } from '@supabase/supabase-js'
 import { requireProviderAuth } from '../_lib/providerAuth.js'
 import { requireFeature, hasFeature } from '../_lib/agendaPlans.js'
+import { loadInvoicePayments, effectiveStatus, balanceOf } from '../_lib/documents.js'
 
 const CATEGORIES = ['produtos', 'gasolina', 'aluguel', 'equipamento', 'marketing', 'taxas', 'celular', 'seguro', 'alimentacao', 'outros']
 const PAY_METHODS = ['card', 'cash', 'zelle', 'venmo', 'cashapp', 'paypal', 'check', 'debit', 'other']
@@ -79,8 +96,16 @@ const SCHEDULE_C = {
   outros: 'Other expenses (line 27a)',
 }
 const METHOD_LABEL = {
-  pt: { card: 'Cartão', cash: 'Dinheiro', zelle: 'Zelle', venmo: 'Venmo', cashapp: 'Cash App', paypal: 'PayPal', check: 'Cheque', debit: 'Débito', stripe: 'Cartão (online)', other: 'Outro', free: 'Cortesia' },
-  en: { card: 'Card', cash: 'Cash', zelle: 'Zelle', venmo: 'Venmo', cashapp: 'Cash App', paypal: 'PayPal', check: 'Check', debit: 'Debit', stripe: 'Card (online)', other: 'Other', free: 'Complimentary' },
+  pt: { card: 'Cartão', cash: 'Dinheiro', zelle: 'Zelle', venmo: 'Venmo', cashapp: 'Cash App', paypal: 'PayPal', check: 'Cheque', debit: 'Débito', ach: 'Transferência (ACH)', stripe: 'Cartão (online)', other: 'Outro', free: 'Cortesia' },
+  en: { card: 'Card', cash: 'Cash', zelle: 'Zelle', venmo: 'Venmo', cashapp: 'Cash App', paypal: 'PayPal', check: 'Check', debit: 'Debit', ach: 'ACH transfer', stripe: 'Card (online)', other: 'Other', free: 'Complimentary' },
+}
+const INVOICE_STATUS_LABEL = {
+  pt: { draft: 'Rascunho', sent: 'Enviada', viewed: 'Vista', partial: 'Paga em parte', paid: 'Paga', overdue: 'Vencida', void: 'Anulada' },
+  en: { draft: 'Draft', sent: 'Sent', viewed: 'Viewed', partial: 'Partially paid', paid: 'Paid', overdue: 'Overdue', void: 'Void' },
+}
+const PAYMENT_ORIGIN_LABEL = {
+  pt: { manual: 'Registrado no app', stripe: 'Cartão pelo link', appointment: 'Recebido no atendimento' },
+  en: { manual: 'Recorded in app', stripe: 'Card via link', appointment: 'Received at appointment' },
 }
 const STATUS_LABEL = {
   pt: { pending: 'Aguardando sinal', confirmed: 'Confirmado', completed: 'Realizado', canceled: 'Cancelado', no_show: 'Faltou' },
@@ -198,7 +223,66 @@ function shapeApt(a) {
   }
 }
 
-async function loadAppointments(ctx, fromIso, toIso, statuses = null) {
+/**
+ * Faturas ligadas a atendimento (fora de void): Map(appointment_id → { numbers, real, covered }).
+ * real = tem fatura de verdade (fora de rascunho); numbers = números dessas faturas; covered = soma
+ * de tudo que as faturas do atendimento já receberam (ag_payments 'invoice' pagos, qualquer data).
+ * Uma leitura por requisição (fica no ctx). Nunca rejeita: devolve { map } ou { error } (sem o SQL
+ * de documentos → map vazio), pra rodar em paralelo sem promessa solta.
+ */
+function invoicedAppointments(ctx) {
+  if (!ctx._invoiced) {
+    ctx._invoiced = (async () => {
+      const r = await fetchAll(() => ctx.supabase.from('ag_documents').select('id, appointment_id, number, status')
+        .eq('provider_id', ctx.pid).eq('kind', 'invoice').not('appointment_id', 'is', null)
+        .neq('status', 'void').order('id', { ascending: true }))
+      if (r.error) return isSchemaError(r.error) ? { map: new Map() } : { error: r.error }
+      const map = new Map()
+      const aptOfDoc = new Map()
+      for (const d of r.data) {
+        if (!d.appointment_id) continue
+        const e = map.get(d.appointment_id) || { numbers: [], real: false, covered: 0 }
+        if (d.status !== 'draft') {
+          e.real = true
+          if (d.number && !e.numbers.includes(d.number)) e.numbers.push(d.number)
+        }
+        map.set(d.appointment_id, e)
+        aptOfDoc.set(d.id, d.appointment_id)
+      }
+      const ids = [...aptOfDoc.keys()]
+      for (let i = 0; i < ids.length; i += 150) {
+        const chunk = ids.slice(i, i + 150)
+        const p = await fetchAll(() => ctx.supabase.from('ag_payments').select('id, document_id, amount_cents')
+          .eq('provider_id', ctx.pid).eq('type', 'invoice').eq('status', 'paid').in('document_id', chunk)
+          .order('id', { ascending: true }))
+        if (p.error) return isSchemaError(p.error) ? { map } : { error: p.error }
+        for (const pay of p.data) {
+          const e = map.get(aptOfDoc.get(pay.document_id))
+          if (e) e.covered += Math.max(0, Number(pay.amount_cents) || 0)
+        }
+      }
+      return { map }
+    })().catch((e) => ({ error: e }))
+  }
+  return ctx._invoiced
+}
+
+/** Marca invoiced / invoice_numbers / invoice_covered_cents nos atendimentos (puro). */
+function markInvoiced(apts, map) {
+  if (!map || !map.size) return apts
+  for (const a of apts) {
+    let e = map.get(a.id)
+    if (!e) continue
+    if (Array.isArray(e)) e = { numbers: e, real: true, covered: 0 }   // formato antigo (só números)
+    if (e.real) { a.invoiced = true; a.invoice_numbers = e.numbers }
+    if (e.covered > 0) a.invoice_covered_cents = e.covered
+  }
+  return apts
+}
+
+/** opts.invoices = false: não confere fatura ligada (quem não mexe com valor, ex.: milhagem). */
+async function loadAppointments(ctx, fromIso, toIso, statuses = null, opts = {}) {
+  const invP = opts.invoices === false ? null : invoicedAppointments(ctx)
   if (aptColsAt > 0 && Date.now() - aptColsSince > COLS_RETRY_MS) aptColsAt = 0
   const start = aptColsAt
   for (let i = start; i < APT_COLS.length; i++) {
@@ -210,7 +294,11 @@ async function loadAppointments(ctx, fromIso, toIso, statuses = null) {
     })
     if (!r.error) {
       if (i !== start) { aptColsAt = i; aptColsSince = Date.now() }
-      return r.data.map(shapeApt)
+      const apts = r.data.map(shapeApt)
+      if (!invP) return apts
+      const inv = await invP
+      if (inv.error) throw new Error(inv.error.message || 'Não foi possível ler as faturas')
+      return markInvoiced(apts, inv.map)
     }
     if (!isSchemaError(r.error)) throw new Error(r.error.message)
   }
@@ -249,6 +337,33 @@ async function loadStaff(ctx) {
   return error ? [] : (data || [])
 }
 
+/**
+ * Pagamentos de fatura entre duas datas ('YYYY-MM-DD', inclusive) pelo fuso dela.
+ * → [{ amount_cents, method, day, document_id, doc? }]. Sem o SQL de documentos → [].
+ */
+async function loadInvoicePays(ctx, fromKey, toKey, withDoc = false) {
+  return loadInvoicePayments(ctx.supabase, ctx.pid, fromKey, toKey, ctx.tz, { withDoc, maxRows: MAX_ROWS })
+}
+
+/** Soma os pagamentos de fatura no resumo do mês (receita, dia a dia, forma de pagamento). Pura. */
+function addInvoiceRevenue(s, pays) {
+  let cents = 0
+  for (const p of pays) {
+    const amt = Math.max(0, Number(p.amount_cents) || 0)
+    if (!amt) continue
+    cents += amt
+    const d = Number(String(p.day).slice(8, 10)) - 1
+    if (s.daily?.[d]) s.daily[d].cents += amt
+    const m = p.method || 'other'
+    s.by_method[m] = (s.by_method[m] || 0) + amt
+  }
+  s.invoice_revenue_cents = cents
+  s.invoice_payments = pays.filter((p) => (Number(p.amount_cents) || 0) > 0).length
+  s.revenue_cents += cents
+  return s
+}
+const sumPays = (pays, filter = null) => pays.reduce((t, p) => t + (!filter || filter(p) ? Math.max(0, Number(p.amount_cents) || 0) : 0), 0)
+
 /** Endereco das clientes (colunas da entrega clientes; sem elas, sem endereco). */
 async function loadClientPlaces(ctx, ids) {
   if (!ids.length) return {}
@@ -267,15 +382,23 @@ async function loadClientPlaces(ctx, ids) {
 const monthOf = (a) => String(a.scheduled_for).slice(0, 7)
 const dayKeyOf = (a) => String(a.scheduled_for).slice(0, 10)
 
-/** Dinheiro que entrou por este agendamento (sem gorjeta). */
+/**
+ * Dinheiro que entrou por este agendamento (sem gorjeta).
+ * Com fatura ligada: não presume o valor cheio (conta o marcado como pago, senão o sinal pago) e
+ * desconta o que as faturas dele já receberam (invoice_covered_cents), que entra pela fatura.
+ */
 function incomeOf(a) {
-  if (a.status === 'completed') return Math.max(0, a.paid_cents != null ? Number(a.paid_cents) : (Number(a.total_cents) || 0))
-  if (a.status === 'no_show' || a.status === 'canceled') {
-    if (a.paid_cents != null) return Math.max(0, Number(a.paid_cents) || 0)
+  let got = 0
+  if (a.status === 'completed') {
+    if (a.paid_cents != null) got = Number(a.paid_cents) || 0
+    else if (a.invoiced) got = a.deposit_paid ? Number(a.deposit_cents) || 0 : 0
+    else got = Number(a.total_cents) || 0
+  } else if (a.status === 'no_show' || a.status === 'canceled') {
+    if (a.paid_cents != null) got = Number(a.paid_cents) || 0
     // Falta com sinal pago: o sinal fica com a profissional
-    return a.status === 'no_show' && a.deposit_paid ? Math.max(0, Number(a.deposit_cents) || 0) : 0
+    else got = a.status === 'no_show' && a.deposit_paid ? Number(a.deposit_cents) || 0 : 0
   }
-  return 0
+  return Math.max(0, Math.max(0, got) - Math.max(0, Number(a.invoice_covered_cents) || 0))
 }
 const tipOf = (a) => (['completed', 'no_show', 'canceled'].includes(a.status) ? Math.max(0, Number(a.tip_cents) || 0) : 0)
 const methodOf = (a) => a.paid_method || a.payment_method || 'unknown'
@@ -320,13 +443,18 @@ function summarizeMonth(apts, month, today) {
   const out = {
     revenue_cents: 0, tips_cents: 0, no_show_deposits_cents: 0,
     expected_cents: 0, expected_count: 0, unmarked_count: 0, unmarked_cents: 0,
-    completed: 0, completed_cents: 0, no_shows: 0, cancellations: 0,
+    completed: 0, completed_cents: 0, no_shows: 0, cancellations: 0, invoiced_appointments: 0,
   }
+  let invoicedCompleted = 0
+  let ticketCents = 0
   for (const a of apts) {
     const key = dayKeyOf(a)
     const inc = incomeOf(a)
+    if (a.invoiced) out.invoiced_appointments++
     if (a.status === 'completed') {
       out.completed++
+      if (a.invoiced) invoicedCompleted++
+      else ticketCents += inc
       out.completed_cents += inc
       const name = serviceOf(a)
       const s = bySvc.get(name) || { name, count: 0, cents: 0 }
@@ -337,7 +465,8 @@ function summarizeMonth(apts, month, today) {
       out.no_show_deposits_cents += inc
     } else if (a.status === 'canceled') {
       out.cancellations++
-    } else if (a.status === 'pending' || a.status === 'confirmed') {
+    } else if ((a.status === 'pending' || a.status === 'confirmed') && !a.invoiced) {
+      // Com fatura ligada, o dinheiro vem pela fatura: fica fora de previsto/sem marcar.
       // Passou e ninguém marcou: não é previsto, é "esqueceu de marcar"
       if (key >= today) { out.expected_cents += Number(a.total_cents) || 0; out.expected_count++ }
       else { out.unmarked_count++; out.unmarked_cents += Number(a.total_cents) || 0 }
@@ -351,7 +480,8 @@ function summarizeMonth(apts, month, today) {
       byMethod[m] = (byMethod[m] || 0) + inc
     }
   }
-  out.avg_ticket_cents = out.completed ? Math.round(out.completed_cents / out.completed) : 0
+  const ticketCount = out.completed - invoicedCompleted
+  out.avg_ticket_cents = ticketCount > 0 ? Math.round(ticketCents / ticketCount) : 0
   out.by_method = byMethod
   out.by_service = [...bySvc.values()].sort((a, b) => b.cents - a.cents || b.count - a.count).slice(0, 10)
   out.daily = daily
@@ -367,22 +497,26 @@ async function viewSummary(ctx, q) {
   // Milhagem entra no bloco de lucro/imposto: sem 'finance', fica nula também
   const mileage = finance && hasFeature(ctx.provider, 'mileage')
 
-  const [apts, expenses, trips, yearTrips] = await Promise.all([
+  const [apts, expenses, trips, yearTrips, invPays] = await Promise.all([
     loadAppointments(ctx, monthStartIso(prev), monthStartIso(addMonths(month, 1))),
     finance ? loadExpenses(ctx, `${month}-01`, lastDay(month)) : null,
     mileage ? loadMileage(ctx, `${month}-01`, lastDay(month)) : null,
     mileage ? countMileage(ctx, `${year}-01-01`, `${year}-12-31`) : 0,
+    loadInvoicePays(ctx, `${prev}-01`, lastDay(month)),
   ])
 
   const cur = apts.filter((a) => monthOf(a) === month)
   const before = apts.filter((a) => monthOf(a) === prev)
-  const s = summarizeMonth(cur, month, ctx.today)
+  const invCur = invPays.filter((p) => p.day.slice(0, 7) === month)
+  const invBefore = invPays.filter((p) => p.day.slice(0, 7) === prev)
+  const s = addInvoiceRevenue(summarizeMonth(cur, month, ctx.today), invCur)
 
   // Mês corrente: compara com o mesmo pedaço do mês passado (dia 1 até hoje)
   let previousSamePeriod = null
   if (ctx.today.slice(0, 7) === month) {
     const day = Number(ctx.today.slice(8, 10))
     previousSamePeriod = sumIncome(before, (a) => Number(dayKeyOf(a).slice(8, 10)) <= day)
+      + sumPays(invBefore, (p) => Number(p.day.slice(8, 10)) <= day)
   }
 
   const pct = taxPct(ctx.settings)
@@ -392,7 +526,7 @@ async function viewSummary(ctx, q) {
     today: ctx.today,
     ...s,
     previous_month: prev,
-    previous_revenue_cents: sumIncome(before),
+    previous_revenue_cents: sumIncome(before) + sumPays(invBefore),
     previous_same_period_cents: previousSamePeriod,
     goal_cents: goalCents(ctx.settings),
     finance_locked: !finance,
@@ -489,7 +623,7 @@ async function viewMileage(ctx, q) {
   const rate = mileageRate(ctx.settings)
   const [yearTrips, completed] = await Promise.all([
     loadMileage(ctx, `${year}-01-01`, `${year}-12-31`),
-    loadAppointments(ctx, monthStartIso(month), monthStartIso(addMonths(month, 1)), ['completed']),
+    loadAppointments(ctx, monthStartIso(month), monthStartIso(addMonths(month, 1)), ['completed'], { invoices: false }),
   ])
   const trips = yearTrips.filter((t) => String(t.driven_on).slice(0, 7) === month)
   const miles = Math.round(trips.reduce((t, x) => t + x.miles, 0) * 10) / 10
@@ -527,19 +661,27 @@ async function viewYear(ctx, q) {
   const mileage = hasFeature(ctx.provider, 'mileage')
   const pct = taxPct(ctx.settings)
   const rate = mileageRate(ctx.settings)
-  const [apts, expenses, trips] = await Promise.all([
+  const [apts, expenses, trips, invPays] = await Promise.all([
     loadAppointments(ctx, `${year}-01-01T00:00:00.000Z`, `${year + 1}-01-01T00:00:00.000Z`),
     loadExpenses(ctx, `${year}-01-01`, `${year}-12-31`),
     mileage ? loadMileage(ctx, `${year}-01-01`, `${year}-12-31`) : [],
+    loadInvoicePays(ctx, `${year}-01-01`, `${year}-12-31`),
   ])
 
-  const base = Array.from({ length: 12 }, (_, i) => ({ month: `${year}-${pad(i + 1)}`, revenue_cents: 0, tips_cents: 0, completed: 0, expenses_cents: 0, gas: 0, miles: 0 }))
+  const base = Array.from({ length: 12 }, (_, i) => ({ month: `${year}-${pad(i + 1)}`, revenue_cents: 0, invoice_revenue_cents: 0, tips_cents: 0, completed: 0, expenses_cents: 0, gas: 0, miles: 0 }))
   for (const a of apts) {
     const m = base[Number(String(a.scheduled_for).slice(5, 7)) - 1]
     if (!m) continue
     m.revenue_cents += incomeOf(a)
     m.tips_cents += tipOf(a)
     if (a.status === 'completed') m.completed++
+  }
+  for (const p of invPays) {
+    const m = base[Number(p.day.slice(5, 7)) - 1]
+    const amt = Math.max(0, Number(p.amount_cents) || 0)
+    if (!m || !amt) continue
+    m.revenue_cents += amt
+    m.invoice_revenue_cents += amt
   }
   for (const e of expenses) {
     const m = base[Number(String(e.spent_on).slice(5, 7)) - 1]
@@ -557,8 +699,8 @@ async function viewYear(ctx, q) {
     const miles = Math.round(m.miles * 10) / 10
     const p = profit({ revenue: m.revenue_cents, tips: m.tips_cents, expenses: m.expenses_cents, gas: m.gas, miles, rate, pct, gasExcluded })
     return {
-      month: m.month, revenue_cents: m.revenue_cents, tips_cents: m.tips_cents, completed: m.completed,
-      expenses_cents: m.expenses_cents, miles, ...p,
+      month: m.month, revenue_cents: m.revenue_cents, invoice_revenue_cents: m.invoice_revenue_cents, tips_cents: m.tips_cents,
+      completed: m.completed, expenses_cents: m.expenses_cents, miles, ...p,
     }
   })
 
@@ -566,6 +708,7 @@ async function viewYear(ctx, q) {
   const totalTaxable = Math.max(0, sum('taxable_raw_cents'))
   const totals = {
     revenue_cents: sum('revenue_cents'),
+    invoice_revenue_cents: sum('invoice_revenue_cents'),
     tips_cents: sum('tips_cents'),
     completed: sum('completed'),
     expenses_cents: sum('expenses_cents'),
@@ -614,12 +757,15 @@ function reportPeriod(ctx, q) {
 async function viewReport(ctx, q) {
   gate(ctx.provider, 'reports')
   const period = reportPeriod(ctx, q)
-  const [apts, staff] = await Promise.all([
+  const [apts, staff, invPays] = await Promise.all([
     loadAppointments(ctx, period.fromIso, period.toIso),
     loadStaff(ctx),
+    loadInvoicePays(ctx, period.from, period.to, true),
   ])
 
-  const totals = { appointments: apts.length, completed: 0, no_shows: 0, cancellations: 0, revenue_cents: 0, tips_cents: 0, completed_cents: 0 }
+  const totals = { appointments: apts.length, completed: 0, no_shows: 0, cancellations: 0, revenue_cents: 0, tips_cents: 0, completed_cents: 0, invoice_revenue_cents: 0, invoice_payments: 0, invoiced_appointments: 0 }
+  let invoicedCompleted = 0
+  let ticketCents = 0
   const bySvc = new Map(), byClient = new Map(), byStaff = new Map(), bySource = new Map()
   const byWeekday = Array.from({ length: 7 }, (_, i) => ({ weekday: i, count: 0, cents: 0 }))
   const byHour = Array.from({ length: 24 }, (_, i) => ({ hour: i, count: 0 }))
@@ -634,9 +780,12 @@ async function viewReport(ctx, q) {
     if (a.status === 'no_show') totals.no_shows++
     if (a.status === 'canceled') totals.cancellations++
     if (a.staff_id) anyStaff = true
+    if (a.invoiced) totals.invoiced_appointments++
     if (a.status !== 'completed') continue
 
     totals.completed++
+    if (a.invoiced) invoicedCompleted++
+    else ticketCents += inc
     totals.completed_cents += inc
     const d = new Date(a.scheduled_for)
     byWeekday[d.getUTCDay()].count++
@@ -668,6 +817,25 @@ async function viewReport(ctx, q) {
     bySource.set(src, so)
   }
 
+  // Pagamentos de fatura: entram na receita, no mês e na cliente da fatura
+  for (const p of invPays) {
+    const amt = Math.max(0, Number(p.amount_cents) || 0)
+    if (!amt) continue
+    totals.revenue_cents += amt
+    totals.invoice_revenue_cents += amt
+    totals.invoice_payments++
+    if (byMonth) { const m = byMonth[Number(p.day.slice(5, 7)) - 1]; if (m) m.cents += amt }
+    const d = p.doc || {}
+    const nm = String(d.client_name || '').trim()
+    const ck = d.client_id ? 'id:' + d.client_id : (nm ? 'nm:' + nm.toLowerCase() : null)
+    if (ck) {
+      const c = byClient.get(ck) || { key: ck, client_id: d.client_id || null, name: nm || 'Sem nome', count: 0, cents: 0, tips_cents: 0 }
+      c.cents += amt
+      c.invoice_cents = (c.invoice_cents || 0) + amt
+      byClient.set(ck, c)
+    }
+  }
+
   // Clientes novas x recorrentes: nova = nenhum atendimento realizado antes do período
   const prior = new Set()
   if (byClient.size) {
@@ -693,11 +861,12 @@ async function viewReport(ctx, q) {
     : null
 
   const decided = totals.completed + totals.no_shows
+  const ticketCount = totals.completed - invoicedCompleted
   return {
     period: { kind: period.kind, month: period.month || null, year: period.year || Number(period.from.slice(0, 4)), from: period.from, to: period.to },
     totals: {
       ...totals,
-      avg_ticket_cents: totals.completed ? Math.round(totals.completed_cents / totals.completed) : 0,
+      avg_ticket_cents: ticketCount > 0 ? Math.round(ticketCents / ticketCount) : 0,
       no_show_rate: decided ? Math.round((totals.no_shows / decided) * 1000) / 10 : 0,
       cancel_rate: totals.appointments ? Math.round((totals.cancellations / totals.appointments) * 1000) / 10 : 0,
       unique_clients: byClient.size,
@@ -764,10 +933,12 @@ async function buildExport(ctx, q) {
     const [apts, staff] = await Promise.all([loadAppointments(ctx, fromIso, toIso), loadStaff(ctx)])
     const staffById = Object.fromEntries(staff.map((s) => [s.id, s.name]))
     const header = en
-      ? ['Date', 'Time', 'Client', 'WhatsApp', 'Email', 'Service', 'Status', 'Service price', 'Amount received', 'Tip', 'Payment method', 'Deposit', 'Deposit paid', 'Staff', 'Source', 'ID']
-      : ['Data', 'Hora', 'Cliente', 'WhatsApp', 'E-mail', 'Serviço', 'Status', 'Valor do serviço', 'Valor recebido', 'Gorjeta', 'Forma de pagamento', 'Sinal', 'Sinal pago', 'Profissional', 'Origem', 'ID']
+      ? ['Date', 'Time', 'Client', 'WhatsApp', 'Email', 'Service', 'Status', 'Service price', 'Amount received', 'Tip', 'Payment method', 'Deposit', 'Deposit paid', 'Staff', 'Source', 'Invoice', 'ID']
+      : ['Data', 'Hora', 'Cliente', 'WhatsApp', 'E-mail', 'Serviço', 'Status', 'Valor do serviço', 'Valor recebido', 'Gorjeta', 'Forma de pagamento', 'Sinal', 'Sinal pago', 'Profissional', 'Origem', 'Fatura', 'ID']
     const rows = apts.map((a) => {
       const iso = String(a.scheduled_for)
+      // Com fatura ligada, aqui fica só o que o atendimento recebeu além da fatura; o que a fatura
+      // recebeu sai no CSV de pagamentos de fatura (kind=invoice_payments). A coluna Fatura mostra o número.
       const received = ['completed', 'no_show', 'canceled'].includes(a.status) ? incomeOf(a) : null
       const method = a.paid_method || a.payment_method
       return [
@@ -776,7 +947,8 @@ async function buildExport(ctx, q) {
         received != null ? usd(received) : '', a.tip_cents ? usd(a.tip_cents) : '',
         method ? (METHOD_LABEL[lang][method] || txt(method)) : '',
         a.deposit_cents ? usd(a.deposit_cents) : '', a.deposit_cents ? (a.deposit_paid ? (en ? 'Yes' : 'Sim') : (en ? 'No' : 'Não')) : '',
-        a.staff_id ? txt(staffById[a.staff_id] || '') : '', a.source ? (SOURCE_LABEL[lang][a.source] || a.source) : '', a.id,
+        a.staff_id ? txt(staffById[a.staff_id] || '') : '', a.source ? (SOURCE_LABEL[lang][a.source] || a.source) : '',
+        a.invoiced ? txt((a.invoice_numbers || []).join(' / ')) : '', a.id,
       ]
     })
     return { csv: toCsv(header, rows), name: `agendapro-${en ? 'appointments' : 'agendamentos'}-${r.label}.csv` }
@@ -821,13 +993,24 @@ async function buildExport(ctx, q) {
       if (!isSchemaError(res.error)) throw new Error(res.error.message)
     }
     if (!clients) throw new Error('Não foi possível ler as clientes')
-    // Atendimentos e gasto dentro do período escolhido
-    const apts = await loadAppointments(ctx, fromIso, toIso, ['completed'])
+    // Atendimentos e gasto dentro do período escolhido. Atendimento com fatura ligada soma só o que
+    // recebeu além da fatura: o resto vem dos pagamentos das faturas da cliente no período (igual ao relatório)
+    const [apts, invPays] = await Promise.all([
+      loadAppointments(ctx, fromIso, toIso, ['completed']),
+      loadInvoicePays(ctx, r.from, r.to, true),
+    ])
     const inPeriod = {}
     for (const a of apts) {
       if (!a.client_id) continue
       const c = inPeriod[a.client_id] || (inPeriod[a.client_id] = { count: 0, cents: 0 })
       c.count++; c.cents += incomeOf(a)
+    }
+    for (const p of invPays) {
+      const cid = p.doc?.client_id
+      const amt = Math.max(0, Number(p.amount_cents) || 0)
+      if (!cid || !amt) continue
+      const c = inPeriod[cid] || (inPeriod[cid] = { count: 0, cents: 0 })
+      c.cents += amt
     }
     const header = en
       ? ['Name', 'WhatsApp', 'Email', 'City', 'State', 'Birthday (MM-DD)', 'Language', 'Visits in period', 'Spent in period', 'Total visits', 'Total spent', 'First visit', 'Last visit']
@@ -838,6 +1021,41 @@ async function buildExport(ctx, q) {
       c.first_visit_at ? String(c.first_visit_at).slice(0, 10) : '', c.last_visit_at ? String(c.last_visit_at).slice(0, 10) : '',
     ])
     return { csv: toCsv(header, rows), name: `agendapro-${en ? 'clients' : 'clientes'}-${r.label}.csv` }
+  }
+
+  if (kind === 'invoices') {
+    // Faturas emitidas no período (data de emissão). Sem o SQL de documentos → só o cabeçalho.
+    const res = await fetchAll(() => ctx.supabase.from('ag_documents')
+      .select('id, kind, number, client_name, issue_date, due_date, total_cents, amount_paid_cents, status, sent_at, viewed_at')
+      .eq('provider_id', ctx.pid).eq('kind', 'invoice').gte('issue_date', r.from).lte('issue_date', r.to)
+      .order('issue_date', { ascending: true }).order('number', { ascending: true }).order('id', { ascending: true }))
+    if (res.error && !isSchemaError(res.error)) throw new Error(res.error.message)
+    const header = en
+      ? ['Number', 'Client', 'Issue date', 'Due date', 'Total', 'Paid', 'Balance', 'Status']
+      : ['Número', 'Cliente', 'Emissão', 'Vencimento', 'Total', 'Pago', 'Saldo', 'Status']
+    const rows = (res.data || []).map((d) => {
+      const st = effectiveStatus(d, ctx.today)
+      return [
+        txt(d.number), txt(d.client_name), String(d.issue_date || '').slice(0, 10), d.due_date ? String(d.due_date).slice(0, 10) : '',
+        usd(d.total_cents || 0), usd(d.amount_paid_cents || 0), usd(balanceOf(d)),
+        INVOICE_STATUS_LABEL[lang][st] || st,
+      ]
+    })
+    return { csv: toCsv(header, rows), name: `agendapro-${en ? 'invoices' : 'faturas'}-${r.label}.csv` }
+  }
+
+  if (kind === 'invoice_payments') {
+    // Pagamentos de fatura pela data do pagamento no fuso dela: a mesma conta da receita do resumo
+    const pays = await loadInvoicePays(ctx, r.from, r.to, true)
+    const header = en
+      ? ['Date', 'Invoice', 'Client', 'Payment method', 'Amount', 'Source']
+      : ['Data', 'Fatura', 'Cliente', 'Forma de pagamento', 'Valor', 'Origem']
+    const rows = pays.filter((p) => (Number(p.amount_cents) || 0) > 0).map((p) => [
+      p.day, txt(p.doc?.number || ''), txt(p.doc?.client_name || ''),
+      p.method ? (METHOD_LABEL[lang][p.method] || txt(p.method)) : '',
+      usd(p.amount_cents), PAYMENT_ORIGIN_LABEL[lang][p.origin] || '',
+    ])
+    return { csv: toCsv(header, rows), name: `agendapro-${en ? 'invoice-payments' : 'pagamentos-de-faturas'}-${r.label}.csv` }
   }
 
   fail(400, 'Tipo de exportação inválido')
@@ -1023,6 +1241,7 @@ export default async function handler(req, res) {
       pid: provider.id,
       settings: provider.app_settings || {},
       today: todayIn(provider.timezone),
+      tz: provider.timezone || 'America/New_York',
     }
 
     if (req.method === 'GET') {
@@ -1053,7 +1272,7 @@ export default async function handler(req, res) {
 // Funcoes puras expostas pros testes locais (node -e)
 export const _test = {
   parseMonth, parseDate, addMonths, daysIn, lastDay, addDaysKey, daysBetween, todayIn, incomeOf, tipOf, profit,
-  summarizeMonth, clientKey, csvCell, txt, toCsv, phoneOut, readExpense, readTrip, taxPct, mileageRate,
+  summarizeMonth, addInvoiceRevenue, sumPays, markInvoiced, clientKey, csvCell, txt, toCsv, phoneOut, readExpense, readTrip, taxPct, mileageRate,
   viewSummary, viewExpenses, viewExpense, viewMileage, viewYear, viewReport, buildExport, handlePost, HttpError,
   resetColumns: () => { aptColsAt = 0; aptColsSince = 0 },
 }

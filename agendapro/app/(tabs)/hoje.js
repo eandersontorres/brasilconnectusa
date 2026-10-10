@@ -1,6 +1,8 @@
 // Aba "Hoje": o painel do dia. Saudação, primeiros passos, números, próximo
 // atendimento com WhatsApp em 1 toque, lista de hoje, aniversariantes do dia,
 // prévia de amanhã, pendências (sinal, atendimento sem marcar) e atalhos.
+// Obra/reparo (vertical 'trades') e o app WorkPro: saudação sem o nome do negócio,
+// primeiros passos de orçamento e números das faturas (a receber, recebido no mês).
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { router, useFocusEffect } from 'expo-router'
@@ -8,15 +10,17 @@ import { Ionicons } from '@expo/vector-icons'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useApp } from '../../lib/session'
 import { api, post } from '../../lib/api'
-import { showError } from '../../lib/gate'
+import { ensureFeature, showError } from '../../lib/gate'
 import { confirm } from '../../lib/dialog'
 import { PUBLIC_PAGE } from '../../lib/config'
+import { IS_WORKPRO } from '../../lib/variant'
+import { OPEN_INVOICE } from '../../lib/documents'
 import { firstName, messageLang, msgDate, msgTime, openWhatsApp, renderAny, renderTemplate } from '../../lib/whatsapp'
 import {
   MONTHS, MONTHS_LONG, WEEKDAYS_LONG, addDays, fmtDuration, fmtMoney, fmtRelativeDay, fmtTime, hhmmOf, keyOf, todayKey, toWallIso,
 } from '../../lib/format'
 import { colors, radius, shadow, spacing, statusStyle, type } from '../../lib/theme'
-import { Avatar, Badge, Banner, Button, Card, Divider, Empty, ErrorBox, H2, H3, IconButton, KPI, Loading, Muted, Screen, Section, StatusBadge } from '../../components/ui'
+import { Avatar, Badge, Banner, Button, Card, Divider, Empty, ErrorBox, H2, H3, IconButton, KPI, Loading, Muted, Screen, Section, Small, StatusBadge } from '../../components/ui'
 import PlanBanner from '../../components/PlanBanner'
 
 const CHECK_KEY = 'agendapro.checklist.v1'
@@ -54,6 +58,9 @@ function longToday() {
   return `${WEEKDAYS_LONG[d.getDay()]}, ${d.getDate()} de ${MONTHS_LONG[d.getMonth()]}`
 }
 
+/** Centavos arredondados pro dólar inteiro (número do cartão do topo). */
+const dollars = (c) => Math.round((Number(c) || 0) / 100) * 100
+
 const sameDayCheckin = (a) => !!a.external_uid && !!a.ical_next_checkin && String(a.ical_next_checkin).slice(0, 10) === keyOf(a.scheduled_for)
 
 // ── Tela ────────────────────────────────────────────────────────────────────
@@ -61,6 +68,7 @@ export default function Hoje() {
   const app = useApp()
   const { provider, settings, can } = app
   const cleaning = provider?.vertical === 'cleaning'
+  const trades = provider?.vertical === 'trades' || IS_WORKPRO
   const noun = (n) => (cleaning ? (n === 1 ? 'limpeza' : 'limpezas') : (n === 1 ? 'atendimento' : 'atendimentos'))
 
   const [stats, setStats] = useState(null)
@@ -120,7 +128,41 @@ export default function Hoje() {
 
   useFocusEffect(useCallback(() => { loadBirthdays() }, [loadBirthdays]))
 
-  const refresh = () => { load('refresh'); loadBirthdays(true) }
+  // Vendas (orçamentos e faturas): resumo pro cartão. Sem o recurso ou sem a rota, some.
+  // Obra/reparo com os primeiros passos abertos: lista tudo uma vez pra saber se já tem
+  // documento (passo "Primeiro orçamento"); achou, guarda e volta pra busca leve.
+  const [sales, setSales] = useState(null)
+  const canSales = can('quotes') || can('invoices')
+  const wantDocCount = trades && check.loaded && !check.hidden && !check.quoted
+  const loadSales = useCallback(async () => {
+    if (!canSales) { setSales(null); return }
+    try {
+      const r = await api(wantDocCount ? '/api/agenda/documents?status=all' : '/api/agenda/documents?kind=invoice&status=open')
+      const docs = r.documents || []
+      if (wantDocCount && docs.length) saveCheck({ quoted: true })
+      setSales({ summary: r.summary || {}, open: wantDocCount ? docs.filter((d) => d.kind === 'invoice' && OPEN_INVOICE.includes(d.status)).length : docs.length })
+    } catch (_) {
+      setSales(null)
+    }
+  }, [canSales, wantDocCount])
+
+  useFocusEffect(useCallback(() => { loadSales() }, [loadSales]))
+
+  // Obra/reparo: a tabela de preços tem item? (passo dos primeiros passos; achou, guarda)
+  const wantCatalog = trades && check.loaded && !check.hidden && !check.priced
+  useFocusEffect(useCallback(() => {
+    if (!wantCatalog) return
+    api('/api/agenda/catalog')
+      .then((r) => { if ((r?.items || []).length) saveCheck({ priced: true }) })
+      .catch(() => {})
+  }, [wantCatalog]))
+
+  async function newDoc(kind) {
+    if (!(await ensureFeature(app, kind === 'invoice' ? 'invoices' : 'quotes'))) return
+    router.push({ pathname: '/document/edit', params: { kind } })
+  }
+
+  const refresh = () => { load('refresh'); loadBirthdays(true); loadSales() }
 
   useEffect(() => {
     AsyncStorage.getItem(CHECK_KEY)
@@ -215,7 +257,13 @@ export default function Hoje() {
   const pending = stats?.pending_list || []
 
   const setup = stats?.setup || {}
-  const steps = [
+  const business = settings?.business || {}
+  const steps = trades ? [
+    { key: 'business', icon: 'business-outline', title: 'Dados da empresa', sub: 'Nome, licença e como receber: sai em todo orçamento', done: !!(business.legal_name || business.license_no), href: '/business' },
+    { key: 'price_book', icon: 'pricetags-outline', title: 'Monte sua tabela de preços', sub: 'Serviços e materiais pra orçar em 1 minuto', done: !!check.priced, href: '/price-book' },
+    { key: 'quote', icon: 'document-text-outline', title: 'Faça seu primeiro orçamento', sub: 'A cliente aprova pelo celular, com assinatura', done: !!check.quoted, href: { pathname: '/document/edit', params: { kind: 'quote' } } },
+    { key: 'share', icon: 'share-social-outline', title: 'Divulgue sua página com "Pedir orçamento"', sub: 'Mande o link ou poste no Instagram e receba pedidos', done: !!check.shared, href: '/share' },
+  ] : [
     { key: 'services', icon: 'pricetags-outline', title: 'Cadastre seus serviços', sub: 'Nome, duração e preço', done: setup.services == null || setup.services > 0, href: '/services' },
     { key: 'hours', icon: 'time-outline', title: 'Defina seu horário de atendimento', sub: 'Os dias e horas em que você atende', done: setup.hours == null || setup.hours > 0, href: '/hours' },
     { key: 'share', icon: 'share-social-outline', title: 'Compartilhe seu link', sub: 'Mande pras clientes ou poste no Instagram', done: !!check.shared || setup.has_online_booking === true, href: '/share' },
@@ -230,7 +278,15 @@ export default function Hoje() {
   return (
     <Screen onRefresh={refresh} refreshing={refreshing}>
       <View style={{ marginBottom: spacing.lg }}>
-        <H2>{greeting()}{provider?.name ? `, ${firstName(provider.name)}` : ''}!</H2>
+        {trades ? (
+          <>
+            {/* Nome de empresa ("Silva Remodeling") não é nome de pessoa: saudação sem nome */}
+            <H2>{greeting()}!</H2>
+            {business.legal_name || provider?.name ? (
+              <Small style={{ marginTop: 2, fontWeight: '600', color: colors.inkSoft }} numberOfLines={1}>{business.legal_name || provider.name}</Small>
+            ) : null}
+          </>
+        ) : <H2>{greeting()}{provider?.name ? `, ${firstName(provider.name)}` : ''}!</H2>}
         <Muted style={{ marginTop: 2 }}>{longToday()}</Muted>
       </View>
 
@@ -243,7 +299,7 @@ export default function Hoje() {
           <View style={{ flexDirection: 'row', alignItems: 'center', padding: spacing.lg, paddingBottom: spacing.sm }}>
             <View style={{ flex: 1 }}>
               <H3>Primeiros passos</H3>
-              <Muted>{stepsDone} de {steps.length} prontos · sua agenda online começa aqui</Muted>
+              <Muted>{stepsDone} de {steps.length} prontos · {trades ? 'seu primeiro orçamento começa aqui' : 'sua agenda online começa aqui'}</Muted>
             </View>
             <Pressable onPress={() => saveCheck({ hidden: true })} hitSlop={10} accessibilityLabel="Ocultar primeiros passos">
               <Ionicons name="close" size={20} color={colors.inkMuted} />
@@ -255,7 +311,11 @@ export default function Hoje() {
           <View style={{ paddingVertical: spacing.sm }}>
             {steps.map((s) => (
               <Pressable key={s.key}
-                onPress={() => { if (s.key === 'share') saveCheck({ shared: true }); router.push(s.href) }}
+                onPress={() => {
+                  if (s.key === 'quote') { newDoc('quote'); return }
+                  if (s.key === 'share') saveCheck({ shared: true })
+                  router.push(s.href)
+                }}
                 style={({ pressed }) => [{ flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg }, pressed && { backgroundColor: colors.paperSoft }]}>
                 <Ionicons name={s.done ? 'checkmark-circle' : 'ellipse-outline'} size={24} color={s.done ? colors.flag : colors.inkMuted} />
                 <View style={{ flex: 1 }}>
@@ -269,13 +329,29 @@ export default function Hoje() {
         </Card>
       ) : null}
 
-      {/* Números */}
-      <View style={{ flexDirection: 'row', gap: spacing.sm }}>
-        <KPI label="Hoje" value={String(stats?.today_count ?? 0)} sub={noun(stats?.today_count ?? 0)} />
-        <KPI label="Previsto" value={fmtMoney(stats?.today_expected_cents || 0)} sub="hoje" tone="green" />
-        <KPI label="No mês" value={fmtMoney(stats?.month_completed_cents || 0)} sub="faturado" tone="gold"
-          onPress={() => router.push('/financas')} />
-      </View>
+      {/* Números. Obra/reparo: o dinheiro vem das faturas (o faturado de atendimentos fica em $0).
+          Em dólar redondo pra caber no cartão; o valor exato está em Vendas. */}
+      {trades ? (
+        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+          <KPI label="Hoje" value={String(stats?.today_count ?? 0)} sub={noun(stats?.today_count ?? 0)} />
+          <KPI label="A receber" value={fmtMoney(dollars(sales?.summary?.awaiting_cents))} sub="em faturas" tone="green"
+            onPress={() => router.navigate({ pathname: '/vendas', params: { tab: 'invoices', status: 'open' } })} />
+          <KPI label="Recebido" value={fmtMoney(dollars(sales?.summary?.paid_month_cents))} sub="no mês" tone="gold"
+            onPress={() => router.navigate({ pathname: '/vendas', params: { tab: 'invoices', status: 'paid' } })} />
+        </View>
+      ) : (
+        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+          <KPI label="Hoje" value={String(stats?.today_count ?? 0)} sub={noun(stats?.today_count ?? 0)} />
+          <KPI label="Previsto" value={fmtMoney(stats?.today_expected_cents || 0)} sub="hoje" tone="green" />
+          <KPI label="No mês" value={fmtMoney(stats?.month_completed_cents || 0)} sub="faturado" tone="gold"
+            onPress={() => router.push('/financas')} />
+        </View>
+      )}
+
+      {/* Vendas: a receber, vencidas e orçamentos aguardando (WorkPro, ou quem já usa) */}
+      {sales && canSales && (IS_WORKPRO || sales.open > 0 || Number(sales.summary.open_quotes_count) > 0 || Number(sales.summary.paid_month_cents) > 0) ? (
+        <SalesCard sum={sales.summary} onNew={newDoc} />
+      ) : null}
 
       {/* Turnover apertado (faxina) */}
       {cleaning && tight.length ? (
@@ -522,6 +598,38 @@ function AptRow({ a, onPress, compact }) {
         {sameDayCheckin(a) ? <Badge text="Check-in no mesmo dia" tone="red" icon="alert-circle" style={{ marginTop: 4 }} /> : null}
       </View>
       <StatusBadge status={a.status} />
+    </Pressable>
+  )
+}
+
+function SalesCard({ sum, onNew }) {
+  const overdue = Number(sum.overdue_count) || 0
+  const quotes = Number(sum.open_quotes_count) || 0
+  const go = (tab, status) => router.navigate({ pathname: '/vendas', params: { tab, status } })
+  return (
+    <Section title="Vendas" right={<Pressable onPress={() => router.navigate('/vendas')} hitSlop={8}><Text style={s.link}>Ver tudo</Text></Pressable>}>
+      <Card>
+        <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+          <SalesStat label="A receber" value={fmtMoney(sum.awaiting_cents || 0)} onPress={() => go('invoices', 'open')} />
+          <SalesStat label="Vencidas" value={fmtMoney(sum.overdue_cents || 0)} sub={overdue ? `${overdue} fatura${overdue === 1 ? '' : 's'}` : 'nenhuma'}
+            danger={overdue > 0} onPress={() => go('invoices', 'overdue')} />
+          <SalesStat label="Orçamentos" value={String(quotes)} sub="aguardando" onPress={() => go('quotes', 'open')} />
+        </View>
+        <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }}>
+          <Button small title="Novo orçamento" icon="document-text-outline" variant="secondary" style={{ flex: 1 }} onPress={() => onNew('quote')} />
+          <Button small title="Nova fatura" icon="receipt-outline" variant="secondary" style={{ flex: 1 }} onPress={() => onNew('invoice')} />
+        </View>
+      </Card>
+    </Section>
+  )
+}
+
+function SalesStat({ label, value, sub, danger, onPress }) {
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [{ flex: 1 }, pressed && { opacity: 0.7 }]} accessibilityRole="button" accessibilityLabel={`${label}: ${value}`}>
+      <Text style={type.label} numberOfLines={1}>{label}</Text>
+      <Text style={[type.h3, { fontWeight: '700', marginTop: 4 }, danger && { color: colors.danger }]} numberOfLines={1}>{value}</Text>
+      {sub ? <Muted numberOfLines={1}>{sub}</Muted> : null}
     </Pressable>
   )
 }

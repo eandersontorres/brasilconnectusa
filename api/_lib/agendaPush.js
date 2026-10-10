@@ -15,8 +15,14 @@
  *       cancellation → notify_cancellation (padrao ligado)
  *       review → notify_review (padrao ligado)
  *       daily_summary → notify_daily_summary (padrao DESLIGADO)
+ *       documents → notify_documents (padrao ligado): orcamento aberto/aprovado/recusado,
+ *                   fatura paga e pedido de orcamento novo (WorkPro)
  *     Outros tipos (ex.: 'billing', aviso de cobranca) nao tem chave e sempre vao.
  * Envia pela API da Expo em lotes de 100; token com DeviceNotRegistered e desativado.
+ * AgendaPro e WorkPro sao projetos Expo diferentes e a Expo recusa a requisicao inteira quando
+ * mistura tokens dos dois (PUSH_TOO_MANY_EXPERIENCE_IDS). Por isso agrupa pela coluna `app` de
+ * ag_push_tokens (quando existe) e, se ainda vier misturado (token antigo sem app), reenvia
+ * separado pelos grupos que a Expo devolve em errors[0].details.
  * EXPO_ACCESS_TOKEN (opcional): exigido se a "push security" estiver ligada no projeto Expo.
  */
 import { hasFeature } from './agendaPlans.js'
@@ -31,6 +37,7 @@ export const KIND_SETTINGS = {
   cancellation:  { key: 'notify_cancellation',  def: true },
   review:        { key: 'notify_review',        def: true },
   daily_summary: { key: 'notify_daily_summary', def: false },
+  documents:     { key: 'notify_documents',     def: true },
 }
 
 const PLAN_COLS = 'id, active, plan, plan_status, trial_ends_at, current_period_end, stripe_subscription_id, created_at'
@@ -93,6 +100,11 @@ async function postToExpo(messages) {
   try {
     const r = await fetch(EXPO_PUSH_URL, { method: 'POST', headers, body: JSON.stringify(messages), signal: ctrl.signal })
     const json = await r.json().catch(() => null)
+    // Tokens de projetos diferentes no mesmo envio: devolve os grupos pra reenviar separado
+    const err = Array.isArray(json?.errors) ? json.errors.find((e) => e?.code === 'PUSH_TOO_MANY_EXPERIENCE_IDS') : null
+    if (err && err.details && typeof err.details === 'object') {
+      return { mixed: Object.values(err.details).filter(Array.isArray) }
+    }
     if (!r.ok) {
       console.error('[agendaPush] expo respondeu', r.status, JSON.stringify(json?.errors || json || {}).slice(0, 300))
       return null
@@ -101,6 +113,46 @@ async function postToExpo(messages) {
   } finally {
     clearTimeout(timer)
   }
+}
+
+/**
+ * Manda um lote e devolve [{ to, ticket }] na ordem das mensagens. Lote com tokens de projetos
+ * diferentes (AgendaPro + WorkPro) e reenviado uma vez, um envio por projeto.
+ */
+export async function deliver(batch, post = postToExpo, split = true) {
+  let res = null
+  try { res = await post(batch) } catch (e) { console.error('[agendaPush] envio:', e.message) }
+  if (res?.mixed && split) {
+    const done = new Set()
+    const out = []
+    const groups = res.mixed.map((tokens) => new Set(tokens))
+    // O que a Expo nao listou em nenhum grupo vai num envio a parte
+    groups.push(null)
+    for (const g of groups) {
+      const part = batch.filter((m) => !done.has(m.to) && (g ? g.has(m.to) : true))
+      if (!part.length) continue
+      part.forEach((m) => done.add(m.to))
+      out.push(...await deliver(part, post, false))
+    }
+    return out
+  }
+  const tickets = Array.isArray(res?.data) ? res.data : []
+  return batch.map((m, j) => ({ to: m.to, ticket: tickets[j] || null }))
+}
+
+const isSchemaError = (e) => ['42703', 'PGRST204'].includes(e?.code) || /column .* does not exist|could not find/i.test(e?.message || '')
+
+/** Tokens ativos (com o app de cada um, se a coluna existir). */
+async function loadTokens(supabase, providerId) {
+  const run = (cols) => supabase.from('ag_push_tokens')
+    .select(cols)
+    .eq('provider_id', providerId)
+    .is('disabled_at', null)
+    .order('last_seen_at', { ascending: false })
+    .limit(MAX_TOKENS)
+  let r = await run('token, app')
+  if (r.error && isSchemaError(r.error)) r = await run('token')
+  return r
 }
 
 /**
@@ -117,12 +169,7 @@ export async function sendPushToProvider(supabase, providerId, { title, body, da
     const blocked = pushBlockedReason(prov, kind)
     if (blocked) return { sent: 0, skipped: blocked }
 
-    const { data: rows, error } = await supabase.from('ag_push_tokens')
-      .select('token')
-      .eq('provider_id', providerId)
-      .is('disabled_at', null)
-      .order('last_seen_at', { ascending: false })
-      .limit(MAX_TOKENS)
+    const { data: rows, error } = await loadTokens(supabase, providerId)
     if (error) {
       console.error('[agendaPush] tokens:', error.message)
       return { sent: 0, skipped: 'db_error' }
@@ -130,27 +177,34 @@ export async function sendPushToProvider(supabase, providerId, { title, body, da
     if (!rows?.length) return { sent: 0, skipped: 'no_tokens' }
 
     const payload = { ...(data && typeof data === 'object' ? data : {}), kind: kind || 'general' }
-    const messages = rows.map((r) => ({
-      to: r.token,
-      title: clip(title, 100),
-      body: clip(body, 240),
-      data: payload,
-      sound: 'default',
-      priority: 'high',
-      channelId: 'default',
-    }))
+    // Um grupo por app (projeto Expo); token antigo sem app fica no grupo '' (deliver separa se misturar)
+    const groups = new Map()
+    for (const r of rows) {
+      const key = r.app || ''
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key).push({
+        to: r.token,
+        title: clip(title, 100),
+        body: clip(body, 240),
+        data: payload,
+        sound: 'default',
+        priority: 'high',
+        channelId: 'default',
+      })
+    }
 
     let sent = 0
+    let total = 0
     const dead = []
-    for (let i = 0; i < messages.length; i += BATCH) {
-      const batch = messages.slice(i, i + BATCH)
-      let res = null
-      try { res = await postToExpo(batch) } catch (e) { console.error('[agendaPush] envio:', e.message) }
-      const tickets = Array.isArray(res?.data) ? res.data : []
-      tickets.forEach((t, j) => {
-        if (t?.status === 'ok') sent++
-        else if (t?.details?.error === 'DeviceNotRegistered' && batch[j]) dead.push(batch[j].to)
-      })
+    for (const messages of groups.values()) {
+      total += messages.length
+      for (let i = 0; i < messages.length; i += BATCH) {
+        const results = await deliver(messages.slice(i, i + BATCH))
+        for (const { to, ticket } of results) {
+          if (ticket?.status === 'ok') sent++
+          else if (ticket?.details?.error === 'DeviceNotRegistered') dead.push(to)
+        }
+      }
     }
 
     if (dead.length) {
@@ -160,7 +214,7 @@ export async function sendPushToProvider(supabase, providerId, { title, body, da
       if (dErr) console.error('[agendaPush] desativar tokens:', dErr.message)
     }
 
-    return { sent, total: messages.length, disabled: dead.length }
+    return { sent, total, disabled: dead.length }
   } catch (e) {
     console.error('[agendaPush] erro:', e.message)
     return { sent: 0, error: e.message }

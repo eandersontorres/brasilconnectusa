@@ -144,6 +144,24 @@ Exemplo: "pacotes de sessões" no plano Pro.
 
 ## Fluxo de assinatura (pelo site)
 
+O app **não tem compra dentro do app**. O que a tela "Meu plano" mostra depende
+do modo de compra, escolhido **por plataforma** no build: `PURCHASE_MODE` em
+`agendapro/lib/config.js`, lido de `EXPO_PUBLIC_PURCHASE_MODE_IOS` e
+`EXPO_PUBLIC_PURCHASE_MODE_ANDROID` (`app.config.js` → `extra.purchaseModeIos` /
+`extra.purchaseModeAndroid`). Valor ausente ou inválido vira `companion`; no
+preview web é sempre `link`. As telas usam `EXTERNAL_PURCHASE`
+(= `PURCHASE_MODE === 'link'`).
+
+- **`companion`** (padrão nas lojas: é o que o `base` do `eas.json` usa nos dois
+  apps) — app companheiro: sem preço, sem botão de compra e sem "assine no
+  site". "Meu plano" mostra o plano ativo e o que cada plano inclui, com o botão
+  "Atualizar meu plano"; o cadeado (`components/Locked.js`) e o aviso do plano
+  (`components/PlanBanner.js`) não convidam a comprar. A assinatura é feita na
+  conta BrasilConnect, pelo site (`/agenda/planos`), sem o app mandar ela pra lá.
+- **`link`** — "Meu plano" mostra os preços e segue o fluxo abaixo.
+
+Fluxo no modo `link` (o mesmo do site):
+
 1. A profissional toca em "Meu plano" (Mais) ou num cadeado → tela `/plans`.
 2. "Assinar" chama `POST /api/stripe/subscribe` e abre a URL do checkout do Stripe
    no navegador (`expo-web-browser`).
@@ -153,6 +171,10 @@ Exemplo: "pacotes de sessões" no plano Pro.
    `/api/agenda/me`: cadeados somem sozinhos.
 5. Trocar cartão, mudar de plano ou cancelar: `POST /api/stripe/portal` (portal
    de cobrança do Stripe).
+
+Nos dois modos os passos 3 e 4 valem: assinou ou mudou o plano no site, o
+webhook atualiza `ag_providers` e o app recarrega o plano quando volta a ficar
+ativo (ou no "puxar pra atualizar" / "Atualizar meu plano").
 
 Configuração no painel do Stripe (passo a passo no README do app, seção
 "Assinatura"):
@@ -165,11 +187,24 @@ Configuração no painel do Stripe (passo a passo no README do app, seção
   (`STRIPE_PRICE_STARTER/PRO/PREMIUM`) e cancelar. O webhook descobre o plano
   pelo id do preço: preço fora dos três vira Starter.
 
-Não há compra dentro do app. Isso é permitido no storefront dos EUA (Apple) e,
-pela regra atual, no Google Play dos EUA — por isso o app sai só nos EUA. A
-variável de build `EXPO_PUBLIC_EXTERNAL_PURCHASE=0` tira o botão e o link (fica
-só um texto), caso a revisão exija; para outros países o texto ainda precisa
-ficar neutro (regra anti-steering da Apple). Detalhes e plano B:
+**Por que `companion` é o padrão** (análise completa em
+[`docs/agendapro-ideias.md`](agendapro-ideias.md#4-riscos-e-regras-de-loja), seção 4):
+- **Apple:** a diretriz 3.1.3(f) dispensa a compra pela Apple num app grátis que é
+  companheiro de uma ferramenta paga, "desde que não haja compra dentro do app
+  nem chamadas para compra fora dele" — risco baixo de rejeição e sem comissão.
+  Botão e link para comprar fora são permitidos no storefront dos EUA (3.1.1(a),
+  desde maio de 2025), mas a App Review ainda trata o link como complemento da
+  compra pela Apple em apps que não são "leitores", e a briga judicial sobre a
+  comissão continua. Usuária com Apple ID da loja do Brasil não tem a exceção dos
+  EUA. Só ligue `link` no iOS com confirmação por escrito da revisão.
+- **Google Play:** o link externo nos EUA exige o programa *External content
+  links*, com relatório e taxa desde 01/10/2026. Em `companion` não há link nem
+  transação pra reportar.
+- O modo vale para o build inteiro (não muda por país em tempo de execução), e o
+  app sai só nos EUA. Para trocar numa plataforma, mude a variável no perfil do
+  `eas.json` (ex.: `EXPO_PUBLIC_PURCHASE_MODE_ANDROID=link`).
+
+Detalhes da revisão e plano B (assinatura pela Apple):
 [`agendapro/store/review-notes.md`](../agendapro/store/review-notes.md#assinatura-vendida-pelo-site).
 
 ---

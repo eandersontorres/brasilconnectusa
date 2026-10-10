@@ -7,11 +7,12 @@
  * POST /api/agenda/me   com JWT
  *      Body: { action: 'settings', settings: {...} }
  *        mescla preferencias do app em ag_providers.app_settings (chaves conhecidas)
- *      Body: { action: 'vertical', vertical: 'services'|'cleaning', timezone? }
+ *      Body: { action: 'vertical', vertical: 'services'|'cleaning'|'trades', timezone? }
  *      Body: { action: 'delete_account', confirm: 'EXCLUIR', also_login?: boolean }
  *        exclusao de conta dentro do app (exigencia da App Store / Google Play):
  *        cancela a assinatura no Stripe, apaga todos os dados ag_* da profissional
- *        e o perfil, e os arquivos dela no Storage ('uploads': providers, receipts);
+ *        e o perfil, e os arquivos dela no Storage ('uploads': providers, receipts e as
+ *        fotos dos pedidos de orcamento em requests/<provider_id>);
  *        com also_login, apaga tambem o login BrasilConnect (bc_profiles + auth) e os
  *        arquivos do site — menos quando o login e dono de negocio no diretorio
  *        (bc_businesses): ai o login fica e volta login_kept: 'business'.
@@ -26,12 +27,20 @@ import { entitlementsFor } from '../_lib/agendaPlans.js'
 
 // Ordem de exclusao: filhas antes das maes (varias FKs antigas nao tem ON DELETE CASCADE:
 // ag_payments, ag_subscriptions, ag_reviews → ag_appointments, ag_appointments → ag_services/ag_clients).
+// Orcamentos/faturas (ag_app_documents.sql): pagamentos (ag_payments.document_id) saem antes;
+// eventos e itens antes do documento; documentos antes de agendamentos/clientes/tabela de precos.
 // Tabela que ainda nao existe no banco e ignorada.
 export const DELETE_ORDER = [
   'ag_push_tokens',
   'ag_review_tokens',
   'ag_reviews',
   'ag_payments',
+  'ag_document_events',
+  'ag_document_items',
+  'ag_documents',
+  'ag_catalog_items',
+  'ag_quote_requests',
+  'ag_doc_counters',
   'ag_subscriptions',
   'ag_waitlist',
   'ag_expenses',
@@ -51,14 +60,24 @@ export const DELETE_ORDER = [
 // site BrasilConnect (negocio, cardapio, comunidades...) so quando o login tambem sai.
 export const AGENDA_UPLOAD_FOLDERS = ['providers', 'receipts']
 export const SITE_UPLOAD_FOLDERS = ['businesses', 'menu', 'communities', 'posts', 'misc']
+// Fotos dos pedidos de orcamento (pagina publica): uploads/requests/<provider_id>/ — pelo
+// id do perfil, nao do login (quem envia e a cliente, sem login)
+export const QUOTE_REQUEST_FOLDER = 'requests'
 
-/** Apaga os arquivos do usuario nas pastas indicadas. Best effort: erro vira aviso. */
-async function wipeUploads(supabase, userId, folders, warnings) {
+/**
+ * Apaga os arquivos do usuario nas pastas indicadas (<pasta>/<user_id>) e nos prefixos
+ * extras ja montados (ex.: 'requests/<provider_id>'). Best effort: erro vira aviso.
+ */
+async function wipeUploads(supabase, userId, folders, warnings, extraPrefixes = []) {
   let removed = 0
-  if (!userId || !folders.length || !supabase.storage) return removed
+  const prefixes = [
+    ...(userId ? folders.map((f) => `${f}/${userId}`) : []),
+    ...extraPrefixes.filter(Boolean),
+  ]
+  if (!prefixes.length || !supabase.storage) return removed
   const bucket = supabase.storage.from('uploads')
-  for (const folder of folders) {
-    const prefix = `${folder}/${userId}`
+  for (const prefix of prefixes) {
+    const folder = prefix.split('/')[0]
     try {
       // Lista tudo antes (paginado) e depois remove em lotes de 100
       const paths = []
@@ -203,7 +222,8 @@ export async function deleteAccount({ supabase, user, provider, alsoLogin }) {
       ...(provider || alsoLogin ? AGENDA_UPLOAD_FOLDERS : []),
       ...(wipeLogin ? SITE_UPLOAD_FOLDERS : []),
     ]
-    filesDeleted = await wipeUploads(supabase, user?.id, folders, warnings)
+    filesDeleted = await wipeUploads(supabase, user?.id, folders, warnings,
+      provider?.id ? [`${QUOTE_REQUEST_FOLDER}/${provider.id}`] : [])
   } catch (e) {
     warnings.push(`storage: ${e.message}`)
   }
@@ -261,6 +281,43 @@ const SETTINGS = {
   notify_cancellation: v => v !== false,
   notify_review:       v => v !== false,
   notify_daily_summary: v => !!v,
+  notify_documents:    v => v !== false,               // orçamento visto/aprovado, fatura paga (WorkPro)
+  quote_requests_public: v => !!v,                     // formulário "Pedir orçamento" na página pública (quoteFormEnabled)
+  business:            v => cleanBusiness(v),           // dados da empresa nos orçamentos e faturas
+  doc_defaults:        v => cleanDocDefaults(v),        // padrões de orçamento e fatura
+}
+
+const str = (v, n) => (typeof v === 'string' ? v.trim().slice(0, n) : '')
+
+// Cabeçalho dos documentos: nome legal, licença (alguns estados exigem no orçamento), contato
+function cleanBusiness(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return {}
+  return {
+    legal_name: str(v.legal_name, 120),
+    license_no: str(v.license_no, 60),
+    address_line: str(v.address_line, 160),
+    city: str(v.city, 80),
+    state: str(v.state, 2).toUpperCase(),
+    zip: str(v.zip, 10),
+    phone: str(v.phone, 30),
+    email: str(v.email, 120),
+    website: /^https?:\/\//i.test(str(v.website, 200)) ? str(v.website, 200) : '',
+    insurance: str(v.insurance, 160),          // 'Seguro de responsabilidade: ...'
+  }
+}
+
+function cleanDocDefaults(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return {}
+  return {
+    tax_rate_bps: clampInt(v.tax_rate_bps, 0, 2500),        // 6,25% = 625
+    due_days: clampInt(v.due_days, 0, 120),
+    quote_valid_days: clampInt(v.quote_valid_days, 1, 180),
+    deposit_pct: clampInt(v.deposit_pct, 0, 100),
+    language: ['pt', 'en', 'es'].includes(v.language) ? v.language : 'en',
+    terms: str(v.terms, 3000),
+    notes: str(v.notes, 1000),
+    payment_instructions: str(v.payment_instructions, 1000),
+  }
 }
 
 function clampInt(v, min, max) {
@@ -357,7 +414,7 @@ export default async function handler(req, res) {
 
     if (b.action === 'vertical') {
       const patch = { updated_at: new Date().toISOString() }
-      if (['services', 'cleaning'].includes(b.vertical)) patch.vertical = b.vertical
+      if (['services', 'cleaning', 'trades'].includes(b.vertical)) patch.vertical = b.vertical
       if (typeof b.timezone === 'string' && TIMEZONES.test(b.timezone)) patch.timezone = b.timezone
       const { data, error } = await supabase.from('ag_providers')
         .update(patch).eq('id', provider.id).select(PROVIDER_COLS).single()

@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <!-- Documento privado (link com token): fora de buscadores e sem vazar o link pra outros sites -->
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#1B2845">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Document</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* Mesmos tokens de /css/premium.css; --brand vem da cor da profissional */
+    :root {
+      --paper: #FAF7F0; --paper-soft: #F1ECDF; --paper-elevated: #FFFFFF;
+      --ink: #1A1F1C; --ink-soft: #4B4F4D; --ink-muted: #8B8E89;
+      --accent: #B8943B; --accent-deep: #8C6D3D; --gold-soft: #F5EFE0;
+      --green-deep: #1F4D3F; --green-soft: #E8F0E9;
+      --red: #9F2D2D; --red-soft: #F8E9E7;
+      --line: rgba(26, 31, 28, 0.08); --line-strong: rgba(26, 31, 28, 0.15);
+      --brand: #1B2845; --on-brand: #FFFFFF; --brand-text: #1B2845;
+      --r-sm: 6px; --r-md: 10px; --r-lg: 16px;
+      --shadow-md: 0 4px 16px rgba(15, 31, 50, 0.08);
+      --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0; font-family: var(--font); font-size: 15px; line-height: 1.55; color: var(--ink);
+      background: var(--paper); -webkit-font-smoothing: antialiased;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    a { color: var(--brand-text); }
+    button { font-family: inherit; }
+    .wrap { max-width: 840px; margin: 0 auto; padding: 0 16px; }
+
+    /* Faixa da marca */
+    .band { background: var(--brand); color: var(--on-brand); padding: 18px 0 64px; }
+    .band .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .band .who { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .band .who b { font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .band .who small { opacity: 0.8; font-size: 12.5px; display: block; }
+    .band-btn {
+      flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px;
+      border: 1px solid currentColor; background: transparent; color: var(--on-brand); font-size: 13px; font-weight: 600; cursor: pointer;
+      opacity: 0.92;
+    }
+    .band-btn:hover { opacity: 1; }
+    .mono {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      background: rgba(255, 255, 255, 0.18); color: var(--on-brand); font-weight: 700; font-size: 16px;
+      background-size: cover; background-position: center; border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+    .mono.photo { color: transparent; }
+
+    /* Folha do documento */
+    .sheet {
+      background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg);
+      box-shadow: var(--shadow-md); margin-top: -44px; padding: 28px 28px 24px; position: relative;
+    }
+    .sheet-head { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+    .from { display: flex; gap: 14px; min-width: 0; flex: 1 1 300px; }
+    .logo {
+      width: 56px; height: 56px; border-radius: 12px; flex-shrink: 0; background: var(--brand); color: var(--on-brand);
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 20px;
+      background-size: cover; background-position: center;
+    }
+    .logo.photo { color: transparent; }
+    .from h1 { font-size: 19px; font-weight: 650; margin: 0 0 2px; line-height: 1.25; letter-spacing: -0.01em; }
+    .from .lines { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+    .from .lines a { color: var(--ink-soft); text-decoration: none; }
+    .doc-id { text-align: right; flex: 0 0 auto; }
+    .doc-id .kind { text-transform: uppercase; letter-spacing: 0.16em; font-size: 12px; font-weight: 700; color: var(--brand-text); }
+    .doc-id .num { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15; margin-top: 2px; }
+    .doc-id .stage { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+    .pill {
+      display: inline-block; margin-top: 8px; padding: 4px 11px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      background: var(--gold-soft); color: var(--accent-deep);
+    }
+    .pill.ok { background: var(--green-soft); color: var(--green-deep); }
+    .pill.bad { background: var(--red-soft); color: var(--red); }
+    .pill.mute { background: var(--paper-soft); color: var(--ink-soft); }
+
+    .meta { display: grid; grid-template-columns: 1fr auto; gap: 18px 28px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .label { text-transform: uppercase; letter-spacing: 0.12em; font-size: 10.5px; font-weight: 700; color: var(--ink-muted); margin-bottom: 4px; }
+    .to b { font-size: 15.5px; font-weight: 600; }
+    .to div { font-size: 13.5px; color: var(--ink-soft); white-space: pre-line; }
+    .dates { display: grid; grid-template-columns: auto auto; gap: 4px 14px; font-size: 13.5px; align-content: start; }
+    .dates span:nth-child(odd) { color: var(--ink-muted); }
+    .dates span:nth-child(even) { font-weight: 600; text-align: right; }
+    .job { margin-top: 16px; font-size: 13.5px; color: var(--ink-soft); }
+    .title { font-size: 20px; font-weight: 650; margin: 26px 0 10px; letter-spacing: -0.01em; }
+
+    /* Itens */
+    table.items { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    .items th { text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-muted); font-weight: 700; padding: 8px 6px; border-bottom: 1px solid var(--line-strong); }
+    .items td { padding: 12px 6px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 14px; }
+    .items .r { text-align: right; white-space: nowrap; }
+    .items .desc { white-space: pre-line; }
+    .items .unitp { color: var(--ink-soft); }
+    .items .qline { display: none; }
+    .items .kindtag { font-size: 11px; color: var(--ink-muted); }
+
+    .totals { margin-left: auto; width: 100%; max-width: 340px; margin-top: 16px; font-size: 14px; }
+    .totals .row { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; }
+    .totals .row span:first-child { color: var(--ink-soft); }
+    .totals .row.big { border-top: 1px solid var(--line-strong); margin-top: 6px; padding-top: 10px; font-size: 18px; font-weight: 700; }
+    .totals .row.big span:first-child { color: var(--ink); }
+    .totals .row.due { background: var(--gold-soft); border-radius: var(--r-md); padding: 10px 12px; margin-top: 8px; font-weight: 700; font-size: 16px; }
+    .totals .row.due span:first-child { color: var(--ink); }
+    .totals .row.due.ok { background: var(--green-soft); color: var(--green-deep); }
+    .totals .row.dep { font-size: 13.5px; }
+
+    .block { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .block p { margin: 0; white-space: pre-line; font-size: 14px; color: var(--ink-soft); }
+    .photos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .photos button { padding: 0; border: 0; border-radius: var(--r-md); overflow: hidden; aspect-ratio: 1 / 1; cursor: zoom-in; background: var(--paper-soft); }
+    .photos img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .signed { display: flex; gap: 12px; align-items: flex-start; background: var(--green-soft); color: var(--green-deep); border-radius: var(--r-md); padding: 14px 16px; font-size: 14px; }
+    .signed .ico { font-size: 18px; line-height: 1.2; }
+    .signed .sigline { font-size: 12.5px; opacity: 0.85; margin-top: 2px; }
+
+    /* Avisos e ações */
+    .banner { border-radius: var(--r-md); padding: 14px 16px; margin: 16px 0 0; font-size: 14.5px; }
+    /* Aviso no topo (logo abaixo da faixa, antes da folha): no celular fica na tela */
+    .banner.top { margin: -44px 0 16px; position: relative; z-index: 1; box-shadow: var(--shadow-md); }
+    .banner.top + .sheet { margin-top: 0; }
+    .banner b { display: block; font-size: 15px; margin-bottom: 2px; }
+    .banner.ok { background: var(--green-soft); color: var(--green-deep); }
+    .banner.warn { background: var(--gold-soft); color: var(--ink-soft); }
+    .banner.bad { background: var(--red-soft); color: var(--red); }
+    .card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 22px; margin-top: 16px; }
+    .card h2 { font-size: 17px; font-weight: 650; margin: 0 0 6px; }
+    .card p { margin: 0 0 12px; color: var(--ink-soft); font-size: 14px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 12px 22px;
+      border-radius: 12px; border: 1px solid transparent; font-size: 15.5px; font-weight: 600; cursor: pointer; text-decoration: none;
+      transition: filter 0.15s, background 0.15s;
+    }
+    .btn:disabled { opacity: 0.6; cursor: default; }
+    .btn-primary { background: var(--brand); color: var(--on-brand); }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+    .btn-ghost { background: transparent; color: var(--ink-soft); border-color: var(--line-strong); }
+    .btn-ghost:hover:not(:disabled) { background: var(--paper-soft); }
+    .btn-block { width: 100%; }
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-row .btn { flex: 1 1 180px; }
+    .note { font-size: 12.5px; color: var(--ink-muted); margin-top: 10px; text-align: center; }
+    .howpay { background: var(--paper); border: 1px dashed var(--line-strong); border-radius: var(--r-md); padding: 12px 14px; font-size: 14px; white-space: pre-line; color: var(--ink); }
+    .contact { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; background: var(--paper-soft); color: var(--ink); text-decoration: none; font-size: 13.5px; font-weight: 500; }
+    .chip:hover { background: var(--line-strong); }
+    .related { margin-top: 12px; display: grid; gap: 8px; }
+    .related a { display: flex; justify-content: space-between; gap: 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md); text-decoration: none; color: var(--ink); font-size: 14px; }
+    .related a:hover { border-color: var(--brand); }
+    .err { color: var(--red); font-size: 13.5px; margin-top: 10px; min-height: 1em; }
+
+    .foot { text-align: center; font-size: 12px; color: var(--ink-muted); padding: 36px 16px 110px; }
+    .foot a { color: var(--ink-soft); font-weight: 600; text-decoration: none; }
+
+    /* Barra fixa no celular */
+    .sticky {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: rgba(255, 255, 255, 0.96);
+      border-top: 1px solid var(--line); padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); display: none;
+    }
+    .sticky.show { display: block; }
+    .sticky .btn { width: 100%; }
+    .sticky .err { margin: 0 0 8px; min-height: 0; text-align: center; }
+    .sticky .err:empty { display: none; }
+
+    /* Janela de aprovar / recusar */
+    .modal { position: fixed; inset: 0; z-index: 100; background: rgba(10, 12, 11, 0.55); display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .dialog { background: #fff; border-radius: var(--r-lg); width: 100%; max-width: 520px; max-height: calc(100vh - 32px); overflow: auto; padding: 22px; box-shadow: 0 18px 48px rgba(0, 0, 0, 0.25); }
+    .dialog h2 { font-size: 18px; margin: 0 0 4px; font-weight: 650; }
+    .dialog .sub { font-size: 13.5px; color: var(--ink-soft); margin-bottom: 16px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .field input, .field textarea {
+      width: 100%; padding: 12px 14px; border: 1px solid var(--line-strong); border-radius: var(--r-md); font-size: 16px;
+      font-family: inherit; color: var(--ink); background: #fff;
+    }
+    .field input:focus, .field textarea:focus { outline: 2px solid var(--brand); outline-offset: 1px; border-color: transparent; }
+    .pad-wrap { position: relative; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: #fff; }
+    .pad-wrap canvas { display: block; width: 100%; height: 170px; touch-action: none; cursor: crosshair; border-radius: var(--r-md); }
+    .pad-wrap .base { position: absolute; left: 16px; right: 16px; bottom: 36px; border-bottom: 1px solid var(--line-strong); pointer-events: none; }
+    .pad-wrap .hint { position: absolute; left: 16px; bottom: 12px; font-size: 12px; color: var(--ink-muted); pointer-events: none; }
+    .pad-wrap .clear { position: absolute; right: 8px; top: 8px; border: 0; background: var(--paper-soft); color: var(--ink-soft); font-size: 12.5px; font-weight: 600; padding: 6px 10px; border-radius: 999px; cursor: pointer; }
+    .consent { font-size: 12.5px; color: var(--ink-soft); margin: 4px 0 14px; }
+    .esign { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.45; color: var(--ink); margin: 0 0 16px; cursor: pointer; }
+    .esign input { width: 20px; height: 20px; margin: 1px 0 0; flex-shrink: 0; accent-color: var(--brand); cursor: pointer; }
+
+    .lightbox { position: fixed; inset: 0; z-index: 120; background: rgba(10, 12, 11, 0.92); display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .lightbox img { max-width: 92vw; max-height: 84vh; border-radius: 10px; object-fit: contain; }
+    .lightbox button { position: absolute; background: rgba(255, 255, 255, 0.14); color: #fff; border: 0; cursor: pointer; width: 44px; height: 44px; border-radius: 50%; font-size: 26px; line-height: 44px; }
+    .lightbox .lb-close { top: 16px; right: 16px; }
+    .lightbox .lb-prev { left: 12px; top: 50%; transform: translateY(-50%); }
+    .lightbox .lb-next { right: 12px; top: 50%; transform: translateY(-50%); }
+
+    .center { text-align: center; padding: 90px 20px; max-width: 520px; margin: 0 auto; }
+    .center h1 { font-size: 22px; margin: 0 0 8px; }
+    .center p { color: var(--ink-soft); margin: 0 0 6px; }
+    .spinner { width: 28px; height: 28px; border: 3px solid var(--line-strong); border-top-color: var(--brand); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media screen and (max-width: 640px) {
+      .band { padding: 14px 0 56px; }
+      .sheet { padding: 20px 16px 18px; border-radius: 14px; }
+      .doc-id { text-align: left; }
+      .doc-id .num { font-size: 22px; }
+      .meta { grid-template-columns: 1fr; gap: 16px; }
+      .dates span:nth-child(even) { text-align: left; }
+      table.items, .items tbody { display: block; }
+      .items thead { display: none; }
+      .items tr { display: grid; grid-template-columns: 1fr auto; column-gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+      .items td { display: none; border: 0; padding: 0; }
+      .items td.desc-cell, .items td.amt { display: block; }
+      .items td.amt { font-weight: 600; }
+      .items .qline { display: block; font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+      .totals { max-width: none; }
+      .photos { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .card { padding: 18px 16px; }
+      .modal { align-items: flex-end; padding: 0; }
+      .dialog { border-radius: 18px 18px 0 0; max-height: 92vh; padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); }
+      .band-btn .t { display: none; }
+    }
+    @media screen and (min-width: 641px) { .sticky { display: none !important; } }
+
+    @media print {
+      @page { margin: 14mm; }
+      body { background: #fff; font-size: 12.5px; padding: 0; }
+      .band, .no-print, .sticky, .modal, .lightbox, .banner, .card { display: none !important; }
+      .wrap { max-width: none; padding: 0; }
+      .sheet { border: 0; box-shadow: none; margin: 0; padding: 0; }
+      .photos { grid-template-columns: repeat(4, 1fr); }
+      .photos button { cursor: default; }
+      tr, .photos button, .signed, .totals { break-inside: avoid; page-break-inside: avoid; }
+      .foot { padding: 18px 0 0; }
+      a { color: inherit; text-decoration: none; }
+      * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" aria-live="polite">
+    <div class="center"><div class="spinner"></div></div>
+  </div>
+
+  <script>
+  (function () {
+    'use strict'
+
+    var root = document.getElementById('app')
+    var API = '/api/agenda/doc-public'
+    var TOKEN_RE = /^[A-Za-z0-9_-]{16,128}$/
+    var qs = new URLSearchParams(location.search)
+    var fromPath = location.pathname.match(/\/d\/([^\/?#]+)/)
+    var token = decodeURIComponent((fromPath && fromPath[1]) || qs.get('t') || '')
+    // A profissional conferindo pelo app: não marca visto e os botões ficam desligados
+    var PREVIEW = qs.get('preview') === '1'
+
+    // ── Textos (o documento sai no idioma escolhido pela profissional) ─────
+    var T = {
+      en: {
+        quote: 'Quote', invoice: 'Invoice', prepared_for: 'Prepared for', bill_to: 'Bill to', job_address: 'Job address',
+        issued: 'Date', valid_until: 'Valid until', due: 'Due date', ref_quote: 'Ref. quote',
+        item: 'Description', qty: 'Qty', price: 'Unit price', amount: 'Amount',
+        subtotal: 'Subtotal', discount: 'Discount', tax: 'Sales tax', total: 'Total',
+        deposit_due: 'Deposit due on approval', paid: 'Amount paid', balance: 'Balance due', paid_full_row: 'Paid in full',
+        notes: 'Notes', terms: 'Terms & conditions', how_to_pay: 'How to pay', photos: 'Photos',
+        license: 'License', insured: 'Insured', print: 'Save PDF / Print',
+        approve: 'Approve quote', decline: 'Decline', approve_title: 'Approve and sign',
+        your_name: 'Your full name', sign: 'Signature', sign_hint: 'Sign with your finger or mouse (optional)', clear: 'Clear',
+        consent: function (n, t, p) { return 'By signing, I approve quote ' + n + ' for ' + t + ', including the terms above, and authorize ' + p + ' to proceed with the work.' },
+        cancel: 'Cancel', confirm_approve: 'Approve and sign', decline_title: 'Decline this quote',
+        decline_sub: function (p) { return 'Tell ' + p + ' why (optional). It helps them prepare a better quote.' },
+        reason: 'Reason', reason_ph: 'e.g. price, timing, I chose another company…', confirm_decline: 'Decline quote',
+        pay_card: function (a) { return 'Pay ' + a + ' by card' }, pay_secure: 'Secure payment processed by Stripe.',
+        other_ways: 'Other ways to pay', contact_to_pay: function (p) { return 'Contact ' + p + ' to arrange payment.' },
+        st_quote_open: 'Awaiting approval', st_accepted: 'Approved', st_declined: 'Declined', st_expired: 'Expired', st_converted: 'Approved',
+        st_inv_open: 'Open', st_partial: 'Partially paid', st_overdue: 'Overdue', st_paid: 'Paid', st_void: 'Void',
+        review_title: 'Review and approve', review_text: function (d) { return d ? 'This quote is valid until ' + d + '.' : 'Review the details above and approve when you are ready.' },
+        accepted_text: function (d, n) { return 'Approved on ' + d + (n ? ' by ' + n : '') + '.' },
+        signed_e: 'Signed electronically', deposit_next: function (a, p) { return 'A deposit of ' + a + ' is due to get started. ' + p + ' will send you the deposit details.' },
+        declined_text: function (d, p) { return 'You declined this quote on ' + d + '. Changed your mind? Contact ' + p + '.' },
+        expired_text: function (d, p) { return 'This quote expired' + (d ? ' on ' + d : '') + '. Contact ' + p + ' for an updated quote.' },
+        converted_text: 'The quote was approved and the invoice has been issued.', invoices_for: 'Invoices for this quote', view: 'View',
+        pay_title: 'Pay this invoice', due_on: function (d) { return 'Due ' + d + '.' }, overdue_on: function (d) { return 'This invoice was due on ' + d + '.' },
+        paid_title: 'Paid in full', paid_text: function (d) { return 'Thank you! This invoice was paid' + (d ? ' on ' + d : '') + '.' },
+        partial_text: function (a, b) { return a + ' received so far. Remaining balance: ' + b + '.' },
+        questions: function (p) { return 'Questions? Contact ' + p }, call: 'Call', text: 'Text', email: 'Email', whatsapp: 'WhatsApp', website: 'Website',
+        made_with: 'Made with', paid_banner: 'Payment received — thank you!', paid_banner_wait: 'We are confirming your payment. This usually takes a few seconds.',
+        paid_banner_done: 'Your payment was confirmed. A receipt was sent by Stripe to your email.',
+        accepted_banner: function (p) { return 'Quote approved! ' + p + ' has been notified.' }, declined_banner: 'Your answer was sent. Thank you.',
+        nf_title: 'Document not found', nf_text: 'This link is invalid or the document is no longer available. Please check with the person who sent it.',
+        void_title: 'This invoice was voided', void_text: function (p) { return (p || 'The sender') + ' canceled this invoice. If you have questions, please contact them.' },
+        net_title: 'Could not load the document', net_text: 'Check your connection and try again.', retry: 'Try again',
+        e_name: 'Please type your full name.', e_sign_big: 'The signature is too detailed. Please clear it and sign again.',
+        e_expired: 'This quote has expired. Please ask for an updated quote.', e_already: 'This quote was already answered.',
+        e_rate: 'Too many attempts. Please wait a minute and try again.', e_pay: 'Online payment is not available for this invoice.',
+        e_nothing: 'There is nothing left to pay on this invoice.', e_small: 'The amount is too small to pay by card.', e_generic: 'Something went wrong. Please try again.',
+        sending: 'Sending…', opening_pay: 'Opening secure payment…', photo_n: function (i) { return 'Photo ' + i }, close: 'Close',
+        paid_confirming: 'Payment received, confirming…', st_confirming: 'Confirming payment',
+        paid_banner_slow: 'Your payment is still being confirmed. Please do not pay again: the confirmation will arrive by email and this page will update.',
+        void_paid: function (p) { return 'If you just paid, your payment was received. ' + (p || 'The sender') + ' will contact you about a refund.' },
+        // Mesmo texto de CONSENT_TEXT em api/agenda/doc-public.js (versão esign-v1)
+        esign: 'I agree to use electronic records and signatures for this document, and I am able to save or print a copy.',
+        approve_btn: function (n, a) { return 'Approve quote ' + n + ' for ' + a },
+        e_consent: 'Check the box above to agree to sign electronically.',
+        e_changed: 'This quote was just updated. Review the new version and approve again.',
+        changed_title: 'This quote was updated', changed_text: 'Review the items and amounts below and approve again when you are ready.',
+        e_void: 'This invoice was voided.',
+        signed_code: function (d, c) { return 'Signed electronically on ' + d + ' · code ' + c }
+      },
+      pt: {
+        quote: 'Orçamento', invoice: 'Fatura', prepared_for: 'Para', bill_to: 'Cobrar de', job_address: 'Local do serviço',
+        issued: 'Data', valid_until: 'Válido até', due: 'Vencimento', ref_quote: 'Ref. orçamento',
+        item: 'Descrição', qty: 'Qtd.', price: 'Preço unit.', amount: 'Valor',
+        subtotal: 'Subtotal', discount: 'Desconto', tax: 'Imposto (sales tax)', total: 'Total',
+        deposit_due: 'Entrada na aprovação', paid: 'Valor pago', balance: 'Saldo a pagar', paid_full_row: 'Pago integralmente',
+        notes: 'Observações', terms: 'Condições', how_to_pay: 'Como pagar', photos: 'Fotos',
+        license: 'Licença', insured: 'Com seguro', print: 'Salvar PDF / Imprimir',
+        approve: 'Aprovar orçamento', decline: 'Recusar', approve_title: 'Aprovar e assinar',
+        your_name: 'Seu nome completo', sign: 'Assinatura', sign_hint: 'Assine com o dedo ou o mouse (opcional)', clear: 'Limpar',
+        consent: function (n, t, p) { return 'Ao assinar, aprovo o orçamento ' + n + ' no valor de ' + t + ', com as condições acima, e autorizo ' + p + ' a iniciar o serviço.' },
+        cancel: 'Cancelar', confirm_approve: 'Aprovar e assinar', decline_title: 'Recusar este orçamento',
+        decline_sub: function (p) { return 'Conte pra ' + p + ' o motivo (opcional). Ajuda a preparar uma proposta melhor.' },
+        reason: 'Motivo', reason_ph: 'ex.: preço, prazo, escolhi outra empresa…', confirm_decline: 'Recusar orçamento',
+        pay_card: function (a) { return 'Pagar ' + a + ' no cartão' }, pay_secure: 'Pagamento seguro processado pela Stripe.',
+        other_ways: 'Outras formas de pagar', contact_to_pay: function (p) { return 'Fale com ' + p + ' para combinar o pagamento.' },
+        st_quote_open: 'Aguardando aprovação', st_accepted: 'Aprovado', st_declined: 'Recusado', st_expired: 'Vencido', st_converted: 'Aprovado',
+        st_inv_open: 'Em aberto', st_partial: 'Pago em parte', st_overdue: 'Vencida', st_paid: 'Paga', st_void: 'Anulada',
+        review_title: 'Revise e aprove', review_text: function (d) { return d ? 'Este orçamento vale até ' + d + '.' : 'Confira os detalhes acima e aprove quando estiver pronta(o).' },
+        accepted_text: function (d, n) { return 'Aprovado em ' + d + (n ? ' por ' + n : '') + '.' },
+        signed_e: 'Assinado eletronicamente', deposit_next: function (a, p) { return 'Para começar, falta a entrada de ' + a + '. ' + p + ' vai enviar como pagar.' },
+        declined_text: function (d, p) { return 'Você recusou este orçamento em ' + d + '. Mudou de ideia? Fale com ' + p + '.' },
+        expired_text: function (d, p) { return 'Este orçamento venceu' + (d ? ' em ' + d : '') + '. Fale com ' + p + ' para receber um orçamento atualizado.' },
+        converted_text: 'O orçamento foi aprovado e a fatura já foi emitida.', invoices_for: 'Faturas deste orçamento', view: 'Ver',
+        pay_title: 'Pagar esta fatura', due_on: function (d) { return 'Vence em ' + d + '.' }, overdue_on: function (d) { return 'Esta fatura venceu em ' + d + '.' },
+        paid_title: 'Fatura paga', paid_text: function (d) { return 'Obrigado! Esta fatura foi paga' + (d ? ' em ' + d : '') + '.' },
+        partial_text: function (a, b) { return 'Recebido até agora: ' + a + '. Falta pagar: ' + b + '.' },
+        questions: function (p) { return 'Dúvidas? Fale com ' + p }, call: 'Ligar', text: 'SMS', email: 'E-mail', whatsapp: 'WhatsApp', website: 'Site',
+        made_with: 'Feito com', paid_banner: 'Pagamento recebido. Obrigado!', paid_banner_wait: 'Estamos confirmando o seu pagamento. Leva só alguns segundos.',
+        paid_banner_done: 'Seu pagamento foi confirmado. A Stripe enviou o recibo para o seu e-mail.',
+        accepted_banner: function (p) { return 'Orçamento aprovado! ' + p + ' já foi avisado(a).' }, declined_banner: 'Sua resposta foi enviada. Obrigado.',
+        nf_title: 'Documento não encontrado', nf_text: 'Este link não é válido ou o documento não está mais disponível. Fale com quem enviou.',
+        void_title: 'Esta fatura foi anulada', void_text: function (p) { return (p || 'Quem enviou') + ' cancelou esta fatura. Se tiver dúvidas, entre em contato.' },
+        net_title: 'Não conseguimos abrir o documento', net_text: 'Confira sua conexão e tente de novo.', retry: 'Tentar de novo',
+        e_name: 'Digite seu nome completo.', e_sign_big: 'A assinatura ficou muito detalhada. Limpe e assine de novo.',
+        e_expired: 'Este orçamento venceu. Peça um orçamento atualizado.', e_already: 'Este orçamento já foi respondido.',
+        e_rate: 'Muitas tentativas. Espere um minuto e tente de novo.', e_pay: 'O pagamento online não está disponível para esta fatura.',
+        e_nothing: 'Não há saldo a pagar nesta fatura.', e_small: 'O valor é pequeno demais para pagar no cartão.', e_generic: 'Algo deu errado. Tente de novo.',
+        sending: 'Enviando…', opening_pay: 'Abrindo o pagamento seguro…', photo_n: function (i) { return 'Foto ' + i }, close: 'Fechar',
+        paid_confirming: 'Pagamento recebido, confirmando…', st_confirming: 'Confirmando pagamento',
+        paid_banner_slow: 'Seu pagamento ainda está sendo confirmado. Não pague de novo: a confirmação chega por e-mail e esta página se atualiza sozinha.',
+        void_paid: function (p) { return 'Se você acabou de pagar, o pagamento foi recebido. ' + (p || 'Quem enviou') + ' vai entrar em contato para devolver o valor.' },
+        esign: 'Concordo em usar registros e assinatura eletrônicos neste documento e tenho como guardar ou imprimir uma cópia.',
+        approve_btn: function (n, a) { return 'Aprovar orçamento ' + n + ' de ' + a },
+        e_consent: 'Marque a caixa acima para concordar com a assinatura eletrônica.',
+        e_changed: 'Este orçamento acabou de ser atualizado. Confira a versão nova e aprove de novo.',
+        changed_title: 'O orçamento foi atualizado', changed_text: 'Confira os itens e valores abaixo e aprove de novo quando estiver pronta(o).',
+        e_void: 'Esta fatura foi anulada.',
+        signed_code: function (d, c) { return 'Assinado eletronicamente em ' + d + ' · código ' + c }
+      },
+      es: {
+        quote: 'Cotización', invoice: 'Factura', prepared_for: 'Para', bill_to: 'Facturar a', job_address: 'Lugar del trabajo',
+        issued: 'Fecha', valid_until: 'Válida hasta', due: 'Vencimiento', ref_quote: 'Ref. cotización',
+        item: 'Descripción', qty: 'Cant.', price: 'Precio unit.', amount: 'Importe',
+        subtotal: 'Subtotal', discount: 'Descuento', tax: 'Impuesto (sales tax)', total: 'Total',
+        deposit_due: 'Anticipo al aprobar', paid: 'Pagado', balance: 'Saldo pendiente', paid_full_row: 'Pagado en su totalidad',
+        notes: 'Notas', terms: 'Términos y condiciones', how_to_pay: 'Cómo pagar', photos: 'Fotos',
+        license: 'Licencia', insured: 'Asegurado', print: 'Guardar PDF / Imprimir',
+        approve: 'Aprobar cotización', decline: 'Rechazar', approve_title: 'Aprobar y firmar',
+        your_name: 'Su nombre completo', sign: 'Firma', sign_hint: 'Firme con el dedo o el mouse (opcional)', clear: 'Borrar',
+        consent: function (n, t, p) { return 'Al firmar, apruebo la cotización ' + n + ' por ' + t + ', con los términos indicados, y autorizo a ' + p + ' a comenzar el trabajo.' },
+        cancel: 'Cancelar', confirm_approve: 'Aprobar y firmar', decline_title: 'Rechazar esta cotización',
+        decline_sub: function (p) { return 'Cuéntele a ' + p + ' el motivo (opcional). Le ayuda a preparar una mejor propuesta.' },
+        reason: 'Motivo', reason_ph: 'ej.: precio, plazo, elegí otra empresa…', confirm_decline: 'Rechazar cotización',
+        pay_card: function (a) { return 'Pagar ' + a + ' con tarjeta' }, pay_secure: 'Pago seguro procesado por Stripe.',
+        other_ways: 'Otras formas de pago', contact_to_pay: function (p) { return 'Comuníquese con ' + p + ' para coordinar el pago.' },
+        st_quote_open: 'Esperando aprobación', st_accepted: 'Aprobada', st_declined: 'Rechazada', st_expired: 'Vencida', st_converted: 'Aprobada',
+        st_inv_open: 'Pendiente', st_partial: 'Pago parcial', st_overdue: 'Vencida', st_paid: 'Pagada', st_void: 'Anulada',
+        review_title: 'Revise y apruebe', review_text: function (d) { return d ? 'Esta cotización es válida hasta el ' + d + '.' : 'Revise los detalles y apruebe cuando esté listo.' },
+        accepted_text: function (d, n) { return 'Aprobada el ' + d + (n ? ' por ' + n : '') + '.' },
+        signed_e: 'Firmado electrónicamente', deposit_next: function (a, p) { return 'Para comenzar se requiere un anticipo de ' + a + '. ' + p + ' le enviará los detalles del pago.' },
+        declined_text: function (d, p) { return 'Usted rechazó esta cotización el ' + d + '. ¿Cambió de opinión? Comuníquese con ' + p + '.' },
+        expired_text: function (d, p) { return 'Esta cotización venció' + (d ? ' el ' + d : '') + '. Comuníquese con ' + p + ' para una cotización actualizada.' },
+        converted_text: 'La cotización fue aprobada y la factura ya fue emitida.', invoices_for: 'Facturas de esta cotización', view: 'Ver',
+        pay_title: 'Pagar esta factura', due_on: function (d) { return 'Vence el ' + d + '.' }, overdue_on: function (d) { return 'Esta factura venció el ' + d + '.' },
+        paid_title: 'Factura pagada', paid_text: function (d) { return '¡Gracias! Esta factura fue pagada' + (d ? ' el ' + d : '') + '.' },
+        partial_text: function (a, b) { return 'Recibido hasta ahora: ' + a + '. Saldo pendiente: ' + b + '.' },
+        questions: function (p) { return '¿Preguntas? Comuníquese con ' + p }, call: 'Llamar', text: 'Mensaje', email: 'Correo', whatsapp: 'WhatsApp', website: 'Sitio web',
+        made_with: 'Hecho con', paid_banner: '¡Pago recibido, gracias!', paid_banner_wait: 'Estamos confirmando su pago. Toma solo unos segundos.',
+        paid_banner_done: 'Su pago fue confirmado. Stripe envió el recibo a su correo.',
+        accepted_banner: function (p) { return '¡Cotización aprobada! ' + p + ' ya fue notificado.' }, declined_banner: 'Su respuesta fue enviada. Gracias.',
+        nf_title: 'Documento no encontrado', nf_text: 'Este enlace no es válido o el documento ya no está disponible. Consulte con quien lo envió.',
+        void_title: 'Esta factura fue anulada', void_text: function (p) { return (p || 'El remitente') + ' canceló esta factura. Si tiene preguntas, comuníquese con él/ella.' },
+        net_title: 'No pudimos abrir el documento', net_text: 'Revise su conexión e intente de nuevo.', retry: 'Intentar de nuevo',
+        e_name: 'Escriba su nombre completo.', e_sign_big: 'La firma quedó muy detallada. Bórrela y firme de nuevo.',
+        e_expired: 'Esta cotización venció. Pida una cotización actualizada.', e_already: 'Esta cotización ya fue respondida.',
+        e_rate: 'Demasiados intentos. Espere un minuto e intente de nuevo.', e_pay: 'El pago en línea no está disponible para esta factura.',
+        e_nothing: 'No hay saldo pendiente en esta factura.', e_small: 'El monto es demasiado pequeño para pagar con tarjeta.', e_generic: 'Algo salió mal. Intente de nuevo.',
+        sending: 'Enviando…', opening_pay: 'Abriendo el pago seguro…', photo_n: function (i) { return 'Foto ' + i }, close: 'Cerrar',
+        paid_confirming: 'Pago recibido, confirmando…', st_confirming: 'Confirmando pago',
+        paid_banner_slow: 'Su pago todavía se está confirmando. No pague de nuevo: la confirmación llegará por correo y esta página se actualizará.',
+        void_paid: function (p) { return 'Si acaba de pagar, su pago fue recibido. ' + (p || 'El remitente') + ' se comunicará con usted para devolverle el dinero.' },
+        esign: 'Acepto usar registros y firmas electrónicos para este documento y puedo guardar o imprimir una copia.',
+        approve_btn: function (n, a) { return 'Aprobar cotización ' + n + ' por ' + a },
+        e_consent: 'Marque la casilla de arriba para aceptar la firma electrónica.',
+        e_changed: 'Esta cotización acaba de actualizarse. Revise la nueva versión y apruebe de nuevo.',
+        changed_title: 'La cotización fue actualizada', changed_text: 'Revise los conceptos y montos y apruebe de nuevo cuando esté listo.',
+        e_void: 'Esta factura fue anulada.',
+        signed_code: function (d, c) { return 'Firmado electrónicamente el ' + d + ' · código ' + c }
+      }
+    }
+    // Unidades da tabela de preços (gravadas em português) no idioma do documento
+    var UNIT = {
+      en: { 'un': 'ea', 'hora': 'hr', 'dia': 'day', 'semana': 'week', 'm²': 'm²', 'ft²': 'sq ft', 'ft': 'ft', 'm': 'm', 'página': 'page', 'palavra': 'word', 'projeto': 'project', 'visita': 'visit', 'cômodo': 'room', 'lote': 'lot' },
+      pt: { 'un': 'un', 'hora': 'h', 'dia': 'dia', 'semana': 'semana', 'm²': 'm²', 'ft²': 'ft²', 'ft': 'ft', 'm': 'm', 'página': 'página', 'palavra': 'palavra', 'projeto': 'projeto', 'visita': 'visita', 'cômodo': 'cômodo', 'lote': 'lote' },
+      es: { 'un': 'ud', 'hora': 'h', 'dia': 'día', 'semana': 'semana', 'm²': 'm²', 'ft²': 'pie²', 'ft': 'pie', 'm': 'm', 'página': 'página', 'palavra': 'palabra', 'projeto': 'proyecto', 'visita': 'visita', 'cômodo': 'habitación', 'lote': 'lote' }
+    }
+    var LOCALE = { en: 'en-US', pt: 'pt-BR', es: 'es-US' }
+
+    // confirming: voltou do Stripe e o webhook ainda não registrou (sem botão de pagar)
+    var S = { data: null, lang: guessLang(), banner: null, busy: false, confirming: false }
+    function guessLang() {
+      var n = String(navigator.language || 'en').slice(0, 2).toLowerCase()
+      return n === 'pt' || n === 'es' ? n : 'en'
+    }
+    function t(key) { var d = T[S.lang] || T.en; return d[key] !== undefined ? d[key] : T.en[key] }
+
+    // ── Utilitários ──────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c]
+      })
+    }
+    function httpUrl(u) { var s = String(u || '').trim(); return /^https?:\/\/[^\s"'<>]+$/i.test(s) ? s : '' }
+    function webUrl(u) {
+      var s = String(u || '').trim()
+      if (!s) return ''
+      if (!/^[a-z][a-z0-9+.-]*:/i.test(s)) s = 'https://' + s
+      return httpUrl(s)
+    }
+    function money(c) {
+      var n = Math.round(Number(c) || 0) / 100
+      try { return new Intl.NumberFormat(LOCALE[S.lang] || 'en-US', { style: 'currency', currency: 'USD' }).format(n) }
+      catch (_) { return '$' + n.toFixed(2) }
+    }
+    function num(v, max) {
+      var n = Number(v) || 0
+      try { return new Intl.NumberFormat(LOCALE[S.lang] || 'en-US', { maximumFractionDigits: max == null ? 2 : max }).format(n) }
+      catch (_) { return String(n) }
+    }
+    function fmtDate(v) {
+      if (!v) return ''
+      var s = String(v)
+      var d = /^\d{4}-\d{2}-\d{2}$/.test(s) ? new Date(s + 'T12:00:00Z') : new Date(s)
+      if (isNaN(d.getTime())) return ''
+      var opts = { day: 'numeric', month: 'long', year: 'numeric' }
+      if (/^\d{4}-\d{2}-\d{2}$/.test(s)) opts.timeZone = 'UTC'
+      try { return new Intl.DateTimeFormat(LOCALE[S.lang] || 'en-US', opts).format(d) } catch (_) { return s.slice(0, 10) }
+    }
+    function fmtDateTime(v) {
+      var d = new Date(String(v || ''))
+      if (!v || isNaN(d.getTime())) return ''
+      try { return new Intl.DateTimeFormat(LOCALE[S.lang] || 'en-US', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }).format(d) }
+      catch (_) { return fmtDate(v) }
+    }
+    function digits(p) { return String(p || '').replace(/\D/g, '') }
+
+    // Pagamento feito nesta aba e ainda não confirmado: sobrevive a recarregar a página (15 min)
+    var PAID_KEY = 'wp_paid_' + token
+    function readPaidMark() {
+      try {
+        var v = JSON.parse(sessionStorage.getItem(PAID_KEY) || 'null')
+        return v && Date.now() - Number(v.at) < 15 * 60000 ? v : null
+      } catch (_) { return null }
+    }
+    function writePaidMark(v) {
+      try { if (v) sessionStorage.setItem(PAID_KEY, JSON.stringify(v)); else sessionStorage.removeItem(PAID_KEY) } catch (_) {}
+    }
+    function initials(name) {
+      return String(name || '?').trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0) }).join('').toUpperCase() || '?'
+    }
+    function unitLabel(u) { var m = UNIT[S.lang] || UNIT.en; return m[u] || u || '' }
+
+    // Cor da marca: texto branco ou escuro conforme o fundo
+    function applyBrand(hex) {
+      var c = /^#[0-9a-f]{6}$/i.test(String(hex || '')) ? hex : '#1B2845'
+      var r = parseInt(c.slice(1, 3), 16) / 255, g = parseInt(c.slice(3, 5), 16) / 255, b = parseInt(c.slice(5, 7), 16) / 255
+      var lin = function (x) { return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4) }
+      var L = 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+      var st = document.documentElement.style
+      st.setProperty('--brand', c)
+      st.setProperty('--on-brand', L > 0.45 ? '#1A1F1C' : '#FFFFFF')
+      st.setProperty('--brand-text', L > 0.35 ? '#1A1F1C' : c)
+      var meta = document.querySelector('meta[name="theme-color"]')
+      if (meta) meta.setAttribute('content', c)
+    }
+
+    async function call(method, body) {
+      var opts = method === 'GET'
+        ? { cache: 'no-store' }
+        : { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(Object.assign({ t: token }, body || {})) }
+      // preview=1: a profissional conferindo pelo app (não marca como visto)
+      var url = API + (method === 'GET' ? '?t=' + encodeURIComponent(token) + (PREVIEW ? '&preview=1' : '') : '')
+      var r = await fetch(url, opts)
+      var data = null
+      try { data = await r.json() } catch (_) {}
+      return { status: r.status, ok: r.ok, data: data || {} }
+    }
+
+    // Erro da API → texto no idioma do documento (o servidor responde em português)
+    function errText(res) {
+      var code = res && res.data && res.data.code
+      var map = {
+        expired: 'e_expired', already_answered: 'e_already', not_open: 'e_already', rate_limited: 'e_rate',
+        pay_unavailable: 'e_pay', nothing_to_pay: 'e_nothing', amount_too_small: 'e_small',
+        invalid_name: 'e_name', invalid_signature: 'e_sign_big', consent_required: 'e_consent',
+        changed: 'e_changed', void: 'e_void'
+      }
+      if (res && res.status === 429) return t('e_rate')
+      if (code && map[code]) return t(map[code])
+      return t('e_generic')
+    }
+
+    // ── Carregar ─────────────────────────────────────────────────────────
+    // So busca (sem desenhar): usado no acompanhamento do pagamento. → { status, data } ou null (rede)
+    async function fetchDoc() {
+      try { return await call('GET') } catch (_) { return null }
+    }
+    function useData(data) {
+      S.data = data
+      S.lang = T[data.document.language] ? data.document.language : 'en'
+      applyBrand(data.provider && data.provider.cover_color)
+    }
+
+    async function load(opts) {
+      opts = opts || {}
+      if (!TOKEN_RE.test(token)) return renderMessage('nf')
+      var res
+      try { res = await call('GET') } catch (_) { return renderMessage('net') }
+      if (res.status === 410 && res.data && res.data.code === 'void') return showVoid(res.data, opts.paid)
+      if (res.status === 404 || (res.status === 400 && res.data && res.data.code === 'not_found')) return renderMessage('nf')
+      if (!res.ok || !res.data || !res.data.document) return renderMessage('net')
+      useData(res.data)
+      if (!opts.silent) render()
+      return res.data
+    }
+
+    // Fatura anulada. paid: a cliente acabou de pagar (volta do Stripe) → avisa que vai ser devolvido
+    function showVoid(data, paid) {
+      if (T[data.language]) S.lang = data.language
+      applyBrand(data.provider && data.provider.cover_color)
+      S.confirming = false
+      if (paid) writePaidMark(null)
+      renderMessage('void', data.provider && data.provider.name, paid)
+      return null
+    }
+
+    function renderMessage(kind, providerName, paid) {
+      document.documentElement.lang = S.lang
+      var title, text, retry = false
+      if (kind === 'void') {
+        title = t('void_title')
+        text = t('void_text')(providerName ? esc(providerName) : '') + (paid ? '</p><p>' + esc(t('void_paid')(providerName || '')) : '')
+      }
+      else if (kind === 'net') { title = t('net_title'); text = esc(t('net_text')); retry = true }
+      else { title = t('nf_title'); text = esc(t('nf_text')) }
+      document.title = title
+      root.innerHTML = '<div class="center">' +
+        '<h1>' + esc(title) + '</h1><p>' + text + '</p>' +
+        (retry ? '<p style="margin-top:18px"><button class="btn btn-primary" id="retryBtn" type="button">' + esc(t('retry')) + '</button></p>' : '') +
+        '</div>'
+      var rb = document.getElementById('retryBtn')
+      if (rb) rb.onclick = function () { root.innerHTML = '<div class="center"><div class="spinner"></div></div>'; load() }
+    }
+
+    // ── Status ───────────────────────────────────────────────────────────
+    function statusPill(doc) {
+      var s = doc.status, k = doc.kind
+      var map = k === 'quote'
+        ? { sent: ['st_quote_open', ''], viewed: ['st_quote_open', ''], accepted: ['st_accepted', 'ok'], converted: ['st_converted', 'ok'], declined: ['st_declined', 'bad'], expired: ['st_expired', 'mute'] }
+        : { sent: ['st_inv_open', ''], viewed: ['st_inv_open', ''], partial: ['st_partial', ''], overdue: ['st_overdue', 'bad'], paid: ['st_paid', 'ok'], void: ['st_void', 'mute'] }
+      var m = map[s]
+      if (k === 'invoice' && S.confirming && s !== 'paid') m = ['st_confirming', '']
+      if (!m) return ''
+      return '<span class="pill ' + m[1] + '">' + esc(t(m[0])) + '</span>'
+    }
+    function quoteOpen(doc) { return doc.kind === 'quote' && (doc.status === 'sent' || doc.status === 'viewed') }
+    function invoiceOpen(doc) { return doc.kind === 'invoice' && ['sent', 'viewed', 'partial', 'overdue'].indexOf(doc.status) >= 0 && (doc.balance_cents || 0) > 0 }
+    function providerLabel() {
+      var p = S.data.provider || {}
+      var b = p.business || {}
+      return b.legal_name || p.name || ''
+    }
+
+    // ── Desenho principal ───────────────────────────────────────────────
+    function render() {
+      var d = S.data, doc = d.document, p = d.provider || {}, b = p.business || {}
+      var isQuote = doc.kind === 'quote'
+      var bizName = providerLabel()
+      document.documentElement.lang = S.lang
+      document.title = (isQuote ? t('quote') : t('invoice')) + ' ' + doc.number + (bizName ? ' — ' + bizName : '')
+
+      var avatar = httpUrl(p.avatar_url)
+      var html = ''
+
+      // Faixa com a marca
+      html += '<header class="band"><div class="wrap">' +
+        '<div class="who"><div class="mono' + (avatar ? ' photo' : '') + '" id="bandAvatar">' + esc(initials(bizName)) + '</div>' +
+        '<div style="min-width:0"><b>' + esc(bizName) + '</b>' + (b.legal_name && p.name && b.legal_name !== p.name ? '<small>' + esc(p.name) + '</small>' : '') + '</div></div>' +
+        '<button class="band-btn no-print" type="button" data-print><span aria-hidden="true">⤓</span><span class="t">' + esc(t('print')) + '</span></button>' +
+        '</div></header>'
+
+      html += '<main class="wrap">'
+      html += bannerHtml()
+      html += '<article class="sheet" id="sheet">' + sheetHtml(d) + '</article>'
+      html += actionsHtml(d)
+      html += '</main>'
+
+      html += '<footer class="foot">' +
+        (p.show_branding ? esc(t('made_with')) + ' <a href="/para/workpro/" target="_blank" rel="noopener">WorkPro</a> · BrasilConnect' : '') +
+        '</footer>'
+
+      var cta = primaryCta(doc, d)
+      // Erro do pagamento também na barra fixa (ela aparece quando o cartão de ações está fora da tela)
+      if (cta) html += '<div class="sticky no-print" id="sticky"><div class="err" id="stickyErr" role="alert"></div><button type="button" class="btn btn-primary" data-cta>' + esc(cta.label) + '</button></div>'
+
+      root.innerHTML = html
+
+      if (avatar) {
+        ['bandAvatar', 'sheetLogo'].forEach(function (id) {
+          var el = document.getElementById(id)
+          if (el) { el.style.backgroundImage = 'url(' + JSON.stringify(avatar) + ')'; el.classList.add('photo') }
+        })
+      }
+      wire(d)
+    }
+
+    function sheetHtml(d) {
+      var doc = d.document, p = d.provider || {}, b = p.business || {}
+      var isQuote = doc.kind === 'quote'
+      var bizName = providerLabel()
+      var html = ''
+
+      // Quem emite
+      var addr = [b.address_line, [b.city, [b.state, b.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ')].filter(Boolean).join(' · ')
+      var contacts = []
+      if (b.phone) contacts.push('<a href="tel:' + esc(digits(b.phone)) + '">' + esc(b.phone) + '</a>')
+      if (b.email) contacts.push('<a href="mailto:' + esc(b.email) + '">' + esc(b.email) + '</a>')
+      var site = webUrl(b.website)
+      if (site) contacts.push('<a href="' + esc(site) + '" target="_blank" rel="noopener">' + esc(String(b.website).replace(/^https?:\/\//i, '').replace(/\/$/, '')) + '</a>')
+      var creds = []
+      if (b.license_no) creds.push(esc(t('license')) + ' ' + esc(b.license_no))
+      if (b.insurance) creds.push(esc(b.insurance === true || /^(sim|yes|si|sí|true)$/i.test(String(b.insurance)) ? t('insured') : b.insurance))
+
+      html += '<div class="sheet-head">' +
+        '<div class="from"><div class="logo" id="sheetLogo">' + esc(initials(bizName)) + '</div><div style="min-width:0">' +
+        '<h1>' + esc(bizName) + '</h1><div class="lines">' +
+        (addr ? '<div>' + esc(addr) + '</div>' : '') +
+        (contacts.length ? '<div>' + contacts.join(' · ') + '</div>' : '') +
+        (creds.length ? '<div>' + creds.join(' · ') + '</div>' : '') +
+        '</div></div></div>' +
+        '<div class="doc-id"><div class="kind">' + esc(isQuote ? t('quote') : t('invoice')) + '</div>' +
+        '<div class="num">' + esc(doc.number) + '</div>' +
+        (doc.stage_label ? '<div class="stage">' + esc(doc.stage_label) + '</div>' : '') +
+        (doc.quote_number ? '<div class="stage">' + esc(t('ref_quote')) + ' ' + esc(doc.quote_number) + '</div>' : '') +
+        statusPill(doc) + '</div>' +
+        '</div>'
+
+      // Cliente e datas
+      var toLines = [doc.client_address, doc.client_email, doc.client_phone].filter(Boolean)
+      var dates = '<span>' + esc(t('issued')) + '</span><span>' + esc(fmtDate(doc.issue_date)) + '</span>'
+      if (isQuote && doc.valid_until) dates += '<span>' + esc(t('valid_until')) + '</span><span>' + esc(fmtDate(doc.valid_until)) + '</span>'
+      if (!isQuote && doc.due_date) dates += '<span>' + esc(t('due')) + '</span><span>' + esc(fmtDate(doc.due_date)) + '</span>'
+      html += '<div class="meta"><div class="to"><div class="label">' + esc(isQuote ? t('prepared_for') : t('bill_to')) + '</div>' +
+        '<b>' + esc(doc.client_name) + '</b>' + (toLines.length ? '<div>' + esc(toLines.join('\n')) + '</div>' : '') +
+        (doc.job_address && doc.job_address !== doc.client_address ? '<div class="job"><span class="label" style="display:block">' + esc(t('job_address')) + '</span>' + esc(doc.job_address) + '</div>' : '') +
+        '</div><div class="dates">' + dates + '</div></div>'
+
+      if (doc.title) html += '<h2 class="title">' + esc(doc.title) + '</h2>'
+
+      // Itens
+      var items = d.items || []
+      if (items.length) {
+        html += '<table class="items"><thead><tr><th>' + esc(t('item')) + '</th><th class="r">' + esc(t('qty')) + '</th><th class="r">' + esc(t('price')) + '</th><th class="r">' + esc(t('amount')) + '</th></tr></thead><tbody>'
+        items.forEach(function (it) {
+          var unit = unitLabel(it.unit)
+          var qty = num(it.quantity) + (unit && unit !== 'un' && unit !== 'ea' && unit !== 'ud' ? ' ' + esc(unit) : '')
+          html += '<tr>' +
+            '<td class="desc-cell"><div class="desc">' + esc(it.description) + '</div>' +
+            '<div class="qline">' + qty + ' × ' + esc(money(it.unit_price_cents)) + '</div></td>' +
+            '<td class="r">' + qty + '</td>' +
+            '<td class="r unitp">' + esc(money(it.unit_price_cents)) + '</td>' +
+            '<td class="r amt">' + esc(money(it.line_total_cents)) + '</td>' +
+            '</tr>'
+        })
+        html += '</tbody></table>'
+      }
+
+      // Totais (valores calculados pelo servidor com docCalc)
+      html += '<div class="totals">'
+      var showSub = (doc.discount_cents || 0) > 0 || (doc.tax_cents || 0) > 0
+      if (showSub) html += row(t('subtotal'), money(doc.subtotal_cents))
+      if ((doc.discount_cents || 0) > 0) {
+        var dl = t('discount') + (Number(doc.discount_pct) > 0 ? ' (' + num(doc.discount_pct) + '%)' : '')
+        html += row(dl, '−' + money(doc.discount_cents))
+      }
+      if ((doc.tax_cents || 0) > 0 || (doc.tax_rate_bps || 0) > 0) {
+        html += row(t('tax') + ' (' + num((doc.tax_rate_bps || 0) / 100, 3) + '%)', money(doc.tax_cents))
+      }
+      html += row(t('total'), money(doc.total_cents), 'big')
+      if (isQuote && (doc.deposit_cents || 0) > 0) {
+        var dep = t('deposit_due') + (Number(doc.deposit_pct) > 0 ? ' (' + num(doc.deposit_pct) + '%)' : '')
+        html += row(dep, money(doc.deposit_cents), 'dep')
+      }
+      if (!isQuote) {
+        if ((doc.amount_paid_cents || 0) > 0) html += row(t('paid'), '−' + money(doc.amount_paid_cents))
+        if (doc.status === 'paid' || ((doc.balance_cents || 0) <= 0 && (doc.total_cents || 0) > 0)) html += row(t('paid_full_row'), '✓', 'due ok')
+        else html += row(t('balance'), money(doc.balance_cents), 'due')
+      }
+      html += '</div>'
+
+      if (doc.notes) html += '<div class="block"><div class="label">' + esc(t('notes')) + '</div><p>' + esc(doc.notes) + '</p></div>'
+      if (doc.terms) html += '<div class="block"><div class="label">' + esc(t('terms')) + '</div><p>' + esc(doc.terms) + '</p></div>'
+      // "Como pagar": só o texto do documento; fatura paga/anulada/sem saldo não mostra (igual ao PDF)
+      var settled = !isQuote && (doc.status === 'paid' || doc.status === 'void' || (doc.balance_cents || 0) <= 0)
+      if (doc.payment_instructions && (isQuote ? (doc.deposit_cents || 0) > 0 : !settled)) {
+        html += '<div class="block"><div class="label">' + esc(t('how_to_pay')) + '</div><p>' + esc(doc.payment_instructions) + '</p></div>'
+      }
+
+      var photos = (doc.photos || []).map(httpUrl).filter(Boolean)
+      if (photos.length) {
+        html += '<div class="block"><div class="label">' + esc(t('photos')) + '</div><div class="photos">' +
+          photos.map(function (u, i) { return '<button type="button" data-photo="' + i + '" aria-label="' + esc(t('photo_n')(i + 1)) + '"><img src="' + esc(u) + '" alt="" loading="lazy"></button>' }).join('') +
+          '</div></div>'
+      }
+
+      // Aprovação registrada
+      if (isQuote && doc.accepted_at && (doc.status === 'accepted' || doc.status === 'converted')) {
+        var code = /^[0-9a-f]{64}$/.test(String(doc.signed_hash || '')) ? doc.signed_hash.slice(0, 8) : ''
+        html += '<div class="block"><div class="signed"><span class="ico" aria-hidden="true">✓</span><div><b>' + esc(t('accepted_text')(fmtDate(doc.accepted_at), doc.accepted_name)) + '</b>' +
+          (code ? '<div class="sigline">' + esc(t('signed_code')(fmtDateTime(doc.consent_at || doc.accepted_at), code)) + '</div>'
+            : doc.has_signature ? '<div class="sigline">' + esc(t('signed_e')) + '</div>' : '') + '</div></div></div>'
+      }
+      return html
+    }
+
+    function row(label, value, cls) {
+      return '<div class="row' + (cls ? ' ' + cls : '') + '"><span>' + esc(label) + '</span><span>' + esc(value) + '</span></div>'
+    }
+
+    function bannerHtml() {
+      var bn = S.banner || (PREVIEW ? { kind: 'warn', title: 'Pré-visualização', text: 'É assim que a cliente vê este documento. Aqui os botões de aprovar, recusar e pagar ficam desligados.' } : null)
+      if (!bn) return ''
+      return '<div class="banner top ' + bn.kind + ' no-print" role="status">' + (bn.title ? '<b>' + esc(bn.title) + '</b>' : '') + (bn.text ? esc(bn.text) : '') + '</div>'
+    }
+
+    function contactHtml() {
+      var p = S.data.provider || {}, b = p.business || {}
+      var phone = digits(b.phone)
+      var chips = []
+      if (phone.length >= 10) {
+        chips.push('<a class="chip" href="tel:' + esc(phone) + '">' + esc(t('call')) + '</a>')
+        chips.push('<a class="chip" href="sms:' + esc(phone) + '">' + esc(t('text')) + '</a>')
+        var wa = phone.length === 10 ? '1' + phone : phone
+        if (S.lang === 'pt' || S.lang === 'es') chips.push('<a class="chip" href="https://wa.me/' + esc(wa) + '" target="_blank" rel="noopener">' + esc(t('whatsapp')) + '</a>')
+      }
+      if (b.email) chips.push('<a class="chip" href="mailto:' + esc(b.email) + '?subject=' + encodeURIComponent(S.data.document.number) + '">' + esc(t('email')) + '</a>')
+      if (!chips.length) return ''
+      return '<div style="margin-top:16px;font-size:13.5px;color:var(--ink-soft)">' + esc(t('questions')(providerLabel())) + '</div><div class="contact">' + chips.join('') + '</div>'
+    }
+
+    function actionsHtml(d) {
+      var doc = d.document
+      var who = providerLabel()
+      var html = ''
+      if (doc.kind === 'quote') {
+        if (quoteOpen(doc)) {
+          html += '<section class="card no-print" id="actions"><h2>' + esc(t('review_title')) + '</h2>' +
+            '<p>' + esc(t('review_text')(doc.valid_until ? fmtDate(doc.valid_until) : '')) + '</p>' +
+            '<div class="btn-row"><button type="button" class="btn btn-primary" data-approve>' + esc(t('approve')) + '</button>' +
+            '<button type="button" class="btn btn-ghost" data-decline>' + esc(t('decline')) + '</button></div>' +
+            contactHtml() + '</section>'
+        } else if (doc.status === 'accepted' || doc.status === 'converted') {
+          var rel = (d.related || []).filter(function (r) { return r && r.url })
+          html += '<section class="card no-print" id="actions"><h2>' + esc(t('st_accepted')) + '</h2>' +
+            '<p>' + esc(t('accepted_text')(fmtDate(doc.accepted_at), doc.accepted_name)) + '</p>' +
+            (doc.status === 'converted' && !rel.length ? '<p>' + esc(t('converted_text')) + '</p>' : '') +
+            ((doc.deposit_cents || 0) > 0 && doc.status === 'accepted' ? '<p>' + esc(t('deposit_next')(money(doc.deposit_cents), who)) + '</p>' : '') +
+            (rel.length ? '<div class="label" style="margin-top:6px">' + esc(t('invoices_for')) + '</div><div class="related">' + rel.map(function (r) {
+              return '<a href="' + esc(r.url) + '"><span><b>' + esc(r.number) + '</b>' + (r.stage_label ? ' · ' + esc(r.stage_label) : '') + '</span><span>' + esc(money(r.total_cents)) + ' · ' + esc(t('view')) + ' →</span></a>'
+            }).join('') + '</div>' : '') +
+            contactHtml() + '</section>'
+        } else if (doc.status === 'declined') {
+          html += '<section class="card no-print" id="actions"><h2>' + esc(t('st_declined')) + '</h2><p>' + esc(t('declined_text')(fmtDate(doc.declined_at), who)) + '</p>' + contactHtml() + '</section>'
+        } else if (doc.status === 'expired') {
+          html += '<section class="card no-print" id="actions"><h2>' + esc(t('st_expired')) + '</h2><p>' + esc(t('expired_text')(fmtDate(doc.valid_until), who)) + '</p>' + contactHtml() + '</section>'
+        }
+        return html
+      }
+
+      // Fatura
+      if (doc.status === 'paid' || ((doc.balance_cents || 0) <= 0 && (doc.total_cents || 0) > 0)) {
+        return '<section class="card no-print" id="actions"><h2>' + esc(t('paid_title')) + '</h2><p>' + esc(t('paid_text')(fmtDate(doc.paid_at))) + '</p>' + contactHtml() + '</section>'
+      }
+      if (!invoiceOpen(doc)) return ''
+      // Voltou do Stripe e o webhook ainda não registrou: nada de botão de pagar (cobraria de novo)
+      if (S.confirming) {
+        var ch = contactHtml()
+        return ch ? '<section class="card no-print" id="actions">' + ch + '</section>' : ''
+      }
+      var lines = []
+      if (doc.status === 'overdue' && doc.due_date) lines.push(t('overdue_on')(fmtDate(doc.due_date)))
+      else if (doc.due_date) lines.push(t('due_on')(fmtDate(doc.due_date)))
+      if (doc.status === 'partial' || (doc.amount_paid_cents || 0) > 0) lines.push(t('partial_text')(money(doc.amount_paid_cents), money(doc.balance_cents)))
+      html += '<section class="card no-print" id="actions"><h2>' + esc(t('pay_title')) + '</h2>' +
+        (lines.length ? '<p>' + esc(lines.join(' ')) + '</p>' : '')
+      if (d.can_pay_online) {
+        html += '<button type="button" class="btn btn-primary btn-block" data-pay>' + esc(t('pay_card')(money(doc.balance_cents))) + '</button>' +
+          '<div class="note">🔒 ' + esc(t('pay_secure')) + '</div><div class="err" id="payErr" role="alert"></div>'
+        if (doc.payment_instructions) html += '<div class="label" style="margin-top:16px">' + esc(t('other_ways')) + '</div><div class="howpay">' + esc(doc.payment_instructions) + '</div>'
+      } else if (doc.payment_instructions) {
+        html += '<div class="label" style="margin-top:4px">' + esc(t('how_to_pay')) + '</div><div class="howpay">' + esc(doc.payment_instructions) + '</div>'
+      } else {
+        html += '<p>' + esc(t('contact_to_pay')(who)) + '</p>'
+      }
+      html += contactHtml() + '</section>'
+      return html
+    }
+
+    function primaryCta(doc, d) {
+      if (PREVIEW || S.confirming) return null
+      if (quoteOpen(doc)) return { label: t('approve'), run: openApprove }
+      if (invoiceOpen(doc) && d.can_pay_online) return { label: t('pay_card')(money(doc.balance_cents)), run: pay }
+      return null
+    }
+
+    function wire(d) {
+      document.querySelectorAll('[data-print]').forEach(function (b) { b.onclick = function () { window.print() } })
+      if (PREVIEW) {
+        document.querySelectorAll('[data-approve],[data-decline],[data-pay]').forEach(function (b) { b.disabled = true })
+        document.querySelectorAll('[data-photo]').forEach(function (b) { b.onclick = function () { openLightbox(Number(b.getAttribute('data-photo'))) } })
+        return
+      }
+      document.querySelectorAll('[data-approve]').forEach(function (b) { b.onclick = openApprove })
+      document.querySelectorAll('[data-decline]').forEach(function (b) { b.onclick = openDecline })
+      document.querySelectorAll('[data-pay]').forEach(function (b) { b.onclick = pay })
+      document.querySelectorAll('[data-photo]').forEach(function (b) { b.onclick = function () { openLightbox(Number(b.getAttribute('data-photo'))) } })
+
+      // Barra fixa: some quando o cartão de ações aparece na tela
+      var sticky = document.getElementById('sticky'), actions = document.getElementById('actions')
+      if (sticky) {
+        var cta = primaryCta(d.document, d)
+        sticky.querySelector('[data-cta]').onclick = function () { if (cta) cta.run() }
+        if (actions && 'IntersectionObserver' in window) {
+          new IntersectionObserver(function (entries) {
+            sticky.classList.toggle('show', !entries[0].isIntersecting)
+          }).observe(actions)
+        } else sticky.classList.add('show')
+      }
+    }
+
+    // ── Aprovar com assinatura ──────────────────────────────────────────
+    function modal(html) {
+      var box = document.createElement('div')
+      box.className = 'modal'
+      box.setAttribute('role', 'dialog')
+      box.setAttribute('aria-modal', 'true')
+      box.innerHTML = '<div class="dialog">' + html + '</div>'
+      function close() {
+        box.remove()
+        document.body.style.overflow = ''
+        document.removeEventListener('keydown', onKey)
+      }
+      function onKey(e) { if (e.key === 'Escape') close() }
+      box.addEventListener('click', function (e) { if (e.target === box) close() })
+      document.addEventListener('keydown', onKey)
+      document.body.style.overflow = 'hidden'
+      document.body.appendChild(box)
+      return { box: box, close: close }
+    }
+
+    function openApprove() {
+      var doc = S.data.document
+      var who = providerLabel()
+      var amount = money(doc.total_cents)
+      var m = modal(
+        '<h2>' + esc(t('approve_title')) + '</h2>' +
+        '<div class="sub">' + esc(doc.number) + (doc.title ? ' · ' + esc(doc.title) : '') + ' · <b>' + esc(amount) + '</b></div>' +
+        '<div class="field"><label for="accName">' + esc(t('your_name')) + '</label><input id="accName" type="text" autocomplete="name" maxlength="120" value="' + esc(doc.client_name || '') + '"></div>' +
+        '<div class="field"><label>' + esc(t('sign')) + '</label><div class="pad-wrap"><canvas id="pad" aria-label="' + esc(t('sign')) + '"></canvas>' +
+        '<div class="base"></div><div class="hint">' + esc(t('sign_hint')) + '</div><button type="button" class="clear" id="padClear">' + esc(t('clear')) + '</button></div></div>' +
+        '<p class="consent">' + esc(t('consent')(doc.number, amount, who)) + '</p>' +
+        // Consentimento ESIGN obrigatório (texto versão esign-v1, gravado no servidor)
+        '<label class="esign"><input type="checkbox" id="accConsent"><span>' + esc(t('esign')) + '</span></label>' +
+        '<div class="btn-row"><button type="button" class="btn btn-ghost" data-close>' + esc(t('cancel')) + '</button>' +
+        '<button type="button" class="btn btn-primary" id="accSend">' + esc(t('approve_btn')(doc.number, amount)) + '</button></div>' +
+        '<div class="err" id="accErr" role="alert"></div>'
+      )
+      m.box.querySelector('[data-close]').onclick = m.close
+      var pad = signaturePad(m.box.querySelector('#pad'))
+      m.box.querySelector('#padClear').onclick = pad.clear
+      var nameEl = m.box.querySelector('#accName')
+      var consentEl = m.box.querySelector('#accConsent')
+      var errEl = m.box.querySelector('#accErr')
+      var btn = m.box.querySelector('#accSend')
+      consentEl.onchange = function () { if (consentEl.checked && errEl.textContent === t('e_consent')) errEl.textContent = '' }
+      btn.onclick = async function () {
+        var name = nameEl.value.replace(/\s+/g, ' ').trim()
+        errEl.textContent = ''
+        if (name.length < 2) { errEl.textContent = t('e_name'); nameEl.focus(); return }
+        if (!consentEl.checked) { errEl.textContent = t('e_consent'); consentEl.focus(); return }
+        var signature = null
+        if (!pad.isEmpty()) {
+          signature = pad.toDataURL()
+          if (!signature) { errEl.textContent = t('e_sign_big'); return }
+        }
+        btn.disabled = true
+        var label = btn.textContent
+        btn.textContent = t('sending')
+        try {
+          // version: o servidor recusa (409 'changed') se o orçamento mudou depois que a página abriu
+          var res = await call('POST', { action: 'accept', name: name, signature: signature, consent: true, version: doc.updated_at || null })
+          if (!res.ok) {
+            var code = res.data && res.data.code
+            errEl.textContent = errText(res)
+            btn.disabled = false; btn.textContent = label
+            if (code === 'changed') {
+              setTimeout(function () { m.close(); S.banner = { kind: 'warn', title: t('changed_title'), text: t('changed_text') }; load().then(function () { window.scrollTo({ top: 0, behavior: 'smooth' }) }) }, 1800)
+            } else if (code === 'expired' || code === 'already_answered') setTimeout(function () { m.close(); load() }, 1800)
+            return
+          }
+          m.close()
+          S.banner = { kind: 'ok', title: t('accepted_banner')(who) }
+          if (res.data && res.data.document) { S.data = res.data; render() } else await load()
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        } catch (_) {
+          errEl.textContent = t('e_generic')
+          btn.disabled = false; btn.textContent = label
+        }
+      }
+      setTimeout(function () { pad.resize() }, 30)
+    }
+
+    function openDecline() {
+      var who = providerLabel()
+      var m = modal(
+        '<h2>' + esc(t('decline_title')) + '</h2>' +
+        '<div class="sub">' + esc(t('decline_sub')(who)) + '</div>' +
+        '<div class="field"><label for="decReason">' + esc(t('reason')) + '</label><textarea id="decReason" rows="3" maxlength="500" placeholder="' + esc(t('reason_ph')) + '"></textarea></div>' +
+        '<div class="btn-row"><button type="button" class="btn btn-ghost" data-close>' + esc(t('cancel')) + '</button>' +
+        '<button type="button" class="btn btn-primary" id="decSend">' + esc(t('confirm_decline')) + '</button></div>' +
+        '<div class="err" id="decErr" role="alert"></div>'
+      )
+      m.box.querySelector('[data-close]').onclick = m.close
+      var btn = m.box.querySelector('#decSend'), errEl = m.box.querySelector('#decErr')
+      btn.onclick = async function () {
+        btn.disabled = true
+        var label = btn.textContent
+        btn.textContent = t('sending')
+        errEl.textContent = ''
+        try {
+          var res = await call('POST', { action: 'decline', reason: m.box.querySelector('#decReason').value.trim().slice(0, 500) })
+          if (!res.ok) {
+            errEl.textContent = errText(res)
+            btn.disabled = false; btn.textContent = label
+            return
+          }
+          m.close()
+          S.banner = { kind: 'warn', title: t('declined_banner') }
+          if (res.data && res.data.document) { S.data = res.data; render() } else await load()
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        } catch (_) {
+          errEl.textContent = t('e_generic')
+          btn.disabled = false; btn.textContent = label
+        }
+      }
+      setTimeout(function () { var r = m.box.querySelector('#decReason'); if (r) r.focus() }, 30)
+    }
+
+    // Quadro de assinatura: toque, caneta e mouse (pointer events)
+    function signaturePad(canvas) {
+      var ctx = canvas.getContext('2d')
+      var drawing = false, dirty = false, last = null, dpr = 1
+      function setup() {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+        ctx.lineWidth = 2.4; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.strokeStyle = '#111827'; ctx.fillStyle = '#111827'
+      }
+      function resize() {
+        var r = canvas.getBoundingClientRect()
+        if (!r.width) return
+        var copy = null
+        if (dirty) { copy = document.createElement('canvas'); copy.width = canvas.width; copy.height = canvas.height; copy.getContext('2d').drawImage(canvas, 0, 0) }
+        dpr = Math.min(window.devicePixelRatio || 1, 2)
+        canvas.width = Math.round(r.width * dpr)
+        canvas.height = Math.round(r.height * dpr)
+        if (copy) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(copy, 0, 0, canvas.width, canvas.height) }
+        setup()
+      }
+      function pos(e) { var r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top } }
+      canvas.addEventListener('pointerdown', function (e) {
+        e.preventDefault()
+        drawing = true
+        try { canvas.setPointerCapture(e.pointerId) } catch (_) {}
+        last = pos(e)
+        ctx.beginPath(); ctx.arc(last.x, last.y, 1.1, 0, Math.PI * 2); ctx.fill()
+        dirty = true
+      })
+      canvas.addEventListener('pointermove', function (e) {
+        if (!drawing) return
+        e.preventDefault()
+        var p = pos(e)
+        ctx.beginPath(); ctx.moveTo(last.x, last.y)
+        ctx.quadraticCurveTo(last.x, last.y, (last.x + p.x) / 2, (last.y + p.y) / 2)
+        ctx.lineTo(p.x, p.y); ctx.stroke()
+        last = p
+        dirty = true
+      })
+      function end() { drawing = false; last = null }
+      canvas.addEventListener('pointerup', end)
+      canvas.addEventListener('pointercancel', end)
+      canvas.addEventListener('pointerleave', function () { if (drawing) end() })
+      window.addEventListener('resize', resize)
+      return {
+        resize: resize,
+        clear: function () { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height); setup(); dirty = false },
+        isEmpty: function () { return !dirty },
+        // PNG pequeno (limite do servidor ~60 KB): exporta em até 600 px de largura
+        toDataURL: function () {
+          var widths = [600, 420, 300]
+          for (var i = 0; i < widths.length; i++) {
+            var w = Math.min(widths[i], canvas.width)
+            var h = Math.round(canvas.height * (w / canvas.width))
+            var out = document.createElement('canvas')
+            out.width = w; out.height = h
+            out.getContext('2d').drawImage(canvas, 0, 0, w, h)
+            var url = out.toDataURL('image/png')
+            if (url.length <= 80000) return url
+          }
+          return null
+        }
+      }
+    }
+
+    // ── Pagar no cartão (Stripe Checkout) ───────────────────────────────
+    // Erro perto do botão tocado: no cartão de ações e na barra fixa (só uma das duas está na tela)
+    function showPayErr(msg) {
+      var shown = false
+      ;['payErr', 'stickyErr'].forEach(function (id) {
+        var el = document.getElementById(id)
+        if (el) { el.textContent = msg; shown = true }
+      })
+      if (msg && !shown) alert(msg)
+    }
+
+    async function pay() {
+      if (S.busy || S.confirming) return
+      var btns = document.querySelectorAll('[data-pay],[data-cta]')
+      S.busy = true
+      showPayErr('')
+      btns.forEach(function (b) { b.disabled = true; b.dataset.label = b.textContent; b.textContent = t('opening_pay') })
+      var res = null
+      try {
+        res = await call('POST', { action: 'pay' })
+        if (res.ok && res.data && /^https:\/\//.test(String(res.data.checkout_url || ''))) {
+          location.href = res.data.checkout_url
+          return
+        }
+        var code = res.data && res.data.code
+        showPayErr(code === 'not_open' ? t('e_pay') : errText(res))
+      } catch (_) {
+        showPayErr(t('e_generic'))
+      }
+      S.busy = false
+      btns.forEach(function (b) { b.disabled = false; b.textContent = b.dataset.label || b.textContent })
+      // A fatura mudou por fora (paga, anulada, sem pagamento online): mostra o estado atual
+      var c = res && res.data && res.data.code
+      if (res && (res.status === 410 || ['nothing_to_pay', 'not_open', 'pay_unavailable', 'amount_too_small'].indexOf(c) >= 0)) {
+        setTimeout(function () { load() }, 2200)
+      }
+    }
+
+    // ── Fotos em tela cheia ─────────────────────────────────────────────
+    function openLightbox(start) {
+      var urls = (S.data.document.photos || []).map(httpUrl).filter(Boolean)
+      if (!urls.length) return
+      var idx = start
+      var box = document.createElement('div')
+      box.className = 'lightbox'
+      box.setAttribute('role', 'dialog')
+      box.innerHTML = '<button type="button" class="lb-close" aria-label="' + esc(t('close')) + '">×</button>' +
+        (urls.length > 1 ? '<button type="button" class="lb-prev" aria-label="‹">‹</button><button type="button" class="lb-next" aria-label="›">›</button>' : '') +
+        '<img alt="">'
+      var img = box.querySelector('img')
+      function show() { img.src = urls[idx] }
+      function go(n) { idx = (idx + n + urls.length) % urls.length; show() }
+      function onKey(e) { if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') go(-1); else if (e.key === 'ArrowRight') go(1) }
+      function close() { box.remove(); document.removeEventListener('keydown', onKey); document.body.style.overflow = '' }
+      box.addEventListener('click', function (e) { if (e.target === box || e.target.classList.contains('lb-close')) close() })
+      var prev = box.querySelector('.lb-prev'), next = box.querySelector('.lb-next')
+      if (prev) prev.onclick = function (e) { e.stopPropagation(); go(-1) }
+      if (next) next.onclick = function (e) { e.stopPropagation(); go(1) }
+      var x0 = null
+      box.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX }, { passive: true })
+      box.addEventListener('touchend', function (e) {
+        if (x0 == null) return
+        var dx = e.changedTouches[0].clientX - x0
+        if (Math.abs(dx) > 40 && urls.length > 1) go(dx < 0 ? 1 : -1)
+        x0 = null
+      })
+      document.addEventListener('keydown', onKey)
+      document.body.style.overflow = 'hidden'
+      document.body.appendChild(box)
+      show()
+    }
+
+    // ── Volta do Stripe (?paid=1): confirma e acompanha o webhook ────────
+    // Enquanto o pagamento não aparece, a página fica em "confirmando" (sem botão de pagar) e
+    // consulta de novo: 8× a cada 2,5 s, depois 6× a cada 10 s. Recarregar a aba nesse meio-tempo
+    // continua confirmando (marca na sessionStorage, 15 min).
+    function paidConfirmed(doc, before) {
+      return doc.status === 'paid' || (doc.balance_cents || 0) <= 0 || (doc.amount_paid_cents || 0) > before
+    }
+    function paidDone() {
+      S.confirming = false
+      writePaidMark(null)
+      S.banner = { kind: 'ok', title: t('paid_banner'), text: t('paid_banner_done') }
+      render()
+    }
+
+    async function afterPaid(mark) {
+      var first = await load({ silent: true, paid: true })
+      if (qs.get('paid') === '1') history.replaceState(null, '', location.pathname + (PREVIEW ? '?preview=1' : ''))
+      if (!first) return
+      var doc = first.document
+      if (doc.kind !== 'invoice') { writePaidMark(null); return render() }
+      var before = mark ? Number(mark.before) || 0 : (doc.amount_paid_cents || 0)
+      if (mark ? paidConfirmed(doc, before) : (doc.status === 'paid' || (doc.balance_cents || 0) <= 0)) return paidDone()
+      if (!mark) writePaidMark({ at: Date.now(), before: before })
+
+      S.confirming = true
+      S.banner = { kind: 'ok', title: t('paid_confirming'), text: t('paid_banner_wait') }
+      render()
+      var waits = [2500, 2500, 2500, 2500, 2500, 2500, 2500, 2500, 10000, 10000, 10000, 10000, 10000, 10000]
+      for (var i = 0; i < waits.length; i++) {
+        await new Promise(function (r) { setTimeout(r, waits[i]) })
+        var res = await fetchDoc()
+        if (res && res.status === 410 && res.data && res.data.code === 'void') return showVoid(res.data, true)
+        if (res && res.ok && res.data && res.data.document) {
+          useData(res.data)
+          if (paidConfirmed(res.data.document, before)) return paidDone()
+        }
+        // Passou da espera curta: mensagem final (continua sem botão de pagar e segue conferindo)
+        if (i === 7) {
+          S.banner = { kind: 'warn', title: t('paid_confirming'), text: t('paid_banner_slow') }
+          render()
+        }
+      }
+    }
+
+    // Voltar do Stripe pelo botão do navegador: a página volta do cache com os botões travados
+    window.addEventListener('pageshow', function (e) {
+      if (!e.persisted) return
+      S.busy = false
+      if (!S.confirming && S.data) load()
+    })
+
+    var paidMark = readPaidMark()
+    if (qs.get('paid') === '1' || paidMark) afterPaid(qs.get('paid') === '1' ? null : paidMark)
+    else load()
+  })()
+  </script>
+</body>
+</html>

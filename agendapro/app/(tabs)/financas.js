@@ -152,7 +152,7 @@ function MonthView({ d, isCurrent, onChanged }) {
 
   return (
     <View>
-      {d.unmarked_count > 0 ? (
+      {d.unmarked_count > 0 && d.unmarked_cents > 0 ? (
         <Pressable onPress={() => router.push('/agenda')} style={st.unmarked}>
           <Ionicons name="alert-circle-outline" size={20} color={colors.warning} />
           <View style={{ flex: 1 }}>
@@ -169,15 +169,20 @@ function MonthView({ d, isCurrent, onChanged }) {
 
       <View style={st.kpiRow}>
         <KPI label="Faturado" value={fmtMoney(d.revenue_cents)} tone="green"
-          sub={d.no_show_deposits_cents > 0
-            ? `${plural(d.completed, 'atendimento', 'atendimentos')} + ${fmtMoney(d.no_show_deposits_cents)} de sinais de faltas`
-            : plural(d.completed, 'atendimento realizado', 'atendimentos realizados')} />
+          sub={d.invoice_revenue_cents > 0 && d.invoice_revenue_cents >= (d.revenue_cents || 0)
+            ? 'recebido em faturas'
+            : d.invoice_revenue_cents > 0
+              ? `${fmtMoney(d.invoice_revenue_cents)} em faturas + atendimentos`
+              : d.no_show_deposits_cents > 0
+                ? `${plural(d.completed, 'atendimento', 'atendimentos')} + ${fmtMoney(d.no_show_deposits_cents)} de sinais de faltas`
+                : plural(d.completed, 'atendimento realizado', 'atendimentos realizados')} />
         <KPI label="Previsto" value={fmtMoney(d.expected_cents)}
           sub={d.expected_count ? plural(d.expected_count, 'horário marcado', 'horários marcados') : 'Nada agendado pra frente'} />
       </View>
       <View style={[st.kpiRow, { marginTop: spacing.md }]}>
         <KPI label="Gorjetas" value={fmtMoney(d.tips_cents)} sub={d.tips_cents ? 'Entram no lucro' : 'Marque no pagamento'} />
-        <KPI label="Ticket médio" value={fmtMoney(d.avg_ticket_cents)} sub="por atendimento" />
+        <KPI label="Ticket médio" value={d.avg_ticket_cents > 0 ? fmtMoney(d.avg_ticket_cents) : '—'}
+          sub={d.avg_ticket_cents > 0 ? 'por atendimento' : d.invoice_revenue_cents > 0 ? 'Seu serviço é cobrado por fatura' : 'Nenhum atendimento pago no período'} />
       </View>
 
       {nothing ? (

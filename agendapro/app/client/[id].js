@@ -14,6 +14,7 @@ import { colors, radius, spacing, type } from '../../lib/theme'
 import { MONTHS, dateKey, fmtDay, fmtMoney, fmtPhone, fmtWhen, todayKey } from '../../lib/format'
 import { PUBLIC_PAGE } from '../../lib/config'
 import { ALL_TEMPLATES, callPhone, firstName, messageLang, msgDate, msgTime, openWhatsApp, renderAny, sendSms } from '../../lib/whatsapp'
+import { DocStatusBadge, docKindLabel } from '../../lib/documents'
 import { Avatar, Badge, Button, Card, Divider, Empty, ErrorBox, H2, KPI, Loading, Muted, P, Row, Screen, Section, Small, StatusBadge } from '../../components/ui'
 
 const LANG_SHORT = { pt: 'Português', en: 'English', es: 'Español' }
@@ -88,6 +89,26 @@ export default function ClientDetail() {
 
   useFocusEffect(useCallback(() => { load() }, [load]))
 
+  // Orçamentos e faturas da cliente. null = carregando, false = sem a rota/erro (seção some)
+  const [docs, setDocs] = useState(null)
+  const canDocs = app.can('quotes') || app.can('invoices')
+  const loadDocs = useCallback(async () => {
+    if (!id) return
+    try {
+      const cid = encodeURIComponent(String(id))
+      const [qs, inv] = await Promise.all([
+        api(`/api/agenda/documents?kind=quote&status=all&client_id=${cid}`),
+        api(`/api/agenda/documents?kind=invoice&status=all&client_id=${cid}`),
+      ])
+      const key = (d) => String(d.created_at || d.issue_date || '')
+      setDocs([...(qs.documents || []), ...(inv.documents || [])].sort((a, b) => key(b).localeCompare(key(a))))
+    } catch (_) {
+      setDocs(false)
+    }
+  }, [id])
+
+  useFocusEffect(useCallback(() => { loadDocs() }, [loadDocs]))
+
   const c = data?.client
   const st = data?.stats
   const edit = () => router.push({ pathname: '/client/edit', params: { id: String(id) } })
@@ -152,6 +173,11 @@ export default function ClientDetail() {
     setShowMsgs(false)
     const ok = await openWhatsApp(c.whatsapp, key ? renderAny(key, lang, vars(), settings) : '')
     if (!ok) notify('WhatsApp não abriu', 'Confira se o WhatsApp está instalado no celular.')
+  }
+
+  async function newDoc(kind) {
+    if (!(await ensureFeature(app, kind === 'invoice' ? 'invoices' : 'quotes'))) return
+    router.push({ pathname: '/document/edit', params: { kind, client_id: c.id } })
   }
 
   async function makeRecurring() {
@@ -264,6 +290,32 @@ export default function ClientDetail() {
             </>
           ) : null}
         </Card>
+      ) : null}
+
+      {/* Orçamentos e faturas */}
+      {docs !== false && (canDocs || (docs && docs.length)) ? (
+        <Section title="Orçamentos e faturas">
+          <Card padded={false}>
+            {docs && docs.length ? docs.slice(0, 5).map((d, i) => (
+              <View key={d.id}>
+                {i > 0 ? <Divider style={{ marginVertical: 0, marginLeft: spacing.lg }} /> : null}
+                <Row title={`${d.number || docKindLabel(d.kind)}${d.title ? ' · ' + d.title : ''}`}
+                  subtitle={`${d.issue_date ? fmtDay(String(d.issue_date).slice(0, 10)) + ' · ' : ''}${fmtMoney(d.total_cents || 0)}${d.kind === 'invoice' && Number(d.balance_cents) > 0 && d.status !== 'draft' && d.status !== 'void' ? ` · falta ${fmtMoney(d.balance_cents)}` : ''}`}
+                  right={<DocStatusBadge kind={d.kind} status={d.status} />}
+                  onPress={() => router.push(`/document/${d.id}`)} />
+              </View>
+            )) : (
+              <Muted style={{ padding: spacing.lg }}>{docs ? 'Nenhum orçamento ou fatura pra ela ainda.' : 'Carregando…'}</Muted>
+            )}
+          </Card>
+          {docs && docs.length > 5 ? <Muted style={{ marginTop: spacing.xs, marginLeft: 2 }}>Mostrando os 5 mais recentes de {docs.length}.</Muted> : null}
+          {canDocs ? (
+            <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm }}>
+              <Button small title="Novo orçamento" icon="document-text-outline" variant="secondary" style={{ flex: 1 }} onPress={() => newDoc('quote')} />
+              <Button small title="Nova fatura" icon="receipt-outline" variant="secondary" style={{ flex: 1 }} onPress={() => newDoc('invoice')} />
+            </View>
+          ) : null}
+        </Section>
       ) : null}
 
       {/* Observações */}

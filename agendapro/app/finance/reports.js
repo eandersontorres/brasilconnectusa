@@ -26,6 +26,8 @@ const EXPORTS = [
   { kind: 'expenses', title: 'Despesas', icon: 'receipt-outline', file: 'despesas', sub: 'Com a linha sugerida do Schedule C' },
   { kind: 'mileage', title: 'Milhagem', icon: 'car-outline', file: 'milhagem', sub: 'Registro de milhas no formato que o IRS pede' },
   { kind: 'clients', title: 'Clientes', icon: 'people-outline', file: 'clientes', sub: 'Lista com contato, visitas e gasto' },
+  { kind: 'invoices', title: 'Faturas', icon: 'document-text-outline', file: 'faturas', sub: 'Número, cliente, emissão, vencimento, total, pago e saldo' },
+  { kind: 'invoice_payments', title: 'Pagamentos de fatura', icon: 'cash-outline', file: 'pagamentos-faturas', sub: 'Cada pagamento na data em que entrou (bate com o faturado)' },
 ]
 
 export default function ReportsScreen() {

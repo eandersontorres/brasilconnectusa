@@ -7,6 +7,7 @@
 // Extras: biometricLabel() → 'Face ID' | 'Touch ID' | 'digital' | ...
 //         authenticateDetailed(reason) → { success, error }
 import { Platform } from 'react-native'
+import { BRAND } from './variant'
 
 const isWeb = Platform.OS === 'web'
 const LOCK_KEY = 'agendapro.biometric.lock'
@@ -65,7 +66,7 @@ export async function setLockEnabled(v) {
  * Pede Face ID / digital. Se falhar várias vezes, o sistema oferece a senha do
  * aparelho (disableDeviceFallback: false). → { success, error }
  */
-export async function authenticateDetailed(reason = 'Desbloquear o AgendaPro') {
+export async function authenticateDetailed(reason = `Desbloquear o ${BRAND.name}`) {
   if (isWeb) return { success: true, error: null }
   try {
     const r = await LA().authenticateAsync({
