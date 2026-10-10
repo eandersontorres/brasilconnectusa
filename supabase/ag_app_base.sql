@@ -1,7 +1,7 @@
 -- ═════════════════════════════════════════════════════════════════════════════
 -- 09/10/2026 · App AgendaPro (agendapro/) · base
 -- Recursos por plano ficam em api/_lib/agendaPlans.js; aqui so o que o banco precisa.
--- NAO APLICADO ainda. Idempotente. Aplicar ANTES do deploy (providerAuth.js le
+-- APLICADO em producao em 09/10/2026 (migration ag_app_base). Idempotente. Aplicar ANTES do deploy (providerAuth.js le
 -- vertical, timezone e app_settings).
 -- ═════════════════════════════════════════════════════════════════════════════
 

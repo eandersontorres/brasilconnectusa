@@ -4,7 +4,7 @@
 -- ag_recurring: cliente fixa (semanal, quinzenal, 3 ou 4 semanas); api/_lib/recurring.js
 -- gera os agendamentos das proximas 6 semanas (ao salvar e no cron diario
 -- api/cron/agenda-recurring).
--- NAO APLICADO ainda. Idempotente. Ordem: ag_app_base.sql → ag_app_team.sql → demais.
+-- APLICADO em producao em 09/10/2026 (migration ag_app_team). Idempotente. Ordem: ag_app_base.sql → ag_app_team.sql → demais.
 -- ═════════════════════════════════════════════════════════════════════════════
 
 -- ag_staff — uma linha por profissional ou equipe de limpeza

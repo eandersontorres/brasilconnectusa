@@ -2,7 +2,7 @@
 -- 09/10/2026 · App AgendaPro (agendapro/) · clientes (CRM, lista de espera)
 -- Ficha completa da cliente (idioma, aniversario, etiquetas, casa), lista de espera
 -- e estatisticas calculadas a partir da agenda (api/agenda/clients.js, waitlist.js).
--- NAO APLICADO ainda. Idempotente. Ordem: ag_app_base.sql → ag_app_team.sql → este.
+-- APLICADO em producao em 09/10/2026 (migration ag_app_clients). Idempotente. Ordem: ag_app_base.sql → ag_app_team.sql → este.
 -- ═════════════════════════════════════════════════════════════════════════════
 
 -- ── ag_clients: ficha completa ──────────────────────────────────────────────

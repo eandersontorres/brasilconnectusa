@@ -201,8 +201,7 @@ ficar neutro (regra anti-steering da Apple). Detalhes e plano B:
 
 ## Banco, crons e variáveis
 
-**Migrations** (SQL Editor do Supabase, nesta ordem; todas idempotentes, com
-`NAO APLICADO ainda` no cabeçalho até aplicar):
+**Migrations** (todas idempotentes; **aplicadas em produção em 09/10/2026**, nesta ordem):
 `ag_app_base.sql` → `ag_app_team.sql` → `ag_app_agenda.sql` →
 `ag_app_clients.sql` → `ag_app_setup.sql` → `ag_app_finance.sql` →
 `ag_app_push.sql`. A `team` vem cedo porque outras rotas fazem join com

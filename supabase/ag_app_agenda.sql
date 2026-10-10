@@ -2,7 +2,7 @@
 -- 09/10/2026 · App AgendaPro (agendapro/) · agenda
 -- Agendamento manual pelo app, servico avulso, pagamento no atendimento (valor,
 -- gorjeta e forma) e anotacao interna. Rota: api/agenda/appointments.js.
--- NAO APLICADO ainda. Idempotente. Ordem: ag_app_base.sql → ag_app_team.sql → este.
+-- APLICADO em producao em 09/10/2026 (migration ag_app_agenda). Idempotente. Ordem: ag_app_base.sql → ag_app_team.sql → este.
 -- ═════════════════════════════════════════════════════════════════════════════
 
 -- Servico avulso (sem service_id) e turnover: service_id ja pode ser NULL

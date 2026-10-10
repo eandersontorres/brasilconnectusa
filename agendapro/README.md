@@ -189,10 +189,10 @@ novas. Todos são idempotentes (pode rodar de novo sem estragar):
 6. `supabase/ag_app_finance.sql` — despesas e milhagem
 7. `supabase/ag_app_push.sql` — tokens de notificação dos celulares
 
-(`ag_agendapro_operavel.sql` e `ag_turnover_ical.sql` já estão aplicados em produção.)
-
-Depois de aplicar, troque a linha `NAO APLICADO ainda` do cabeçalho de cada
-arquivo por `APLICADO em producao em <data>`.
+**As 7 já foram aplicadas em produção em 09/10/2026** (assim como
+`ag_agendapro_operavel.sql` e `ag_turnover_ical.sql`). Ficam aqui pra outro
+ambiente (ex.: um projeto Supabase de teste). Migration nova: cabeçalho com
+`NAO APLICADO ainda` até aplicar, depois `APLICADO em producao em <data>`.
 
 ### Variáveis na Vercel
 

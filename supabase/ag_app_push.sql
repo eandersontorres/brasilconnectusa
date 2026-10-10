@@ -3,7 +3,7 @@
 -- Tokens Expo dos celulares da profissional. api/agenda/push-token.js grava;
 -- api/_lib/agendaPush.js envia (agendamento novo, avaliacao, resumo de amanha,
 -- aviso de cobranca) e desativa o token quando a Expo responde DeviceNotRegistered.
--- NAO APLICADO ainda. Idempotente. Aplicar depois de ag_app_base.sql.
+-- APLICADO em producao em 09/10/2026 (migration ag_app_push). Idempotente. Aplicar depois de ag_app_base.sql.
 -- ═════════════════════════════════════════════════════════════════════════════
 
 -- ag_push_tokens — um celular por linha (o mesmo token troca de dona se outra conta entrar no aparelho)

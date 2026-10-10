@@ -2,7 +2,7 @@
 -- 09/10/2026 · App AgendaPro (agendapro/) · configuracao do negocio
 -- Folgas parciais (mais de um bloqueio no mesmo dia) e horarios livres que
 -- respeitam esses bloqueios. Usado por api/agenda/blocked.js e availability.js.
--- NAO APLICADO ainda. Idempotente. Aplicar depois de ag_app_base.sql.
+-- APLICADO em producao em 09/10/2026 (migration ag_app_setup). Idempotente. Aplicar depois de ag_app_base.sql.
 -- ═════════════════════════════════════════════════════════════════════════════
 
 -- ag_blocked_dates: antes era 1 bloqueio por dia (UNIQUE provider_id, date).

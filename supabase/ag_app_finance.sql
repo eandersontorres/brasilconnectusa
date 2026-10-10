@@ -4,7 +4,7 @@
 -- Faturamento vem de ag_appointments (paid_cents/tip_cents/paid_method da entrega
 -- agenda); preferencias (meta, % do imposto, taxa por milha) ficam em
 -- ag_providers.app_settings. Quem le e grava: api/agenda/finance.js.
--- NAO APLICADO ainda. Idempotente. Ordem: ag_app_base.sql → ag_app_team.sql → este.
+-- APLICADO em producao em 09/10/2026 (migration ag_app_finance). Idempotente. Ordem: ag_app_base.sql → ag_app_team.sql → este.
 -- ═════════════════════════════════════════════════════════════════════════════
 
 -- ag_expenses — uma linha por despesa do negocio
