@@ -56,7 +56,9 @@ export async function requireBusinessAuth(req, supabase, business_id) {
 
   // Match por user_id (preferido — anti-collision) OU por email
   const ownsByUserId = business.owner_user_id && business.owner_user_id === user.id
-  const ownsByEmail  = ownerEmail && ownerEmail === userEmail
+  // Pelo e-mail so quando o negocio ainda nao tem login dono: com owner_user_id
+  // de outra conta (login apagado ou e-mail trocado), o mesmo e-mail nao herda.
+  const ownsByEmail  = !business.owner_user_id && ownerEmail && ownerEmail === userEmail
 
   if (!ownsByUserId && !ownsByEmail) {
     return {

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <!-- O link tem token: nao vaza pro Google Maps nem pra outros sites -->
+  <meta name="referrer" content="no-referrer">
+  <meta name="theme-color" content="#FAF7F0">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Rota do dia — AgendaPro</title>
+  <link rel="stylesheet" href="/css/premium.css">
+  <style>
+    body { background: var(--paper); }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 20px 16px 48px; padding-bottom: calc(48px + env(safe-area-inset-bottom)); }
+    .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .kicker { text-transform: uppercase; letter-spacing: .16em; font-size: 11px; font-weight: 600; color: var(--accent-deep); }
+    .title { font-size: 26px; font-weight: 600; letter-spacing: -.02em; line-height: 1.15; margin: 6px 0 2px; color: var(--ink); }
+    .sub { color: var(--ink-soft); font-size: 14px; margin: 0; line-height: 1.5; }
+    .refresh { flex: none; border: 1px solid var(--line-strong); background: #fff; color: var(--green-deep); border-radius: 999px; padding: 8px 14px; font: 600 13px var(--font-sans); cursor: pointer; }
+    .refresh:active { opacity: .7; }
+
+    .seg { display: flex; background: var(--paper-soft); border-radius: 12px; padding: 3px; margin: 18px 0 14px; }
+    .seg button { flex: 1; border: 0; background: transparent; padding: 10px 0; border-radius: 9px; font: 500 15px var(--font-sans); color: var(--ink-soft); cursor: pointer; }
+    .seg button.on { background: #fff; color: var(--ink); font-weight: 600; box-shadow: 0 1px 4px rgba(26,31,28,.08); }
+
+    .summary { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .summary strong { font-size: 15px; }
+    .route-all { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; background: var(--green-deep); color: #fff; border-radius: 10px; padding: 10px 14px; font-weight: 600; font-size: 14px; }
+    .route-all:active { background: var(--green-deep-hover); }
+
+    .stop { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm); }
+    .stop.done { opacity: .62; }
+    .stop-head { display: flex; gap: 12px; align-items: flex-start; }
+    .num { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--green-soft); color: var(--green-deep); font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+    .stop.done .num { background: var(--paper-soft); color: var(--ink-muted); }
+    .time { font-size: 13px; font-weight: 600; color: var(--accent-deep); letter-spacing: .02em; }
+    .name { font-size: 18px; font-weight: 600; color: var(--ink); line-height: 1.25; margin: 2px 0 0; word-break: break-word; }
+    .service { font-size: 14px; color: var(--ink-soft); margin-top: 2px; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 600; border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: middle; }
+    .badge.done { background: #E6F4EC; color: #027A48; }
+    .badge.pending { background: #FEF0E1; color: #B54708; }
+    .addr { margin: 12px 0 0; font-size: 15px; color: var(--ink); line-height: 1.45; }
+    .addr small { display: block; color: var(--ink-muted); font-size: 13px; }
+    .note { margin-top: 10px; border-radius: 10px; padding: 10px 12px; font-size: 14px; line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+    .note b { display: block; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 2px; }
+    .note.home { background: var(--gold-soft); color: #5c4520; }
+    .note.home b { color: var(--accent-deep); }
+    .note.visit { background: var(--green-soft); color: var(--green-deep-hover); }
+    .note.visit b { color: var(--green-deep); }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+    .actions a { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 14px; border: 1px solid var(--line-strong); color: var(--ink); background: #fff; }
+    .actions a.primary { background: var(--green-deep); border-color: var(--green-deep); color: #fff; }
+    .actions a.wa { background: #25D366; border-color: #25D366; color: #fff; }
+    .actions a:active { opacity: .8; }
+    .no-addr { margin-top: 10px; font-size: 13px; color: var(--ink-muted); }
+
+    .state { text-align: center; padding: 48px 12px; }
+    .state .icon { width: 64px; height: 64px; margin: 0 auto 14px; border-radius: 50%; background: var(--green-soft); color: var(--green-deep); display: flex; align-items: center; justify-content: center; font-size: 28px; }
+    .state.err .icon { background: #FDECEA; color: #B42318; }
+    .state h2 { font-size: 20px; font-weight: 600; margin: 0 0 6px; }
+    .state p { color: var(--ink-soft); font-size: 15px; margin: 0 auto; max-width: 340px; }
+    .skel { height: 150px; border-radius: 16px; margin-bottom: 12px; background: linear-gradient(90deg, #F1ECDF 0%, #F8F4EA 50%, #F1ECDF 100%); background-size: 200% 100%; animation: sh 1.2s infinite linear; }
+    @keyframes sh { from { background-position: 200% 0 } to { background-position: -200% 0 } }
+
+    .foot { margin-top: 28px; text-align: center; color: var(--ink-muted); font-size: 13px; }
+    .foot a.help { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 14px; text-decoration: none; color: var(--green-deep); font-weight: 600; border: 1px solid var(--line-strong); background: #fff; border-radius: 999px; padding: 9px 16px; font-size: 14px; }
+    .foot .brand { font-family: var(--font-serif, Georgia, serif); }
+    .foot .brand em { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div>
+        <div class="kicker" id="kicker">Rota do dia</div>
+        <h1 class="title" id="title">Carregando…</h1>
+        <p class="sub" id="sub"></p>
+      </div>
+      <button class="refresh" id="refresh" type="button" aria-label="Atualizar a lista">Atualizar</button>
+    </header>
+
+    <nav class="seg" id="seg" aria-label="Escolher o dia" hidden>
+      <button type="button" data-day="today" class="on">Hoje</button>
+      <button type="button" data-day="tomorrow">Amanhã</button>
+    </nav>
+
+    <main id="list" aria-live="polite">
+      <div class="skel"></div><div class="skel"></div>
+    </main>
+
+    <footer class="foot" id="foot"></footer>
+  </div>
+
+  <script>
+    (function () {
+      'use strict'
+      var WD = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado']
+      var MO = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
+      var $ = function (id) { return document.getElementById(id) }
+      var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c] }) }
+      var digits = function (s) { return String(s || '').replace(/\D/g, '') }
+
+      var token = new URLSearchParams(location.search).get('t') || ''
+      var today = null       // vem do servidor (fuso da profissional)
+      var day = 'today'
+      var loading = false
+
+      function addDays(key, n) {
+        var d = new Date(key + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n)
+        return d.toISOString().slice(0, 10)
+      }
+      function longDate(key) {
+        var d = new Date(key + 'T12:00:00Z')
+        return WD[d.getUTCDay()] + ', ' + d.getUTCDate() + ' de ' + MO[d.getUTCMonth()]
+      }
+      function addressOf(s) {
+        return [s.address_line, s.city, [s.state, s.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ')
+      }
+      function googleDir(addr) { return 'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + encodeURIComponent(addr) }
+      function appleDir(addr) { return 'https://maps.apple.com/?dirflg=d&daddr=' + encodeURIComponent(addr) }
+
+      function state(kind, icon, title, text) {
+        $('list').innerHTML = '<div class="state ' + kind + '"><div class="icon" aria-hidden="true">' + icon + '</div>'
+          + '<h2>' + esc(title) + '</h2><p>' + esc(text) + '</p></div>'
+      }
+
+      function render(data) {
+        today = data.today
+        var stops = data.stops || []
+        $('kicker').textContent = data.provider && data.provider.name ? data.provider.name : 'Rota do dia'
+        $('title').textContent = 'Rota de ' + (data.staff && data.staff.name ? data.staff.name : 'hoje')
+        var members = (data.staff && data.staff.members) || []
+        $('sub').textContent = longDate(data.date) + (members.length ? ' · ' + members.join(', ') : '')
+        $('seg').hidden = false
+        document.title = 'Rota de ' + (data.staff ? data.staff.name : 'hoje') + ' — AgendaPro'
+
+        // Rodapé: falar com a dona da agenda
+        var w = data.provider && digits(data.provider.whatsapp)
+        $('foot').innerHTML = (w ? '<a class="help" href="https://wa.me/' + w + '" target="_blank" rel="noopener noreferrer">Dúvida? Fale com ' + esc(data.provider.name) + '</a><br>' : '')
+          + 'Feito com AgendaPro · <span class="brand">Brasil<em>Connect</em></span>'
+
+        if (!stops.length) {
+          state('', '☀', day === 'today' ? 'Nenhuma parada hoje' : 'Nenhuma parada amanhã',
+            'Quando tiver casa ou cliente marcado pra você, aparece aqui em ordem de horário.')
+          return
+        }
+
+        var withAddr = stops.filter(function (s) { return s.status !== 'completed' && addressOf(s) })
+        var first = stops[0].time, last = stops[stops.length - 1].end_time || stops[stops.length - 1].time
+        var html = '<div class="summary"><strong>' + stops.length + (stops.length === 1 ? ' parada' : ' paradas') + ' · ' + esc(first) + ' às ' + esc(last) + '</strong>'
+        if (withAddr.length > 1) {
+          // Rota inteira: até 9 paradas no meio (limite do link do Google Maps)
+          var addrs = withAddr.map(addressOf)
+          var dest = addrs[addrs.length - 1]
+          var mid = addrs.slice(0, -1).slice(0, 9)
+          var url = 'https://www.google.com/maps/dir/?api=1&travelmode=driving&destination=' + encodeURIComponent(dest)
+            + '&waypoints=' + encodeURIComponent(mid.join('|'))
+          html += '<a class="route-all" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Rota completa ›</a>'
+        }
+        html += '</div>'
+
+        stops.forEach(function (s, i) {
+          var done = s.status === 'completed'
+          var addr = addressOf(s)
+          var phone = digits(s.client_whatsapp)
+          html += '<article class="stop' + (done ? ' done' : '') + '">'
+            + '<div class="stop-head"><div class="num">' + (i + 1) + '</div><div style="min-width:0;flex:1">'
+            + '<div class="time">' + esc(s.time) + (s.end_time ? ' – ' + esc(s.end_time) : '')
+            + (done ? '<span class="badge done">Feita</span>' : s.status === 'pending' ? '<span class="badge pending">A confirmar</span>' : '') + '</div>'
+            + '<p class="name">' + esc(s.client_first_name || 'Cliente') + '</p>'
+            + (s.service ? '<div class="service">' + esc(s.service) + '</div>' : '')
+            + '</div></div>'
+          if (addr) {
+            html += '<p class="addr">' + esc(s.address_line || '') + '<small>' + esc([s.city, [s.state, s.zip].filter(Boolean).join(' ')].filter(Boolean).join(', ')) + '</small></p>'
+          }
+          if (s.home_notes) html += '<div class="note home"><b>Observações da casa</b>' + esc(s.home_notes) + '</div>'
+          if (s.notes) html += '<div class="note visit"><b>Recado desta visita</b>' + esc(s.notes) + '</div>'
+          var acts = ''
+          if (addr) {
+            acts += '<a class="primary" href="' + esc(googleDir(addr)) + '" target="_blank" rel="noopener noreferrer">Google Maps</a>'
+            acts += '<a href="' + esc(appleDir(addr)) + '" target="_blank" rel="noopener noreferrer">Apple Maps</a>'
+          }
+          if (phone) {
+            acts += '<a href="tel:+' + phone + '">Ligar</a>'
+            acts += '<a class="wa" href="https://wa.me/' + phone + '" target="_blank" rel="noopener noreferrer">WhatsApp</a>'
+          }
+          if (acts) html += '<div class="actions">' + acts + '</div>'
+          if (!addr) html += '<div class="no-addr">Sem endereço cadastrado. Confira as observações ou fale com quem te mandou o link.</div>'
+          html += '</article>'
+        })
+        $('list').innerHTML = html
+      }
+
+      function load() {
+        if (!token) {
+          $('title').textContent = 'Link incompleto'
+          state('err', '!', 'Link incompleto', 'Abra o link inteiro que recebeu no WhatsApp ou peça um novo.')
+          return
+        }
+        if (loading) return
+        loading = true
+        $('refresh').disabled = true
+        if (!today) $('list').innerHTML = '<div class="skel"></div><div class="skel"></div>'
+        // "Hoje" sem data: o servidor decide pelo fuso da profissional (vale depois da meia-noite)
+        var q = '/api/agenda/team-day?t=' + encodeURIComponent(token)
+        if (today && day === 'tomorrow') q += '&date=' + addDays(today, 1)
+        fetch(q, { headers: { Accept: 'application/json' }, cache: 'no-store' })
+          .then(function (r) { return r.json().catch(function () { return {} }).then(function (b) { return { ok: r.ok, status: r.status, body: b } }) })
+          .then(function (r) {
+            if (r.ok) return render(r.body)
+            $('seg').hidden = !today
+            if (r.status === 404) { $('title').textContent = 'Link inválido'; state('err', '!', 'Link inválido ou desativado', r.body.error || 'Peça um link novo pra quem te mandou.') }
+            else if (r.status === 403) { $('title').textContent = 'Rota indisponível'; state('err', '!', 'Rota indisponível', r.body.error || 'Fale com quem te mandou o link.') }
+            else if (r.status === 429) state('err', '…', 'Calma, só um minutinho', r.body.error || 'Muitas atualizações seguidas. Espere um pouco.')
+            else state('err', '!', 'Não deu pra carregar', r.body.error || 'Tente de novo em instantes.')
+          })
+          .catch(function () { state('err', '!', 'Sem internet', 'Confira a conexão e toque em Atualizar.') })
+          .then(function () { loading = false; $('refresh').disabled = false })
+      }
+
+      $('seg').addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-day]')
+        if (!b || b.dataset.day === day) return
+        day = b.dataset.day
+        Array.prototype.forEach.call($('seg').querySelectorAll('button'), function (x) { x.classList.toggle('on', x === b) })
+        $('list').innerHTML = '<div class="skel"></div><div class="skel"></div>'
+        load()
+      })
+      $('refresh').addEventListener('click', load)
+      // Voltou pro navegador depois de navegar: atualiza (a dona pode ter mudado a ordem)
+      document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible' && today) load() })
+      load()
+    })()
+  </script>
+</body>
+</html>

@@ -1,8 +1,12 @@
 /**
  * POST /api/stripe/portal
  * Header: Authorization: Bearer <JWT>
+ * Body: { source?: 'app' }
  * Abre o portal de cobranca do Stripe pra profissional trocar de plano,
  * atualizar o cartao ou cancelar.
+ *
+ * source 'app' (app AgendaPro): o "voltar" do portal cai em /agenda/planos?app=1,
+ * que pede pra voltar ao app. Sem source, volta pro painel /assinante.
  *
  * Requer o Customer Portal ativado no painel do Stripe
  * (Settings → Billing → Customer portal).
@@ -24,13 +28,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Você ainda não tem assinatura. Escolha um plano primeiro.' })
     }
 
+    const fromApp = req.body?.source === 'app'
     const Stripe = (await import('stripe')).default
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' })
     const baseUrl = process.env.APP_URL || 'https://brasilconnectusa.com'
 
     const session = await stripe.billingPortal.sessions.create({
       customer: auth.provider.stripe_customer_id,
-      return_url: `${baseUrl}/assinante`,
+      return_url: fromApp ? `${baseUrl}/agenda/planos?app=1` : `${baseUrl}/assinante`,
     })
     return res.status(200).json({ portal_url: session.url })
   } catch (e) {

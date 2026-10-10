@@ -790,6 +790,8 @@
         body.gallery_urls = []
       }
       body.state = (body.state || '').toUpperCase()
+      // Fuso do navegador: horários, lembretes e calendário do app usam o relógio dela
+      try { body.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone } catch (_) {}
 
       const btn = form.querySelector('button[type="submit"]')
       btn.disabled = true; btn.textContent = 'Salvando…'
@@ -921,6 +923,8 @@
         body.gallery_urls = []
       }
       body.state = (body.state || '').toUpperCase()
+      // Fuso do navegador: horários, lembretes e calendário do app usam o relógio dela
+      try { body.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone } catch (_) {}
 
       const btn = form.querySelector('button[type="submit"]')
       btn.disabled = true; btn.textContent = 'Salvando…'

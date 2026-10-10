@@ -5,9 +5,15 @@
  *
  * Se a profissional nao conectou o Stripe, responde 409 com `offline: true` e as
  * instrucoes dela (Zelle, dinheiro...). Antes o sinal caia na conta da plataforma
- * e ninguem repassava.
+ * e ninguem repassava. O mesmo 409 vale quando o plano dela nao inclui o sinal no
+ * cartao ('deposit_stripe', Pro): o Stripe conectado no teste continua ligado
+ * depois que o plano cai, mas o recurso nao.
  */
 import { createClient } from '@supabase/supabase-js'
+import { hasFeature } from '../_lib/agendaPlans.js'
+
+// Conta Stripe + colunas que hasFeature usa pra conferir o plano
+const PROV_COLS = 'id, slug, name, email, stripe_account_id, stripe_charges_enabled, deposit_instructions, active, plan, plan_status, trial_ends_at, current_period_end, stripe_subscription_id, created_at'
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
@@ -23,7 +29,7 @@ export default async function handler(req, res) {
 
     const { data: apt, error } = await supabase
       .from('ag_appointments')
-      .select('*, ag_providers(slug, name, email, stripe_account_id, stripe_charges_enabled, deposit_instructions), ag_services(name)')
+      .select(`*, ag_providers(${PROV_COLS}), ag_services(name)`)
       .eq('id', appointment_id)
       .single()
     if (error || !apt) return res.status(404).json({ error: 'Agendamento não encontrado' })
@@ -34,7 +40,7 @@ export default async function handler(req, res) {
     }
 
     const prov = apt.ag_providers || {}
-    if (!prov.stripe_account_id || !prov.stripe_charges_enabled) {
+    if (!prov.stripe_account_id || !prov.stripe_charges_enabled || !hasFeature(prov, 'deposit_stripe')) {
       return res.status(409).json({
         offline: true,
         error: 'Essa profissional recebe o sinal por fora.',

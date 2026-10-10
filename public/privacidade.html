@@ -30,6 +30,13 @@
       padding-left: 1.5rem;
       margin: 0.75rem 0 1rem;
     }
+    .legal h3 {
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--ink);
+      margin: 1.75rem 0 0.5rem;
+    }
     .legal strong { color: var(--ink); font-weight: 600; }
     .legal a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
     .legal a:hover { color: var(--green-deep); }
@@ -65,7 +72,7 @@
       <div class="container-narrow">
         <div class="eyebrow">Documento legal</div>
         <h1>Política de <em>privacidade.</em></h1>
-        <p class="meta">Última atualização: 29 de setembro de 2026</p>
+        <p class="meta">Última atualização: 9 de outubro de 2026</p>
       </div>
     </section>
 
@@ -87,6 +94,7 @@
           <li><strong>Conteúdo:</strong> posts, comentários, mensagens, avaliações, reviews</li>
           <li><strong>Localização:</strong> cidade/estado que você informa + raio de interesse (latitude/longitude geocodificados via OpenStreetMap)</li>
           <li><strong>Uso:</strong> páginas visitadas, cliques em afiliados (pra calcular comissão), dispositivo, IP</li>
+          <li><strong>App AgendaPro (profissionais):</strong> clientes, agenda, fotos e finanças que você cadastra no app. Detalhes na <a href="#agendapro">seção 11</a></li>
         </ul>
 
         <h2>3. Como usamos</h2>
@@ -110,6 +118,7 @@
           <li><strong>OpenStreetMap Nominatim</strong> (geocoding de cidades — sem dados pessoais enviados)</li>
           <li><strong>Travelpayouts</strong> (busca de voos — apenas origem/destino/data, sem dados pessoais)</li>
           <li><strong>Serviços de push do navegador</strong> (Google, Apple, Mozilla) — só pra entregar notificações que você ativou</li>
+          <li><strong>Expo</strong> (entrega das notificações do app AgendaPro, pela Apple e pelo Google) — só o token do aparelho e o texto do aviso</li>
           <li><strong>Negócios e profissionais</strong> — recebem os dados do pedido ou agendamento que você fez com eles</li>
           <li><strong>Google Analytics e Meta Pixel</strong> — só se você aceitar os cookies de medição (seção 5)</li>
         </ul>
@@ -133,6 +142,7 @@
         <p>Pra exercer qualquer um, manda email pra <a href="mailto:oi@brasilconnectusa.com">oi@brasilconnectusa.com</a>. Respondemos em até 15 dias.</p>
         <h3 id="excluir-conta">Como excluir sua conta</h3>
         <p>Mande um email pra <a href="mailto:oi@brasilconnectusa.com?subject=Excluir%20minha%20conta">oi@brasilconnectusa.com</a> com o assunto “Excluir minha conta”, usando o mesmo email do cadastro. Em até 15 dias apagamos perfil, posts, comentários, alertas e inscrições em listas. Se você tem um negócio ou perfil profissional, ele sai do diretório e a assinatura é cancelada. Ficam guardados só os registros que a lei exige (seção 8).</p>
+        <p><strong>Profissional do AgendaPro:</strong> dá pra excluir na hora pelo app, em Mais → Configurações → Excluir conta (<a href="#agendapro-excluir">o que é apagado</a>). Sem o app, veja <a href="/excluir-conta.html">como pedir a exclusão do AgendaPro</a>.</p>
 
         <h2>7. Segurança</h2>
         <p>Usamos HTTPS em tudo, criptografia em repouso (Supabase Postgres), Row Level Security (RLS), e auditamos acesso. Mesmo assim, nenhum sistema é 100% seguro — comunicamos vazamentos em até 72h conforme exigido por lei.</p>
@@ -149,6 +159,51 @@
 
         <h2>10. Mudanças</h2>
         <p>Avisamos por email com 30 dias de antecedência pra mudanças significativas.</p>
+
+        <h2 id="agendapro">11. App AgendaPro (para profissionais)</h2>
+        <p>O AgendaPro é a agenda da BrasilConnect pra profissionais autônomas (cabeleireira, manicure, esteticista, faxineira…). Esta seção vale pro app no iPhone e no Android e pro painel no site. Tudo o que está acima também vale; aqui está o que é específico.</p>
+
+        <h3>Dados das suas clientes</h3>
+        <p>No app você cadastra suas clientes: nome, telefone ou WhatsApp, email, endereço (pra atendimento em casa ou limpeza), aniversário, observações, histórico de atendimentos e pagamentos. Guardamos esses dados só pro app funcionar (agenda, lembretes, relatórios): não usamos pra marketing e nunca vendemos.</p>
+        <p><strong>Você é a responsável por esses dados.</strong> Na linguagem da lei, você é a controladora e nós somos o operador que guarda e processa em seu nome. Cadastre só quem é sua cliente, com o conhecimento dela, e apague o cadastro quando ela pedir. Se uma cliente escrever pra gente pedindo pra ver ou apagar os dados dela, encaminhamos o pedido pra você.</p>
+
+        <h3>Fotos</h3>
+        <ul>
+          <li><strong>Foto do perfil e galeria:</strong> as fotos que você envia pra sua página de agendamento são <strong>públicas</strong> — qualquer pessoa com o link da página vê. Não envie foto de cliente sem a autorização dela.</li>
+          <li><strong>Comprovantes de despesa:</strong> as fotos de notas e recibos que você anexa em Finanças não aparecem na sua página nem em nenhum outro lugar do site. Ficam no nosso armazenamento, num endereço longo e aleatório que só o seu app usa.</li>
+        </ul>
+
+        <h3>O que o app usa do seu celular</h3>
+        <ul>
+          <li><strong>Notificações:</strong> se você permitir, guardamos o token de notificação do aparelho (um código que a Apple e o Google usam pra entregar os avisos) pra avisar de agendamento novo, cancelamento, avaliação, resumo do dia seguinte e cobrança. Você escolhe os avisos em Mais → Configurações ou desliga tudo nos ajustes do celular. Ao sair da conta, o token é desligado.</li>
+          <li><strong>Face ID e digital:</strong> a trava do app usa a verificação do próprio celular. Nada da sua biometria é enviado pra gente — o app só fica sabendo se deu certo ou não.</li>
+          <li><strong>Calendário:</strong> se você ligar, o app <strong>só escreve</strong> seus agendamentos no calendário do celular. Ele não lê seus outros eventos e não envia nada do calendário pros nossos servidores.</li>
+          <li><strong>Câmera e fotos:</strong> o app só abre quando você toca pra tirar ou escolher uma foto, e envia só a foto escolhida.</li>
+          <li><strong>Sem rastreamento:</strong> o app não tem anúncios, não usa ferramentas de análise ou de rastreamento e não pega sua localização.</li>
+        </ul>
+
+        <h3>Assinatura</h3>
+        <p>O plano do AgendaPro é vendido no nosso site e cobrado pelo Stripe. O app não tem compra dentro dele e nunca vê o número do seu cartão. Guardamos só o plano, o status e as datas de cobrança.</p>
+
+        <h3 id="agendapro-excluir">Excluir sua conta do AgendaPro</h3>
+        <p>No app: <strong>Mais → Configurações → Excluir conta</strong>, digite EXCLUIR e confirme. Na hora:</p>
+        <ul>
+          <li>sua assinatura é cancelada no Stripe e não há novas cobranças (sem reembolso parcial do mês corrente, como diz nos <a href="/termos">Termos</a>);</li>
+          <li>apagamos seu perfil e sua página pública, agenda, clientes, serviços, horários e folgas, equipe, clientes fixas, lista de espera, avaliações, finanças (pagamentos, despesas e milhagem), calendários de turnover e tokens de notificação;</li>
+          <li>apagamos as fotos que você enviou pelo app (perfil, galeria e comprovantes);</li>
+          <li>apagamos seu login BrasilConnect e as imagens que você enviou pelo site. Essa opção já vem marcada; desmarque se você usa a comunidade BrasilConnect com o mesmo email e quer continuar entrando no site.</li>
+        </ul>
+        <p>Sem o app? Veja <a href="/excluir-conta.html">como pedir a exclusão por email</a>. Quer apagar também o que está na comunidade BrasilConnect (posts, comentários, negócio no diretório)? Peça pelo email, como na <a href="#excluir-conta">seção 6</a>. Ficam guardados só os registros que a lei exige (seção 8), como as faturas da assinatura.</p>
+
+        <h3>Quem processa esses dados por nós</h3>
+        <ul>
+          <li><strong>Supabase</strong> — banco de dados, login e armazenamento das fotos (Estados Unidos)</li>
+          <li><strong>Vercel</strong> — servidores do site e do app (Estados Unidos)</li>
+          <li><strong>Stripe</strong> — assinatura do plano e, se você ligar, sinal pago no cartão pelas suas clientes</li>
+          <li><strong>Resend</strong> — emails de confirmação e lembrete pra você e pras suas clientes</li>
+          <li><strong>Expo, Apple e Google</strong> — entrega das notificações no celular</li>
+        </ul>
+        <p>Eles recebem só o necessário pra prestar o serviço. Dúvidas sobre o app: <a href="mailto:oi@brasilconnectusa.com?subject=AgendaPro%20-%20privacidade">oi@brasilconnectusa.com</a>.</p>
 
         <h2>Contato</h2>
         <p><a href="mailto:oi@brasilconnectusa.com">oi@brasilconnectusa.com</a></p>

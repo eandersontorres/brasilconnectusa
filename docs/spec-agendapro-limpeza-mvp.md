@@ -142,7 +142,7 @@ ALTER TABLE ag_appointments
 - Ordem ótima de paradas (API de direções); `visit_order` já existe pra isso.
 - Portal/login da faxineira, payroll por equipe.
 - Marketplace de captação (cliente busca cleaner) — o perfil público com reviews já planta a semente.
-- Turnover Airbnb (sincronizar com iCal de reservas).
+- ~~Turnover Airbnb (sincronizar com iCal de reservas).~~ **Feito em 09/10/2026**: seção "Turnover de Airbnb, Vrbo e Booking" no painel; tabela `ag_ical_feeds`, sincronização em `api/_lib/icalSync.js` e cron `api/cron/ical-sync` de hora em hora (migration `supabase/ag_turnover_ical.sql`).
 
 ## 9. Métricas de sucesso
 
