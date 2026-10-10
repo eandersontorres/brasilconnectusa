@@ -59,7 +59,12 @@
   function toast(msg, isError) {
     if (typeof window.showToast === 'function') window.showToast(msg, isError)
   }
-  function planOn() { return provider.plan_status === 'trialing' || provider.plan_status === 'active' }
+  // Plano efetivo vem do /api/agenda/me (api/_lib/agendaPlans.js): teste vencido
+  // continua 'trialing' no banco, mas nao vale. Ate o /me chegar, usa o status.
+  function planOn() {
+    if (state.ent) return state.ent.tier !== 'none'
+    return provider.plan_status === 'trialing' || provider.plan_status === 'active'
+  }
 
   async function api(url, opts) {
     var r = await window.bcFetch(url, opts || {})
@@ -134,7 +139,10 @@
   function secPlan() {
     var on = planOn()
     var label = on ? 'Plano ' + String(provider.plan || 'starter').toUpperCase() : 'Sem plano ativo'
-    var sub = provider.plan_status === 'trialing' ? 'Em teste grátis' + (provider.trial_ends_at ? ' até ' + new Date(provider.trial_ends_at).toLocaleDateString('pt-BR') : '')
+    var ent = state.ent
+    var sub = ent && ent.reason === 'trial_ended' ? 'Seu teste grátis terminou. Escolha um plano pra reabrir a agenda.'
+      : ent && ent.trial ? 'Em teste grátis' + (ent.trial_ends_at ? ' até ' + new Date(ent.trial_ends_at).toLocaleDateString('pt-BR') : '') + ', com tudo do Premium liberado'
+      : provider.plan_status === 'trialing' && !ent ? 'Em teste grátis' + (provider.trial_ends_at ? ' até ' + new Date(provider.trial_ends_at).toLocaleDateString('pt-BR') : '')
       : provider.plan_status === 'active' ? 'Assinatura ativa'
       : provider.plan_status === 'past_due' ? 'Pagamento pendente. Atualize o cartão pra reabrir a agenda.'
       : provider.plan_status === 'canceled' ? 'Assinatura cancelada'
@@ -142,7 +150,7 @@
     return '<section class="ap-sec"><h2>Plano</h2><div class="ap-row"><div class="ap-main">' +
       '<div class="ap-name">' + esc(label) + '</div><div class="ap-meta">' + esc(sub) + '</div></div>' +
       '<div class="ap-actions">' +
-      (on || provider.plan_status === 'past_due'
+      ((on && (!ent || ent.trial === false || provider.stripe_subscription_id)) || provider.plan_status === 'past_due'
         ? '<button class="ap-btn pri" data-act="portal">Gerenciar assinatura</button>'
         : '<a class="ap-btn pri" href="/agenda/planos">Ver planos</a>') +
       '</div></div></section>'
@@ -202,9 +210,15 @@
     var hours = state.hours
     if (!hours) return '<section class="ap-sec"><h2>Horário de atendimento</h2><div class="ap-empty">Carregando…</div></section>'
     var byDay = {}
-    hours.forEach(function (h) { if (!byDay[h.day_of_week]) byDay[h.day_of_week] = h })
+    hours.forEach(function (h) { (byDay[h.day_of_week] = byDay[h.day_of_week] || []).push(h) })
     var rows = [1, 2, 3, 4, 5, 6, 0].map(function (d) {
-      var h = byDay[d]
+      var list = byDay[d] || []
+      // Dia com pausa (2 ou 3 janelas, feitas no app): mostra o resumo e salva como esta
+      if (list.length > 1) {
+        return '<div class="ap-day" data-multi="' + d + '"><label><input type="checkbox" checked disabled> ' + DAYS[d] + '</label>' +
+          '<span class="ap-meta">' + esc(list.map(function (h) { return String(h.start_time).slice(0, 5) + '–' + String(h.end_time).slice(0, 5) }).join(' · ')) + ' (com pausa: edite no app AgendaPro)</span></div>'
+      }
+      var h = list[0]
       return '<div class="ap-day"><label><input type="checkbox" data-day="' + d + '"' + (h ? ' checked' : '') + '> ' + DAYS[d] + '</label>' +
         '<input type="time" data-start="' + d + '" value="' + esc(h ? h.start_time : '09:00') + '" aria-label="Início ' + DAYS[d] + '">' +
         '<input type="time" data-end="' + d + '" value="' + esc(h ? h.end_time : '18:00') + '" aria-label="Fim ' + DAYS[d] + '"></div>'
@@ -339,6 +353,7 @@
       loadFeeds(true),
       loadAppointments(true),
       api('/api/agenda/connect').then(function (d) { state.connect = d }).catch(function () { state.connect = { connected: false, charges_enabled: false } }),
+      api('/api/agenda/me').then(function (d) { state.ent = d.entitlements || null }).catch(function () {}),
     ]
     await Promise.all(jobs.map(function (p) { return p.catch(function (e) { toast(e.message, true) }) }))
     state.services = state.services || []
@@ -375,7 +390,7 @@
         try { var p = await post('/api/stripe/portal'); location.href = p.portal_url }
         catch (err) { b.disabled = false; if (/ainda não tem assinatura/i.test(err.message)) location.href = '/agenda/planos'; else throw err }
       } else if (act === 'connect') {
-        b.disabled = true; b.textContent = 'Abrindo Stripe…'
+        b.disabled = true; b.dataset.label = b.textContent; b.textContent = 'Abrindo Stripe…'
         var c = await post('/api/agenda/connect')
         location.href = c.onboarding_url
       } else if (act === 'svc-new') {
@@ -399,7 +414,7 @@
       } else if (act === 'feed-cancel') {
         state.feedForm = null; render()
       } else if (act === 'feed-sync') {
-        b.disabled = true; b.textContent = 'Sincronizando…'
+        b.disabled = true; b.dataset.label = b.textContent; b.textContent = 'Sincronizando…'
         var sr = await post('/api/agenda/ical', { action: 'sync', id: b.dataset.id })
         syncToast(sr.sync)
         await Promise.all([loadFeeds(true), loadAppointments(true)])
@@ -426,6 +441,13 @@
       }
     } catch (err) {
       b.disabled = false
+      if (b.dataset.label) b.textContent = b.dataset.label
+      // Recurso de outro plano (402): oferece a pagina de planos em vez de so mostrar o erro
+      var code = err.data && err.data.code
+      if (code === 'plan_required' || code === 'limit_reached') {
+        if (confirm(err.message + ' Ver os planos agora?')) location.href = '/agenda/planos'
+        return
+      }
       toast(err.message, true)
     }
   }
@@ -503,6 +525,13 @@
       hours.push({ day_of_week: d, start_time: s, end_time: en })
     })
     if (bad) { toast(bad + ': o início precisa ser antes do fim', true); return }
+    // Dias com pausa nao aparecem como campos: reenvia as janelas que ja existiam
+    el.querySelectorAll('[data-multi]').forEach(function (row) {
+      var d = Number(row.dataset.multi)
+      ;(state.hours || []).forEach(function (h) {
+        if (h.day_of_week === d) hours.push({ day_of_week: d, start_time: String(h.start_time).slice(0, 5), end_time: String(h.end_time).slice(0, 5) })
+      })
+    })
     btn.disabled = true
     var d = await post('/api/agenda/hours', { hours: hours })
     state.hours = d.hours || []
@@ -534,7 +563,7 @@
       // Remonta limpo: o /assinante recria o container a cada render
       el = container
       provider = prov
-      state = { services: null, hours: null, feeds: null, appointments: null, connect: null, scope: 'upcoming', svcForm: null, feedForm: null }
+      state = { services: null, hours: null, feeds: null, appointments: null, connect: null, ent: null, scope: 'upcoming', svcForm: null, feedForm: null }
       el.addEventListener('click', onClick)
       el.addEventListener('submit', onSubmit)
       render()

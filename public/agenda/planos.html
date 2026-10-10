@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>Planos · AgendaPro · BrasilConnect</title>
+  <script>if (/[?&]app=1(&|$)/.test(location.search)) document.documentElement.classList.add('app-mode');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,200;1,9..144,300&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -261,6 +262,77 @@
       .container { padding: 24px 16px 60px; }
     }
 
+    /* Itens do plano: grupo "Tudo do Starter, mais:" e destaque do app */
+    .plan li.group {
+      padding-left: 0;
+      font-weight: 600;
+      color: var(--green);
+    }
+    .plan li.group:before { content: none; }
+    .plan li small { color: var(--muted); font-size: 12px; }
+    .app-strip {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 0 0 24px;
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 720px;
+    }
+    .app-strip .ico {
+      flex: none;
+      width: 38px; height: 38px;
+      border-radius: 10px;
+      background: var(--green);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .status-line { margin-top: 6px; font-size: 13px; color: var(--muted); }
+    .status-line b { color: var(--green); }
+
+    /* Volta pro app (checkout/portal aberto pelo app AgendaPro) */
+    .app-return {
+      background: #fff;
+      border: 2px solid var(--green);
+      border-radius: 14px;
+      padding: 26px 22px;
+      margin: 0 0 28px;
+      text-align: center;
+      max-width: 560px;
+    }
+    .app-return h2 { margin: 0 0 8px; font-size: 22px; }
+    .app-return p { margin: 0 0 14px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+    .app-return a.btn-app {
+      display: inline-block;
+      padding: 12px 22px;
+      background: var(--green);
+      color: #fff;
+      border-radius: 9px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+    }
+    /* No app (modo companion): nada de plano, preço ou convite pra assinar.
+       So a marca e a caixa "volte pro app". A classe entra no <html> logo no
+       <head> (sem piscar os preços) e no <body> pelo setupAppMode. */
+    .app-mode #banner,
+    .app-mode h1,
+    .app-mode .subtitle,
+    .app-mode .app-strip,
+    .app-mode #msg,
+    .app-mode .login-box,
+    .app-mode .plans,
+    .app-mode .enterprise-banner,
+    .app-mode .footer-note,
+    .app-mode .ent-modal-bg { display: none !important; }
+    .app-mode .app-return { margin: 24px auto 0; }
+
     /* Enterprise banner */
     .enterprise-banner {
       background: linear-gradient(135deg, #1F4D3F 0%, #143527 100%);
@@ -414,8 +486,20 @@
   <div class="container">
     <div class="brand"><a class="bc-logo" href="/">Brasil<em>Connect</em></a><span class="brand-sub">· AgendaPro</span></div>
     <h1>Escolhe o plano ideal pro seu negócio</h1>
-    <p class="subtitle">14 dias grátis em qualquer plano. Cancela quando quiser, sem multa. Cobramos só depois do trial.</p>
-    <p class="subtitle" style="margin-top:-18px;">Os itens marcados como <span class="soon">em breve</span> ainda estão em desenvolvimento.</p>
+    <p class="subtitle">Todo perfil novo ganha 14 dias grátis com tudo liberado, sem cartão. Assinando durante o teste, tudo continua liberado até o fim dele e a cobrança só começa depois (nas últimas 48h do teste, a cobrança é no dia da assinatura). Cancela quando quiser, sem multa.</p>
+
+    <!-- Aberto pelo app AgendaPro (?app=1): so pede pra voltar pro app -->
+    <div id="app-return" class="app-return" style="display:none;">
+      <h2 id="app-return-title">Pronto! Volte para o app AgendaPro</h2>
+      <p id="app-return-text">Sua assinatura foi registrada. Pode levar alguns segundos pra aparecer no app.</p>
+      <a class="btn-app" href="agendapro://plans">Abrir o app AgendaPro</a>
+      <p style="margin:14px 0 0;font-size:12px;">Ou toque em <b>OK</b> / <b>Fechar</b> no canto da tela.</p>
+    </div>
+
+    <div class="app-strip">
+      <div class="ico">AP</div>
+      <div>Tudo isso também no <b>app AgendaPro</b> para iPhone e Android: agenda do dia, aviso no celular quando chega agendamento, WhatsApp em 1 toque e calendário do celular.</div>
+    </div>
 
     <div id="msg"></div>
 
@@ -426,60 +510,75 @@
 
     <div id="logged-in" class="login-box" style="display:none;">
       <div class="who">Assinando como: <b id="who-name"></b> (<span id="who-email"></span>)</div>
+      <div class="status-line" id="who-status"></div>
       <a href="/assinante" style="display:inline-block;margin-top:8px;font-size:13px;color:var(--muted);">Abrir meu painel</a>
     </div>
 
+    <!-- Listas = matriz de api/_lib/agendaPlans.js (FEATURES/LIMITS). Mudou la, muda aqui. -->
     <div class="plans">
       <div class="plan">
         <div class="plan-name">Starter</div>
         <div class="plan-price">$19<small>/mês</small></div>
-        <div class="plan-desc">Ideal pra quem tá começando — qualquer profissional que agenda hora marcada</div>
+        <div class="plan-desc">Pra quem está começando: tudo pra organizar a agenda e receber agendamento online</div>
         <ul>
-          <li>1 profissional</li>
-          <li>Agendamentos ilimitados</li>
-          <li>Lembrete por email automático <span class="soon">em breve</span></li>
-          <li>Página pública /agenda/seu-nome</li>
-          <li class="disabled">Lembrete por SMS</li>
-          <li class="disabled">Reviews dos clientes</li>
-          <li class="disabled">Multi-profissionais</li>
+          <li>Agenda completa: dia e semana, remarcar e cancelar</li>
+          <li>Agendamento online 24h na sua página /agenda/seu-nome</li>
+          <li>Serviços e preços, com duração e sinal</li>
+          <li>Horários de atendimento, folgas e férias</li>
+          <li>Clientes: ficha com histórico, observações e WhatsApp</li>
+          <li>Confirmação e lembrete por e-mail 24h antes, automáticos</li>
+          <li>Aviso no celular quando chega agendamento novo</li>
+          <li>Mensagens prontas no WhatsApp em 1 toque</li>
+          <li>Agendamentos no calendário do iPhone ou Android</li>
+          <li>Sinal por Zelle ou dinheiro, com confirmação no app</li>
+          <li>Controle de pagamento e gorjeta</li>
+          <li>Link e QR code pra divulgar</li>
+          <li>Turnover Airbnb, Vrbo e Booking <small>(até 3 casas)</small></li>
+          <li class="disabled">Avaliações e galeria de fotos</li>
+          <li class="disabled">Equipe</li>
         </ul>
-        <button onclick="subscribe('starter')" id="btn-starter">Começar trial 14 dias</button>
-        <div class="trial-note">Sem cobrança nos primeiros 14 dias</div>
+        <button onclick="subscribe('starter')" id="btn-starter">Assinar o Starter</button>
+        <div class="trial-note">No teste grátis, a cobrança só começa quando ele acaba (nas últimas 48h, no dia da assinatura)</div>
       </div>
 
       <div class="plan popular">
         <div class="badge">Mais popular</div>
         <div class="plan-name">Pro</div>
         <div class="plan-price">$39<small>/mês</small></div>
-        <div class="plan-desc">Pra quem já tem clientela e quer uma página mais completa</div>
+        <div class="plan-desc">Pra quem já tem clientela e quer crescer</div>
         <ul>
-          <li>1 profissional</li>
-          <li>Agendamentos ilimitados</li>
-          <li>Lembrete por email + <b>SMS</b> <span class="soon">em breve</span></li>
-          <li>Página pública customizada</li>
-          <li>Reviews públicos com selo BrasilConnect <span class="soon">em breve</span></li>
-          <li>Galeria de fotos do trabalho <span class="soon">em breve</span></li>
-          <li class="disabled">Multi-profissionais</li>
+          <li class="group">Tudo do Starter, mais:</li>
+          <li>Sinal com cartão, direto na sua conta Stripe</li>
+          <li>Avaliações: pede, responde e mostra as estrelas na página</li>
+          <li>Galeria de fotos do seu trabalho</li>
+          <li>Clientes fixas: semanal, quinzenal ou mensal, a agenda se preenche sozinha</li>
+          <li>Clientes sumidas, com mensagem pronta pra chamar de volta</li>
+          <li>Lista de espera: cancelou, avisa quem estava esperando</li>
+          <li>Finanças: despesas, lucro do mês, meta e reserva pro imposto</li>
+          <li>Milhagem a trabalho (dedução no imposto)</li>
+          <li>Mensagens em inglês e espanhol</li>
+          <li>Turnover <small>(até 15 casas)</small></li>
+          <li class="disabled">Equipe</li>
         </ul>
-        <button onclick="subscribe('pro')" id="btn-pro">Começar trial 14 dias</button>
-        <div class="trial-note">Sem cobrança nos primeiros 14 dias</div>
+        <button onclick="subscribe('pro')" id="btn-pro">Assinar o Pro</button>
+        <div class="trial-note">No teste grátis, a cobrança só começa quando ele acaba (nas últimas 48h, no dia da assinatura)</div>
       </div>
 
       <div class="plan">
         <div class="plan-name">Premium</div>
         <div class="plan-price">$79<small>/mês</small></div>
-        <div class="plan-desc">Equipes ou consultórios com vários profissionais</div>
+        <div class="plan-desc">Equipes e negócios com vários profissionais</div>
         <ul>
-          <li><b>Até 10 profissionais</b> <span class="soon">em breve</span></li>
-          <li>Agendamentos ilimitados</li>
-          <li>Lembrete por email + SMS <span class="soon">em breve</span></li>
-          <li>Página pública customizada</li>
-          <li>Reviews + galeria <span class="soon">em breve</span></li>
-          <li>Relatórios financeiros mensais <span class="soon">em breve</span></li>
-          <li>Sem branding "Powered by BrasilConnect" <span class="soon">em breve</span></li>
+          <li class="group">Tudo do Pro, mais:</li>
+          <li><b>Equipe: até 10 profissionais</b>, cada um com sua cor na agenda</li>
+          <li>Rota do dia da equipe: link sem senha com endereços e observações</li>
+          <li>Relatórios por serviço, cliente e equipe, com CSV pro contador</li>
+          <li>Recibos em PDF com a sua marca</li>
+          <li>Página pública só com a sua marca, sem "BrasilConnect"</li>
+          <li>Turnover <small>(casas ilimitadas)</small></li>
         </ul>
-        <button onclick="subscribe('premium')" id="btn-premium">Começar trial 14 dias</button>
-        <div class="trial-note">Sem cobrança nos primeiros 14 dias</div>
+        <button onclick="subscribe('premium')" id="btn-premium">Assinar o Premium</button>
+        <div class="trial-note">No teste grátis, a cobrança só começa quando ele acaba (nas últimas 48h, no dia da assinatura)</div>
       </div>
     </div>
 
@@ -511,7 +610,8 @@
     </div>
 
     <div class="footer-note">
-      <b>Como funciona o trial:</b> Você coloca o cartão agora (precisa pra ativar). Nos primeiros 14 dias é tudo de graça. No 15º dia cobramos automático no cartão. Pode cancelar quando quiser nesse período sem nenhuma cobrança — fica sabendo por email 3 dias antes do trial acabar.
+      <b>Como funciona o teste grátis:</b> ao criar seu perfil (no app AgendaPro ou no painel) você ganha 14 dias com tudo do Premium, sem cartão. Pra continuar depois, escolha um plano: se assinar durante o teste, o cartão só é cobrado quando os 14 dias acabam, e você recebe aviso por e-mail e no app 3 dias antes. Se o teste já acabou, a cobrança começa no dia da assinatura.<br><br>
+      <b>Assinatura:</b> mensal, com renovação automática. Troca de plano, atualiza o cartão ou cancela quando quiser, sem multa, em "Gerenciar assinatura". Pagamento processado pelo Stripe. <a href="/termos" style="color:inherit;">Termos de uso</a> · <a href="/privacidade" style="color:inherit;">Privacidade</a>
     </div>
   </div>
 
@@ -614,6 +714,36 @@
 
 <script>
 let currentProvider = null;
+let currentEnt = null;
+
+// Aberto pelo app AgendaPro (?app=1): checkout/portal terminou, pede pra voltar ao app.
+// stripe=done|refresh = volta do cadastro da conta Stripe (api/agenda/connect.js, sinal no cartao).
+const PARAMS = new URLSearchParams(window.location.search);
+const APP_MODE = PARAMS.get('app') === '1';
+function setupAppMode() {
+  if (!APP_MODE) return;
+  document.body.classList.add('app-mode');
+  document.title = 'AgendaPro · BrasilConnect';
+  const stripe = PARAMS.get('stripe');
+  const done = PARAMS.get('subscribed') === '1' || stripe === '1';
+  const box = document.getElementById('app-return');
+  box.style.display = 'block';
+  if (stripe === 'done' || stripe === 'refresh') {
+    // Conta Stripe (sinal no cartao): o app abre na tela de sinal
+    box.querySelector('a.btn-app').setAttribute('href', 'agendapro://deposit');
+    if (stripe === 'done') {
+      document.getElementById('app-return-title').textContent = 'Pronto! Volte pro app AgendaPro pra ver o status';
+      document.getElementById('app-return-text').textContent = 'Seu cadastro no Stripe foi enviado. No app, em Sinal e pagamentos, aparece se já está tudo liberado pra receber no cartão.';
+    } else {
+      document.getElementById('app-return-title').textContent = 'Cadastro interrompido';
+      document.getElementById('app-return-text').textContent = 'Volte pro app e toque em Conectar de novo pra continuar de onde parou.';
+    }
+  } else if (!done) {
+    document.getElementById('app-return-title').textContent = 'Tudo certo. Volte para o app AgendaPro';
+    document.getElementById('app-return-text').textContent = 'Nenhuma cobrança nova foi feita por aqui. Seu plano aparece atualizado no app, em Mais → Meu plano.';
+  }
+  window.scrollTo(0, 0);
+}
 
 async function detectMode() {
   try {
@@ -654,21 +784,24 @@ function showLoginBox(text, linkLabel) {
   link.style.display = 'inline-block';
 }
 
-// Quem assina e a profissional logada: o perfil vem do token, nao de um e-mail digitado.
+// Quem assina e a profissional logada: o perfil vem do token (/api/agenda/me), nao de um e-mail digitado.
 async function loadProvider() {
+  if (APP_MODE) return;
   const s = window.__bcSession__;
   if (!s || !s.user || !s.user.email) {
     showLoginBox('Pra assinar, entre no painel com o e-mail do seu perfil de profissional e volte pra esta página.', 'Entrar no painel →');
     return;
   }
   try {
-    const r = await fetch('/api/agenda/provider?email=' + encodeURIComponent(s.user.email), { headers: authHeaders() });
+    const r = await fetch('/api/agenda/me', { headers: authHeaders() });
     const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'erro');
     if (!d.provider) {
-      showLoginBox('Você entrou como ' + s.user.email + ', mas ainda não criou o perfil de profissional. Crie no painel, na aba Profissional, e volte aqui.', 'Criar meu perfil →');
+      showLoginBox('Você entrou como ' + s.user.email + ', mas ainda não criou o perfil de profissional. Crie no app AgendaPro ou no painel (aba Profissional) e volte aqui.', 'Criar meu perfil →');
       return;
     }
     currentProvider = d.provider;
+    currentEnt = d.entitlements || null;
     showLoggedIn();
   } catch(e) {
     showLoginBox('Não deu pra carregar seu perfil. Recarregue a página.', 'Abrir o painel →');
@@ -676,11 +809,43 @@ async function loadProvider() {
 }
 window.addEventListener('bc-auth-ready', loadProvider);
 
+const PLAN_LABEL = { starter: 'Starter', pro: 'Pro', premium: 'Premium' };
+function fmtDate(iso) {
+  try { return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long' }); } catch (_) { return ''; }
+}
+
+// Ja assinante com plano valendo: os botoes viram "Gerenciar assinatura" (portal do Stripe)
+function isSubscribed() {
+  return !!(currentProvider && currentProvider.has_subscription && currentEnt && currentEnt.tier !== 'none');
+}
+
 function showLoggedIn() {
   document.getElementById('login-section').style.display = 'none';
   document.getElementById('logged-in').style.display = 'block';
   document.getElementById('who-name').textContent = currentProvider.name || '(sem nome)';
   document.getElementById('who-email').textContent = currentProvider.email;
+
+  const st = document.getElementById('who-status');
+  const ent = currentEnt || {};
+  const planName = PLAN_LABEL[currentProvider.plan] || 'Starter';
+  if (ent.past_due) {
+    st.innerHTML = '<b style="color:#9F2D2D">Pagamento pendente.</b> Atualize o cartão em "Gerenciar assinatura".';
+  } else if (ent.trial && !currentProvider.has_subscription) {
+    st.innerHTML = '<b>Teste grátis</b>: faltam ' + ent.trial_days_left + ' dia' + (ent.trial_days_left === 1 ? '' : 's') + ' (até ' + fmtDate(ent.trial_ends_at) + ').';
+  } else if (ent.trial) {
+    st.innerHTML = 'Plano <b>' + planName + '</b>, em teste até ' + fmtDate(ent.trial_ends_at) + '.';
+  } else if (ent.tier && ent.tier !== 'none') {
+    st.innerHTML = 'Plano <b>' + planName + '</b>' + (currentProvider.current_period_end ? ', renova em ' + fmtDate(currentProvider.current_period_end) : '') + '.';
+  } else {
+    st.textContent = ent.reason === 'trial_ended' ? 'Seu teste grátis acabou. Escolha um plano pra voltar a receber agendamentos.' : 'Sem plano ativo no momento.';
+  }
+
+  if (isSubscribed()) {
+    ['starter', 'pro', 'premium'].forEach(function (p) {
+      const btn = document.getElementById('btn-' + p);
+      btn.textContent = p === currentProvider.plan ? 'Seu plano · Gerenciar' : 'Mudar para o ' + PLAN_LABEL[p];
+    });
+  }
 }
 
 async function openPortal() {
@@ -700,6 +865,7 @@ async function subscribe(plan) {
   btn.disabled = true;
   btn.textContent = 'Abrindo Stripe...';
   try {
+    if (isSubscribed()) { await openPortal(); return; }
     const r = await fetch('/api/stripe/subscribe', {
       method: 'POST',
       headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders()),
@@ -757,6 +923,7 @@ async function submitEnterprise(e) {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
+  setupAppMode();
   detectMode();
   try { localStorage.removeItem('bc_planos_provider'); } catch(_) {}
   // Se o modulo de login ja terminou antes deste script, carrega o perfil agora

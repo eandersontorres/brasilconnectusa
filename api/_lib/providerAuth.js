@@ -10,8 +10,9 @@ import { identifyAdmin } from './adminAuth.js'
  *   const { user, provider } = auth
  */
 import { requireAuthOnly } from './businessAuth.js'
+import { effectivePlan } from './agendaPlans.js'
 
-export const PROVIDER_COLS = 'id, name, email, slug, city, state, owner_user_id, plan, plan_status, current_period_end, trial_ends_at, active, stripe_customer_id, stripe_subscription_id, stripe_account_id, stripe_onboarded, stripe_charges_enabled, deposit_instructions'
+export const PROVIDER_COLS = 'id, name, email, slug, city, state, owner_user_id, plan, plan_status, current_period_end, trial_ends_at, active, stripe_customer_id, stripe_subscription_id, stripe_account_id, stripe_onboarded, stripe_charges_enabled, deposit_instructions, created_at, vertical, timezone, app_settings, whatsapp, specialty, avatar_url, cover_color'
 
 export async function requireProviderAuth(req, supabase) {
   const auth = await requireAuthOnly(req, supabase)
@@ -21,8 +22,12 @@ export async function requireProviderAuth(req, supabase) {
 
   let { data: provider } = await supabase.from('ag_providers').select(PROVIDER_COLS)
     .eq('owner_user_id', auth.user.id).maybeSingle()
+  // Pelo e-mail so vale perfil ainda SEM dono (criado antes do vinculo por login).
+  // Perfil de outro login com o mesmo e-mail (e-mail trocado ou login apagado e
+  // recriado) nunca e entregue.
   if (!provider && email) {
-    const byEmail = await supabase.from('ag_providers').select(PROVIDER_COLS).eq('email', email).maybeSingle()
+    const byEmail = await supabase.from('ag_providers').select(PROVIDER_COLS)
+      .eq('email', email).is('owner_user_id', null).maybeSingle()
     provider = byEmail.data || null
   }
   if (!provider) {
@@ -37,9 +42,12 @@ export async function requireProviderAuth(req, supabase) {
   return { ok: true, user: auth.user, provider }
 }
 
-/** Assinatura em teste ou ativa. */
+/**
+ * Assinatura em teste (dentro do prazo) ou ativa. Recurso por recurso: use
+ * hasFeature/requireFeature de ./agendaPlans.js.
+ */
 export function planActive(provider) {
-  return ['trialing', 'active'].includes(provider?.plan_status)
+  return effectivePlan(provider).tier !== 'none'
 }
 
 /** Chamada administrativa (painel admin / scripts): senha compartilhada ou conta com papel admin. */

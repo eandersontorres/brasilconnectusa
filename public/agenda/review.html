@@ -11,9 +11,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/premium.css">
   <style>
-    .star-row { display: flex; gap: 6px; justify-content: center; margin: 24px 0; }
-    .star { font-size: 36px; cursor: pointer; color: var(--line); transition: color 0.1s; }
+    .star-row { display: flex; gap: 6px; justify-content: center; margin: 24px 0 6px; }
+    .star {
+      font-size: 40px; line-height: 1; cursor: pointer; color: var(--line-strong); transition: color 0.1s, transform 0.1s;
+      background: none; border: 0; padding: 4px; font-family: inherit;
+    }
+    .star:focus-visible { outline: 2px solid var(--brand-green); border-radius: 8px; }
     .star.active, .star.hover { color: var(--brand-gold); }
+    .star:active { transform: scale(0.92); }
+    .star-label { text-align: center; min-height: 20px; font-size: 14px; color: var(--ink-soft); margin-bottom: 18px; }
+    .count { text-align: right; font-size: 12px; color: var(--ink-muted); margin: -8px 0 14px; }
   </style>
   <script src="/js/site.js" defer></script>
 </head>
@@ -25,74 +32,117 @@
   <script>
     const root = document.getElementById('app')
     const escapeHtml = s => String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))
+    const LABELS = ['', 'Não gostei', 'Poderia ser melhor', 'Bom', 'Muito bom', 'Excelente!']
+    const MAX_COMMENT = 1000
 
     // Token vem da URL: /agenda/review/abc123 ou ?token=abc123
     const path = window.location.pathname
     const fromPath = path.match(/\/agenda\/review\/([^\/?]+)/)
     const token = fromPath ? fromPath[1] : (new URL(window.location.href).searchParams.get('token'))
 
-    if (!token) renderError('Link inválido')
+    let info, rating = 0
+    let brand = true   // false quando o plano da profissional tira a marca (show_branding)
+
+    if (!token) renderError('Link inválido', 'Confira se o link chegou inteiro na mensagem.')
     else load(token)
 
-    let info, rating = 0
+    const alreadyReviewed = (status, data) => status === 409 && data && data.code === 'already_reviewed'
+
+    // Erro da API → texto que a cliente entende
+    function friendly(status, data) {
+      const msg = data && data.error
+      const m = String(msg || '').toLowerCase()
+      if (alreadyReviewed(status, data) || (status === 410 && m.includes('utilizado'))) {
+        return ['Avaliação já enviada', 'Você já avaliou esse atendimento. Obrigada pelo carinho!']
+      }
+      if (status === 410) return ['Esse link expirou', 'Peça um link novo pra profissional pelo WhatsApp.']
+      if (status === 404) return ['Link inválido', 'Confira se o link chegou inteiro na mensagem.']
+      return ['Não deu certo', msg || 'Tente de novo em instantes.']
+    }
+
+    function applyBrand(data) {
+      if (data && typeof data.show_branding === 'boolean') brand = data.show_branding
+      document.title = brand ? 'Avaliar atendimento — BrasilConnect' : 'Avaliar atendimento'
+    }
 
     async function load(token) {
       try {
         const r = await fetch(`/api/agenda/review?token=${encodeURIComponent(token)}`)
-        const data = await r.json()
-        if (!r.ok) throw new Error(data.error || 'Erro')
+        const data = await r.json().catch(() => ({}))
+        applyBrand(data)
+        if (!r.ok) { const [t, m] = friendly(r.status, data); return renderError(t, m) }
         info = data
         renderForm()
       } catch (e) {
-        renderError(e.message)
+        renderError('Sem conexão', 'Confira a internet e abra o link de novo.')
       }
     }
 
     function renderForm() {
+      const first = String(info.client_name || '').trim().split(/\s+/)[0]
       root.innerHTML = `
         <main><div class="container-narrow" style="padding-top:64px; padding-bottom:64px;">
-          <div class="bc-logo" style="justify-content:center; font-size:28px;">Brasil<em>Connect</em></div>
-          <h1 style="font-family:var(--font-display); text-align:center; margin-top:32px;">Como foi sua experiência com ${escapeHtml(info.provider_name)}?</h1>
+          ${brand ? '<div class="bc-logo" style="justify-content:center; font-size:28px;">Brasil<em>Connect</em></div>' : ''}
+          <h1 style="font-family:var(--font-display); text-align:center; margin-top:${brand ? 32 : 0}px;">${first ? `${escapeHtml(first)}, como` : 'Como'} foi sua experiência com ${escapeHtml(info.provider_name)}?</h1>
           <p class="muted" style="text-align:center;">Sua avaliação ajuda outras brasileiras a encontrar bons profissionais.</p>
-          <div class="star-row" id="stars">
-            ${[1,2,3,4,5].map(i => `<span class="star" data-r="${i}">★</span>`).join('')}
+          <div class="star-row" id="stars" role="radiogroup" aria-label="Nota de 1 a 5">
+            ${[1,2,3,4,5].map(i => `<button type="button" class="star" data-r="${i}" role="radio" aria-checked="false" aria-label="${i} estrela${i > 1 ? 's' : ''}">★</button>`).join('')}
           </div>
-          <textarea id="comment" rows="5" placeholder="Conte algo sobre o atendimento (opcional)" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:14px;margin-bottom:14px;"></textarea>
+          <div class="star-label" id="starLabel">Toque nas estrelas</div>
+          <textarea id="comment" rows="5" maxlength="${MAX_COMMENT}" placeholder="Conte algo sobre o atendimento (opcional)" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);font-family:inherit;font-size:14px;margin-bottom:14px;"></textarea>
+          <div class="count" id="count"></div>
           <button id="submitBtn" class="btn btn-primary" style="width:100%;justify-content:center;" disabled>Enviar avaliação</button>
           <p id="err" style="color:#9F2D2D;font-size:13px;text-align:center;margin-top:10px;display:none;"></p>
         </div></main>
       `
-      document.querySelectorAll('.star').forEach(s => {
-        s.onclick = () => { rating = parseInt(s.dataset.r); update() }
-        s.onmouseover = () => { document.querySelectorAll('.star').forEach((x, i) => x.classList.toggle('hover', i < parseInt(s.dataset.r))) }
-        s.onmouseout = () => document.querySelectorAll('.star').forEach(x => x.classList.remove('hover'))
+      const stars = document.querySelectorAll('.star')
+      stars.forEach(s => {
+        s.onclick = () => { rating = parseInt(s.dataset.r, 10); update() }
+        s.onmouseover = () => { stars.forEach((x, i) => x.classList.toggle('hover', i < parseInt(s.dataset.r, 10))) }
+        s.onmouseout = () => stars.forEach(x => x.classList.remove('hover'))
       })
+      const comment = document.getElementById('comment')
+      comment.oninput = () => {
+        const n = comment.value.length
+        document.getElementById('count').textContent = n > MAX_COMMENT - 200 ? `${n}/${MAX_COMMENT}` : ''
+      }
       document.getElementById('submitBtn').onclick = submit
     }
 
     function update() {
-      document.querySelectorAll('.star').forEach((x, i) => x.classList.toggle('active', i < rating))
+      document.querySelectorAll('.star').forEach((x, i) => {
+        x.classList.toggle('active', i < rating)
+        x.setAttribute('aria-checked', i === rating - 1 ? 'true' : 'false')
+      })
+      document.getElementById('starLabel').textContent = LABELS[rating] || 'Toque nas estrelas'
       document.getElementById('submitBtn').disabled = rating === 0
     }
 
     async function submit() {
-      const comment = document.getElementById('comment').value.trim()
+      const comment = document.getElementById('comment').value.trim().slice(0, MAX_COMMENT)
       const btn = document.getElementById('submitBtn')
       const err = document.getElementById('err')
       btn.disabled = true; btn.textContent = 'Enviando…'
+      err.style.display = 'none'
       try {
         const r = await fetch('/api/agenda/review', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ token, rating, comment })
         })
-        const data = await r.json()
-        if (!r.ok) throw new Error(data.error || 'Erro')
+        const data = await r.json().catch(() => ({}))
+        // Já avaliado (outro link ou outra aba): página de "já enviada" em vez de erro no botão
+        if (alreadyReviewed(r.status, data) || (r.status === 410 && /utilizado/i.test(data.error || ''))) {
+          const [t, m] = friendly(r.status, data)
+          return renderError(t, m)
+        }
+        if (!r.ok) throw new Error(data.error || 'Não conseguimos enviar. Tente de novo.')
+        const slug = encodeURIComponent(String(info.provider_slug || ''))
         root.innerHTML = `
           <main><div class="container-narrow" style="padding-top:120px; text-align:center;">
             <div style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);">OBRIGADO</div>
             <h1 style="font-family:var(--font-display); margin-top:14px;">Avaliação enviada!</h1>
-            <p class="lede">${rating}/5 estrelas. ${escapeHtml(info.provider_name)} agradece.</p>
-            <a href="/agenda/${info.provider_slug}" class="btn btn-secondary" style="margin-top:20px;">Ver perfil</a>
+            <p class="lede">${'★'.repeat(rating)} ${escapeHtml(info.provider_name)} agradece o carinho.</p>
+            ${slug ? `<a href="/agenda/${slug}" class="btn btn-secondary" style="margin-top:20px;">Ver perfil e agendar de novo</a>` : ''}
           </div></main>
         `
       } catch (e) {
@@ -101,8 +151,13 @@
       }
     }
 
-    function renderError(msg) {
-      root.innerHTML = `<main><div class="container-narrow" style="padding:80px 16px; text-align:center;"><h1>Link inválido ou expirado</h1><p class="muted">${escapeHtml(msg)}</p><a href="/" class="btn btn-secondary" style="margin-top:20px;">Voltar</a></div></main>`
+    // Botão do fim: perfil da profissional (se já sabemos qual), senão o site (só com a marca)
+    function renderError(title, msg) {
+      const slug = info && info.provider_slug ? encodeURIComponent(String(info.provider_slug)) : ''
+      const action = slug
+        ? `<a href="/agenda/${slug}" class="btn btn-secondary" style="margin-top:20px;">Ver perfil de ${escapeHtml(info.provider_name || 'profissional')}</a>`
+        : brand ? '<a href="/" class="btn btn-secondary" style="margin-top:20px;">Ir para o BrasilConnect</a>' : ''
+      root.innerHTML = `<main><div class="container-narrow" style="padding:80px 16px; text-align:center;"><h1>${escapeHtml(title)}</h1><p class="muted">${escapeHtml(msg)}</p>${action}</div></main>`
     }
   </script>
 </body>

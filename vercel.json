@@ -91,6 +91,10 @@
       "destination": "/agenda/planos.html"
     },
     {
+      "source": "/agenda/equipe",
+      "destination": "/agenda/equipe.html"
+    },
+    {
       "source": "/agenda/:slug",
       "destination": "/agenda/profile.html"
     },
@@ -195,6 +199,10 @@
     {
       "path": "/api/cron/ical-sync",
       "schedule": "15 * * * *"
+    },
+    {
+      "path": "/api/cron/agenda-recurring",
+      "schedule": "30 9 * * *"
     },
     {
       "path": "/api/cron/moderation",

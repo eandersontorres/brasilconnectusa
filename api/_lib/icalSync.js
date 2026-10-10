@@ -15,6 +15,7 @@
  * guardada sem fuso (como se fosse UTC).
  */
 import { fetchIcs, reservationsFromIcs } from './ical.js'
+import { sendPushToProvider } from './agendaPush.js'
 
 export const SYNC_CANCEL_REASON = 'Reserva saiu do calendário (cancelada ou alterada)'
 const MAX_RESERVATIONS = 300
@@ -89,8 +90,10 @@ export function planSync({ feed, reservations, existing, now = new Date() }) {
  * Baixa o .ics (ou usa `text`, quando quem chama ja baixou), aplica o plano e
  * grava o resultado no feed. Nunca lanca: devolve { ok, ... } ou { ok: false, error }.
  * feed precisa de: id, provider_id, url, source, label, checkout_time, duration_min, price_cents
+ * notify: avisa a profissional no celular sobre limpezas novas/canceladas (o cron
+ * liga; o "Sincronizar agora" e o cadastro da casa nao precisam avisar).
  */
-export async function syncFeed(supabase, feed, { text = null, now = new Date() } = {}) {
+export async function syncFeed(supabase, feed, { text = null, now = new Date(), notify = false } = {}) {
   const stamp = now.toISOString()
   try {
     const ics = text || await fetchIcs(feed.url)
@@ -112,6 +115,7 @@ export async function syncFeed(supabase, feed, { text = null, now = new Date() }
         provider_id: feed.provider_id,
         ical_feed_id: feed.id,
         service_id: null,
+        source: 'ical',
         status: 'confirmed',
         confirmed_at: stamp,
         deposit_cents: 0,
@@ -145,6 +149,8 @@ export async function syncFeed(supabase, feed, { text = null, now = new Date() }
       last_synced_at: stamp, last_status: 'ok', last_error: null, reservations_count: plan.reservations,
     }).eq('id', feed.id)
 
+    if (notify && (created || canceled)) await notifySync(supabase, feed, { created, canceled })
+
     return { ok: true, created, updated, canceled, reservations: plan.reservations }
   } catch (e) {
     const msg = String((e && e.message) || e).slice(0, 300)
@@ -152,3 +158,27 @@ export async function syncFeed(supabase, feed, { text = null, now = new Date() }
     return { ok: false, error: msg }
   }
 }
+
+// Um aviso por casa e por sincronizacao (nao um por reserva). Best effort.
+async function notifySync(supabase, feed, { created, canceled }) {
+  try {
+    const label = feed.label || 'Casa'
+    if (created) {
+      await sendPushToProvider(supabase, feed.provider_id, {
+        kind: 'new_booking',
+        title: created === 1 ? 'Nova limpeza de turnover' : `${created} limpezas novas de turnover`,
+        body: `${label}: reserva nova no calendário da casa.`,
+        data: { type: 'agenda' },
+      })
+    }
+    if (canceled) {
+      await sendPushToProvider(supabase, feed.provider_id, {
+        kind: 'cancellation',
+        title: canceled === 1 ? 'Limpeza cancelada' : `${canceled} limpezas canceladas`,
+        body: `${label}: a reserva saiu do calendário da casa.`,
+        data: { type: 'agenda' },
+      })
+    }
+  } catch (_) {}
+}
+

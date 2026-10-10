@@ -15,6 +15,7 @@
   <style>
     .pro-cover {
       background: linear-gradient(135deg, var(--brand-green) 0%, var(--brand-green-dark) 100%);
+      background-size: cover; background-position: center;
       color: var(--paper);
       padding: 64px 0 80px;
       position: relative;
@@ -23,13 +24,26 @@
     .avatar-circle {
       width: 96px; height: 96px; border-radius: 50%;
       background: var(--brand-gold); color: var(--paper);
+      background-size: cover; background-position: center;
       display: flex; align-items: center; justify-content: center;
       font-family: var(--font-display); font-size: 2.4rem; font-weight: 700;
       flex-shrink: 0; border: 3px solid var(--paper);
     }
+    .avatar-circle.has-photo { color: transparent; }
     .pro-cover h1 { font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.6rem); margin: 0; color: var(--paper); }
     .pro-cover .specialty { font-size: 1rem; opacity: 0.9; margin-top: 4px; }
-    .pro-cover .bio { font-size: 0.95rem; opacity: 0.85; margin-top: 8px; max-width: 600px; line-height: 1.6; }
+    .pro-cover .bio { font-size: 0.95rem; opacity: 0.85; margin-top: 8px; max-width: 600px; line-height: 1.6; white-space: pre-line; }
+    .cover-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14); color: var(--paper); font-size: 13px; font-weight: 500;
+      text-decoration: none; border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+    .pill:hover { background: rgba(255, 255, 255, 0.24); color: var(--paper); }
+    .pill .gold { color: #F2D27A; }
+
+    .step-eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 11px; font-weight: 600; color: var(--brand-gold-dark); margin-top: 32px; margin-bottom: 14px; }
+    .page-section { margin-top: 48px; }
 
     .service-card {
       background: var(--paper-elevated); border: 1px solid var(--line);
@@ -37,6 +51,8 @@
       cursor: pointer; transition: all 0.15s;
     }
     .service-card:hover { border-color: var(--brand-gold); }
+    .service-card.static { cursor: default; }
+    .service-card.static:hover { border-color: var(--line); }
     .service-card.selected { border-color: var(--brand-green); background: var(--brand-green-soft); }
     .service-card .head { display: flex; justify-content: space-between; gap: 12px; }
     .service-card .name { font-weight: 600; color: var(--ink); }
@@ -61,10 +77,65 @@
 
     .date-input { padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--r-md); font-size: 14px; font-family: inherit; }
 
-    .review-list { margin-top: 32px; }
-    .review-item { padding: 14px 0; border-bottom: 1px solid var(--line-soft); }
-    .review-item .stars { color: var(--brand-gold-dark); margin-bottom: 4px; }
-    .review-item .who { font-size: 12px; color: var(--ink-muted); margin-top: 4px; }
+    /* Agenda fechada (plano inativo) */
+    .closed-box {
+      background: var(--gold-soft); border: 1px solid rgba(184, 148, 59, 0.25); border-radius: var(--r-lg);
+      padding: 20px 22px; margin-bottom: 20px; color: var(--ink-soft); font-size: 15px; line-height: 1.55;
+    }
+    .closed-box strong { color: var(--ink); }
+    .btn-whatsapp { background: #25D366; border-color: #25D366; color: #fff; }
+    .btn-whatsapp:hover { background: #1EBE5A; border-color: #1EBE5A; color: #fff; }
+
+    /* Galeria */
+    .gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .gallery-grid button {
+      padding: 0; border: 0; background: var(--paper-soft); border-radius: var(--r-md); overflow: hidden;
+      aspect-ratio: 1 / 1; cursor: zoom-in; display: block; width: 100%;
+    }
+    .gallery-grid img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.2s; }
+    .gallery-grid button:hover img { transform: scale(1.03); }
+    .lightbox {
+      position: fixed; inset: 0; z-index: 2147482000; background: rgba(10, 12, 11, 0.92);
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+    }
+    .lightbox img { max-width: 92vw; max-height: 84vh; border-radius: 10px; object-fit: contain; }
+    .lightbox button {
+      position: absolute; background: rgba(255, 255, 255, 0.12); color: #fff; border: 0; cursor: pointer;
+      width: 44px; height: 44px; border-radius: 50%; font-size: 26px; line-height: 44px; font-family: inherit;
+    }
+    .lightbox button:hover { background: rgba(255, 255, 255, 0.24); }
+    .lightbox .lb-close { top: 16px; right: 16px; }
+    .lightbox .lb-prev { left: 12px; top: 50%; transform: translateY(-50%); }
+    .lightbox .lb-next { right: 12px; top: 50%; transform: translateY(-50%); }
+    .lightbox .lb-count { position: absolute; bottom: 18px; left: 0; right: 0; text-align: center; color: rgba(255, 255, 255, 0.75); font-size: 13px; }
+
+    .video-wrap { position: relative; aspect-ratio: 16 / 9; border-radius: var(--r-lg); overflow: hidden; background: var(--ink); }
+    .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+    /* Avaliacoes */
+    .rating-summary { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+    .rating-summary .big { font-family: var(--font-display); font-size: 2.6rem; font-weight: 700; color: var(--ink); line-height: 1; }
+    .stars { color: var(--brand-gold); letter-spacing: 1px; }
+    .stars .off { color: var(--line-strong); }
+    .review-list { margin-top: 8px; }
+    .review-item { padding: 16px 0; border-bottom: 1px solid var(--line-soft); }
+    .review-item .stars { margin-bottom: 4px; }
+    .review-item .comment { color: var(--ink); font-size: 15px; line-height: 1.55; white-space: pre-line; }
+    .review-item .who { font-size: 12px; color: var(--ink-muted); margin-top: 6px; }
+    .review-item .reply {
+      margin-top: 10px; padding: 10px 14px; background: var(--paper-soft); border-left: 3px solid var(--brand-gold);
+      border-radius: 0 var(--r-md) var(--r-md) 0; font-size: 14px; color: var(--ink-soft); line-height: 1.5; white-space: pre-line;
+    }
+    .review-item .reply b { color: var(--ink); font-weight: 600; }
+
+    .contact-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .pro-foot { text-align: center; font-size: 12px; color: var(--ink-muted); padding: 48px 20px 40px; }
+    .pro-foot a { color: var(--brand-green); text-decoration: none; font-weight: 600; }
+
+    @media (max-width: 720px) {
+      .pro-cover { padding: 44px 0 56px; }
+      .gallery-grid { gap: 6px; }
+    }
   </style>
   <script src="/js/site.js" defer></script>
 </head>
@@ -89,10 +160,72 @@
       loadProvider(slug)
     }
 
-    let provider, services, selected = { service: null, date: null, slot: null }
+    let provider, services, reviews, selected = { service: null, date: null, slot: null }
 
     // So http(s): bloqueia javascript:, data: etc.
     function httpUrl(u) { const s = String(u || '').trim(); return /^https?:\/\//i.test(s) ? s : '' }
+
+    // Data LOCAL da cliente (toISOString dava o dia seguinte a noite nos EUA)
+    const pad2 = n => String(n).padStart(2, '0')
+    const localKey = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+    const WD = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb']
+    const MO = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+    function fmtDateBR(key) {
+      const d = new Date(key + 'T12:00:00Z')
+      if (Number.isNaN(d.getTime())) return key
+      return `${WD[d.getUTCDay()]}, ${d.getUTCDate()} de ${MO[d.getUTCMonth()]}`
+    }
+    function fmtMonthYear(iso) {
+      const d = new Date(iso)
+      return Number.isNaN(d.getTime()) ? '' : `${MO[d.getMonth()]} de ${d.getFullYear()}`
+    }
+
+    const firstName = n => String(n || '').trim().split(/\s+/)[0] || ''
+    const branded = () => provider && provider.show_branding !== false
+
+    function waUrl(phone, text) {
+      let d = String(phone || '').replace(/\D/g, '')
+      if (d.length === 10) d = '1' + d
+      if (d.length < 11) return ''
+      return `https://wa.me/${d}${text ? '?text=' + encodeURIComponent(text) : ''}`
+    }
+    function igUrl(handle) {
+      let h = String(handle || '').trim()
+      const m = h.match(/instagram\.com\/([^/?#\s]+)/i)
+      if (m) h = m[1]
+      h = h.replace(/^@+/, '').replace(/\/+$/, '')
+      return /^[A-Za-z0-9._]{1,30}$/.test(h) ? `https://instagram.com/${h}` : ''
+    }
+    // YouTube e Vimeo viram player; outro link vira botao
+    function videoEmbed(url) {
+      const u = httpUrl(url)
+      if (!u) return ''
+      const yt = u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i)
+      if (yt) return `https://www.youtube.com/embed/${yt[1]}`
+      const vm = u.match(/vimeo\.com\/(?:video\/)?(\d+)/i)
+      if (vm) return `https://player.vimeo.com/video/${vm[1]}`
+      return ''
+    }
+    function starsHtml(n) {
+      const full = Math.max(0, Math.min(5, Math.round(Number(n) || 0)))
+      return `<span class="stars" aria-label="${full} de 5 estrelas">${'★'.repeat(full)}<span class="off">${'★'.repeat(5 - full)}</span></span>`
+    }
+    const fmtAvg = v => (v == null ? '' : Number(v).toFixed(1).replace('.', ','))
+
+    function siteHeader() {
+      if (!branded()) return ''
+      return `
+        <header class="site-header">
+          <div class="container">
+            <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+            <nav class="site-nav"><a href="/agenda/">AgendaPro</a><a href="/">Início</a></nav>
+          </div>
+        </header>`
+    }
+    function siteFooter() {
+      if (!branded()) return ''
+      return `<footer class="pro-foot">Agenda online por <a href="/para/agenda-pro/">AgendaPro</a> · BrasilConnect</footer>`
+    }
 
     // Voltou do Stripe depois de pagar (ou desistir) do sinal
     function paidBanner() {
@@ -110,31 +243,44 @@
         const data = await r.json()
         provider = data.provider
         services = data.services || []
-        document.title = `${provider.name} — Agendar | BrasilConnect`
+        reviews = data.reviews || { count: 0, average: null, items: [] }
+        document.title = branded() ? `${provider.name} — Agendar | BrasilConnect` : `${provider.name} — Agendar`
         renderProfile()
       } catch (e) {
         root.innerHTML = `<div style="padding:60px;text-align:center;"><h1>Profissional não encontrada</h1><p>O perfil <code>${escapeHtml(slug)}</code> não existe ou está inativo.</p><p><a href="/agenda/">Ver todos os profissionais</a></p></div>`
       }
     }
 
+    function gallery() {
+      return (provider.gallery_urls || []).map(httpUrl).filter(Boolean)
+    }
+
     function renderProfile() {
       const initials = provider.name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase()
-      root.innerHTML = `
-        <header class="site-header">
-          <div class="container">
-            <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
-            <nav class="site-nav"><a href="/agenda/">AgendaPro</a><a href="/">Início</a></nav>
-          </div>
-        </header>
+      const open = provider.booking_enabled !== false
+      const photos = gallery()
+      const ig = igUrl(provider.instagram)
+      const hasReviews = (reviews.count || 0) > 0 && (reviews.items || []).length > 0
+      const wa = waUrl(provider.whatsapp, `Oi ${firstName(provider.name)}! Vi sua página e queria marcar um horário.`)
 
-        <section class="pro-cover">
+      const links = [
+        hasReviews ? `<a class="pill" href="#avaliacoes"><span class="gold">★</span> ${fmtAvg(reviews.average)} · ${reviews.count} ${reviews.count === 1 ? 'avaliação' : 'avaliações'}</a>` : '',
+        photos.length ? `<a class="pill" href="#trabalhos">Ver trabalhos</a>` : '',
+        ig ? `<a class="pill" href="${escapeHtml(ig)}" target="_blank" rel="noopener">Instagram</a>` : '',
+      ].filter(Boolean).join('')
+
+      root.innerHTML = `
+        ${siteHeader()}
+
+        <section class="pro-cover" id="cover">
           <div class="container">
-            <div class="avatar-circle"${httpUrl(provider.avatar_url) ? ` style="background-image:url(&quot;${escapeHtml(httpUrl(provider.avatar_url))}&quot;);background-size:cover;background-position:center;color:transparent;"` : ''}>${escapeHtml(initials)}</div>
+            <div class="avatar-circle" id="avatar">${escapeHtml(initials)}</div>
             <div>
               <h1>${escapeHtml(provider.name)}</h1>
               ${provider.specialty ? `<div class="specialty">${escapeHtml(provider.specialty)}</div>` : ''}
               ${provider.city ? `<div class="specialty" style="font-size:0.9rem;">${escapeHtml(provider.city)}${provider.state ? ', ' + escapeHtml(provider.state) : ''}</div>` : ''}
               ${provider.bio ? `<p class="bio">${escapeHtml(provider.bio)}</p>` : ''}
+              ${links ? `<div class="cover-links">${links}</div>` : ''}
             </div>
           </div>
         </section>
@@ -142,27 +288,161 @@
         <main>
           <section>
             <div class="container-narrow">
-              <div class="eyebrow" style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-top:32px;margin-bottom:14px;">PASSO 1 · ESCOLHA O SERVIÇO</div>
+              <div class="step-eyebrow">${open ? 'PASSO 1 · ESCOLHA O SERVIÇO' : 'SERVIÇOS E PREÇOS'}</div>
               ${paidBanner()}
-              ${provider.booking_enabled === false ? '<p class="muted" style="font-size:14px;margin-bottom:14px;">Esta agenda ainda não está recebendo agendamentos online.</p>' : ''}
-              <div id="services-list">${services.length === 0 ? '<p class="muted">Sem serviços cadastrados ainda.</p>' : services.map(serviceCard).join('')}</div>
+              ${open ? '' : closedBox(wa, ig)}
+              <div id="services-list">${services.length === 0 ? '<p class="muted">Sem serviços cadastrados ainda.</p>' : services.map(s => serviceCard(s, open)).join('')}</div>
               <div id="step2" style="display:none;"></div>
               <div id="step3" style="display:none;"></div>
               <div id="step4" style="display:none;"></div>
+
+              ${photos.length ? `
+                <div class="page-section" id="trabalhos">
+                  <div class="step-eyebrow">TRABALHOS</div>
+                  <div class="gallery-grid">${photos.map((u, i) => `<button type="button" data-photo="${i}" aria-label="Ver foto ${i + 1}"><img src="${escapeHtml(u)}" alt="Trabalho de ${escapeHtml(provider.name)}" loading="lazy"></button>`).join('')}</div>
+                </div>` : ''}
+
+              ${videoSection()}
+
+              ${hasReviews ? reviewsSection() : ''}
+
+              ${(open && wa) || ig ? `
+                <div class="page-section">
+                  <div class="step-eyebrow">FALE COM ${escapeHtml(firstName(provider.name).toUpperCase())}</div>
+                  <div class="contact-row">
+                    ${open && wa ? `<a class="btn btn-whatsapp" href="${escapeHtml(wa)}" target="_blank" rel="noopener">Tirar dúvida no WhatsApp</a>` : ''}
+                    ${ig ? `<a class="btn btn-secondary" href="${escapeHtml(ig)}" target="_blank" rel="noopener">Ver no Instagram</a>` : ''}
+                  </div>
+                </div>` : ''}
             </div>
           </section>
         </main>
+
+        ${siteFooter()}
       `
-      if (provider.booking_enabled === false) return
+
+      // Fotos por JS (url() dentro de style quebra com aspas no link)
+      const cover = httpUrl(provider.cover_url)
+      if (cover) {
+        document.getElementById('cover').style.backgroundImage =
+          `linear-gradient(135deg, rgba(20,53,39,0.72) 0%, rgba(20,53,39,0.88) 100%), url(${JSON.stringify(cover)})`
+      }
+      const avatar = httpUrl(provider.avatar_url)
+      if (avatar) {
+        const el = document.getElementById('avatar')
+        el.style.backgroundImage = `url(${JSON.stringify(avatar)})`
+        el.classList.add('has-photo')
+      }
+
+      document.querySelectorAll('[data-photo]').forEach(b => { b.onclick = () => openLightbox(Number(b.dataset.photo)) })
+
+      if (!open) return
       services.forEach(s => {
         const el = document.querySelector(`[data-svc="${s.id}"]`)
         if (el) el.onclick = () => selectService(s)
       })
     }
 
-    function serviceCard(s) {
+    function closedBox(wa, ig) {
+      const name = escapeHtml(firstName(provider.name) || provider.name)
+      const action = wa
+        ? `<a class="btn btn-whatsapp" href="${escapeHtml(wa)}" target="_blank" rel="noopener" style="margin-top:14px;">Chamar no WhatsApp</a>`
+        : ig ? `<a class="btn btn-secondary" href="${escapeHtml(ig)}" target="_blank" rel="noopener" style="margin-top:14px;">Mandar mensagem no Instagram</a>` : ''
       return `
-        <div class="service-card" data-svc="${s.id}">
+        <div class="closed-box">
+          <strong>A agenda online de ${name} está fechada no momento.</strong><br>
+          ${wa || ig ? `Fale direto com ${name} pra marcar seu horário.` : 'Volte em breve pra marcar seu horário.'}
+          ${action ? `<div>${action}</div>` : ''}
+        </div>`
+    }
+
+    function videoSection() {
+      const url = httpUrl(provider.video_url)
+      if (!url) return ''
+      const embed = videoEmbed(url)
+      return `
+        <div class="page-section">
+          <div class="step-eyebrow">VÍDEO</div>
+          ${embed
+            ? `<div class="video-wrap"><iframe src="${escapeHtml(embed)}" title="Vídeo de ${escapeHtml(provider.name)}" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`
+            : `<a class="btn btn-secondary" href="${escapeHtml(url)}" target="_blank" rel="noopener">Assistir ao vídeo</a>`}
+        </div>`
+    }
+
+    function reviewsSection() {
+      const pro = escapeHtml(firstName(provider.name) || provider.name)
+      const items = reviews.items || []
+      return `
+        <div class="page-section" id="avaliacoes">
+          <div class="step-eyebrow">AVALIAÇÕES</div>
+          <div class="rating-summary">
+            <div class="big">${fmtAvg(reviews.average)}</div>
+            <div>
+              <div style="font-size:20px;">${starsHtml(reviews.average)}</div>
+              <div class="muted" style="font-size:13px;">${reviews.count} ${reviews.count === 1 ? 'avaliação de cliente' : 'avaliações de clientes'}</div>
+            </div>
+          </div>
+          <div class="review-list">
+            ${items.map(r => `
+              <div class="review-item">
+                ${starsHtml(r.rating)}
+                ${r.comment ? `<div class="comment">${escapeHtml(r.comment)}</div>` : ''}
+                <div class="who">${escapeHtml(r.client_name)}${fmtMonthYear(r.created_at) ? ' · ' + fmtMonthYear(r.created_at) : ''}</div>
+                ${r.provider_response ? `<div class="reply"><b>Resposta de ${pro}:</b> ${escapeHtml(r.provider_response)}</div>` : ''}
+              </div>`).join('')}
+          </div>
+          ${reviews.count > items.length ? `<p class="muted" style="font-size:13px;margin-top:12px;">Mostrando as ${items.length} avaliações mais recentes.</p>` : ''}
+        </div>`
+    }
+
+    // Foto grande com setas, teclado e arrastar no celular
+    function openLightbox(start) {
+      const urls = gallery()
+      if (!urls.length) return
+      let idx = start
+      const box = document.createElement('div')
+      box.className = 'lightbox'
+      box.setAttribute('role', 'dialog')
+      box.setAttribute('aria-label', 'Foto do trabalho')
+      box.innerHTML = `<button type="button" class="lb-close" aria-label="Fechar">×</button>
+        ${urls.length > 1 ? '<button type="button" class="lb-prev" aria-label="Foto anterior">‹</button><button type="button" class="lb-next" aria-label="Próxima foto">›</button>' : ''}
+        <img alt="Trabalho de ${escapeHtml(provider.name)}"><div class="lb-count"></div>`
+      const img = box.querySelector('img')
+      const count = box.querySelector('.lb-count')
+      const show = () => { img.src = urls[idx]; count.textContent = urls.length > 1 ? `${idx + 1} / ${urls.length}` : '' }
+      const go = d => { idx = (idx + d + urls.length) % urls.length; show() }
+      const onKey = e => {
+        if (e.key === 'Escape') close()
+        else if (e.key === 'ArrowLeft') go(-1)
+        else if (e.key === 'ArrowRight') go(1)
+      }
+      function close() {
+        box.remove()
+        document.removeEventListener('keydown', onKey)
+        document.body.style.overflow = ''
+      }
+      box.addEventListener('click', e => { if (e.target === box || e.target.classList.contains('lb-close')) close() })
+      const prev = box.querySelector('.lb-prev'), next = box.querySelector('.lb-next')
+      if (prev) prev.onclick = e => { e.stopPropagation(); go(-1) }
+      if (next) next.onclick = e => { e.stopPropagation(); go(1) }
+      let x0 = null
+      box.addEventListener('touchstart', e => { x0 = e.touches[0].clientX }, { passive: true })
+      box.addEventListener('touchend', e => {
+        if (x0 == null) return
+        const dx = e.changedTouches[0].clientX - x0
+        if (Math.abs(dx) > 40 && urls.length > 1) go(dx < 0 ? 1 : -1)
+        x0 = null
+      })
+      document.addEventListener('keydown', onKey)
+      document.body.style.overflow = 'hidden'
+      document.body.appendChild(box)
+      show()
+      box.querySelector('.lb-close').focus()
+    }
+
+    function serviceCard(s, clickable = true) {
+      return `
+        <div class="service-card${clickable ? '' : ' static'}" data-svc="${s.id}">
           <div class="head">
             <div>
               <div class="name">${escapeHtml(s.name)}</div>
@@ -186,29 +466,52 @@
     }
 
     function renderStep2() {
-      const today = new Date().toISOString().slice(0, 10)
-      const max = new Date(Date.now() + 60 * 24 * 3600 * 1000).toISOString().slice(0, 10)
+      const today = localKey(new Date())
+      const max = localKey(new Date(Date.now() + 60 * 24 * 3600 * 1000))
+      // Trocou o serviço: some o resumo do serviço anterior
+      selected.date = null; selected.slot = null
+      const step4 = document.getElementById('step4')
+      step4.style.display = 'none'; step4.innerHTML = ''
       document.getElementById('step2').style.display = 'block'
       document.getElementById('step2').innerHTML = `
-        <div class="eyebrow" style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-top:32px;margin-bottom:14px;">PASSO 2 · ESCOLHA A DATA</div>
+        <div class="step-eyebrow">PASSO 2 · ESCOLHA A DATA</div>
         <input type="date" id="dateInput" class="date-input" min="${today}" max="${max}" />
         <div id="slots-area"></div>
       `
       document.getElementById('dateInput').onchange = e => loadSlots(e.target.value)
     }
 
+    // Plano da profissional nao libera agendamento online (availability → booking_open: false)
+    function closedSlots() {
+      const name = escapeHtml(firstName(provider.name) || provider.name)
+      const wa = waUrl(provider.whatsapp, `Oi ${firstName(provider.name)}! Vi sua página e queria marcar um horário${selected.service ? ` (${selected.service.name})` : ''}.`)
+      return `
+        <div class="closed-box" style="margin-top:16px;">
+          <strong>Agenda fechada no momento.</strong><br>
+          ${wa ? `Fale direto com ${name} pelo WhatsApp pra marcar seu horário.` : `Volte em breve pra marcar seu horário com ${name}.`}
+          ${wa ? `<div><a class="btn btn-whatsapp" href="${escapeHtml(wa)}" target="_blank" rel="noopener" style="margin-top:14px;">Chamar no WhatsApp</a></div>` : ''}
+        </div>`
+    }
+
     async function loadSlots(date) {
       selected.date = date
+      selected.slot = null
+      const step4 = document.getElementById('step4')
+      step4.style.display = 'none'; step4.innerHTML = ''
       const area = document.getElementById('slots-area')
       area.innerHTML = '<p class="muted" style="font-size:14px;">Carregando horários…</p>'
       try {
         const r = await fetch(`/api/agenda/availability?provider_id=${provider.id}&date=${date}&duration=${selected.service.duration_min}`)
         const data = await r.json()
+        if (data.booking_open === false) {
+          area.innerHTML = closedSlots()
+          return
+        }
         if (!data.slots || data.slots.length === 0) {
           area.innerHTML = '<p class="muted" style="font-size:14px;">Nenhum horário disponível neste dia.</p>'
           return
         }
-        area.innerHTML = `<div class="eyebrow" style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-top:24px;margin-bottom:14px;">PASSO 3 · ESCOLHA O HORÁRIO</div>
+        area.innerHTML = `<div class="step-eyebrow" style="margin-top:24px;">PASSO 3 · ESCOLHA O HORÁRIO</div>
           <div class="slot-grid">${data.slots.map(s => `<button class="slot-btn" data-slot="${s}">${s}</button>`).join('')}</div>`
         document.querySelectorAll('.slot-btn').forEach(b => b.onclick = () => selectSlot(b.dataset.slot))
       } catch (e) {
@@ -226,15 +529,15 @@
     function renderStep4() {
       document.getElementById('step4').style.display = 'block'
       document.getElementById('step4').innerHTML = `
-        <div class="eyebrow" style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-top:32px;margin-bottom:14px;">PASSO 4 · CONFIRMAR</div>
+        <div class="step-eyebrow">PASSO 4 · CONFIRMAR</div>
         <div class="card" style="margin-bottom:16px;">
           <div style="font-family:var(--font-display);font-size:1.2rem;color:var(--ink);">${escapeHtml(selected.service.name)}</div>
-          <div style="color:var(--ink-soft);font-size:14px;margin-top:6px;">${selected.date} · ${selected.slot} · ${selected.service.duration_min} min</div>
+          <div style="color:var(--ink-soft);font-size:14px;margin-top:6px;">${fmtDateBR(selected.date)} · ${selected.slot} · ${selected.service.duration_min} min</div>
           <div style="font-family:var(--font-display);font-size:1.4rem;font-weight:700;color:var(--ink);margin-top:10px;">${fmtUSD(selected.service.price_cents)}</div>
           ${selected.service.deposit_cents > 0 ? `<div style="font-size:12px;color:var(--brand-gold-dark);margin-top:4px;">Depósito antecipado: ${fmtUSD(selected.service.deposit_cents)} (descontado do valor total)</div>` : ''}
         </div>
-        <input id="cName" type="text" placeholder="Seu nome" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;font-family:inherit;font-size:14px;" required />
-        <input id="cWa" type="tel" placeholder="WhatsApp (com DDD)" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;font-family:inherit;font-size:14px;" />
+        <input id="cName" type="text" placeholder="Seu nome" autocomplete="name" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;font-family:inherit;font-size:14px;" required />
+        <input id="cWa" type="tel" placeholder="WhatsApp (com DDD)" autocomplete="tel" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;font-family:inherit;font-size:14px;" />
         <input id="cEmail" type="email" autocomplete="email" placeholder="E-mail (pra receber confirmação e lembrete)" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:8px;font-family:inherit;font-size:14px;" />
         <textarea id="cNotes" placeholder="Observações (opcional)" rows="3" style="width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:14px;font-family:inherit;font-size:14px;"></textarea>
         <button id="bookBtn" class="btn btn-primary" style="width:100%;justify-content:center;">Confirmar agendamento →</button>
@@ -292,21 +595,23 @@
     function renderSuccess(data, name, email) {
       const pending = !!data.requires_deposit
       root.innerHTML = `
-        <header class="site-header">
+        ${branded() ? `<header class="site-header">
           <div class="container"><a class="bc-logo" href="/">Brasil<em>Connect</em></a></div>
-        </header>
+        </header>` : ''}
         <main>
           <section><div class="container-narrow" style="text-align:center; padding-top:80px;">
             <div style="text-transform:uppercase;letter-spacing:0.18em;font-size:11px;font-weight:600;color:var(--brand-gold-dark);margin-bottom:12px;">${pending ? 'FALTA O SINAL' : 'CONFIRMADO'}</div>
             <h1 style="font-family:var(--font-display);">${pending ? 'Horário reservado' : 'Agendamento marcado'}, ${escapeHtml(name)}!</h1>
-            <p class="lede">Você fica com <strong>${escapeHtml(provider.name)}</strong> em ${selected.date} às ${selected.slot} — ${escapeHtml(selected.service.name)}.</p>
+            <p class="lede">Você fica com <strong>${escapeHtml(provider.name)}</strong> em ${fmtDateBR(selected.date)} às ${selected.slot} — ${escapeHtml(selected.service.name)}.</p>
             ${pending ? `<p class="muted">O horário é confirmado quando ${escapeHtml(provider.name)} receber o sinal de <strong>${fmtUSD(data.deposit_cents)}</strong>.${data.card_failed ? ' Não conseguimos abrir o pagamento no cartão agora.' : ''}</p>
             ${data.deposit_instructions ? `<p class="lede" style="font-size:1rem;">Como pagar: <strong>${escapeHtml(data.deposit_instructions)}</strong></p>` : `<p class="muted">Combine o pagamento do sinal direto com ${escapeHtml(provider.name)}.</p>`}` : ''}
             <p class="muted">${email ? 'Mandamos a confirmação pro seu e-mail. O lembrete chega 24 horas antes do horário.' : 'Anote a data e o horário: sem e-mail, não conseguimos mandar lembrete.'}</p>
             <a href="/agenda/${escapeHtml(provider.slug)}" class="btn btn-secondary" style="margin-top:20px;">Voltar pro perfil</a>
           </div></section>
         </main>
+        ${siteFooter()}
       `
+      window.scrollTo(0, 0)
     }
   </script>
 </body>

@@ -139,6 +139,16 @@ export default async function handler(req, res) {
         })
       }
 
+      // Safety check 3: perfil do AgendaPro. Sem isso o perfil ficava orfao e quem
+      // criasse conta com o mesmo e-mail podia herdar clientes e agenda.
+      const { data: agProv } = await supabase.from('ag_providers').select('id, name').eq('owner_user_id', user_id).maybeSingle()
+      if (agProv) {
+        return res.status(409).json({
+          error: 'Usuario tem perfil no AgendaPro (' + (agProv.name || agProv.id) + '). A exclusao e pelo app (Configuracoes > Excluir conta), que apaga os dados e cancela a assinatura.',
+          agenda_provider: agProv,
+        })
+      }
+
       // Hard delete em ordem (filhas -> pais). Tabelas referenciadas em user-detail.js.
       // Erros em tabelas opcionais sao logados mas nao bloqueiam (Promise.allSettled).
       await Promise.allSettled([
@@ -177,11 +187,18 @@ export default async function handler(req, res) {
         email_confirm: true,
       })
       if (error) throw error
-      // Espelha em bc_profiles
+      // Espelha em bc_profiles e no perfil do AgendaPro (o e-mail antigo nao pode
+      // ficar livre apontando pro perfil dela)
       await supabase.from('bc_profiles').update({
         email: new_email,
         updated_at: new Date().toISOString(),
       }).eq('user_id', user_id)
+      try {
+        await supabase.from('ag_providers').update({
+          email: String(new_email).trim().toLowerCase(),
+          updated_at: new Date().toISOString(),
+        }).eq('owner_user_id', user_id)
+      } catch (_) {}
       return res.status(200).json({ success: true, action: 'update_auth_email', user_id, email: data?.user?.email })
     }
 

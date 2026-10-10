@@ -12,19 +12,25 @@
  *        delete  { id }   remove a casa e cancela as limpezas por vir dela
  *
  * O link nunca volta inteiro pro navegador (tem token de acesso a agenda da
- * casa): so `url_hint`. Sincronizar exige plano em teste ou ativo.
+ * casa): so `url_hint`. Criar, editar e sincronizar exigem 'turnover_ical';
+ * quantas casas cabem depende do plano (limite 'ical_feeds': Starter 3, Pro 15,
+ * Premium ilimitado). O GET devolve `max_feeds` (null = ilimitado).
+ * Depois de descer de plano, so as casas ativas mais antigas dentro do limite
+ * sincronizam (mesma regra do cron); as outras ficam com `within_limit: false`
+ * e 'sync'/'update' nelas respondem 402 `limit_reached`. Remover sempre pode.
  * O cron api/cron/ical-sync roda a sincronizacao de hora em hora.
  */
 import { createClient } from '@supabase/supabase-js'
-import { requireProviderAuth, planActive } from '../_lib/providerAuth.js'
+import { requireProviderAuth } from '../_lib/providerAuth.js'
+import { requireFeature, requireLimit, limitFor, PLANS } from '../_lib/agendaPlans.js'
 import { normalizeIcsUrl, detectSource, maskUrl, fetchIcs } from '../_lib/ical.js'
 import { syncFeed } from '../_lib/icalSync.js'
 import { rateLimit } from '../_lib/rateLimit.js'
 
 const FEED_COLS = 'id, provider_id, label, url, source, checkout_time, duration_min, price_cents, notes, active, last_synced_at, last_status, last_error, reservations_count, created_at'
-const MAX_FEEDS = 50
+const MAX_FEEDS = 200   // trava de seguranca (o Premium e "ilimitado")
 const HHMM = /^([01]\d|2[0-3]):([0-5]\d)$/
-const NEED_PLAN = 'Sincronizar casas exige um plano ativo. O teste grátis de 14 dias vale.'
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 const int = (v, min, max, def) => {
   const n = Math.round(Number(v))
@@ -57,6 +63,40 @@ function readFields(body, partial) {
   return { fields: out }
 }
 
+/**
+ * Casas que o plano deixa sincronizar, com a regra do cron (api/cron/ical-sync.js):
+ * as `max` ativas mais antigas por created_at. `feeds` ja vem nessa ordem.
+ * null = todas (Premium/teste).
+ */
+function allowedIds(feeds, max) {
+  if (max === null) return null
+  return new Set(feeds.filter(f => f.active === true).slice(0, Math.max(0, max)).map(f => f.id))
+}
+
+async function allowedFeedIds(supabase, provider) {
+  const max = limitFor(provider, 'ical_feeds')
+  if (max === null) return null
+  if (max <= 0) return new Set()
+  const { data, error } = await supabase.from('ag_ical_feeds').select('id, active')
+    .eq('provider_id', provider.id).eq('active', true)
+    .order('created_at', { ascending: true }).limit(max)
+  if (error) throw new Error(error.message)
+  return allowedIds(data || [], max)
+}
+
+/** 402 pra casa fora do limite, no formato de requireLimit. */
+function outOfLimit(provider) {
+  const max = limitFor(provider, 'ical_feeds') || 0
+  const lim = requireLimit(provider, 'ical_feeds', Infinity)
+  const next = lim.body?.min_plan
+  return {
+    ...lim.body,
+    feature: 'turnover_ical',
+    error: `Seu plano sincroniza ${max} casa${max === 1 ? '' : 's'} (as primeiras que você cadastrou) e essa ficou de fora. ` +
+      (next ? `O plano ${PLANS[next].name} libera mais, ou remova uma casa pra abrir espaço.` : 'Remova uma casa pra abrir espaço.'),
+  }
+}
+
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
   if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
@@ -72,7 +112,10 @@ export default async function handler(req, res) {
       const { data, error } = await supabase.from('ag_ical_feeds').select(FEED_COLS)
         .eq('provider_id', provider.id).order('created_at', { ascending: true })
       if (error) return res.status(500).json({ error: error.message })
-      return res.status(200).json({ feeds: (data || []).map(publicFeed) })
+      const max = limitFor(provider, 'ical_feeds')
+      const ok = allowedIds(data || [], max)
+      const feeds = (data || []).map(f => ({ ...publicFeed(f), within_limit: ok === null || ok.has(f.id) }))
+      return res.status(200).json({ feeds, max_feeds: max })
     }
 
     const body = req.body || {}
@@ -84,7 +127,7 @@ export default async function handler(req, res) {
     }
 
     const loadFeed = async () => {
-      if (!body.id) return null
+      if (!body.id || !UUID.test(String(body.id))) return null
       const { data } = await supabase.from('ag_ical_feeds').select(FEED_COLS)
         .eq('id', body.id).eq('provider_id', provider.id).maybeSingle()
       return data || null
@@ -95,7 +138,8 @@ export default async function handler(req, res) {
     }
 
     if (action === 'create') {
-      if (!planActive(provider)) return res.status(402).json({ error: NEED_PLAN })
+      const gate = requireFeature(provider, 'turnover_ical')
+      if (!gate.ok) return res.status(gate.status).json(gate.body)
       const read = readFields(body, false)
       if (read.error) return res.status(400).json({ error: read.error })
       const n = normalizeIcsUrl(body.url)
@@ -103,6 +147,8 @@ export default async function handler(req, res) {
 
       const { count } = await supabase.from('ag_ical_feeds')
         .select('id', { count: 'exact', head: true }).eq('provider_id', provider.id)
+      const lim = requireLimit(provider, 'ical_feeds', count || 0)
+      if (!lim.ok) return res.status(lim.status).json(lim.body)
       if ((count || 0) >= MAX_FEEDS) return res.status(400).json({ error: `Limite de ${MAX_FEEDS} casas atingido` })
 
       const { data: dup } = await supabase.from('ag_ical_feeds').select('id')
@@ -126,6 +172,10 @@ export default async function handler(req, res) {
     if (!feed) return res.status(404).json({ error: 'Casa não encontrada' })
 
     if (action === 'update') {
+      const gate = requireFeature(provider, 'turnover_ical')
+      if (!gate.ok) return res.status(gate.status).json(gate.body)
+      const ok = await allowedFeedIds(supabase, provider)
+      if (ok && !ok.has(feed.id)) return res.status(402).json(outOfLimit(provider))
       const read = readFields(body, true)
       if (read.error) return res.status(400).json({ error: read.error })
       const patch = { ...read.fields, updated_at: new Date().toISOString() }
@@ -149,12 +199,15 @@ export default async function handler(req, res) {
       if (error) return res.status(500).json({ error: error.message })
 
       // Horario, duracao e valor novos valem pras limpezas por vir
-      const sync = planActive(provider) && saved.active ? await syncFeed(supabase, saved, { text }) : null
+      const sync = saved.active ? await syncFeed(supabase, saved, { text }) : null
       return reply(feed.id, sync)
     }
 
     if (action === 'sync') {
-      if (!planActive(provider)) return res.status(402).json({ error: NEED_PLAN })
+      const gate = requireFeature(provider, 'turnover_ical')
+      if (!gate.ok) return res.status(gate.status).json(gate.body)
+      const ok = await allowedFeedIds(supabase, provider)
+      if (ok && !ok.has(feed.id)) return res.status(402).json(outOfLimit(provider))
       if (feed.last_synced_at && Date.now() - new Date(feed.last_synced_at).getTime() < 60_000) {
         return res.status(429).json({ error: 'Essa casa acabou de sincronizar. Espere um minuto.' })
       }

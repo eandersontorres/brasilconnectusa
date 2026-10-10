@@ -6,7 +6,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="canonical" href="https://brasilconnectusa.com/para/agenda-pro/">
   <title>AgendaPro — Agendamento online pra profissionais brasileiros nos EUA | BrasilConnect</title>
-  <meta name="description" content="Cliente vê horários disponíveis e agenda direto no seu calendário. Pra cabeleireira, massagista, dentista, personal nos EUA.">
+  <meta name="description" content="Agenda online, clientes, lembretes e finanças pra profissionais brasileiros nos EUA: cabeleireira, manicure, faxineira, massagista. Teste grátis de 14 dias. App pra iPhone e Android em breve.">
   <meta name="theme-color" content="#1F4D3F">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -68,6 +68,36 @@
     .final-cta { background: var(--paper-soft); padding: 60px 0; text-align: center; margin-top: 40px; }
     .final-cta h2 { font-family: var(--font-display); font-size: 36px; margin-bottom: 12px; }
     .final-cta p { color: var(--ink-soft); font-size: 16px; margin-bottom: 24px; }
+
+    /* App AgendaPro (iPhone e Android) — em breve nas lojas */
+    .app-section { background: linear-gradient(135deg, #1F4D3F 0%, #143527 100%); color: #fff; padding: 64px 0; }
+    .app-section .eyebrow { color: #E2C77A; }
+    .app-section h2 { color: #fff; font-family: var(--font-display); margin: 0 0 12px 0; }
+    .app-section .lede { color: rgba(255,255,255,0.88); font-size: 16px; line-height: 1.65; margin: 0; }
+    .app-soon { display: inline-flex; align-items: center; gap: 8px; margin-top: 18px; padding: 7px 14px; border-radius: 999px; background: rgba(250,247,240,0.12); border: 1px solid rgba(250,247,240,0.28); color: #FAF7F0; font-size: 13px; font-weight: 600; letter-spacing: 0.02em; }
+    .app-soon .dot { width: 8px; height: 8px; border-radius: 50%; background: #FFDF00; }
+    .app-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin: 28px 0 8px; }
+    .app-feat { background: rgba(250,247,240,0.07); border: 1px solid rgba(250,247,240,0.16); border-radius: 12px; padding: 18px; }
+    .app-feat .ico { font-size: 22px; margin-bottom: 8px; }
+    .app-feat h4 { color: #fff; font-family: var(--font-display); font-size: 16px; margin: 0 0 6px 0; }
+    .app-feat p { color: rgba(255,255,255,0.78); font-size: 13.5px; line-height: 1.55; margin: 0; }
+    .app-note { color: rgba(255,255,255,0.7); font-size: 13px; margin-top: 18px; }
+    .app-note a { color: #FAF7F0; }
+    .app-cta { display: inline-block; margin-top: 18px; background: #FAF7F0; color: #1F4D3F; padding: 12px 22px; border-radius: 8px; font-weight: 700; font-size: 14px; text-decoration: none; }
+
+    .plan-card .plan-tag { font-size: 13px; color: var(--ink-muted); margin: -10px 0 14px 0; }
+    .plans-note { font-size: 13px; color: var(--ink-muted); margin-top: 14px; line-height: 1.6; }
+
+    .support-box { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: 12px; padding: 24px; }
+    .support-box p { margin: 0 0 8px 0; color: var(--ink-soft); font-size: 14px; line-height: 1.7; }
+    .support-box p:last-child { margin-bottom: 0; }
+
+    @media (max-width: 600px) {
+      .module-hero { padding: 56px 0 44px; }
+      .module-hero .container-narrow { padding: 0 20px; }
+      .module-hero h1 { font-size: 40px; }
+      .final-cta h2 { font-size: 28px; }
+    }
   </style>
   <script src="/js/site.js" defer></script>
 </head>
@@ -89,10 +119,11 @@
         <div class="emoji-big">📅</div>
         <h1>AgendaPro</h1>
         <div class="tagline">Cliente agenda direto no seu calendário, 24 horas.</div>
-        <p class="lede">Pra profissionais que vendem horários — cabeleireira, massagista, dentista, personal trainer, manicure, esteticista. Cliente vê os horários livres da semana, escolhe e confirma.</p>
+        <p class="lede">Pra profissionais que vendem horários — cabeleireira, manicure, esteticista, massagista, faxineira, personal trainer. Cliente vê os horários livres da semana, escolhe e confirma. Você cuida da agenda, das clientes e do dinheiro num lugar só.</p>
         <div class="cta-row">
           <a href="/negocio?module=agenda_pro#cadastro" class="btn-primary">🚀 Cadastrar perfil →</a>
           <a href="#planos" class="btn-ghost-white">Ver planos</a>
+          <a href="#app" class="btn-ghost-white">📱 App em breve</a>
         </div>
       </div>
     </section>
@@ -115,12 +146,12 @@
           <div class="step-card">
             <span class="step-num">3</span>
             <h4>Cliente agenda</h4>
-            <p>Cliente entra no seu perfil, vê só os horários livres e escolhe. Confirmação por e-mail e lembrete 24h antes: em breve.</p>
+            <p>Cliente entra no seu perfil, vê só os horários livres e escolhe. Confirmação por e-mail e lembrete 24h antes, automáticos.</p>
           </div>
           <div class="step-card">
             <span class="step-num">4</span>
             <h4>Atende</h4>
-            <p>Painel mostra a agenda do dia/semana. Cliente paga no atendimento (ou online, em breve). Sem WhatsApp pra marcar = menos confusão.</p>
+            <p>A agenda do dia e da semana fica na sua mão. Cliente paga no atendimento ou deixa o sinal por Zelle, dinheiro ou cartão. Menos troca de mensagem pra marcar = menos confusão.</p>
           </div>
         </div>
       </div>
@@ -136,6 +167,7 @@
             <li><strong>Cabeleireira / barbeiro brasileiro</strong> — escova progressiva, corte masculino, química. Cada serviço com duração diferente.</li>
             <li><strong>Massagista / esteticista</strong> — drenagem, modeladora, depilação. Atende em clínica ou a domicílio.</li>
             <li><strong>Manicure / pedicure</strong> — esmaltação em gel, banho de loja, pé e mão. Agenda na hora pelo celular.</li>
+            <li><strong>Faxineira / house cleaning</strong> — casas fixas semanais ou quinzenais, equipes e limpeza de Airbnb, Vrbo e Booking criada sozinha no dia do checkout.</li>
             <li><strong>Dentista / médico</strong> — consulta, limpeza, clareamento. Define qual serviço cada slot atende.</li>
             <li><strong>Personal trainer</strong> — treino individual, dupla, online. Cliente reserva o slot da semana inteira de uma vez.</li>
             <li><strong>Professor particular</strong> — aula de inglês, português pra americano, reforço escolar. Cliente recorrente agenda mês inteiro.</li>
@@ -206,46 +238,118 @@
       </div>
     </section>
 
+    <section class="app-section" id="app">
+      <div class="container-narrow">
+        <div class="eyebrow">Novidade</div>
+        <h2>App AgendaPro para iPhone e Android — em breve nas lojas</h2>
+        <p class="lede">A versão completa do AgendaPro no seu celular: a mesma conta do site, com tudo que o seu plano libera. Feito pra quem passa o dia atendendo e não tem tempo de abrir computador.</p>
+        <div class="app-soon"><span class="dot"></span> Em breve na App Store e no Google Play</div>
+
+        <div class="app-grid">
+          <div class="app-feat">
+            <div class="ico">📅</div>
+            <h4>Seu dia num olhar</h4>
+            <p>Quem vem hoje, a que horas, quanto vai receber. Remarca, confirma e cancela em dois toques.</p>
+          </div>
+          <div class="app-feat">
+            <div class="ico">🔔</div>
+            <h4>Aviso na hora</h4>
+            <p>Notificação no celular quando chega agendamento novo ou avaliação nova, e o resumo do dia seguinte.</p>
+          </div>
+          <div class="app-feat">
+            <div class="ico">💬</div>
+            <h4>WhatsApp pronto</h4>
+            <p>Confirmar, lembrar, avisar atraso e pedir avaliação com a mensagem já escrita — em português, inglês ou espanhol.</p>
+          </div>
+          <div class="app-feat">
+            <div class="ico">👩‍🦱</div>
+            <h4>Ficha de cada cliente</h4>
+            <p>Histórico, quanto já gastou, observações, aniversário e endereço da casa (pra quem faz limpeza).</p>
+          </div>
+          <div class="app-feat">
+            <div class="ico">💵</div>
+            <h4>Dinheiro em dia</h4>
+            <p>Pagamentos, gorjetas, despesas, milhagem, meta do mês e quanto guardar pro imposto.</p>
+          </div>
+          <div class="app-feat">
+            <div class="ico">🔁</div>
+            <h4>Agenda que se preenche</h4>
+            <p>Clientes fixas, lista de espera e um lembrete de quem sumiu, com mensagem pronta pra chamar de volta.</p>
+          </div>
+          <div class="app-feat">
+            <div class="ico">🏠</div>
+            <h4>Turnover de Airbnb</h4>
+            <p>Cola o calendário da casa e a limpeza aparece sozinha no dia do checkout. Airbnb, Vrbo e Booking.</p>
+          </div>
+          <div class="app-feat">
+            <div class="ico">🔒</div>
+            <h4>Seguro e no seu bolso</h4>
+            <p>Abre com Face ID ou digital e manda os horários pro calendário do iPhone ou Android.</p>
+          </div>
+        </div>
+
+        <p class="app-note">Os recursos seguem o seu plano (Starter, Pro ou Premium). Quem já usa o AgendaPro pelo site entra no app com o mesmo e-mail.</p>
+        <a class="app-cta" href="mailto:oi@brasilconnectusa.com?subject=Quero%20o%20app%20AgendaPro">Quero ser avisada quando sair →</a>
+      </div>
+    </section>
+
     <section class="section" id="planos">
       <div class="container-narrow">
         <div class="eyebrow">Planos</div>
         <h2>Comece grátis. Atualize quando precisar.</h2>
-        <p class="lede" style="margin-top:14px;margin-bottom:24px;">14 dias grátis em qualquer plano. Cancele quando quiser.</p>
+        <p class="lede" style="margin-top:14px;margin-bottom:24px;">14 dias grátis com tudo liberado. Cancele quando quiser, sem multa e sem comissão por agendamento.</p>
 
         <div class="plans-cards">
           <div class="plan-card">
             <h4>Starter</h4>
             <div class="price">$19<small> / mês</small></div>
+            <div class="plan-tag">Pra quem está começando</div>
             <ul>
-              <li>1 profissional</li>
-              <li>Agendamentos ilimitados</li>
-              <li>Página pública de agendamento</li>
-              <li>Sinal por Zelle, dinheiro ou cartão</li>
-              <li>Lembrete por email <span class="soon">em breve</span></li>
+              <li>Agenda completa e agendamentos ilimitados</li>
+              <li>Página de agendamento online 24h</li>
+              <li>Serviços, preços, horários e folgas</li>
+              <li>Ficha das clientes com histórico</li>
+              <li>Lembrete automático por e-mail</li>
+              <li>Mensagens prontas no WhatsApp</li>
+              <li>Notificações e calendário do celular</li>
+              <li>Sinal por Zelle ou dinheiro</li>
+              <li>Link e QR code da sua página</li>
+              <li>Turnover Airbnb, Vrbo e Booking (até 3 casas)</li>
             </ul>
           </div>
           <div class="plan-card featured">
             <h4>Pro</h4>
             <div class="price">$39<small> / mês</small></div>
+            <div class="plan-tag">Pra quem já tem clientela e quer crescer</div>
             <ul>
               <li>Tudo do Starter</li>
-              <li>Página pública customizada</li>
-              <li>Lembrete por email + SMS <span class="soon">em breve</span></li>
-              <li>Reviews públicos <span class="soon">em breve</span></li>
-              <li>Galeria de fotos <span class="soon">em breve</span></li>
+              <li>Sinal com cartão, direto na sua conta Stripe</li>
+              <li>Avaliações com estrelas na sua página</li>
+              <li>Galeria de fotos do seu trabalho</li>
+              <li>Clientes fixas (semanal, quinzenal, mensal)</li>
+              <li>Clientes sumidas e lista de espera</li>
+              <li>Finanças: despesas, lucro, meta e reserva do imposto</li>
+              <li>Milhagem pra dedução no imposto</li>
+              <li>Mensagens em inglês e espanhol</li>
+              <li>Turnover de até 15 casas</li>
             </ul>
           </div>
           <div class="plan-card">
             <h4>Premium</h4>
             <div class="price">$79<small> / mês</small></div>
+            <div class="plan-tag">Equipes e negócios com vários profissionais</div>
             <ul>
               <li>Tudo do Pro</li>
-              <li>Até 10 profissionais <span class="soon">em breve</span></li>
-              <li>Relatórios financeiros <span class="soon">em breve</span></li>
-              <li>Sem a marca BrasilConnect na página <span class="soon">em breve</span></li>
+              <li>Equipe: até 10 profissionais, cada um com sua cor</li>
+              <li>Rota do dia da equipe por link, sem senha</li>
+              <li>Relatórios mensais e CSV pro contador</li>
+              <li>Recibos em PDF com a sua marca</li>
+              <li>Página sem a marca BrasilConnect</li>
+              <li>Turnover de casas ilimitadas</li>
             </ul>
           </div>
         </div>
+        <p class="plans-note">Preços em dólar, cobrança mensal. Pelo app, o teste começa sem cartão. Pelo site, o checkout pede o cartão e só cobra no 15º dia — cancele antes e não paga nada.</p>
         <p style="margin-top:20px;"><a class="btn btn-primary" href="/agenda/planos">Ver planos e começar o teste →</a></p>
       </div>
     </section>
@@ -257,22 +361,32 @@
 
         <details class="faq-item">
           <summary>Como evita marcação em horário que já tô ocupado?</summary>
-          <p>O sistema só mostra horários livres do seu calendário. Se você bloquear um dia (férias, doutor) ou marcar um cliente offline, o slot some pra os outros. Em breve teremos sync com Google Calendar pra evitar dupla marcação com seus compromissos pessoais.</p>
+          <p>O sistema só mostra horários livres do seu calendário. Se você bloquear um dia (férias, doutor) ou marcar um cliente offline, o slot some pra os outros. No app, você também pode mandar os agendamentos pro calendário do iPhone ou do Android, pra ver tudo junto com seus compromissos pessoais.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Tem aplicativo pro celular?</summary>
+          <p>Tem, e chega em breve à App Store e ao Google Play. É a versão completa do AgendaPro, com a mesma conta do site: o que o seu plano libera no site, libera no app. Enquanto isso, sua página de agendamento já recebe horários pelo navegador.</p>
+        </details>
+
+        <details class="faq-item">
+          <summary>Como funciona o teste grátis?</summary>
+          <p>São 14 dias com todos os recursos liberados. Pelo app, você começa sem cartão. Pelo site, o checkout pede o cartão e a primeira cobrança só acontece no 15º dia — se cancelar antes, não paga nada. Depois do teste, você escolhe Starter ($19), Pro ($39) ou Premium ($79). Se não assinar, seus dados continuam guardados e você ainda consegue ver agenda e clientes.</p>
         </details>
 
         <details class="faq-item">
           <summary>Cliente paga online ou no atendimento?</summary>
-          <p>Você escolhe: cobrar no atendimento (dinheiro, Zelle, Venmo ou cartão no local) ou pedir um sinal na hora do agendamento. Com sinal, o horário só confirma depois do pagamento, o que reduz as faltas. <strong>Sem comissão por agendamento</strong> — pagamento vai direto do cartão do cliente pra sua conta.</p>
+          <p>Você escolhe: cobrar no atendimento (dinheiro, Zelle, Venmo ou cartão no local) ou pedir um sinal na hora do agendamento — por Zelle ou dinheiro em qualquer plano, ou no cartão a partir do Pro. Com sinal, o horário só confirma depois do pagamento, o que reduz as faltas. <strong>Sem comissão por agendamento</strong> — o sinal no cartão vai direto pra sua conta Stripe.</p>
         </details>
 
         <details class="faq-item">
           <summary>E se cliente não aparecer (no-show)?</summary>
-          <p>Você marca a falta no painel. Se a cliente pagou sinal, você decide a política de reembolso.</p>
+          <p>Você marca a falta no painel ou no app, e ela fica no histórico da cliente. Se a cliente pagou sinal, você decide a política de reembolso.</p>
         </details>
 
         <details class="faq-item">
-          <summary>Quando chegam os lembretes por SMS e WhatsApp?</summary>
-          <p>Os lembretes por SMS e WhatsApp ainda estão em desenvolvimento. Quando entrarem no ar, avisamos por e-mail.</p>
+          <summary>Tem lembrete por WhatsApp e SMS?</summary>
+          <p>O lembrete por e-mail já sai sozinho, 24h antes. No WhatsApp, o app deixa a mensagem pronta (confirmar, lembrar, avisar atraso, pedir avaliação) e você envia com um toque, do seu próprio número. Lembrete automático por SMS ainda não tem; quando entrar no ar, avisamos por e-mail.</p>
         </details>
 
         <details class="faq-item">
@@ -282,8 +396,20 @@
 
         <details class="faq-item">
           <summary>Tenho 3 profissionais no salão. Posso ter um perfil pra cada?</summary>
-          <p>Hoje cada profissional precisa de email separado pra cadastrar. Premium (em breve) vai ter multi-profissional num único salão — cliente escolhe com quem quer agendar.</p>
+          <p>Pode, no plano Premium: você cadastra até 10 profissionais ou equipes, distribui os atendimentos e cada um aparece com sua cor na agenda. A equipe recebe a rota do dia por um link, sem precisar de senha.</p>
         </details>
+      </div>
+    </section>
+
+    <section class="section" id="suporte">
+      <div class="container-narrow">
+        <div class="eyebrow">Suporte</div>
+        <h2>Precisa de ajuda?</h2>
+        <div class="support-box">
+          <p>Escreva pra <a href="mailto:oi@brasilconnectusa.com?subject=AgendaPro">oi@brasilconnectusa.com</a>, em português, inglês ou espanhol, com o e-mail da sua conta.</p>
+          <p><strong>Assinatura:</strong> para trocar de plano, atualizar o cartão ou cancelar, use "Meu plano" no app ou a página <a href="/agenda/planos">/agenda/planos</a>.</p>
+          <p><strong>Excluir conta:</strong> no app, vá em Mais → Configurações → Excluir conta. Sem o app, dá pra pedir por e-mail, como explicado em <a href="/excluir-conta.html">Excluir conta</a>.</p>
+        </div>
       </div>
     </section>
 
@@ -316,6 +442,8 @@
           <a href="/">Início</a>
           <a href="/custo-de-vida/">Cidades</a>
           <a href="/guias/">Guias</a>
+          <a href="/privacidade">Privacidade</a>
+          <a href="/termos">Termos</a>
         </div>
       </div>
       <div class="footer-bottom">© 2026 BrasilConnect USA</div>
