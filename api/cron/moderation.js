@@ -304,18 +304,24 @@ async function classifyBatch(batch) {
 
   const data = await resp.json()
   const duration = Date.now() - t0
+  const usage = data.usage || {}
 
-  // Recusa do classificador de segurança vem como HTTP 200 — checar antes de ler o conteúdo
-  if (data.stop_reason === 'refusal') {
-    throw new Error(`Anthropic refusal (${data.stop_details?.category || 'sem categoria'})`)
-  }
   if (data.stop_reason === 'max_tokens') {
-    throw new Error(`Anthropic max_tokens: resposta truncada (${data.usage?.output_tokens} tokens)`)
+    throw new Error(`Anthropic max_tokens: resposta truncada (${usage.output_tokens} tokens)`)
+  }
+
+  // Recusa do classificador de segurança vem como HTTP 200. Lançar erro deixaria o lote
+  // em 'pending' e o cron pegaria os mesmos itens a cada 5 min, travando a fila da
+  // tabela — então o lote inteiro vai pra revisão humana (medium → flagged, sem ocultar).
+  if (data.stop_reason === 'refusal') {
+    const category = data.stop_details?.category || 'sem categoria'
+    console.warn(`[moderation] refusal (${category}) — ${batch.length} itens enviados pra revisão`)
+    const reasoning = `[recusa do modelo: ${category}] revisar manualmente`
+    return withUsage(batch.map(() => ({ severity: 'medium', categories: [], reasoning })), usage, duration)
   }
 
   // A resposta pode começar com blocos `thinking`, então junta só os blocos `text`
   const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('')
-  const usage = data.usage || {}
 
   // Parse JSON da resposta
   let parsed
@@ -338,7 +344,12 @@ async function classifyBatch(batch) {
     }
   })
 
-  // Custo (rateado igual entre itens do batch)
+  return withUsage(verdicts, usage, duration)
+}
+
+// Custo (rateado igual entre itens do batch)
+function withUsage(verdicts, usage, duration) {
+  const n = verdicts.length
   const cost = (
     (usage.input_tokens || 0) * PRICE_IN +
     (usage.output_tokens || 0) * PRICE_OUT +
@@ -347,12 +358,12 @@ async function classifyBatch(batch) {
   )
 
   for (const v of verdicts) {
-    v._tokens_in = Math.round((usage.input_tokens || 0) / batch.length)
-    v._tokens_out = Math.round((usage.output_tokens || 0) / batch.length)
-    v._cache_read = Math.round((usage.cache_read_input_tokens || 0) / batch.length)
-    v._cache_write = Math.round((usage.cache_creation_input_tokens || 0) / batch.length)
-    v._cost = cost / batch.length
-    v._duration = Math.round(duration / batch.length)
+    v._tokens_in = Math.round((usage.input_tokens || 0) / n)
+    v._tokens_out = Math.round((usage.output_tokens || 0) / n)
+    v._cache_read = Math.round((usage.cache_read_input_tokens || 0) / n)
+    v._cache_write = Math.round((usage.cache_creation_input_tokens || 0) / n)
+    v._cost = cost / n
+    v._duration = Math.round(duration / n)
   }
 
   return verdicts
