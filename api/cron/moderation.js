@@ -4,7 +4,7 @@
  * Agente de moderação IA — roda a cada 5 minutos via Vercel cron.
  *
  * Pega até MAX_BATCH itens com agent_status='pending' (posts, comments,
- * businesses, profiles), manda em batch pro Claude Haiku 4.5 com prompt
+ * businesses, profiles), manda em batch pro Claude Haiku 5.5 com prompt
  * caching no system, e aplica ação por severity:
  *
  *   critical → is_deleted=true (auto-hide pesado) + agent_status='auto_hidden'
@@ -14,25 +14,29 @@
  *
  * Autenticação: `x-cron-secret` header ou `?secret=` query param igual a CRON_SECRET.
  *
- * Modelo: claude-haiku-4-5 (claude-haiku-4-5-20251001)
- *   ~$1/M input, $5/M output, $0.10/M cache read, $1.25/M cache write
+ * Modelo: claude-haiku-5-5
+ *   $0.10/M input, $0.50/M output, $0.01/M cache read, $0.125/M cache write
+ *   (tabela pra prompts até 100K tokens — nossos batches ficam bem abaixo)
  *   System cacheado → ~80% economia em runs subsequentes
+ *   Haiku 5.5 vem com thinking adaptativo ligado por padrão; effort 'low' deixa
+ *   custo e latência perto do Haiku 4.5, que rodava sem thinking.
  */
 
 import { createClient } from '@supabase/supabase-js'
 
-const MODEL          = 'claude-haiku-4-5-20251001'
+const MODEL          = 'claude-haiku-5-5'
 const ANTHROPIC_URL  = 'https://api.anthropic.com/v1/messages'
 const ANTHROPIC_VER  = '2023-06-01'
 const MAX_BATCH      = 30           // itens por chamada de Claude (~3000 tokens entrada)
 const MAX_TOTAL      = 120          // teto por execução do cron (4 batches max)
 const MAX_CONTENT_CH = 1500         // trunca conteúdo longo
 
-// Precificação (USD por milhão de tokens) — Haiku 4.5
-const PRICE_IN   = 1.00 / 1_000_000
-const PRICE_OUT  = 5.00 / 1_000_000
-const PRICE_READ = 0.10 / 1_000_000
-const PRICE_WRITE = 1.25 / 1_000_000
+// Precificação (USD por milhão de tokens) — Haiku 5.5, prompt ≤ 100K tokens
+// (output_tokens já inclui os tokens de thinking)
+const PRICE_IN   = 0.10 / 1_000_000
+const PRICE_OUT  = 0.50 / 1_000_000
+const PRICE_READ = 0.01 / 1_000_000
+const PRICE_WRITE = 0.125 / 1_000_000
 
 // ────────────────────────────────────────────────────────────────────────────
 // SYSTEM PROMPT — cacheado (paga 1x, lê barato nas próximas chamadas)
@@ -280,7 +284,10 @@ async function classifyBatch(batch) {
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 2048,
+      // thinking conta dentro do max_tokens e o tokenizer do 5.5 gera ~30% mais
+      // tokens pro mesmo texto — 2048 ficava apertado pra 30 itens
+      max_tokens: 8192,
+      output_config: { effort: 'low' },
       system: [
         { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
       ],
@@ -297,7 +304,17 @@ async function classifyBatch(batch) {
 
   const data = await resp.json()
   const duration = Date.now() - t0
-  const text = data.content?.[0]?.text || ''
+
+  // Recusa do classificador de segurança vem como HTTP 200 — checar antes de ler o conteúdo
+  if (data.stop_reason === 'refusal') {
+    throw new Error(`Anthropic refusal (${data.stop_details?.category || 'sem categoria'})`)
+  }
+  if (data.stop_reason === 'max_tokens') {
+    throw new Error(`Anthropic max_tokens: resposta truncada (${data.usage?.output_tokens} tokens)`)
+  }
+
+  // A resposta pode começar com blocos `thinking`, então junta só os blocos `text`
+  const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('')
   const usage = data.usage || {}
 
   // Parse JSON da resposta
