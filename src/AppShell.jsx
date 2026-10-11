@@ -7,7 +7,8 @@ import MessagesButton from './MessagesButton'
 import PostButton from './PostButton'
 import FeedbackButton from './FeedbackButton'
 import { apiFetch } from './lib/apiFetch'
-import { SHOW_BUSINESS } from './lib/features'
+import { SHOW_BUSINESS, SHOW_ASSISTANT } from './lib/features'
+import { openAssistant, ASSISTANT_MAX_CHARS } from './lib/assistente'
 
 // ─── Ícones monocromáticos Lucide-style (currentColor, sidebar 18px) ────────
 const ICP = {
@@ -202,7 +203,7 @@ function UserMenu({ user, onSignOut, size = 32 }) {
 // ────────────────────────────────────────────────────────────────────────────
 //   Mobile Top Bar
 // ────────────────────────────────────────────────────────────────────────────
-function MobileTopBar({ user, onSignIn, onSignOut }) {
+function MobileTopBar({ tab, user, onSignIn, onSignOut }) {
   return (
     <div style={{
       background: C.white, borderBottom: '1px solid ' + C.line,
@@ -210,20 +211,36 @@ function MobileTopBar({ user, onSignIn, onSignOut }) {
       position: 'sticky', top: 0, zIndex: 100,
     }}>
       <Logo size={20} />
-      <div style={{ flex: 1 }} />
-      {user && <MessagesButton user={user} />}
-      {user && <NotificationBell user={user} />}
-      {user ? (
-        <UserMenu user={user} onSignOut={onSignOut} size={32} />
-      ) : (
-        <button onClick={onSignIn} style={{
-          background: C.navy, color: C.white, border: 'none', borderRadius: 8,
-          padding: '7px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer',
-          fontFamily: FONT.sans,
-        }}>
-          Entrar
-        </button>
-      )}
+      {/* Lado direito sem gap (o padding dos botões já separa): com o ✨ ainda cabe em 360px */}
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+        {SHOW_ASSISTANT && (
+          <button
+            onClick={() => openAssistant()}
+            title="Pergunte ao BrasilConnect" aria-label="Assistente: pergunte ao BrasilConnect"
+            aria-current={tab === 'assistente' ? 'page' : undefined}
+            style={{
+              width: 32, height: 32, padding: 0, border: 'none', borderRadius: '50%', cursor: 'pointer',
+              background: tab === 'assistente' ? C.navySoft : 'transparent',
+              fontSize: 17, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >✨</button>
+        )}
+        {user && <MessagesButton user={user} />}
+        {user && <NotificationBell user={user} />}
+        <div style={{ marginLeft: 4, display: 'flex' }}>
+          {user ? (
+            <UserMenu user={user} onSignOut={onSignOut} size={32} />
+          ) : (
+            <button onClick={onSignIn} style={{
+              background: C.navy, color: C.white, border: 'none', borderRadius: 8,
+              padding: '7px 14px', fontSize: 12, fontWeight: 600, cursor: 'pointer',
+              fontFamily: FONT.sans,
+            }}>
+              Entrar
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
@@ -233,7 +250,7 @@ function MobileTopBar({ user, onSignIn, onSignOut }) {
 // ────────────────────────────────────────────────────────────────────────────
 function MobileBottomNav({ tab, setTab }) {
   return (
-    <div style={{
+    <div data-bc-bottomnav style={{
       background: C.white, borderTop: '1px solid ' + C.line,
       display: 'flex', position: 'sticky', bottom: 0, zIndex: 100,
       paddingBottom: 'env(safe-area-inset-bottom)',
@@ -269,7 +286,19 @@ function DesktopTopBar({ user, onSignIn, onSignOut, search, setSearch }) {
       <div style={{ flex: 1, maxWidth: 480, position: 'relative' }}>
         <input
           type="text" value={search} onChange={e => setSearch(e.target.value)}
-          placeholder="Buscar comunidades, posts, negócios..."
+          placeholder={SHOW_ASSISTANT ? 'Pergunte: alguém vendendo bike em Austin?' : 'Buscar comunidades, posts, negócios...'}
+          {...(SHOW_ASSISTANT && {
+            'aria-label': 'Pergunte ao assistente do BrasilConnect',
+            enterKeyHint: 'search',
+            maxLength: ASSISTANT_MAX_CHARS,
+            // Enter manda a pergunta pro assistente (vazio só abre a tela)
+            onKeyDown: e => {
+              if (e.key !== 'Enter' || e.nativeEvent.isComposing) return
+              e.preventDefault()
+              openAssistant(search)
+              setSearch('')
+            },
+          })}
           style={{
             width: '100%', padding: '9px 14px 9px 36px', borderRadius: 18,
             border: '1px solid ' + C.line, background: C.paper,
@@ -280,7 +309,7 @@ function DesktopTopBar({ user, onSignIn, onSignOut, search, setSearch }) {
         <span style={{
           position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
           fontSize: 14, color: C.inkMuted, pointerEvents: 'none',
-        }}>⌕</span>
+        }}>{SHOW_ASSISTANT ? '✨' : '⌕'}</span>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -653,13 +682,14 @@ export default function AppShell({ tab, setTab, children }) {
   if (isMobile) {
     return (
       <div style={{ ...baseStyle, display: 'flex', flexDirection: 'column' }}>
-        <MobileTopBar user={user} onSignIn={() => setShowAuth(true)} onSignOut={signOut} />
+        <MobileTopBar tab={tab} user={user} onSignIn={() => setShowAuth(true)} onSignOut={signOut} />
         <div style={{ flex: 1, maxWidth: 600, width: '100%', margin: '0 auto', padding: tab === 'agenda' ? 0 : '12px' }}>
           {children}
         </div>
         <MobileBottomNav tab={tab} setTab={setTab} />
-        <PostButton variant="fab" />
-        <FeedbackButton />
+        {/* No assistente os botões flutuantes cobririam a barra de pergunta */}
+        {tab !== 'assistente' && <PostButton variant="fab" />}
+        {tab !== 'assistente' && <FeedbackButton />}
         {showAuth && <AuthModalLazy onClose={() => setShowAuth(false)} />}
         {user && showOnboarding && <OnboardingFlow user={user} onComplete={handleOnboardingComplete} onDismiss={handleOnboardingDismiss} />}
       </div>

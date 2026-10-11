@@ -4,6 +4,7 @@ import PushPrompt from './PushPrompt'
 import FeedScreen from './FeedScreen'
 import DiscoverScreen from './DiscoverScreen'
 import { useAuth } from './AuthModal'
+import { SHOW_ASSISTANT } from './lib/features'
 
 // Lazy-loaded — só baixa quando o usuário troca pra essas abas
 const AgendaApp              = lazy(() => import('./AgendaApp'))
@@ -14,6 +15,7 @@ const SettingsScreen         = lazy(() => import('./SettingsScreen'))
 const EventsScreen           = lazy(() => import('./EventsScreen'))
 const PostDetailScreen       = lazy(() => import('./PostDetailScreen'))
 const MessagesScreen         = lazy(() => import('./MessagesScreen'))
+const AssistenteScreen       = lazy(() => import('./AssistenteScreen'))
 
 function TabFallback() {
   return (
@@ -1245,7 +1247,8 @@ function VoosScreen({ affiliateLinks }) {
 
 // ─── App Principal (usa AppShell responsivo) ──────────────────────────────
 
-const VALID_TABS = ['feed', 'discover', 'comunidades', 'community', 'post', 'mensagens', 'eventos', 'remessas', 'voos', 'agenda', 'marketplace', 'settings']
+const VALID_TABS = ['feed', 'discover', 'comunidades', 'community', 'post', 'mensagens', 'eventos', 'remessas', 'voos', 'agenda', 'marketplace', 'settings',
+  ...(SHOW_ASSISTANT ? ['assistente'] : [])]
 const TAB_ALIASES = { cambio: 'remessas', comparador: 'remessas', 'venda-troca': 'marketplace', classifieds: 'marketplace' }
 // Slugs antigos que agora redirecionam pra páginas estáticas (1 source of truth)
 const REDIRECT_SLUGS = { negocios: '/negocio', negocio: '/negocio' }
@@ -1387,6 +1390,13 @@ export default function App() {
               message="Converse em particular com quem participa das mesmas comunidades que você."
               perks={['Conversas particulares', 'Bloqueio e denúncia', 'Aviso quando chega mensagem']} />
         )}
+        {SHOW_ASSISTANT && tab === 'assistente' && (user
+          // key por usuário: trocar de conta remonta a tela (a conversa de A não vai pra B)
+          ? <Suspense fallback={<TabFallback />}><AssistenteScreen key={user.id} user={user} /></Suspense>
+          : <LoginGate emoji="✨" title="Entre pra perguntar ao BrasilConnect"
+              message="Pergunte em português (“alguém vendendo bike em Austin?”) que eu procuro nos posts da comunidade e te mostro os links."
+              perks={['Classificados, vagas, eventos e dicas', 'Busca pela sua cidade', 'Link direto pra cada post']} />
+        )}
         {tab === 'settings' && (user
           ? <Suspense fallback={<TabFallback />}><SettingsScreen onNavigate={setTab} /></Suspense>
           : <LoginGate emoji="⚙️" title="Entre pra ver suas Configurações"
@@ -1399,7 +1409,8 @@ export default function App() {
               perks={['Eventos das suas comunidades', 'Confirmação de presença', 'Crie seus próprios eventos']} />
         )}
       </AppShell>
-      <PushPrompt />
+      {/* No assistente o sino flutuante cobriria o botão Enviar; o modal continua disponível */}
+      <PushPrompt hideButton={SHOW_ASSISTANT && tab === 'assistente'} />
     </>
   )
 }

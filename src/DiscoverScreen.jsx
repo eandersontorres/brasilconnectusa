@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
-import { C, FONT } from './lib/colors'
+import { C, FONT, useIsMobile } from './lib/colors'
 import { apiFetch } from './lib/apiFetch'
-import { SHOW_BUSINESS } from './lib/features'
+import { SHOW_BUSINESS, SHOW_ASSISTANT } from './lib/features'
+import { openAssistant, ASSISTANT_MAX_CHARS } from './lib/assistente'
 
 // ════════════════════════════════════════════════════════════════════════════
 //   DiscoverScreen — tela de busca + descoberta de categorias
@@ -24,6 +25,47 @@ const ALL_CATEGORIES = [
 ]
 
 const CATEGORIES = ALL_CATEGORIES.filter(c => SHOW_BUSINESS || c.key !== 'negocios')
+
+// Entrada do assistente (✨): a pergunta fica pendente e a tela envia sozinha ao abrir
+function AskAssistantCard() {
+  const isMobile = useIsMobile()
+  const [question, setQuestion] = useState('')
+  function submit(e) {
+    e.preventDefault()
+    openAssistant(question)
+  }
+  return (
+    <form onSubmit={submit} style={{
+      background: C.navySoft, borderRadius: 14, padding: '14px 14px 12px', marginBottom: 16,
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+        <span aria-hidden="true" style={{ fontSize: 17, lineHeight: 1 }}>✨</span>
+        <span style={{ fontSize: 15, fontWeight: 700, color: C.navy }}>Pergunte ao BrasilConnect</span>
+      </div>
+      <div style={{ fontSize: 12, color: C.inkSoft, lineHeight: 1.45, marginBottom: 10 }}>
+        Eu procuro nos posts da comunidade e te mostro os links.
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <input
+          type="text" value={question} onChange={e => setQuestion(e.target.value)}
+          maxLength={ASSISTANT_MAX_CHARS} enterKeyHint="send"
+          placeholder="Ex.: bike à venda em Austin?"
+          aria-label="Pergunta pro assistente"
+          style={{
+            flex: 1, minWidth: 0, padding: '10px 14px', borderRadius: 20,
+            border: '1px solid ' + C.line, background: C.white,
+            // 16px no celular: abaixo disso o iOS dá zoom no foco e o assistente abre ampliado
+            fontSize: isMobile ? 16 : 14, fontFamily: FONT.sans, outline: 'none', color: C.ink, boxSizing: 'border-box',
+          }}
+        />
+        <button type="submit" style={{
+          flexShrink: 0, background: C.navy, color: C.white, border: 'none', borderRadius: 20,
+          padding: '0 16px', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: FONT.sans,
+        }}>Perguntar</button>
+      </div>
+    </form>
+  )
+}
 
 export default function DiscoverScreen({ onNavigate }) {
   const [search, setSearch] = useState('')
@@ -57,6 +99,8 @@ export default function DiscoverScreen({ onNavigate }) {
 
   return (
     <div style={{ fontFamily: FONT.sans, color: C.ink, padding: '4px 0 24px' }}>
+
+      {SHOW_ASSISTANT && <AskAssistantCard />}
 
       {/* Search */}
       <div style={{ position: 'relative', marginBottom: 18 }}>

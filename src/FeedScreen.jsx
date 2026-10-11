@@ -9,7 +9,7 @@ import { requireOnboarding } from './lib/onboardingGate'
 //   FeedScreen — feed social estilo Reddit/Nextdoor
 // ────────────────────────────────────────────────────────────────────────────
 
-const POST_TYPES = {
+export const POST_TYPES = {
   question:       { label: 'Pergunta',     color: '#3B82F6', bg: '#DBEAFE', icon: '?'  },
   recommendation: { label: 'Indicação',    color: '#10B981', bg: '#D1FAE5', icon: '★'  },
   event:          { label: 'Evento',       color: '#F59E0B', bg: '#FEF3C7', icon: '◉'  },
@@ -21,7 +21,7 @@ const POST_TYPES = {
 // ────────────────────────────────────────────────────────────────────────────
 //   Helpers
 // ────────────────────────────────────────────────────────────────────────────
-function timeAgo(date) {
+export function timeAgo(date) {
   const d = new Date(date)
   const seconds = Math.floor((Date.now() - d.getTime()) / 1000)
   if (seconds < 60) return 'agora'
@@ -47,7 +47,7 @@ function Avatar({ name, size = 28 }) {
   )
 }
 
-function classifiedKindLabel(kind) {
+export function classifiedKindLabel(kind) {
   return ({ sell: 'Vendo', buy: 'Procuro', donate: 'Doo', rent: 'Alugo' })[kind] || 'Vende'
 }
 

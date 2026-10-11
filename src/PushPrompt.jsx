@@ -26,7 +26,8 @@ function urlBase64ToUint8Array(base64String) {
   return arr
 }
 
-export default function PushPrompt({ user }) {
+// hideButton: esconde só o botão flutuante (o modal segue abrindo pelo bc-open-push-prompt)
+export default function PushPrompt({ user, hideButton = false }) {
   const [supported, setSupported] = useState(false)
   const [permission, setPermission] = useState('default')
   const [subscribed, setSubscribed] = useState(false)
@@ -160,7 +161,7 @@ export default function PushPrompt({ user }) {
 
   return (
     <>
-      <button
+      {!hideButton && <button
         onClick={() => setShowModal(true)}
         title={subscribed ? 'Notificações ativas' : 'Ativar notificações'}
         style={{
@@ -174,7 +175,7 @@ export default function PushPrompt({ user }) {
         }}
       >
         {subscribed ? '🔔' : '🔕'}
-      </button>
+      </button>}
 
       {showModal && (
         <div

@@ -197,6 +197,11 @@
       "schedule": "*/5 * * * *"
     }
   ],
+  "functions": {
+    "api/assistente.js": {
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",

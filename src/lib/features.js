@@ -11,3 +11,8 @@
 // cards/links de business naquele arquivo estão comentados manualmente.
 // Pra re-habilitar tudo, lembra de descomentar lá também.
 export const SHOW_BUSINESS = false
+
+// Assistente (chat que procura nos posts da comunidade) — /app/assistente.
+// false = some a aba, o botão ✨ do topo mobile, o card da aba Buscar e a
+// pergunta pelo campo do topo desktop (que volta a ser só decorativo).
+export const SHOW_ASSISTANT = true
