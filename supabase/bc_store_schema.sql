@@ -1,6 +1,6 @@
 -- ═════════════════════════════════════════════════════════════════════════════
 -- 10/10/2026 · BrasilConnect Store · marketplace de produtos aprovados
--- AINDA NAO APLICADO. Aplicar como migration bc_store_schema. Idempotente.
+-- APLICADO em producao em 11/10/2026 (migration bc_store_schema). Idempotente.
 --
 -- Quem le e escreve: so o backend (api/store/*.js, api/admin/store.js,
 -- api/cron/store.js, api/stripe/webhook.js), com service_role. O navegador
