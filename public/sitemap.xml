@@ -217,6 +217,24 @@
     <priority>0.85</priority>
   </url>
   <url>
+    <loc>https://brasilconnectusa.com/store</loc>
+    <lastmod>2026-10-10</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://brasilconnectusa.com/store/regras</loc>
+    <lastmod>2026-10-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://brasilconnectusa.com/store/vender</loc>
+    <lastmod>2026-10-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://brasilconnectusa.com/loja/</loc>
     <lastmod>2026-09-29</lastmod>
     <changefreq>weekly</changefreq>

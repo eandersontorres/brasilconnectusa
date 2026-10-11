@@ -6,6 +6,7 @@
  *
  * Actions:
  *   - ban               { reason, expires_at? }                  → insert/upsert bc_banned_users
+ *                                                                  + suspende a loja dele na Store (se aprovada)
  *   - unban             {}                                       → delete bc_banned_users
  *   - reset_onboarding  {}                                       → bc_profiles.onboarding_completed=false, step=0
  *   - set_role          { role }                                 → bc_profiles.role = role
@@ -29,6 +30,21 @@ const PROFILE_EDITABLE = new Set([
 ])
 
 const VALID_ROLES = new Set(['user', 'moderator', 'admin', 'partner', 'business', null, ''])
+
+/**
+ * Suspende a loja da BrasilConnect Store do usuario banido (mesmo efeito do
+ * suspend_seller do admin da Store). Best effort: o ban ja foi gravado.
+ * Desbanir NAO reativa a loja: isso e decisao manual na aba Store.
+ */
+async function suspendStore(supabase, userId, admin, reason) {
+  try {
+    const { suspendStoreOfBannedUser } = await import('./store.js')
+    return await suspendStoreOfBannedUser(supabase, userId, { actor: admin.actor || 'admin-console', reason })
+  } catch (e) {
+    console.error('[user-action] suspender loja da Store falhou:', e.message)
+    return { ok: false, error: 'O usuário foi banido, mas a loja dele na Store não foi suspensa: ' + e.message }
+  }
+}
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
@@ -61,7 +77,9 @@ export default async function handler(req, res) {
         expires_at: expires_at || null,
       }, { onConflict: 'user_id' })
       if (error) throw error
-      return res.status(200).json({ success: true, action: 'ban', user_id })
+      // BrasilConnect Store: dono banido nao vende nem recebe (loja suspensa, repasses retidos)
+      const store = await suspendStore(supabase, user_id, admin, 'Conta banida: ' + String(reason).trim())
+      return res.status(200).json({ success: true, action: 'ban', user_id, store })
     }
 
     if (action === 'unban') {

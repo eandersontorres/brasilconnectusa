@@ -13,6 +13,9 @@
  */
 import { createClient } from '@supabase/supabase-js'
 
+// Push lento nao pode segurar o webhook/cron que chamou (funcoes tem 30-60s)
+const PUSH_TIMEOUT_MS = 8000
+
 export async function sendPushTo({ user_id, user_email, topic, title, body, url, type, data }) {
   if (!process.env.VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
     console.error('[push] VAPID keys nao configuradas, pulando')
@@ -32,6 +35,7 @@ export async function sendPushTo({ user_id, user_email, topic, title, body, url,
   let q = supabase.from('bc_push_subscriptions').select('endpoint, p256dh, auth, topics').eq('active', true)
   if (user_id) q = q.eq('user_id', user_id)
   if (user_email) q = q.eq('user_email', String(user_email).toLowerCase().trim())
+  if (typeof q.abortSignal === 'function') q = q.abortSignal(AbortSignal.timeout(PUSH_TIMEOUT_MS))
 
   const { data: subs, error } = await q
   if (error || !subs?.length) return { sent: 0, total: 0 }
@@ -63,14 +67,15 @@ export async function sendPushTo({ user_id, user_email, topic, title, body, url,
     try {
       await webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
-        payload
+        payload,
+        { timeout: PUSH_TIMEOUT_MS }
       )
       sent++
     } catch (e) {
       failed++
       // Subscription expirou → desativa
       if (e.statusCode === 410 || e.statusCode === 404) {
-        await supabase.from('bc_push_subscriptions').update({ active: false }).eq('endpoint', sub.endpoint).catch(() => {})
+        try { await supabase.from('bc_push_subscriptions').update({ active: false }).eq('endpoint', sub.endpoint) } catch (_) {}
       }
     }
   }

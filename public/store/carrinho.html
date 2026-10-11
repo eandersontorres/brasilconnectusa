@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Carrinho · BrasilConnect Store</title>
+  <meta name="description" content="Seu carrinho na BrasilConnect Store: revise os itens, escolha a entrega e vá para o pagamento.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#1F4D3F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <link rel="stylesheet" href="/css/store.css">
+  <script src="/js/site.js" defer></script>
+  <script src="/js/store.js" defer></script>
+  <style>
+    /* Carrinho (prefixo st-ck-). So tokens do premium.css. */
+    [hidden] { display: none !important; }
+    .st-ck-wrap { padding-top: 32px; padding-bottom: 64px; }
+    .st-ck-wrap :focus-visible { outline: 2px solid var(--green-deep); outline-offset: 2px; }
+    .st-ck-head h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); margin: 0 0 6px; }
+    .st-ck-head p { margin: 0; color: var(--ink-soft); }
+    .st-ck-sr { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .st-ck-callout { margin: 20px 0 0; }
+    .st-ck-layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 28px; align-items: start; margin-top: 24px; }
+    @media (max-width: 960px) { .st-ck-layout { grid-template-columns: minmax(0, 1fr); gap: 20px; } }
+
+    .st-ck-group { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px; margin-bottom: 16px; }
+    .st-ck-ghead { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+    .st-ck-logo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; background: var(--paper-soft); flex: none; display: block; }
+    .st-ck-gname { margin: 0; font-weight: 600; color: var(--ink); line-height: 1.3; overflow-wrap: anywhere; }
+    .st-ck-gname a { text-decoration: none; }
+    .st-ck-gnote { margin: 0; font-size: 12px; color: var(--ink-muted); line-height: 1.4; }
+
+    .st-ck-item { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-top: 1px solid var(--line); margin-top: 12px; }
+    .st-ck-item + .st-ck-item { margin-top: 0; }
+    .st-ck-img { width: 72px; height: 72px; border-radius: var(--r-md); object-fit: cover; background: var(--paper-soft); display: block; }
+    .st-ck-title { font-weight: 500; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; line-height: 1.35; }
+    .st-ck-title:hover { color: var(--green-deep); }
+    .st-ck-unit { margin: 2px 0 0; font-size: 13px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+    .st-ck-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+    .st-ck-stepper { display: inline-flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--paper-elevated); }
+    .st-ck-stepper button { width: 40px; height: 40px; border: 0; background: transparent; font-size: 18px; line-height: 1; cursor: pointer; color: var(--ink); border-radius: 999px; }
+    .st-ck-stepper button:disabled { color: var(--ink-muted); cursor: not-allowed; opacity: .5; }
+    .st-ck-qty { min-width: 32px; text-align: center; font-variant-numeric: tabular-nums; font-weight: 600; }
+    .st-ck-money { color: var(--green-deep); font-variant-numeric: tabular-nums; font-weight: 600; }
+    .st-ck-remove { background: none; border: 0; padding: 8px 0; margin-top: 4px; color: var(--ink-muted); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; font: inherit; font-size: 13px; }
+    .st-ck-remove:hover { color: var(--ink); }
+    .st-ck-problem { margin: 8px 0 0; padding: 8px 10px; border-radius: var(--r-sm); background: var(--gold-soft); color: var(--accent-deep); font-size: 13px; line-height: 1.45; }
+    .st-ck-note { margin: 6px 0 0; font-size: 13px; color: var(--ink-soft); }
+
+    .st-ck-delivery { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 14px; }
+    .st-ck-dlabel, .st-ck-opts legend { font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-muted); margin: 0 0 8px; padding: 0; }
+    .st-ck-opts { border: 0; margin: 0; padding: 0; min-width: 0; }
+    .st-ck-opt { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: var(--r-md); margin-bottom: 8px; cursor: pointer; background: var(--paper-elevated); }
+    .st-ck-opt.is-on { border-color: var(--green-deep); background: var(--green-soft); }
+    .st-ck-opt.is-single { cursor: default; }
+    .st-ck-opt input { margin: 3px 0 0; accent-color: var(--green-deep); flex: none; }
+    .st-ck-otext { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; width: 100%; }
+    .st-ck-oname { font-weight: 500; color: var(--ink); overflow-wrap: anywhere; }
+    .st-ck-oprice { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--green-deep); text-align: right; }
+    .st-ck-ometa { grid-column: 1 / -1; font-size: 13px; color: var(--ink-soft); }
+    .st-ck-gsum { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-top: 10px; font-size: 14px; color: var(--ink-soft); }
+    .st-ck-muted { color: var(--ink-muted); font-size: 14px; margin: 0; }
+    .st-ck-missing-title { margin: 0 0 4px; font-weight: 600; }
+
+    .st-ck-side { display: grid; gap: 16px; }
+    .st-ck-side .form-card { margin-top: 0; padding: 24px; }
+    .st-ck-side .form-card h2, .st-ck-sum h2 { font-size: 1.15rem; margin: 0 0 4px; }
+    .st-ck-formnote { font-size: 13px; color: var(--ink-muted); margin: 0 0 18px; }
+    .st-ck-side .form-card .field-grid { grid-template-columns: 1fr 1fr; gap: 16px 18px; align-items: end; }
+    .st-ck-side .form-card .field { min-width: 0; }
+    .st-ck-side .form-card input, .st-ck-side .form-card select { width: 100%; min-width: 0; box-sizing: border-box; }
+    .st-ck-side .form-card input[aria-invalid="true"], .st-ck-side .form-card select[aria-invalid="true"] { border-bottom-color: var(--accent-deep); }
+    .st-ck-hint { font-size: 12px; font-weight: 400; color: var(--ink-muted); text-transform: none; letter-spacing: 0; }
+    .st-ck-err { font-size: 12px; color: var(--accent-deep); min-height: 0; }
+    .st-ck-err:empty { display: none; }
+    @media (max-width: 400px) { .st-ck-side .form-card .field-grid { grid-template-columns: 1fr; } }
+
+    .st-ck-sum { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px; }
+    .st-ck-sum dl { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; margin: 14px 0 0; }
+    .st-ck-sum dt { color: var(--ink-soft); }
+    .st-ck-sum dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+    .st-ck-sum .st-ck-total { border-top: 1px solid var(--line); padding-top: 10px; font-weight: 700; color: var(--ink); font-size: 1.1rem; }
+    .st-ck-sum dd.st-ck-total { color: var(--green-deep); }
+    .st-ck-sum.is-loading dl { opacity: .55; }
+    .st-ck-tax { font-size: 13px; color: var(--ink-muted); margin: 8px 0 0; }
+    .st-ck-pay { width: 100%; justify-content: center; margin-top: 18px; font-size: 15px; padding: 15px 22px; }
+    .st-ck-pay:disabled { opacity: .5; cursor: not-allowed; }
+    .st-ck-reason { font-size: 13px; color: var(--accent-deep); margin: 10px 0 0; line-height: 1.45; }
+    .st-ck-reason:empty { display: none; }
+    .st-ck-retry { margin-top: 8px; }
+    .st-ck-trust { display: flex; gap: 10px; align-items: flex-start; margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+    .st-ck-trust svg { flex: none; color: var(--green-deep); margin-top: 1px; }
+
+    .st-ck-empty { text-align: center; max-width: 520px; margin: 32px auto 0; background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 40px 24px; }
+    .st-ck-empty svg { color: var(--accent); }
+    .st-ck-empty h2 { font-size: 1.3rem; margin: 12px 0 8px; }
+    @media (max-width: 720px) {
+      .st-ck-wrap { padding-left: 16px; padding-right: 16px; }
+      .st-ck-group, .st-ck-sum, .st-ck-side .form-card { padding: 16px; }
+    }
+  </style>
+</head>
+<body class="has-flag-stripe st-page">
+<div class="flag-stripe" aria-hidden="true"></div>
+<nav class="bc-nav">
+  <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+  <div class="bc-nav-r">
+    <a class="bc-nl active" href="/store">Store</a>
+    <a class="bc-nl" href="/store/pedidos">Meus pedidos</a>
+    <a class="st-nav-cart" href="/store/carrinho" aria-label="Carrinho">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+      <span class="st-nav-count" data-st-cart-count hidden>0</span>
+    </a>
+    <span class="st-nav-account" data-st-account></span>
+    <a class="bc-nl" href="/store/vender">Vender</a>
+  </div>
+</nav>
+
+<main class="container st-ck-wrap" id="conteudo">
+  <header class="st-ck-head">
+    <h1 id="ck-title" tabindex="-1">Carrinho</h1>
+    <p>Cada loja envia o próprio pacote. Revise os itens, escolha a entrega e vá para o pagamento.</p>
+  </header>
+
+  <div id="ck-closed" class="callout st-ck-callout" role="status" hidden>
+    <strong>As compras ainda não abriram.</strong> Seus itens ficam guardados neste aparelho até a abertura.
+  </div>
+
+  <div id="ck-empty" class="st-ck-empty" hidden>
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+    <h2>Seu carrinho está vazio</h2>
+    <p>Encontre produtos de lojas da comunidade brasileira nos EUA.</p>
+    <a class="btn btn-primary" href="/store">Ver a vitrine</a>
+  </div>
+
+  <div id="ck-layout" class="st-ck-layout">
+    <section id="ck-groups" aria-labelledby="ck-title" aria-busy="true">
+      <p class="st-ck-muted">Carregando o carrinho…</p>
+    </section>
+
+    <aside class="st-ck-side" aria-label="Entrega e pagamento">
+      <form id="ck-form" class="form-card" novalidate aria-labelledby="ck-form-title">
+        <h2 id="ck-form-title">Entregar em</h2>
+        <p class="st-ck-formnote">O endereço fica guardado só neste aparelho para a próxima compra.</p>
+        <div class="field-grid">
+          <div class="field full">
+            <label for="ck-name">Nome de quem recebe</label>
+            <input id="ck-name" name="name" type="text" autocomplete="shipping name" maxlength="80" aria-describedby="ck-name-err" required>
+            <span class="st-ck-err" id="ck-name-err"></span>
+          </div>
+          <div class="field full">
+            <label for="ck-line1">Endereço</label>
+            <input id="ck-line1" name="line1" type="text" autocomplete="shipping address-line1" maxlength="100" placeholder="123 Main St" aria-describedby="ck-line1-err" required>
+            <span class="st-ck-err" id="ck-line1-err"></span>
+          </div>
+          <div class="field full">
+            <label for="ck-line2">Complemento (opcional)</label>
+            <input id="ck-line2" name="line2" type="text" autocomplete="shipping address-line2" maxlength="100" placeholder="Apt, suíte, unidade" aria-describedby="ck-line2-err">
+            <span class="st-ck-err" id="ck-line2-err"></span>
+          </div>
+          <div class="field full">
+            <label for="ck-city">Cidade</label>
+            <input id="ck-city" name="city" type="text" autocomplete="shipping address-level2" maxlength="60" aria-describedby="ck-city-err" required>
+            <span class="st-ck-err" id="ck-city-err"></span>
+          </div>
+          <div class="field">
+            <label for="ck-state">Estado</label>
+            <select id="ck-state" name="state" autocomplete="shipping address-level1" aria-describedby="ck-state-err" required>
+              <option value="">Selecione</option>
+            </select>
+            <span class="st-ck-err" id="ck-state-err"></span>
+          </div>
+          <div class="field">
+            <label for="ck-zip">ZIP code <span class="st-ck-hint">(o CEP americano)</span></label>
+            <input id="ck-zip" name="zip" type="text" inputmode="numeric" autocomplete="shipping postal-code" maxlength="10" placeholder="78664" aria-describedby="ck-zip-err" required>
+            <span class="st-ck-err" id="ck-zip-err"></span>
+          </div>
+          <div class="field full">
+            <label for="ck-phone">Telefone</label>
+            <input id="ck-phone" name="phone" type="tel" autocomplete="shipping tel" maxlength="20" placeholder="(512) 555-0100" aria-describedby="ck-phone-err" required>
+            <span class="st-ck-err" id="ck-phone-err"></span>
+          </div>
+        </div>
+      </form>
+
+      <section id="ck-summary" class="st-ck-sum" aria-labelledby="ck-sum-title">
+        <h2 id="ck-sum-title">Resumo</h2>
+        <dl aria-live="polite">
+          <dt id="ck-sum-items-label">Itens</dt><dd id="ck-sum-items">—</dd>
+          <dt>Frete</dt><dd id="ck-sum-ship">—</dd>
+          <dt class="st-ck-total">Total</dt><dd class="st-ck-total" id="ck-sum-total">—</dd>
+        </dl>
+        <p id="ck-tax" class="st-ck-tax" hidden>Imposto sobre vendas, se houver, é calculado no pagamento.</p>
+        <button type="button" id="ck-pay" class="btn btn-primary st-ck-pay" aria-describedby="ck-reason" disabled>Ir para o pagamento</button>
+        <p id="ck-reason" class="st-ck-reason" aria-live="polite"></p>
+        <button type="button" id="ck-retry" class="btn btn-secondary st-ck-retry" hidden>Tentar de novo</button>
+        <p class="st-ck-trust">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3Z"/><path d="M9 12l2 2 4-4"/></svg>
+          <span>Pagamento processado pelo Stripe. O dinheiro só vai para a loja depois que você recebe.</span>
+        </p>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer class="bc-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+        <p class="footer-tagline">A Store da comunidade brasileira nos EUA. Cada loja vende, envia e garante os próprios produtos; a BrasilConnect aprova os anúncios e protege o pagamento.</p>
+      </div>
+      <div><h4>Comprar</h4><a href="/store">Vitrine</a><a href="/store/pedidos">Meus pedidos</a><a href="/store/regras#garantia">Garantia BrasilConnect</a></div>
+      <div><h4>Vender</h4><a href="/store/vender">Abrir minha loja</a><a href="/store/painel">Painel da loja</a><a href="/store/regras#proibidos">Produtos proibidos</a></div>
+      <div><h4>BrasilConnect</h4><a href="/">Início</a><a href="/termos">Termos</a><a href="/privacidade">Privacidade</a><a href="mailto:oi@brasilconnectusa.com">Contato</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 BrasilConnect USA · <a href="/store/regras">Regras da Store</a></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict'
+
+  var ADDRESS_KEY = 'bc_store_address'
+  var FIELDS = ['name', 'line1', 'line2', 'city', 'state', 'zip', 'phone']
+  var S = null
+  var st = {
+    quote: null,      // ultima Quote do servidor
+    loading: false,   // cotacao em andamento
+    error: '',        // erro da ultima cotacao
+    choices: {},      // { seller_id: metodo }
+    seq: 0,
+    timer: null,
+    saveTimer: null,
+    busy: false,      // criando o pagamento
+    adjusted: {},     // { product_id: estoque } quantidade ajustada pelo estoque
+    renderQueued: false,
+  }
+
+  function $(id) { return document.getElementById(id) }
+  function esc(s) { return S && S.esc ? S.esc(s) : String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c] }) }
+  function money(c) { return S.money(c || 0) }
+  function key(id) { return String(id || '').toLowerCase() }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    init().catch(function (e) { console.error('[carrinho]', e); fatal() })
+  })
+
+  async function init() {
+    S = window.BCStore
+    if (!S) { fatal(); return }
+    try { await S.ready } catch (_) { /* segue sem sessao */ }
+
+    fillStates()
+    loadAddress()
+    bindForm()
+    $('ck-pay').addEventListener('click', goPay)
+    $('ck-retry').addEventListener('click', function () { quoteNow() })
+    $('ck-groups').addEventListener('click', onGroupsClick)
+    $('ck-groups').addEventListener('change', onGroupsChange)
+    window.addEventListener('bc-store-cart', function () { requestRender(); scheduleQuote() })
+
+    var qs = new URLSearchParams(location.search)
+    if (qs.get('cancelado') === '1') {
+      S.toast('Pagamento não concluído. Seus itens continuam no carrinho.')
+      try { history.replaceState(null, '', location.pathname) } catch (_) {}
+    }
+    render()
+    quoteNow()
+  }
+
+  function fatal() {
+    var g = $('ck-groups')
+    if (g) {
+      g.removeAttribute('aria-busy')
+      g.innerHTML = '<div class="st-ck-group"><p class="st-ck-muted">Não foi possível carregar o carrinho. Atualize a página.</p></div>'
+    }
+  }
+
+  // ── Carrinho local ─────────────────────────────────────────────────────────
+  function cart() {
+    try { var c = S.cart.get(); return Array.isArray(c) ? c : [] } catch (_) { return [] }
+  }
+  function findCart(id) {
+    var k = key(id)
+    var list = cart()
+    for (var i = 0; i < list.length; i++) if (key(list[i].product_id) === k) return list[i]
+    return null
+  }
+
+  // ── Cotacao ────────────────────────────────────────────────────────────────
+  function scheduleQuote(ms) {
+    clearTimeout(st.timer)
+    st.loading = true
+    renderSummary()
+    st.timer = setTimeout(quoteNow, ms == null ? 400 : ms)
+  }
+
+  async function quoteNow() {
+    clearTimeout(st.timer)
+    var items = cart()
+    if (!items.length) {
+      st.quote = null; st.loading = false; st.error = ''
+      render()
+      return
+    }
+    var seq = ++st.seq
+    st.loading = true
+    st.error = ''
+    renderSummary()
+    var a = readAddress()
+    var body = {
+      items: items.map(function (c) { return { product_id: c.product_id, qty: c.qty } }),
+      ship_to: { state: a.state || null, zip: /^\d{5}/.test(a.zip) ? a.zip.slice(0, 5) : null },
+      choices: currentChoices(),
+    }
+    try {
+      // auth: se estiver logado, o servidor devolve o estoque preso em pagamentos que voce nao concluiu
+      var q = await S.api('/api/store/checkout?action=quote', { method: 'POST', body: body })
+      if (seq !== st.seq) return
+      st.quote = q
+      st.loading = false
+      applyStockAdjustments(q)
+      render()
+    } catch (e) {
+      if (seq !== st.seq) return
+      st.loading = false
+      st.error = (e && e.message) || 'Não foi possível calcular o carrinho agora.'
+      render()
+    }
+  }
+
+  function currentChoices() {
+    var out = {}
+    var q = st.quote
+    if (q && Array.isArray(q.groups)) q.groups.forEach(function (g) { if (g.selected && g.seller && g.seller.id) out[g.seller.id] = g.selected })
+    Object.keys(st.choices).forEach(function (k) { out[k] = st.choices[k] })
+    return out
+  }
+
+  /** Pediu mais do que tem em estoque: ajusta o carrinho para o que existe. */
+  function applyStockAdjustments(q) {
+    if (!q || !Array.isArray(q.groups)) return
+    q.groups.forEach(function (g) {
+      (g.items || []).forEach(function (it) {
+        var c = findCart(it.product_id)
+        if (c && it.stock > 0 && it.qty > 0 && it.qty < c.qty) {
+          st.adjusted[key(it.product_id)] = it.stock
+          try { S.cart.set(c.product_id, it.qty) } catch (_) {}
+        }
+      })
+    })
+  }
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+  function requestRender() {
+    if (st.renderQueued) return
+    st.renderQueued = true
+    Promise.resolve().then(function () { st.renderQueued = false; render() })
+  }
+
+  function buildGroups() {
+    var q = st.quote
+    var qItems = {}
+    var missing = {}
+    if (q && Array.isArray(q.groups)) {
+      q.groups.forEach(function (g) {
+        (g.items || []).forEach(function (it) { qItems[key(it.product_id)] = { item: it, group: g } })
+      })
+      ;(q.missing || []).forEach(function (id) { missing[key(id)] = true })
+    }
+    var groups = []
+    var byId = {}
+    cart().forEach(function (c) {
+      var k = key(c.product_id)
+      var qi = qItems[k] || null
+      var sid = qi ? key(qi.group.seller.id) : key(c.seller_id || 'sem-loja')
+      var g = byId[sid]
+      if (!g) {
+        g = byId[sid] = { id: sid, name: qi ? qi.group.seller.name : (c.seller_name || 'Loja'), qg: qi ? qi.group : null, lines: [] }
+        groups.push(g)
+      }
+      if (!g.qg && qi) g.qg = qi.group
+      g.lines.push({ c: c, q: qi ? qi.item : null, missing: !!missing[k] })
+    })
+    return groups
+  }
+
+  function render() {
+    var items = cart()
+    var empty = !items.length
+    $('ck-empty').hidden = !empty
+    $('ck-layout').hidden = empty
+    var groupsBox = $('ck-groups')
+    groupsBox.removeAttribute('aria-busy')
+    if (empty) {
+      $('ck-closed').hidden = true
+      return
+    }
+
+    var active = document.activeElement
+    var fk = active && active.getAttribute ? active.getAttribute('data-fk') : null
+
+    var html = ''
+    buildGroups().forEach(function (g) { html += groupHtml(g) })
+    groupsBox.innerHTML = html
+    renderSummary()
+
+    if (fk) restoreFocus(fk)
+  }
+
+  function restoreFocus(fk) {
+    var el = document.querySelector('[data-fk="' + fk.replace(/["\\]/g, '') + '"]')
+    if (!el || el.disabled) {
+      var alt = fk.indexOf('inc:') === 0 ? 'dec:' + fk.slice(4) : fk.indexOf('dec:') === 0 ? 'inc:' + fk.slice(4) : null
+      el = alt ? document.querySelector('[data-fk="' + alt.replace(/"/g, '') + '"]') : null
+    }
+    if (el && !el.disabled) el.focus()
+    else if (fk.indexOf('rm:') === 0 || fk.indexOf('inc:') === 0 || fk.indexOf('dec:') === 0) $('ck-title').focus()
+  }
+
+  function groupHtml(g) {
+    var qg = g.qg
+    var seller = qg ? qg.seller : null
+    var logo = seller && seller.logo_url ? S.safeUrl(seller.logo_url) : ''
+    var nameHtml = seller && seller.slug
+      ? '<a href="/store/loja/' + encodeURIComponent(seller.slug) + '">' + esc(g.name) + '</a>'
+      : esc(g.name)
+    var h = '<section class="st-ck-group" aria-label="' + esc('Itens da loja ' + g.name) + '">'
+    h += '<header class="st-ck-ghead">'
+    h += logo ? '<img class="st-ck-logo" src="' + esc(logo) + '" alt="" width="36" height="36" loading="lazy">' : '<span class="st-ck-logo" aria-hidden="true"></span>'
+    h += '<div><p class="st-ck-gname">' + nameHtml + '</p><p class="st-ck-gnote">Vendido, enviado e garantido por esta loja</p></div></header>'
+    g.lines.forEach(function (ln) { h += itemHtml(ln) })
+    h += deliveryHtml(g)
+    return h + '</section>'
+  }
+
+  function itemHtml(ln) {
+    var c = ln.c
+    var q = ln.q
+    var pid = String(c.product_id)
+    var k = key(pid)
+    var title = (q && q.title) || c.title || 'Produto'
+    var slug = (q && q.slug) || c.slug || ''
+    var img = S.safeUrl((q && q.image) || c.image || '')
+    var price = q ? q.price_cents : (c.price_cents || 0)
+    var qty = Math.max(1, Math.min(99, parseInt(c.qty, 10) || 1))
+    var stock = q ? (q.stock || 0) : 99
+    var max = Math.max(1, Math.min(99, stock || 1))
+    var problem = ln.missing ? 'Produto indisponível' : (q && !q.ok ? q.problem : '')
+    var unavailable = ln.missing || (q && (q.problem === 'Esgotado' || q.problem === 'Produto indisponível'))
+    var href = slug ? '/store/p/' + encodeURIComponent(slug) : ''
+
+    var h = '<article class="st-ck-item">'
+    var pic = img ? '<img class="st-ck-img" src="' + esc(img) + '" alt="" width="72" height="72" loading="lazy">' : '<span class="st-ck-img" aria-hidden="true"></span>'
+    h += href ? '<a href="' + href + '" tabindex="-1" aria-hidden="true">' + pic + '</a>' : pic
+    h += '<div>'
+    h += href ? '<a class="st-ck-title" href="' + href + '">' + esc(title) + '</a>' : '<span class="st-ck-title">' + esc(title) + '</span>'
+    h += '<p class="st-ck-unit">' + money(price) + ' cada</p>'
+    h += '<div class="st-ck-row">'
+    h += '<div class="st-ck-stepper" role="group" aria-label="' + esc('Quantidade de ' + title) + '">'
+    h += '<button type="button" data-act="dec" data-id="' + esc(pid) + '" data-fk="dec:' + esc(k) + '" aria-label="Diminuir quantidade"' + (qty <= 1 || unavailable ? ' disabled' : '') + '>−</button>'
+    h += '<span class="st-ck-qty" aria-live="polite">' + qty + '<span class="st-ck-sr"> unidade' + (qty > 1 ? 's' : '') + '</span></span>'
+    h += '<button type="button" data-act="inc" data-id="' + esc(pid) + '" data-fk="inc:' + esc(k) + '" aria-label="Aumentar quantidade"' + (qty >= max || unavailable ? ' disabled' : '') + '>+</button>'
+    h += '</div>'
+    h += '<span class="st-ck-money">' + (unavailable ? '—' : money(price * qty)) + '</span>'
+    h += '</div>'
+    h += '<button type="button" class="st-ck-remove" data-act="remove" data-id="' + esc(pid) + '" data-fk="rm:' + esc(k) + '">Remover<span class="st-ck-sr"> ' + esc(title) + '</span></button>'
+    if (problem) h += '<p class="st-ck-problem">' + esc(problem) + '</p>'
+    if (st.adjusted[k] && !problem) h += '<p class="st-ck-note">Ajustamos a quantidade: só há ' + st.adjusted[k] + ' em estoque.</p>'
+    h += '</div></article>'
+    return h
+  }
+
+  function businessDays(n) { return n + (n === 1 ? ' dia útil' : ' dias úteis') }
+
+  function plainDays(n) { return n + (n === 1 ? ' dia' : ' dias') }
+
+  /** Prazo da entrega local: a faixa de dias da regiao (o mesmo prazo da pagina do produto e do cron). */
+  function localEta(o, hd) {
+    var min = o.est_days_min != null && Number(o.est_days_min) > 0 ? Math.floor(Number(o.est_days_min)) : null
+    var max = o.est_days_max != null && Number(o.est_days_max) > 0 ? Math.floor(Number(o.est_days_max)) : null
+    var span = ''
+    if (min != null && max != null && min < max) span = 'em ' + min + ' a ' + plainDays(max)
+    else if (max != null) span = 'em até ' + plainDays(max)
+    else if (min != null) span = 'a partir de ' + plainDays(min)
+    // Regiao sem prazo: vale o prazo de preparo da loja
+    else if (hd) span = 'em até ' + businessDays(hd)
+    return span ? 'a loja entrega ' + span + ' ou combina a data com você' : 'a loja entrega ou combina a data com você'
+  }
+
+  /** Prazo da loja (dias uteis para postar/entregar) + tempo da transportadora depois do envio. */
+  function etaText(o, seller) {
+    var hd = seller && Number(seller.handling_days) > 0 ? Math.floor(Number(seller.handling_days)) : 0
+    if (o.method === 'pickup') return 'combine a retirada com a loja depois da compra'
+    if (o.method === 'local_delivery') return localEta(o, hd)
+    var min = o.est_days_min
+    var max = o.est_days_max
+    var transit = ''
+    if (min != null || max != null) {
+      if (min == null || min === max) { var n = max == null ? min : max; transit = 'chega em até ' + n + ' dia' + (n === 1 ? '' : 's') }
+      else if (max == null) transit = 'chega a partir de ' + min + ' dia' + (min === 1 ? '' : 's')
+      else transit = 'chega ' + min + ' a ' + max + ' dias'
+      transit += ' depois do envio'
+    }
+    return [hd ? 'a loja envia em até ' + businessDays(hd) : '', transit].filter(Boolean).join(' · ')
+  }
+
+  function optText(o, seller) {
+    var labels = (S.labels && S.labels.fulfillment) || {}
+    var label = labels[o.method] || ''
+    var price = o.shipping_cents > 0 ? money(o.shipping_cents) : (o.method === 'pickup' ? 'Sem custo' : 'Grátis')
+    var meta = [label, etaText(o, seller), o.hazmat_ground_only ? 'só por transporte terrestre' : ''].filter(Boolean).join(' · ')
+    return '<span class="st-ck-otext"><span class="st-ck-oname">' + esc(o.name || label || 'Entrega') + '</span>' +
+      '<span class="st-ck-oprice">' + esc(price) + '</span>' +
+      (meta ? '<span class="st-ck-ometa">' + esc(meta) + '</span>' : '') + '</span>'
+  }
+
+  function deliveryHtml(g) {
+    var qg = g.qg
+    var h = '<div class="st-ck-delivery">'
+    if (!qg) {
+      var allMissing = g.lines.every(function (l) { return l.missing })
+      if (allMissing && st.quote) return h + '<p class="st-ck-muted">Remova os produtos indisponíveis para continuar.</p></div>'
+      return h + '<p class="st-ck-muted">' + (st.error ? 'Não foi possível calcular a entrega.' : 'Calculando entrega…') + '</p></div>'
+    }
+    var opts = qg.options || []
+    var sid = String(qg.seller.id)
+    if (opts.length > 1) {
+      h += '<fieldset class="st-ck-opts"><legend>Entrega</legend>'
+      opts.forEach(function (o) {
+        var id = 'ck-opt-' + key(sid) + '-' + o.method
+        var on = qg.selected === o.method
+        h += '<label class="st-ck-opt' + (on ? ' is-on' : '') + '" for="' + esc(id) + '">' +
+          '<input type="radio" id="' + esc(id) + '" name="ship-' + esc(key(sid)) + '" value="' + esc(o.method) + '" data-seller="' + esc(sid) + '" data-fk="opt:' + esc(key(sid)) + ':' + esc(o.method) + '"' + (on ? ' checked' : '') + '>' +
+          optText(o, qg.seller) + '</label>'
+      })
+      h += '</fieldset>'
+    } else if (opts.length === 1) {
+      h += '<p class="st-ck-dlabel">Entrega</p><div class="st-ck-opt is-on is-single">' + optText(opts[0], qg.seller) + '</div>'
+    }
+    if (qg.problem) h += '<p class="st-ck-problem">' + esc(qg.problem) + (qg.problem === 'Informe o estado de entrega' ? ' no formulário "Entregar em".' : '.') + '</p>'
+    h += '<div class="st-ck-gsum"><span>Subtotal da loja</span><span class="st-ck-money">' + money(qg.subtotal_cents) + '</span></div>'
+    return h + '</div>'
+  }
+
+  function renderSummary() {
+    var q = st.quote
+    var units = cart().reduce(function (s, c) { return s + (parseInt(c.qty, 10) || 0) }, 0)
+    var hasState = !!readAddress().state
+    $('ck-sum-items-label').textContent = 'Itens (' + units + ')'
+    $('ck-sum-items').textContent = q ? money(q.items_cents) : '—'
+    $('ck-sum-ship').textContent = !q ? '—' : (!hasState ? 'Informe o estado' : (q.shipping_cents > 0 ? money(q.shipping_cents) : 'Grátis'))
+    $('ck-sum-total').textContent = q ? money(q.total_cents) : '—'
+    $('ck-tax').hidden = !(q && q.tax_enabled)
+    $('ck-summary').classList.toggle('is-loading', !!st.loading)
+    $('ck-summary').setAttribute('aria-busy', st.loading ? 'true' : 'false')
+    $('ck-closed').hidden = !(q && q.checkout_enabled === false) || !cart().length
+    $('ck-retry').hidden = !st.error || st.loading
+    updatePay()
+  }
+
+  function updatePay() {
+    var q = st.quote
+    var btn = $('ck-pay')
+    var can = !st.busy && !st.loading && !st.error && !!q && !!q.can_checkout
+    var reason = ''
+    if (!can && !st.busy) {
+      if (st.error) reason = st.error
+      else if (st.loading || !q) reason = 'Atualizando os valores…'
+      else if (q.checkout_enabled === false) reason = 'As compras abrem em breve.'
+      else reason = (q.problems && q.problems[0]) || 'Revise o carrinho para continuar.'
+    }
+    btn.disabled = !can
+    btn.textContent = st.busy ? 'Abrindo o pagamento…' : 'Ir para o pagamento'
+    $('ck-reason').textContent = reason
+  }
+
+  // ── Interacoes ─────────────────────────────────────────────────────────────
+  function onGroupsClick(ev) {
+    var b = ev.target.closest ? ev.target.closest('button[data-act]') : null
+    if (!b || b.disabled) return
+    var id = b.getAttribute('data-id')
+    var c = findCart(id)
+    if (!c) return
+    var act = b.getAttribute('data-act')
+    delete st.adjusted[key(id)]
+    try {
+      if (act === 'remove') {
+        S.cart.remove(c.product_id)
+        S.toast('Item removido do carrinho.')
+      } else if (act === 'inc') {
+        S.cart.set(c.product_id, Math.min(99, (parseInt(c.qty, 10) || 1) + 1))
+      } else if (act === 'dec') {
+        S.cart.set(c.product_id, Math.max(1, (parseInt(c.qty, 10) || 1) - 1))
+      }
+    } catch (e) {
+      S.toast('Não foi possível atualizar o carrinho.', 'err')
+    }
+    requestRender()
+    scheduleQuote()
+  }
+
+  function onGroupsChange(ev) {
+    var r = ev.target
+    if (!r || r.type !== 'radio' || !r.getAttribute('data-seller')) return
+    st.choices[r.getAttribute('data-seller')] = r.value
+    var fs = r.closest('fieldset')
+    if (fs) Array.prototype.forEach.call(fs.querySelectorAll('.st-ck-opt'), function (l) { l.classList.toggle('is-on', l.contains(r)) })
+    scheduleQuote()
+  }
+
+  // ── Endereco ───────────────────────────────────────────────────────────────
+  function fillStates() {
+    var sel = $('ck-state')
+    var h = '<option value="">Selecione</option>'
+    ;(S.states || []).forEach(function (s) { h += '<option value="' + esc(s.code) + '">' + esc(s.name) + ' (' + esc(s.code) + ')</option>' })
+    sel.innerHTML = h
+  }
+
+  function loadAddress() {
+    var a = {}
+    try { a = JSON.parse(localStorage.getItem(ADDRESS_KEY) || '{}') || {} } catch (_) { a = {} }
+    var ship = {}
+    try { ship = (S.shipTo && S.shipTo.get()) || {} } catch (_) { ship = {} }
+    FIELDS.forEach(function (f) {
+      var v = a[f]
+      if (typeof v === 'string' && $('ck-' + f)) $('ck-' + f).value = v.slice(0, 100)
+    })
+    if (ship.state) $('ck-state').value = String(ship.state).toUpperCase()
+    if (ship.zip) $('ck-zip').value = String(ship.zip).slice(0, 10)
+  }
+
+  function readAddress() {
+    var a = {}
+    FIELDS.forEach(function (f) { var el = $('ck-' + f); a[f] = el ? String(el.value || '').trim() : '' })
+    a.state = a.state.toUpperCase()
+    return a
+  }
+
+  function saveAddress() {
+    try { localStorage.setItem(ADDRESS_KEY, JSON.stringify(readAddress())) } catch (_) {}
+  }
+
+  function bindForm() {
+    var form = $('ck-form')
+    form.addEventListener('submit', function (e) { e.preventDefault() })
+    form.addEventListener('input', function (e) {
+      var t = e.target
+      if (t && t.id) setFieldError(t.id.replace(/^ck-/, ''), '')
+      clearTimeout(st.saveTimer)
+      st.saveTimer = setTimeout(saveAddress, 500)
+      if (t && t.id === 'ck-zip') {
+        var z = t.value.trim()
+        if (z === '' || /^\d{5}(-?\d{4})?$/.test(z)) syncShipTo()
+      }
+    })
+    $('ck-state').addEventListener('change', syncShipTo)
+  }
+
+  function syncShipTo() {
+    var a = readAddress()
+    var zip = /^\d{5}/.test(a.zip) ? a.zip.slice(0, 5) : ''
+    try { if (S.shipTo) S.shipTo.set({ state: a.state || '', zip: zip }) } catch (_) {}
+    saveAddress()
+    scheduleQuote()
+  }
+
+  function setFieldError(f, msg) {
+    var input = $('ck-' + f)
+    var out = $('ck-' + f + '-err')
+    if (!input || !out) return
+    out.textContent = msg || ''
+    if (msg) input.setAttribute('aria-invalid', 'true')
+    else input.removeAttribute('aria-invalid')
+  }
+
+  function validateForm() {
+    var a = readAddress()
+    var errs = []
+    if (a.name.length < 2) errs.push(['name', 'Informe o nome de quem vai receber.'])
+    if (a.line1.length < 3) errs.push(['line1', 'Informe o endereço (número e rua).'])
+    if (a.city.length < 2) errs.push(['city', 'Informe a cidade.'])
+    if (!a.state) errs.push(['state', 'Escolha o estado.'])
+    if (!/^\d{5}(-?\d{4})?$/.test(a.zip)) errs.push(['zip', 'Informe um ZIP code com 5 dígitos.'])
+    var ph = a.phone.replace(/\D/g, '')
+    if (ph.length === 11 && ph.charAt(0) === '1') ph = ph.slice(1)
+    if (ph.length < 10 || ph.length > 15) errs.push(['phone', 'Informe um telefone com código de área (10 dígitos).'])
+    FIELDS.forEach(function (f) { setFieldError(f, '') })
+    errs.forEach(function (e) { setFieldError(e[0], e[1]) })
+    if (errs.length) {
+      $('ck-' + errs[0][0]).focus()
+      return null
+    }
+    return a
+  }
+
+  // ── Pagamento ──────────────────────────────────────────────────────────────
+  async function goPay() {
+    if (st.busy || $('ck-pay').disabled) return
+    var a = validateForm()
+    if (!a) return
+    saveAddress()
+
+    var user = null
+    try { user = S.user() } catch (_) { user = null }
+    if (!user) {
+      try { user = await S.login({ reason: 'Entre na sua conta para finalizar a compra.' }) } catch (_) { user = null }
+      if (!user) return
+    }
+
+    st.busy = true
+    updatePay()
+    try {
+      var d = await S.api('/api/store/checkout?action=create', {
+        method: 'POST',
+        body: {
+          items: cart().map(function (c) { return { product_id: c.product_id, qty: c.qty } }),
+          ship_to: { name: a.name, line1: a.line1, line2: a.line2, city: a.city, state: a.state, zip: a.zip, phone: a.phone },
+          choices: currentChoices(),
+        },
+      })
+      var url = d && d.url ? String(d.url) : ''
+      // Stripe sempre devolve https; a propria origem so aparece no ambiente local de teste
+      if (!/^https:\/\//i.test(url) && url.indexOf(location.origin + '/') !== 0) throw new Error('Não recebemos o link de pagamento. Tente de novo.')
+      location.href = url
+      // fica "Abrindo o pagamento…" ate a pagina trocar
+    } catch (e) {
+      st.busy = false
+      var msg = (e && e.message) || 'Não foi possível abrir o pagamento agora.'
+      var field = e && (e.field || (e.data && e.data.field))
+      if (field && FIELDS.indexOf(field) >= 0) { setFieldError(field, msg); $('ck-' + field).focus() }
+      S.toast(msg, 'err')
+      updatePay()
+      quoteNow()
+    }
+  }
+})()
+</script>
+</body>
+</html>

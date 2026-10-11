@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Meus pedidos · BrasilConnect Store</title>
+  <meta name="description" content="Acompanhe suas compras na BrasilConnect Store: envio, rastreio, conversa com a loja e Garantia BrasilConnect.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#1F4D3F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <link rel="stylesheet" href="/css/store.css">
+  <script src="/js/site.js" defer></script>
+  <script src="/js/store.js" defer></script>
+  <style>
+    /* Meus pedidos (prefixo st-po-). So tokens do premium.css. */
+    [hidden] { display: none !important; }
+    .st-po-wrap { padding-top: 32px; padding-bottom: 64px; }
+    .st-po-wrap :focus-visible, .st-po-dialog :focus-visible { outline: 2px solid var(--green-deep); outline-offset: 2px; }
+    .st-po-sr { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .st-po-wrap h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); margin: 0 0 6px; overflow-wrap: anywhere; }
+    .st-po-muted { color: var(--ink-muted); font-size: 14px; margin: 0; }
+    .st-po-money { color: var(--green-deep); font-variant-numeric: tabular-nums; font-weight: 600; }
+    .st-po-card { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px; }
+    .st-po-login { max-width: 520px; margin: 24px auto 0; text-align: center; }
+    .st-po-login svg { color: var(--accent); }
+    .st-po-login h1 { margin-top: 8px; }
+    .st-po-login p { margin: 0 0 18px; }
+
+    .st-po-banner { display: flex; gap: 12px; align-items: flex-start; border-radius: var(--r-md); padding: 14px 16px; margin-bottom: 20px; font-size: 15px; line-height: 1.5; border: 1px solid var(--line); }
+    .st-po-banner svg { flex: none; margin-top: 2px; }
+    .st-po-banner.is-ok { background: var(--green-soft); color: var(--green-deep); }
+    .st-po-banner.is-wait { background: var(--gold-soft); color: var(--accent-deep); }
+    .st-po-banner.is-err { background: var(--paper-soft); color: var(--ink); }
+    .st-po-banner p { margin: 0; color: inherit; }
+
+    /* Lista */
+    .st-po-list { display: grid; gap: 12px; margin-top: 20px; }
+    .st-po-ocard { display: block; text-decoration: none; color: inherit; background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px; transition: box-shadow .15s, border-color .15s; }
+    .st-po-ocard:hover { border-color: var(--line-strong); box-shadow: var(--shadow-sm); color: inherit; }
+    .st-po-orow { display: flex; justify-content: space-between; align-items: center; gap: 8px 12px; flex-wrap: wrap; }
+    .st-po-onum { font-weight: 600; color: var(--ink); }
+    .st-po-omid { display: flex; gap: 12px; align-items: center; margin: 12px 0; min-width: 0; }
+    .st-po-thumbs { display: flex; gap: 6px; flex: none; }
+    .st-po-thumb { width: 52px; height: 52px; border-radius: var(--r-sm); object-fit: cover; background: var(--paper-soft); display: block; }
+    .st-po-otitle { margin: 0; font-size: 14px; color: var(--ink-soft); overflow-wrap: anywhere; min-width: 0; }
+    .st-po-otrack { margin: 8px 0 0; font-size: 13px; color: var(--ink-soft); overflow-wrap: anywhere; }
+    .st-po-empty { text-align: center; padding: 40px 24px; }
+    .st-po-empty p { margin: 0 0 16px; }
+
+    .st-po-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; line-height: 1.4; white-space: nowrap; }
+    .st-po-badge--wait { background: var(--gold-soft); color: var(--accent-deep); }
+    .st-po-badge--go { background: var(--green-soft); color: var(--green-deep); }
+    .st-po-badge--ok { background: var(--green-deep); color: var(--paper); }
+    .st-po-badge--off { background: var(--paper-soft); color: var(--ink-soft); }
+    .st-po-badge--alert { background: var(--accent-soft); color: var(--accent-deep); border: 1px solid var(--accent); }
+
+    /* Detalhe */
+    .st-po-back { display: inline-block; font-size: 14px; margin-bottom: 12px; }
+    .st-po-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+    @media (max-width: 960px) { .st-po-grid { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+    .st-po-box { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 20px; margin-bottom: 16px; min-width: 0; }
+    .st-po-box h2 { font-size: 1.05rem; margin: 0 0 12px; }
+    .st-po-box h3 { font-size: .95rem; margin: 14px 0 4px; }
+    .st-po-box p { font-size: 14px; line-height: 1.6; }
+    .st-po-dhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+    .st-po-dhead h1 { margin: 0; }
+    .st-po-dhead h1:focus { outline: none; }
+    .st-po-sub { margin: 4px 0 0; font-size: 14px; color: var(--ink-muted); }
+    .st-po-note { margin: 14px 0 0; padding: 12px 14px; border-radius: var(--r-md); background: var(--paper-soft); color: var(--ink-soft); font-size: 14px; line-height: 1.55; }
+    .st-po-note.is-warn { background: var(--gold-soft); color: var(--accent-deep); }
+    .st-po-note.is-ok { background: var(--green-soft); color: var(--green-deep); }
+    .st-po-note strong { color: inherit; }
+    .st-po-pre { white-space: pre-line; overflow-wrap: anywhere; }
+
+    .st-po-steps { list-style: none; margin: 18px 0 0; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; }
+    .st-po-step { position: relative; padding-top: 14px; font-size: 12px; color: var(--ink-muted); min-width: 0; }
+    .st-po-step::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; border-radius: 2px; background: var(--line-strong); }
+    .st-po-step.is-done::before { background: var(--green-deep); }
+    .st-po-step.is-done { color: var(--ink-soft); }
+    .st-po-step.is-current strong { color: var(--green-deep); }
+    .st-po-step strong { display: block; font-weight: 600; font-size: 13px; color: var(--ink); overflow-wrap: anywhere; }
+    .st-po-step:not(.is-done) strong { color: var(--ink-muted); }
+
+    .st-po-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+    .st-po-actions .btn { white-space: normal; text-align: center; }
+    @media (max-width: 480px) { .st-po-actions .btn { width: 100%; justify-content: center; } }
+
+    .st-po-item { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+    .st-po-item:first-of-type { border-top: 0; padding-top: 0; }
+    .st-po-iimg { width: 64px; height: 64px; border-radius: var(--r-md); object-fit: cover; background: var(--paper-soft); display: block; }
+    .st-po-ititle { font-weight: 500; color: var(--ink); text-decoration: none; overflow-wrap: anywhere; }
+    .st-po-ititle:hover { color: var(--green-deep); }
+    .st-po-imeta { margin: 2px 0 0; font-size: 13px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+    .st-po-irow { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .st-po-mini { padding: 8px 14px; font-size: 12px; }
+    .st-po-done { font-size: 12px; color: var(--green-deep); }
+
+    .st-po-totals { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--line); font-size: 14px; }
+    .st-po-totals dt { color: var(--ink-soft); }
+    .st-po-totals dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+    .st-po-totals .is-total { font-weight: 700; font-size: 1.05rem; color: var(--ink); }
+    .st-po-totals dd.is-total { color: var(--green-deep); }
+    .st-po-totals .is-refund { color: var(--accent-deep); }
+
+    .st-po-addr { font-style: normal; font-size: 14px; line-height: 1.6; color: var(--ink-soft); overflow-wrap: anywhere; }
+    .st-po-track { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .st-po-shop { display: flex; gap: 12px; align-items: center; }
+    .st-po-logo { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; background: var(--paper-soft); flex: none; display: block; }
+    .st-po-shop a { font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+
+    .st-po-msgs { max-height: 440px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding: 2px; margin-bottom: 12px; }
+    .st-po-msg { max-width: 88%; padding: 10px 12px; border-radius: var(--r-md); background: var(--paper-soft); align-self: flex-start; }
+    .st-po-msg.is-mine { align-self: flex-end; background: var(--green-soft); }
+    .st-po-msg.is-admin { background: var(--gold-soft); }
+    .st-po-msg-who { font-size: 12px; color: var(--ink-muted); margin: 0 0 4px !important; }
+    .st-po-msg-body { white-space: pre-line; overflow-wrap: anywhere; margin: 0 !important; color: var(--ink); }
+    .st-po-compose label, .st-po-label { display: block; font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-muted); margin: 12px 0 6px; }
+    .st-po-compose textarea, .st-po-dialog textarea { display: block; width: 100%; box-sizing: border-box; border: 1px solid var(--line-strong); border-radius: var(--r-md); padding: 10px 12px; font: inherit; font-size: 15px; background: var(--paper-elevated); color: var(--ink); resize: vertical; min-height: 80px; }
+    .st-po-crow { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; }
+
+    .st-po-timeline { list-style: none; margin: 0; padding: 0; }
+    .st-po-timeline li { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+    .st-po-timeline li:first-child { border-top: 0; }
+    .st-po-timeline time { color: var(--ink-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+    .st-po-timeline span { overflow-wrap: anywhere; color: var(--ink-soft); }
+    @media (max-width: 480px) { .st-po-timeline li { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+
+    /* Janela de acao */
+    .st-po-dialog { border: 0; border-radius: var(--r-lg); padding: 0; width: calc(100% - 32px); max-width: 520px; box-shadow: var(--shadow-lg); background: var(--paper-elevated); color: var(--ink); }
+    .st-po-dialog::backdrop { background: rgba(26, 31, 28, 0.55); } /* mesmo fundo de .st-modal-backdrop (store.css) */
+    .st-po-dialog form { padding: 22px; max-height: calc(100vh - 48px); overflow-y: auto; box-sizing: border-box; }
+    .st-po-dialog h2 { font-size: 1.2rem; margin: 0 0 10px; overflow-wrap: anywhere; }
+    .st-po-dialog p { font-size: 14px; line-height: 1.6; }
+    .st-po-dlg-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 18px; }
+    .st-po-err { color: var(--accent-deep); font-size: 13px; margin: 10px 0 0; }
+    .st-po-err:empty { display: none; }
+    .st-po-reasons { border: 0; padding: 0; margin: 14px 0 0; min-width: 0; }
+    .st-po-reasons legend, .st-po-stars legend { font-size: 11px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-muted); padding: 0; margin-bottom: 6px; }
+    .st-po-reason { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: var(--r-md); margin-bottom: 8px; cursor: pointer; font-size: 14px; }
+    .st-po-reason input { accent-color: var(--green-deep); margin: 0; }
+    .st-po-stars { border: 0; padding: 0; margin: 0; min-width: 0; }
+    .st-po-starrow { display: flex; gap: 4px; }
+    .st-po-star { cursor: pointer; color: var(--line-strong); display: inline-flex; padding: 4px; border-radius: var(--r-sm); }
+    .st-po-star svg { width: 34px; height: 34px; display: block; }
+    .st-po-star.on { color: var(--accent); }
+    .st-po-stars input:focus-visible + .st-po-star { outline: 2px solid var(--green-deep); outline-offset: 1px; }
+
+    @media (max-width: 720px) {
+      .st-po-wrap { padding-left: 16px; padding-right: 16px; }
+      .st-po-box, .st-po-card { padding: 16px; }
+    }
+  </style>
+</head>
+<body class="has-flag-stripe st-page">
+<div class="flag-stripe" aria-hidden="true"></div>
+<nav class="bc-nav">
+  <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+  <div class="bc-nav-r">
+    <a class="bc-nl" href="/store">Store</a>
+    <a class="bc-nl active" href="/store/pedidos" aria-label="Meus pedidos" aria-current="page">Pedidos</a>
+    <a class="st-nav-cart" href="/store/carrinho" aria-label="Carrinho">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+      <span class="st-nav-count" data-st-cart-count hidden>0</span>
+    </a>
+    <span class="st-nav-account" data-st-account></span>
+    <a class="bc-nl" href="/store/vender">Vender</a>
+  </div>
+</nav>
+
+<main class="container st-po-wrap" id="conteudo">
+  <div id="po-banner" class="st-po-banner" role="status" aria-live="polite" hidden></div>
+
+  <section id="po-login" class="st-po-card st-po-login" hidden>
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+    <h1>Entre para ver seus pedidos</h1>
+    <p class="st-po-muted">Use a mesma conta da compra. Seus pedidos, o rastreio e a conversa com a loja ficam aqui.</p>
+    <button type="button" class="btn btn-primary" id="po-login-btn">Entrar</button>
+  </section>
+
+  <section id="po-list" hidden aria-labelledby="po-list-title">
+    <h1 id="po-list-title">Meus pedidos</h1>
+    <p class="st-po-muted">Cada loja envia o próprio pacote, por isso uma compra pode virar mais de um pedido.</p>
+    <div id="po-list-body" aria-live="polite"></div>
+  </section>
+
+  <section id="po-detail" hidden>
+    <a class="st-po-back" href="/store/pedidos">Voltar para meus pedidos</a>
+    <div class="st-po-grid">
+      <div>
+        <div id="po-top"></div>
+        <section class="st-po-box" id="po-chat" aria-labelledby="po-chat-title" hidden>
+          <h2 id="po-chat-title">Conversa com a loja</h2>
+          <div id="po-msgs" class="st-po-msgs" role="log" aria-live="polite" aria-relevant="additions"></div>
+          <p id="po-chat-closed" class="st-po-muted" hidden>A conversa deste pedido foi encerrada. Se precisar de ajuda, escreva para <a href="mailto:oi@brasilconnectusa.com">oi@brasilconnectusa.com</a>.</p>
+          <form id="po-compose" class="st-po-compose" hidden>
+            <label for="po-msg">Sua mensagem</label>
+            <textarea id="po-msg" name="body" rows="3" maxlength="2000" placeholder="Escreva para a loja. Não compartilhe senhas nem dados do cartão."></textarea>
+            <div class="st-po-crow">
+              <span class="st-po-muted" id="po-msg-count" aria-live="off">0/2000</span>
+              <button type="submit" class="btn btn-primary" id="po-msg-send">Enviar</button>
+            </div>
+          </form>
+        </section>
+        <div id="po-timeline"></div>
+      </div>
+      <aside id="po-side" aria-label="Entrega e loja"></aside>
+    </div>
+  </section>
+</main>
+
+<dialog id="po-dialog" class="st-po-dialog" aria-labelledby="po-dlg-title">
+  <form id="po-dlg-form" novalidate>
+    <h2 id="po-dlg-title"></h2>
+    <div id="po-dlg-body"></div>
+    <p id="po-dlg-err" class="st-po-err" role="alert"></p>
+    <div class="st-po-dlg-actions">
+      <button type="button" class="btn btn-secondary" id="po-dlg-cancel">Voltar</button>
+      <button type="submit" class="btn btn-primary" id="po-dlg-ok">Confirmar</button>
+    </div>
+  </form>
+</dialog>
+
+<footer class="bc-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+        <p class="footer-tagline">A Store da comunidade brasileira nos EUA. Cada loja vende, envia e garante os próprios produtos; a BrasilConnect aprova os anúncios e protege o pagamento.</p>
+      </div>
+      <div><h4>Comprar</h4><a href="/store">Vitrine</a><a href="/store/pedidos">Meus pedidos</a><a href="/store/regras#garantia">Garantia BrasilConnect</a></div>
+      <div><h4>Vender</h4><a href="/store/vender">Abrir minha loja</a><a href="/store/painel">Painel da loja</a><a href="/store/regras#proibidos">Produtos proibidos</a></div>
+      <div><h4>BrasilConnect</h4><a href="/">Início</a><a href="/termos">Termos</a><a href="/privacidade">Privacidade</a><a href="mailto:oi@brasilconnectusa.com">Contato</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 BrasilConnect USA · <a href="/store/regras">Regras da Store</a></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict'
+
+  var UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  // Reserva: o servidor ja manda tracking_status_label (mesmos textos de TRACKING_PT)
+  var TRACK_PT = {
+    PRE_TRANSIT: 'Etiqueta criada · esperando a transportadora',
+    TRANSIT: 'Em trânsito',
+    DELIVERED: 'Entregue',
+    RETURNED: 'Devolvido ao remetente',
+    FAILURE: 'Problema na entrega',
+    UNKNOWN: 'Sem atualização da transportadora',
+  }
+  var ACTOR_PT = { buyer: 'Você', seller: 'Loja', admin: 'BrasilConnect', system: 'BrasilConnect', stripe: 'Pagamento', shippo: 'Rastreio' }
+  var DISPUTE_KEYS = ['not_received', 'not_as_described', 'damaged', 'other']
+  var STAR = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.1l-5.7 3.2 1.2-6.4-4.7-4.4 6.4-.8z"/></svg>'
+  var ICON_OK = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12l3 3 5-6"/></svg>'
+  var ICON_WAIT = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'
+
+  var S = null
+  var orderId = null
+  var view = 'list'
+  var pendingCheckout = null
+  var st = { userId: undefined, detail: null, sig: '', msgSig: '', poll: null, dlg: null, dlgBusy: false, lastFocus: null, loading: false, cfg: null, firstMsgs: true }
+
+  ;(function parsePath() {
+    var parts = location.pathname.split('/').filter(Boolean)
+    if (parts[0] === 'store' && parts[1] === 'pedidos' && parts[2]) {
+      try { orderId = decodeURIComponent(parts[2]) } catch (_) { orderId = parts[2] }
+      view = 'detail'
+    }
+  })()
+
+  function $(id) { return document.getElementById(id) }
+  function esc(s) { return S && S.esc ? S.esc(s) : String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c] }) }
+  function money(c) { return S.money(c || 0) }
+  function fmtDate(iso) {
+    if (!iso) return ''
+    try { return S.fmtDate(iso) } catch (_) { return new Date(iso).toLocaleDateString('pt-BR', { timeZone: 'America/New_York' }) }
+  }
+  function fmtDT(iso) {
+    if (!iso) return ''
+    try { return new Date(iso).toLocaleString('pt-BR', { timeZone: 'America/New_York', day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) } catch (_) { return '' }
+  }
+  function label(group, k, fallback) {
+    var L = (S.labels && S.labels[group]) || {}
+    return L[k] || fallback || k || ''
+  }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms) }) }
+  function phoneFmt(p) {
+    var d = String(p || '').replace(/\D/g, '')
+    if (d.length === 10) return '(' + d.slice(0, 3) + ') ' + d.slice(3, 6) + '-' + d.slice(6)
+    return String(p || '')
+  }
+  function badgeClass(status, dispute) {
+    if (dispute === 'open' || dispute === 'escalated' || dispute === 'chargeback') return 'st-po-badge--alert'
+    if (status === 'paid' || status === 'pending_payment') return 'st-po-badge--wait'
+    if (status === 'shipped') return 'st-po-badge--go'
+    if (status === 'delivered' || status === 'completed') return 'st-po-badge--ok'
+    return 'st-po-badge--off'
+  }
+  function statusText(o) {
+    if (o.dispute_status === 'open' || o.dispute_status === 'escalated') return 'Problema aberto'
+    if (o.dispute_status === 'chargeback') return 'Contestação no cartão'
+    return o.status_label || label('status', o.status, o.status)
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    init().catch(function (e) { console.error('[pedidos]', e); fatal() })
+  })
+
+  async function init() {
+    S = window.BCStore
+    if (!S) { fatal(); return }
+    try { await S.ready } catch (_) { /* segue */ }
+
+    var qs = new URLSearchParams(location.search)
+    var co = qs.get('checkout')
+    if (co && qs.get('ok') === '1' && UUID.test(co)) {
+      pendingCheckout = co
+      try { S.cart.clear() } catch (_) {}
+      banner('wait', 'Pagamento recebido! Estamos confirmando com o banco, leva poucos segundos.')
+    }
+    if (co || qs.get('ok')) { try { history.replaceState(null, '', location.pathname) } catch (_) {} }
+
+    try { S.config().then(function (c) { st.cfg = c || null }).catch(function () {}) } catch (_) {}
+    bindStatic()
+    S.onAuth(onUser)
+  }
+
+  function fatal() {
+    var m = document.querySelector('main')
+    if (m) m.insertAdjacentHTML('afterbegin', '<div class="st-po-card"><p>Não foi possível carregar a página. Atualize e tente de novo.</p></div>')
+  }
+
+  function show(which) {
+    $('po-login').hidden = which !== 'login'
+    $('po-list').hidden = which !== 'list'
+    $('po-detail').hidden = which !== 'detail'
+  }
+
+  function banner(kind, text) {
+    var b = $('po-banner')
+    if (!kind) { b.hidden = true; b.innerHTML = ''; return }
+    b.className = 'st-po-banner is-' + kind
+    b.innerHTML = (kind === 'ok' ? ICON_OK : ICON_WAIT) + '<p>' + esc(text) + '</p>'
+    b.hidden = false
+  }
+
+  function onUser(user) {
+    var uid = user && user.id ? user.id : null
+    if (uid === st.userId) return
+    st.userId = uid
+    if (!uid) {
+      show('login')
+      st.detail = null; st.sig = ''; st.msgSig = ''
+      return
+    }
+    if (view === 'detail') { show('detail'); loadDetail(false) }
+    else { show('list'); loadList() }
+    if (pendingCheckout) {
+      var id = pendingCheckout
+      pendingCheckout = null
+      pollCheckout(id)
+    }
+  }
+
+  function bindStatic() {
+    $('po-login-btn').addEventListener('click', async function () {
+      try {
+        var u = await S.login({ reason: 'Entre para ver seus pedidos.' })
+        if (u) onUser(u)
+      } catch (_) {}
+    })
+    $('po-list-body').addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-retry]') : null
+      if (b) loadList()
+    })
+    $('po-detail').addEventListener('click', onDetailClick)
+    $('po-compose').addEventListener('submit', sendMessage)
+    $('po-msg').addEventListener('input', function () { $('po-msg-count').textContent = $('po-msg').value.length + '/2000' })
+    $('po-dlg-form').addEventListener('submit', submitDialog)
+    $('po-dlg-cancel').addEventListener('click', closeDialog)
+    $('po-dialog').addEventListener('close', function () { afterDialogClose() })
+    $('po-dlg-body').addEventListener('change', onStarChange)
+    $('po-dlg-body').addEventListener('mouseover', onStarHover)
+    $('po-dlg-body').addEventListener('mouseout', onStarHover)
+
+    // Conversa e situacao: atualiza a cada 30 s com a aba visivel
+    st.poll = setInterval(function () { if (canPoll()) loadDetail(true) }, 30000)
+    document.addEventListener('visibilitychange', function () { if (canPoll()) loadDetail(true) })
+  }
+
+  function canPoll() {
+    return view === 'detail' && !!st.userId && !st.dlg && !st.loading && document.visibilityState === 'visible' && !!st.detail
+  }
+
+  // ── Retorno do Stripe ──────────────────────────────────────────────────────
+  async function pollCheckout(id) {
+    var start = Date.now()
+    while (Date.now() - start < 40000) {
+      try {
+        var d = await S.api('/api/store/checkout?action=status&id=' + encodeURIComponent(id))
+        if (d && d.status === 'paid') {
+          var nums = (d.orders || []).map(function (o) { return '#' + o.order_number + ' (' + o.seller_name + ')' })
+          banner('ok', 'Pagamento confirmado! ' + (nums.length > 1 ? 'Pedidos ' : 'Pedido ') + nums.join(', ') + '. A loja já foi avisada e você recebe o rastreio por aqui.')
+          if (view === 'list') loadList()
+          return
+        }
+        if (d && (d.status === 'expired' || d.status === 'canceled')) {
+          banner('err', 'O pagamento não foi concluído e nada foi cobrado. Seus itens podem ser adicionados de novo na vitrine.')
+          return
+        }
+      } catch (e) {
+        if (e && (e.status === 404 || e.status === 401 || e.status === 400)) break
+      }
+      await sleep(3000)
+    }
+    banner('wait', 'Recebemos o pagamento e a confirmação está demorando um pouco. Você recebe um aviso assim que ela chegar.')
+    if (view === 'list') loadList()
+  }
+
+  // ── Lista ──────────────────────────────────────────────────────────────────
+  async function loadList() {
+    var box = $('po-list-body')
+    box.setAttribute('aria-busy', 'true')
+    if (!box.innerHTML) box.innerHTML = '<p class="st-po-muted" style="margin-top:20px">Carregando seus pedidos…</p>'
+    try {
+      var d = await S.api('/api/store/buyer?action=orders')
+      renderList((d && d.orders) || [])
+    } catch (e) {
+      box.innerHTML = '<div class="st-po-card" style="margin-top:20px"><p>' + esc((e && e.message) || 'Não foi possível carregar seus pedidos.') + '</p><button type="button" class="btn btn-secondary" data-retry="1">Tentar de novo</button></div>'
+    } finally {
+      box.removeAttribute('aria-busy')
+    }
+  }
+
+  function renderList(orders) {
+    var box = $('po-list-body')
+    if (!orders.length) {
+      box.innerHTML = '<div class="st-po-card st-po-empty" style="margin-top:20px"><p>Você ainda não comprou na Store.</p><a class="btn btn-primary" href="/store">Ver a vitrine</a></div>'
+      return
+    }
+    var h = '<div class="st-po-list">'
+    orders.forEach(function (o) {
+      var items = o.items || []
+      var thumbs = items.slice(0, 3).map(function (it) {
+        var u = S.safeUrl(it.image_url || '')
+        return u ? '<img class="st-po-thumb" src="' + esc(u) + '" alt="" width="52" height="52" loading="lazy">' : '<span class="st-po-thumb" aria-hidden="true"></span>'
+      }).join('')
+      var first = items[0]
+      var desc = first ? (first.quantity > 1 ? first.quantity + '× ' : '') + first.title : 'Pedido'
+      if (items.length > 1) desc += ' e mais ' + (items.length - 1) + (items.length - 1 === 1 ? ' item' : ' itens')
+      var seller = (o.seller && o.seller.name) || 'Loja'
+      h += '<a class="st-po-ocard" href="/store/pedidos/' + encodeURIComponent(o.id) + '">'
+      h += '<div class="st-po-orow"><span class="st-po-onum">Pedido #' + esc(o.order_number) + '</span><span class="st-po-badge ' + badgeClass(o.status, o.dispute_status) + '">' + esc(statusText(o)) + '</span></div>'
+      h += '<div class="st-po-omid"><div class="st-po-thumbs">' + thumbs + '</div><p class="st-po-otitle">' + esc(desc) + '</p></div>'
+      h += '<div class="st-po-orow"><span class="st-po-muted">' + esc(seller) + ' · ' + esc(fmtDate(o.created_at)) + '</span><span class="st-po-money">' + money(o.total_cents) + '</span></div>'
+      if (o.tracking_number) h += '<p class="st-po-otrack">Rastreio' + (o.carrier ? ' ' + esc(String(o.carrier).toUpperCase()) : '') + ': <span class="st-po-track">' + esc(o.tracking_number) + '</span></p>'
+      h += '</a>'
+    })
+    box.innerHTML = h + '</div>'
+  }
+
+  // ── Detalhe ────────────────────────────────────────────────────────────────
+  function renderNotFound(msg) {
+    $('po-top').innerHTML = '<div class="st-po-box"><h1>Pedido não encontrado</h1><p>' + esc(msg || 'Confira se você entrou com a mesma conta da compra.') + '</p><a class="btn btn-secondary" href="/store/pedidos">Ver meus pedidos</a></div>'
+    $('po-side').innerHTML = ''
+    $('po-timeline').innerHTML = ''
+    $('po-chat').hidden = true
+  }
+
+  async function loadDetail(silent) {
+    if (!orderId || !UUID.test(orderId)) { renderNotFound(); return }
+    if (st.loading) return
+    st.loading = true
+    if (!silent) $('po-top').innerHTML = '<div class="st-po-box"><p class="st-po-muted">Carregando o pedido…</p></div>'
+    try {
+      var d = await S.api('/api/store/buyer?action=order&id=' + encodeURIComponent(orderId))
+      st.detail = d
+      renderDetail(d)
+    } catch (e) {
+      if (!silent) {
+        if (e && e.status === 404) renderNotFound()
+        else $('po-top').innerHTML = '<div class="st-po-box"><p>' + esc((e && e.message) || 'Não foi possível carregar o pedido.') + '</p><button type="button" class="btn btn-secondary" data-act="reload">Tentar de novo</button></div>'
+      }
+    } finally {
+      st.loading = false
+    }
+  }
+
+  function renderDetail(d) {
+    var o = d.order
+    document.title = 'Pedido #' + o.order_number + ' · BrasilConnect Store'
+    var sig = JSON.stringify([o.status, o.dispute_status, o.tracking_status, o.tracking_number, o.ship_by, o.deadline_at, o.handoff_scheduled_at, o.refunded_cents, o.buyer_confirmed_at, (d.events || []).length, d.can, (d.items || []).map(function (i) { return i.reviewed })])
+    if (sig !== st.sig) {
+      st.sig = sig
+      $('po-top').innerHTML = topHtml(d)
+      $('po-side').innerHTML = sideHtml(d)
+      $('po-timeline').innerHTML = timelineHtml(d)
+    }
+    $('po-chat').hidden = false
+    $('po-compose').hidden = !(d.can && d.can.message)
+    $('po-chat-closed').hidden = !!(d.can && d.can.message) || ['pending_payment', 'expired'].indexOf(o.status) !== -1
+    var msgs = d.messages || []
+    var msgSig = msgs.length + ':' + (msgs.length ? msgs[msgs.length - 1].id : '')
+    if (msgSig !== st.msgSig) {
+      st.msgSig = msgSig
+      renderMessages(msgs)
+    }
+  }
+
+  function stepsFor(o) {
+    var f = o.fulfillment
+    if (f === 'ship') return [['Pago', o.paid_at], ['Enviado', o.shipped_at], ['Entregue', o.delivered_at], ['Concluído', o.completed_at]]
+    if (f === 'pickup') return [['Pago', o.paid_at], ['Retirado', o.delivered_at], ['Concluído', o.completed_at]]
+    return [['Pago', o.paid_at], ['Entregue', o.delivered_at], ['Concluído', o.completed_at]]
+  }
+  function stepIndex(o) {
+    var ship = o.fulfillment === 'ship'
+    switch (o.status) {
+      case 'paid': return 0
+      case 'shipped': return ship ? 1 : 0
+      case 'delivered': return ship ? 2 : 1
+      case 'completed': return ship ? 3 : 2
+      default: return -1
+    }
+  }
+
+  function topHtml(d) {
+    var o = d.order
+    var can = d.can || {}
+    var h = '<div class="st-po-box">'
+    h += '<div class="st-po-dhead"><div><h1 id="po-title" tabindex="-1">Pedido #' + esc(o.order_number) + '</h1>'
+    h += '<p class="st-po-sub">Feito em ' + esc(fmtDate(o.created_at)) + ' · ' + esc(label('fulfillment', o.fulfillment, 'Entrega')) + '</p></div>'
+    h += '<span class="st-po-badge ' + badgeClass(o.status, o.dispute_status) + '">' + esc(statusText(o)) + '</span></div>'
+
+    // Passos
+    var idx = stepIndex(o)
+    if (idx >= 0) {
+      var steps = stepsFor(o)
+      h += '<ol class="st-po-steps" aria-label="Andamento do pedido">'
+      steps.forEach(function (s, i) {
+        var done = i <= idx
+        var cur = i === idx
+        h += '<li class="st-po-step' + (done ? ' is-done' : '') + (cur ? ' is-current' : '') + '"' + (cur ? ' aria-current="step"' : '') + '><strong>' + esc(s[0]) + '</strong>' + (done && s[1] ? esc(fmtDate(s[1])) : (done ? '' : '<span class="st-po-sr">pendente</span>')) + '</li>'
+      })
+      h += '</ol>'
+    }
+
+    h += statusNoteHtml(d)
+    h += actionsHtml(can)
+    h += disputeHtml(d)
+    h += '</div>'
+
+    // Itens e totais
+    h += '<section class="st-po-box" aria-labelledby="po-items-title"><h2 id="po-items-title">Itens</h2>'
+    ;(d.items || []).forEach(function (it) {
+      var img = S.safeUrl(it.image_url || '')
+      var href = it.product_slug ? '/store/p/' + encodeURIComponent(it.product_slug) : ''
+      var pic = img ? '<img class="st-po-iimg" src="' + esc(img) + '" alt="" width="64" height="64" loading="lazy">' : '<span class="st-po-iimg" aria-hidden="true"></span>'
+      h += '<div class="st-po-item">' + (href ? '<a href="' + href + '" tabindex="-1" aria-hidden="true">' + pic + '</a>' : pic) + '<div>'
+      h += href ? '<a class="st-po-ititle" href="' + href + '">' + esc(it.title) + '</a>' : '<span class="st-po-ititle">' + esc(it.title) + '</span>'
+      h += '<p class="st-po-imeta">' + esc(it.quantity) + ' × ' + money(it.unit_price_cents) + '</p>'
+      h += '<div class="st-po-irow"><span class="st-po-money">' + money(it.subtotal_cents) + '</span>'
+      if (it.reviewed) h += '<span class="st-po-done">Você avaliou</span>'
+      else if (can.review && it.product_id) h += '<button type="button" class="btn btn-secondary st-po-mini" data-dlg="review" data-pid="' + esc(it.product_id) + '">Avaliar<span class="st-po-sr"> ' + esc(it.title) + '</span></button>'
+      h += '</div></div></div>'
+    })
+    h += '<dl class="st-po-totals">'
+    h += '<dt>Itens</dt><dd>' + money(o.items_cents) + '</dd>'
+    h += '<dt>Frete</dt><dd>' + (o.shipping_cents > 0 ? money(o.shipping_cents) : (o.fulfillment === 'pickup' ? 'Sem custo' : 'Grátis')) + '</dd>'
+    if (o.tax_cents > 0) h += '<dt>Imposto</dt><dd>' + money(o.tax_cents) + '</dd>'
+    h += '<dt class="is-total">Total</dt><dd class="is-total">' + money(o.total_cents) + '</dd>'
+    if (o.refunded_cents > 0) h += '<dt class="is-refund">Reembolsado</dt><dd class="is-refund">− ' + money(o.refunded_cents) + '</dd>'
+    h += '</dl></section>'
+    return h
+  }
+
+  function statusNoteHtml(d) {
+    var o = d.order
+    var f = o.fulfillment
+    var cfg = st.cfg || {}
+    switch (o.status) {
+      case 'pending_payment':
+        return '<p class="st-po-note is-warn">Estamos confirmando o seu pagamento. Isso costuma levar poucos segundos.</p>'
+      case 'expired':
+        return '<p class="st-po-note">O pagamento não foi concluído e nada foi cobrado.</p>'
+      case 'canceled':
+        return '<p class="st-po-note">Pedido cancelado' + (o.canceled_at ? ' em ' + esc(fmtDate(o.canceled_at)) : '') + '.' +
+          (o.cancel_reason ? ' Motivo: ' + esc(o.cancel_reason) + '.' : '') +
+          (o.refunded_cents > 0 ? ' O reembolso de <strong>' + money(o.refunded_cents) + '</strong> volta para o cartão em 5 a 10 dias úteis.' : '') + '</p>'
+      case 'refunded':
+        return '<p class="st-po-note">Pedido reembolsado: <strong>' + money(o.refunded_cents) + '</strong> devolvidos ao cartão (pode levar 5 a 10 dias úteis para aparecer).</p>'
+      case 'paid': {
+        var t
+        // deadline_at: prazo efetivo (na entrega local, o maior entre o prazo da loja e o da regiao)
+        var dl = o.deadline_at || o.ship_by
+        if (f === 'ship') {
+          t = dl ? 'A loja tem até <strong>' + esc(fmtDate(dl)) + '</strong> para postar o pacote.' : 'A loja foi avisada e vai postar o pacote.'
+        } else if (o.handoff_scheduled_at) {
+          t = (f === 'pickup' ? 'Retirada' : 'Entrega') + ' combinada com a loja para <strong>' + esc(fmtDate(o.handoff_scheduled_at)) + '</strong>.'
+        } else {
+          t = dl ? 'A loja entrega ou combina a data com você pela conversa até <strong>' + esc(fmtDate(dl)) + '</strong>.' : 'A loja foi avisada e entrega ou combina a data com você pela conversa.'
+        }
+        // auto_cancel_at: prazo + carencia em dias uteis, quando o pedido e cancelado de fato
+        var when = o.auto_cancel_at || dl
+        var verb = f === 'ship' ? 'postar' : 'entregar'
+        return '<p class="st-po-note">' + t + (when
+          ? ' Se a loja não ' + verb + ' até <strong>' + esc(fmtDate(when)) + '</strong>, o pedido é cancelado e você recebe o dinheiro de volta.'
+          : ' Se a loja não ' + verb + ' no prazo, o pedido é cancelado e você recebe o dinheiro de volta.') + '</p>'
+      }
+      case 'shipped':
+        return '<p class="st-po-note">Seu pedido está a caminho. Quando chegar, confirme o recebimento aqui.</p>'
+      case 'delivered':
+        if (o.buyer_confirmed_at) return '<p class="st-po-note is-ok">Você confirmou o recebimento em ' + esc(fmtDate(o.buyer_confirmed_at)) + '. Obrigado!</p>'
+        return '<p class="st-po-note is-ok">' + (f === 'pickup' ? 'Retirado' : 'Entregue') + (o.delivered_at ? ' em ' + esc(fmtDate(o.delivered_at)) : '') + '. Deu tudo certo? Confirme o recebimento. Se houve problema, avise' + (cfg.dispute_window_days ? ' em até ' + esc(cfg.dispute_window_days) + ' dias' : ' por aqui') + '.</p>'
+      case 'completed':
+        return '<p class="st-po-note is-ok">Pedido concluído' + (o.completed_at ? ' em ' + esc(fmtDate(o.completed_at)) : '') + '.</p>'
+      default:
+        return ''
+    }
+  }
+
+  function actionsHtml(can) {
+    var b = []
+    if (can.confirm) b.push('<button type="button" class="btn btn-primary" data-dlg="confirm">Confirmar recebimento</button>')
+    if (can.dispute) b.push('<button type="button" class="btn btn-secondary" data-dlg="dispute">Tive um problema</button>')
+    if (can.escalate) b.push('<button type="button" class="btn btn-primary" data-dlg="escalate">Pedir ajuda à BrasilConnect</button>')
+    if (can.close_dispute) b.push('<button type="button" class="btn btn-secondary" data-dlg="close">Problema resolvido</button>')
+    if (can.cancel) b.push('<button type="button" class="btn btn-secondary" data-dlg="cancel">Cancelar pedido</button>')
+    return b.length ? '<div class="st-po-actions">' + b.join('') + '</div>' : ''
+  }
+
+  function disputeHtml(d) {
+    var o = d.order
+    var can = d.can || {}
+    var reason = o.dispute_reason ? label('dispute_reason', o.dispute_reason, 'Problema') : 'Problema'
+    var details = o.dispute_details ? '<br><span class="st-po-pre">' + esc(o.dispute_details) + '</span>' : ''
+    switch (o.dispute_status) {
+      case 'open':
+        return '<div class="st-po-note is-warn" role="note"><strong>Problema aberto' + (o.dispute_opened_at ? ' em ' + esc(fmtDate(o.dispute_opened_at)) : '') + ': ' + esc(reason) + '</strong>' + details +
+          '<br><br>A loja foi avisada e tem alguns dias úteis para resolver com você pela conversa abaixo. Enquanto isso, o pagamento fica retido.' +
+          (can.escalate ? ' Se não chegaram a um acordo, peça ajuda à BrasilConnect.' : ' Se a loja não resolver no prazo, o botão "Pedir ajuda à BrasilConnect" aparece aqui.') + '</div>'
+      case 'escalated':
+        return '<div class="st-po-note is-warn" role="note"><strong>A BrasilConnect está analisando: ' + esc(reason) + '</strong>' + details +
+          '<br><br>Nossa equipe confere o rastreio e a conversa e responde por aqui ou por e-mail. O pagamento fica retido até a decisão.</div>'
+      case 'resolved_refund':
+        return '<p class="st-po-note">Problema resolvido com reembolso.</p>'
+      case 'resolved_release':
+        return '<p class="st-po-note">Problema encerrado.</p>'
+      case 'chargeback':
+        return '<p class="st-po-note is-warn">Há uma contestação aberta no cartão. O banco decide; a BrasilConnect acompanha e pode pedir informações por e-mail.</p>'
+      default:
+        return ''
+    }
+  }
+
+  function sideHtml(d) {
+    var o = d.order
+    var z = o.zone || {}
+    var f = o.fulfillment
+    var h = '<section class="st-po-box" aria-labelledby="po-ship-title"><h2 id="po-ship-title">' + (f === 'pickup' ? 'Retirada' : 'Entrega') + '</h2>'
+    h += '<p style="margin:0">' + esc(label('fulfillment', f, 'Entrega')) + (z.name ? ' · ' + esc(z.name) : '') + '</p>'
+    if (f !== 'pickup' && (z.est_days_min != null || z.est_days_max != null)) {
+      var a = z.est_days_min, b = z.est_days_max
+      var eta = (a != null && b != null && a !== b) ? a + ' a ' + b + ' dias' : (b != null ? b : a) + ' dia' + (((b != null ? b : a) === 1) ? '' : 's')
+      h += '<p class="st-po-muted" style="margin-top:4px">Prazo estimado: ' + esc(eta) + (f === 'ship' ? ' depois do envio' : '') + '</p>'
+    }
+
+    if (o.tracking_number || o.carrier) {
+      var turl = o.tracking_url ? S.safeUrl(o.tracking_url) : ''
+      h += '<h3>Rastreio</h3><p style="margin:0">' + esc([o.carrier ? String(o.carrier).toUpperCase() : '', o.service || ''].filter(Boolean).join(' · ')) + '</p>'
+      if (o.tracking_number) h += '<p class="st-po-track" style="margin:2px 0 0">' + esc(o.tracking_number) + '</p>'
+      var tlabel = o.tracking_status_label || (o.tracking_status && TRACK_PT[String(o.tracking_status).toUpperCase()]) || ''
+      if (tlabel) h += '<p class="st-po-muted" style="margin-top:2px">' + esc(tlabel) + '</p>'
+      if (turl) h += '<p style="margin:6px 0 0"><a href="' + esc(turl) + '" target="_blank" rel="noopener noreferrer">Acompanhar na transportadora<span class="st-po-sr"> (abre em nova aba)</span></a></p>'
+    }
+
+    if (z.pickup_note) {
+      h += '<h3>' + (f === 'pickup' ? 'Como retirar' : 'Combinado da loja') + '</h3><p class="st-po-pre" style="margin:0">' + esc(z.pickup_note) + '</p>'
+    }
+
+    var a2 = o.ship_to || {}
+    if (f !== 'pickup' && a2.line1) {
+      h += '<h3>Entregar em</h3><address class="st-po-addr">' + esc(a2.name || '') + '<br>' + esc(a2.line1) + (a2.line2 ? '<br>' + esc(a2.line2) : '') +
+        '<br>' + esc(a2.city || '') + ', ' + esc(a2.state || '') + ' ' + esc(a2.zip || '') + (a2.phone ? '<br>' + esc(phoneFmt(a2.phone)) : '') + '</address>'
+    } else if (f === 'pickup' && a2.name) {
+      h += '<h3>Quem retira</h3><p class="st-po-addr" style="margin:0">' + esc(a2.name) + (a2.phone ? '<br>' + esc(phoneFmt(a2.phone)) : '') + '</p>'
+    }
+    h += '</section>'
+
+    var s = d.seller
+    if (s) {
+      var logo = s.logo_url ? S.safeUrl(s.logo_url) : ''
+      h += '<section class="st-po-box" aria-labelledby="po-shop-title"><h2 id="po-shop-title">Loja</h2><div class="st-po-shop">'
+      h += logo ? '<img class="st-po-logo" src="' + esc(logo) + '" alt="" width="44" height="44" loading="lazy">' : '<span class="st-po-logo" aria-hidden="true"></span>'
+      h += '<div>' + (s.slug ? '<a href="/store/loja/' + encodeURIComponent(s.slug) + '">' + esc(s.name) + '</a>' : '<strong>' + esc(s.name) + '</strong>')
+      if (s.city || s.state) h += '<p class="st-po-muted">' + esc([s.city, s.state].filter(Boolean).join(', ')) + '</p>'
+      h += '</div></div>'
+      h += '<h3>Trocas e devoluções</h3><p style="margin:0">' + (s.accepts_returns
+        ? 'Aceita devolução em até ' + esc(s.return_window_days) + ' dia' + (s.return_window_days === 1 ? '' : 's') + ' depois da entrega.'
+        : 'Não aceita devolução por arrependimento. Defeito ou produto diferente do anúncio são cobertos pela Garantia BrasilConnect.') + '</p>'
+      if (s.return_policy) h += '<p class="st-po-pre st-po-muted" style="margin-top:6px">' + esc(s.return_policy) + '</p>'
+      if (s.warranty_policy) h += '<h3>Garantia da loja</h3><p class="st-po-pre st-po-muted" style="margin:0">' + esc(s.warranty_policy) + '</p>'
+      h += '</section>'
+    }
+
+    h += '<section class="st-po-box" aria-labelledby="po-guar-title"><h2 id="po-guar-title">Garantia BrasilConnect</h2>'
+    h += '<p style="margin:0">Se o pedido não chegar, vier diferente do anúncio ou com defeito, abra um problema por esta página. O dinheiro só vai para a loja depois que você recebe. <a href="/store/regras#garantia">Saiba como funciona</a>.</p></section>'
+    return h
+  }
+
+  function timelineHtml(d) {
+    var ev = d.events || []
+    if (!ev.length) return ''
+    var h = '<section class="st-po-box" aria-labelledby="po-tl-title"><h2 id="po-tl-title">Histórico</h2><ol class="st-po-timeline">'
+    ev.slice().reverse().forEach(function (e) {
+      var who = ACTOR_PT[e.actor] || ''
+      h += '<li><time datetime="' + esc(e.created_at) + '">' + esc(fmtDT(e.created_at)) + '</time><span>' + esc(e.message || '') + (who && e.actor !== 'system' ? ' <span class="st-po-muted">· ' + esc(who) + '</span>' : '') + '</span></li>'
+    })
+    return h + '</ol></section>'
+  }
+
+  function renderMessages(msgs) {
+    var box = $('po-msgs')
+    var atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 60
+    if (!msgs.length) {
+      box.innerHTML = '<p class="st-po-muted">Nenhuma mensagem ainda. Use a conversa para combinar detalhes com a loja.</p>'
+    } else {
+      box.innerHTML = msgs.map(function (m) {
+        var cls = m.mine ? 'is-mine' : (m.sender_role === 'admin' ? 'is-admin' : 'is-seller')
+        var who = m.mine ? 'Você' : (m.sender_role === 'admin' ? 'BrasilConnect' : (st.detail && st.detail.seller ? st.detail.seller.name : 'Loja'))
+        return '<div class="st-po-msg ' + cls + '"><p class="st-po-msg-who">' + esc(who) + ' · <time datetime="' + esc(m.created_at) + '">' + esc(fmtDT(m.created_at)) + '</time></p><p class="st-po-msg-body">' + esc(m.body) + '</p></div>'
+      }).join('')
+    }
+    if (atBottom || st.firstMsgs) box.scrollTop = box.scrollHeight
+    st.firstMsgs = false
+  }
+
+  async function sendMessage(ev) {
+    ev.preventDefault()
+    var ta = $('po-msg')
+    var btn = $('po-msg-send')
+    var text = ta.value.trim()
+    if (!text) { ta.focus(); return }
+    if (text.length > 2000) { S.toast('A mensagem pode ter até 2000 caracteres.', 'err'); return }
+    btn.disabled = true
+    try {
+      var r = await S.api('/api/store/buyer?action=message', { method: 'POST', body: { order_id: orderId, body: text } })
+      ta.value = ''
+      $('po-msg-count').textContent = '0/2000'
+      if (st.detail && r && r.message) {
+        st.detail.messages = (st.detail.messages || []).concat([r.message])
+        st.msgSig = ''
+        st.firstMsgs = true
+        renderDetail(st.detail)
+      }
+    } catch (e) {
+      S.toast((e && e.message) || 'Não foi possível enviar a mensagem.', 'err')
+    } finally {
+      btn.disabled = false
+    }
+  }
+
+  // ── Acoes (janela) ─────────────────────────────────────────────────────────
+  function onDetailClick(e) {
+    var t = e.target.closest ? e.target.closest('[data-dlg],[data-act]') : null
+    if (!t) return
+    if (t.getAttribute('data-act') === 'reload') { loadDetail(false); return }
+    var kind = t.getAttribute('data-dlg')
+    if (kind) openDialog(kind, t.getAttribute('data-pid'))
+  }
+
+  function dialogConfig(kind, pid) {
+    var d = st.detail
+    var o = d.order
+    if (kind === 'cancel') {
+      return {
+        title: 'Cancelar o pedido #' + o.order_number, ok: 'Cancelar pedido', action: 'cancel',
+        done: 'Pedido cancelado. O reembolso aparece no cartão em 5 a 10 dias úteis.',
+        body: '<p>O valor total volta para o cartão usado na compra. Pode levar de 5 a 10 dias úteis para aparecer.</p>' +
+          '<label class="st-po-label" for="dlg-reason">Motivo do cancelamento</label>' +
+          '<textarea id="dlg-reason" name="reason" rows="3" maxlength="300" placeholder="Ex.: comprei errado, mudei de ideia"></textarea>',
+        collect: function (f) {
+          var r = String(f.elements.namedItem('reason').value || '').trim()
+          if (r.length < 3) return { error: 'Conte em poucas palavras o motivo do cancelamento.' }
+          return { body: { order_id: o.id, reason: r } }
+        },
+      }
+    }
+    if (kind === 'confirm') {
+      return {
+        title: 'Recebeu tudo certo?', ok: 'Sim, recebi', action: 'confirm',
+        done: 'Obrigado! Recebimento confirmado.',
+        body: '<p>Confirme só se o pedido chegou e está como no anúncio. Ao confirmar, a loja recebe o pagamento deste pedido.</p>' +
+          '<p class="st-po-muted">Se ainda não chegou ou veio com problema, volte e use "Tive um problema".</p>',
+        collect: function () { return { body: { order_id: o.id } } },
+      }
+    }
+    if (kind === 'dispute') {
+      var reasons = DISPUTE_KEYS.map(function (k, i) {
+        return '<label class="st-po-reason" for="dlg-r-' + k + '"><input type="radio" id="dlg-r-' + k + '" name="reason" value="' + k + '"' + (i === 0 ? ' autofocus' : '') + '>' + esc(label('dispute_reason', k, k)) + '</label>'
+      }).join('')
+      return {
+        title: 'Tive um problema', ok: 'Abrir problema', action: 'dispute',
+        done: 'Problema aberto. A loja foi avisada e vai responder pela conversa.',
+        body: '<p>A <strong>Garantia BrasilConnect</strong> cobre pedido que não chegou, que veio diferente do anúncio ou com defeito. ' +
+          'Primeiro a loja tem alguns dias úteis para resolver com você pela conversa do pedido. Se não resolver, você pede ajuda à BrasilConnect: ' +
+          'olhamos o rastreio, as mensagens e o que você contou e, se for o caso, devolvemos o seu dinheiro. Enquanto o problema estiver aberto, o pagamento não vai para a loja.</p>' +
+          '<p><a href="/store/regras#garantia" target="_blank" rel="noopener">Regras da garantia<span class="st-po-sr"> (abre em nova aba)</span></a></p>' +
+          '<fieldset class="st-po-reasons"><legend>O que aconteceu?</legend>' + reasons + '</fieldset>' +
+          '<label class="st-po-label" for="dlg-details">Conte os detalhes</label>' +
+          '<textarea id="dlg-details" name="details" rows="4" maxlength="2000" placeholder="O que chegou, o que faltou, como está o produto"></textarea>',
+        collect: function (f) {
+          var r = f.querySelector('input[name="reason"]:checked')
+          if (!r) return { error: 'Escolha o que aconteceu.' }
+          var det = String(f.elements.namedItem('details').value || '').trim()
+          if (det.length < 10) return { error: 'Conte os detalhes (pelo menos 10 caracteres).' }
+          return { body: { order_id: o.id, reason: r.value, details: det } }
+        },
+      }
+    }
+    if (kind === 'escalate') {
+      return {
+        title: 'Pedir ajuda à BrasilConnect', ok: 'Pedir ajuda', action: 'escalate',
+        done: 'Pronto. A BrasilConnect vai analisar e responder por aqui ou por e-mail.',
+        body: '<p>Nossa equipe vai ler a conversa, conferir o rastreio e o que você contou. Depois decidimos entre devolver o seu dinheiro ou liberar o pagamento à loja.</p>' +
+          '<p class="st-po-muted">O pagamento continua retido até a decisão. Se tiver fotos, guarde: podemos pedir por e-mail.</p>',
+        collect: function () { return { body: { order_id: o.id } } },
+      }
+    }
+    if (kind === 'close') {
+      return {
+        title: 'O problema foi resolvido?', ok: 'Sim, foi resolvido', action: 'close-dispute',
+        done: 'Problema marcado como resolvido.',
+        body: '<p>Marque como resolvido só se você e a loja chegaram a um acordo. Depois disso, o pagamento volta a seguir o prazo normal para a loja.</p>',
+        collect: function () { return { body: { order_id: o.id } } },
+      }
+    }
+    if (kind === 'review') {
+      var item = (d.items || []).filter(function (i) { return i.product_id === pid })[0]
+      if (!item) return null
+      var stars = ''
+      for (var n = 1; n <= 5; n++) {
+        stars += '<input type="radio" class="st-po-sr" id="dlg-star-' + n + '" name="rating" value="' + n + '"' + (n === 1 ? ' autofocus' : '') + '>' +
+          '<label for="dlg-star-' + n + '" class="st-po-star" data-n="' + n + '">' + STAR + '<span class="st-po-sr">' + n + ' de 5 estrelas</span></label>'
+      }
+      return {
+        title: 'Avaliar: ' + item.title, ok: 'Enviar avaliação', action: 'review',
+        done: 'Obrigado pela avaliação!',
+        body: '<fieldset class="st-po-stars"><legend>Sua nota</legend><div class="st-po-starrow">' + stars + '</div></fieldset>' +
+          '<p class="st-po-muted" id="dlg-star-text" aria-live="polite" style="margin-top:4px">Escolha de 1 a 5 estrelas.</p>' +
+          '<label class="st-po-label" for="dlg-review">Comentário (opcional)</label>' +
+          '<textarea id="dlg-review" name="comment" rows="4" maxlength="2000" placeholder="Como foi o produto e a entrega?"></textarea>' +
+          '<p class="st-po-muted" style="margin-top:8px">A avaliação aparece no anúncio com o seu primeiro nome.</p>',
+        collect: function (f) {
+          var r = f.querySelector('input[name="rating"]:checked')
+          if (!r) return { error: 'Escolha de 1 a 5 estrelas.' }
+          return { body: { order_id: o.id, product_id: item.product_id, rating: Number(r.value), body: String(f.elements.namedItem('comment').value || '').trim() } }
+        },
+      }
+    }
+    return null
+  }
+
+  function openDialog(kind, pid) {
+    if (!st.detail) return
+    var cfg = dialogConfig(kind, pid)
+    if (!cfg) return
+    st.dlg = cfg
+    st.lastFocus = document.activeElement
+    $('po-dlg-title').textContent = cfg.title
+    $('po-dlg-body').innerHTML = cfg.body
+    $('po-dlg-ok').textContent = cfg.ok
+    $('po-dlg-ok').disabled = false
+    $('po-dlg-err').textContent = ''
+    var dlg = $('po-dialog')
+    if (typeof dlg.showModal === 'function') { if (!dlg.open) dlg.showModal() } else dlg.setAttribute('open', '')
+    var first = dlg.querySelector('[autofocus]') || dlg.querySelector('textarea, input, button')
+    if (first) first.focus()
+  }
+
+  function closeDialog() {
+    var dlg = $('po-dialog')
+    if (typeof dlg.close === 'function' && dlg.open) dlg.close()
+    else { dlg.removeAttribute('open'); afterDialogClose() }
+  }
+
+  function afterDialogClose() {
+    st.dlg = null
+    st.dlgBusy = false
+    var f = st.lastFocus
+    st.lastFocus = null
+    if (f && document.contains(f) && typeof f.focus === 'function') f.focus()
+    else if ($('po-title')) $('po-title').focus()
+  }
+
+  async function submitDialog(ev) {
+    ev.preventDefault()
+    var cfg = st.dlg
+    if (!cfg || st.dlgBusy) return
+    var form = $('po-dlg-form')
+    var errEl = $('po-dlg-err')
+    var okBtn = $('po-dlg-ok')
+    var p = cfg.collect(form)
+    if (p.error) { errEl.textContent = p.error; return }
+    errEl.textContent = ''
+    st.dlgBusy = true
+    okBtn.disabled = true
+    try {
+      await S.api('/api/store/buyer?action=' + cfg.action, { method: 'POST', body: p.body })
+      st.lastFocus = null
+      closeDialog()
+      S.toast(cfg.done, 'ok')
+      st.sig = ''
+      await loadDetail(true)
+      if ($('po-title')) $('po-title').focus()
+    } catch (e) {
+      errEl.textContent = (e && e.message) || 'Não foi possível concluir agora. Tente de novo.'
+    } finally {
+      st.dlgBusy = false
+      okBtn.disabled = false
+    }
+  }
+
+  // Estrelas: pinta ate a nota escolhida (ou a que esta sob o mouse)
+  var STAR_WORDS = ['', 'Ruim', 'Fraco', 'Bom', 'Muito bom', 'Ótimo']
+  function paintStars(n) {
+    Array.prototype.forEach.call($('po-dlg-body').querySelectorAll('.st-po-star'), function (l) {
+      l.classList.toggle('on', Number(l.getAttribute('data-n')) <= n)
+    })
+  }
+  function checkedStars() {
+    var r = $('po-dlg-body').querySelector('input[name="rating"]:checked')
+    return r ? Number(r.value) : 0
+  }
+  function onStarChange(e) {
+    if (!e.target || e.target.name !== 'rating') return
+    var n = checkedStars()
+    paintStars(n)
+    var t = $('dlg-star-text')
+    if (t) t.textContent = n + ' de 5 · ' + STAR_WORDS[n]
+  }
+  function onStarHover(e) {
+    var l = e.target.closest ? e.target.closest('.st-po-star') : null
+    if (e.type === 'mouseover' && l) paintStars(Number(l.getAttribute('data-n')))
+    else if (e.type === 'mouseout') paintStars(checkedStars())
+  }
+})()
+</script>
+</body>
+</html>
