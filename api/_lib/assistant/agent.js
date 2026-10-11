@@ -213,7 +213,8 @@ export async function runAssistant({
           for (const row of out?.posts || []) {
             if (row?.id && !found.has(String(row.id))) found.set(String(row.id), row)
           }
-          if (Array.isArray(out?.suggestions) && out.suggestions.length) suggestions = out.suggestions
+          // A primeira busca costuma ser a do lugar mais específico: as sugestões dela ficam
+          if (!suggestions.length && Array.isArray(out?.suggestions) && out.suggestions.length) suggestions = out.suggestions
           const result = {
             type: 'tool_result',
             tool_use_id: block.id,

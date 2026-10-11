@@ -30,7 +30,7 @@ export const SEARCH_TOOL = {
     '- termos: palavras-chave curtas do que a pessoa procura, no singular, com sinônimos em português e em inglês (os posts são escritos nas duas línguas). Exemplos: bike -> ["bike","bicicleta","bicycle"]; helper -> ["helper","ajudante","auxiliar","limpeza","faxina","cleaning","construção","construction"]; carro -> ["carro","car","veículo"]; apartamento -> ["apartamento","apartment","quarto","room"]; dentista -> ["dentista","dentist"]; babá -> ["babá","babysitter","nanny"]. Não inclua o nome da cidade, palavras genéricas (alguém, preciso, procuro, vendendo, barato, bom) nem o tipo do post. Um termo pode ter mais de uma palavra ("food truck"); termos diferentes são alternativas (basta um aparecer). Para listar os posts mais recentes de um lugar ou de um tipo, mande termos vazio.',
     '- tipos: filtra pelo tipo do post. "alguém vendendo X" -> tipos ["classified"] e classificado "sell" (a pessoa quer comprar de quem está vendendo); "alguém comprando X" -> "buy"; "alguém doando X" -> "donate"; "alguém alugando X" ou quarto/apartamento para alugar -> "rent". "preciso de helper / estou contratando" e "procuro trabalho / estou disponível / faço faxina" -> tipos ["job","classified","question"] com o serviço nos termos (o texto do post diz se é oferta ou procura; leia antes de responder). Festas, shows, encontros, jogos do Brasil -> ["event"]. Indicação de médico, advogado, mecânico, restaurante, igreja -> ["recommendation","question"]. Em dúvida, omita tipos.',
     '- classificado: sell | buy | donate | rent. Só faz sentido com classificados.',
-    '- cidade e estado: o lugar da pergunta. Sempre informe estado (sigla de 2 letras) quando souber, mesmo que a pessoa não diga: Round Rock -> TX, Kissimmee -> FL, Framingham -> MA, Newark -> NJ, Danbury -> CT. Se a pergunta não cita lugar, use a cidade e o estado do perfil (veja o contexto); se o perfil não tem cidade, omita os dois e a busca vale para o país todo. Para um estado inteiro, mande só estado.',
+    '- cidade e estado: o lugar da pergunta. Sempre informe estado (sigla de 2 letras) quando souber, mesmo que a pessoa não diga: Round Rock -> TX, Kissimmee -> FL, Framingham -> MA, Newark -> NJ, Danbury -> CT. Se a pergunta não cita lugar mas depende dele (helper, vaga, classificado, evento, serviço perto), use a cidade e o estado do perfil (veja o contexto); se o perfil não tem cidade, omita os dois. Perguntas que NÃO dependem de lugar (imigração, visto, ITIN, impostos, documentos, dinheiro, remessa, cartão, experiências e dicas gerais) -> omita cidade e estado: a busca vale para o país todo. Para um estado inteiro, mande só estado. Se a busca com lugar não achar nada, a ferramenta já repete sem lugar e avisa.',
     `- dias: quantos dias para trás buscar, pela data em que o post foi publicado (padrão ${DEFAULT_DAYS}, de 1 a 365). Na dúvida, omita. Pedido urgente de serviço ou vaga (helper para hoje, amanhã, esta semana) -> 30. Classificados -> 120. Eventos: omita (evento que já passou fica de fora sozinho, e o post costuma ser publicado semanas antes da data do evento). Indicações e perguntas gerais: omita.`,
   ].join('\n'),
   input_schema: {
@@ -204,12 +204,37 @@ export async function searchPosts({ supabase, userId, input, profile, geocode, n
     return { content: SEARCH_ERROR, isError: true, posts: [], normalized: { ...logEntry, erro: 'rpc' }, suggestions: place.suggestions, place }
   }
 
-  const posts = (Array.isArray(data) ? data : []).filter(r => r && r.id)
+  let posts = (Array.isArray(data) ? data : []).filter(r => r && r.id)
   logEntry.resultados = posts.length
+
+  // Nada no lugar pedido: repete sem filtro de lugar (posts nacionais, de interesse e de outras
+  // cidades). Poupa uma volta ao modelo e o aviso deixa claro de onde os posts vieram.
+  let foraDoLugar = false
+  if (!posts.length && place.community_ids && normalized.termos.length) {
+    const wide = await supabase.rpc('bc_assistant_search_posts', {
+      p_user_id: userId,
+      p_terms: normalized.termos,
+      p_types: normalized.tipos,
+      p_classified_kind: normalized.classificado,
+      p_community_ids: null,
+      p_place_terms: null,
+      p_since: new Date(now - normalized.dias * 86_400_000).toISOString(),
+      p_limit: RESULT_LIMIT,
+    })
+    if (!wide.error) {
+      posts = (Array.isArray(wide.data) ? wide.data : []).filter(r => r && r.id)
+      foraDoLugar = posts.length > 0
+      logEntry.resultados_fora_do_lugar = posts.length
+    } else {
+      console.error('[assistente] RPC (sem lugar) falhou:', wide.error.code, wide.error.message)
+    }
+  }
 
   const aviso = place.unresolved
     ? `Aviso: o lugar "${place.label}" não foi reconhecido; a busca foi feita sem filtro de lugar. Se souber o estado (sigla), busque de novo com ele.\n`
-    : ''
+    : foraDoLugar
+      ? `Aviso: nenhum post em ${place.label}. Os posts abaixo são de outras cidades ou de comunidades nacionais/de interesse: diga isso na resposta e mostre os que ajudam mesmo assim.\n`
+      : ''
   const content = posts.length
     ? aviso + JSON.stringify(posts.map(toToolRow))
     : aviso + NO_RESULTS
