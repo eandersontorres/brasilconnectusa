@@ -2,7 +2,7 @@
 -- pelo backend (service_role), entao tabela com RLS ligado e sem policy e o estado correto.
 -- Ver supabase/README.md.
 -- ════════════════════════════════════════════════════════════════════════════
--- Agente de Moderação IA — Claude Haiku 4.5
+-- Agente de Moderação IA — Claude Haiku 5.5
 -- ════════════════════════════════════════════════════════════════════════════
 -- Adiciona campos `agent_*` nas tabelas de conteúdo gerado pelo usuário pra
 -- triagem automática (a cada 5 min via /api/cron/moderation).
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS bc_agent_log (
   categories      TEXT[],
   reasoning       TEXT,
   action          TEXT,                    -- clean | flagged | auto_hidden | error
-  model           TEXT,                    -- claude-haiku-4-5
+  model           TEXT,                    -- claude-haiku-5-5
   tokens_in       INT,
   tokens_out      INT,
   cache_read      INT DEFAULT 0,

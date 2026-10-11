@@ -5,7 +5,7 @@
  *
  * Pega até MAX_BATCH itens com agent_status='pending' (posts, comments,
  * businesses, profiles e, da Store, produtos, lojas e avaliações), manda em
- * batch pro Claude Haiku 4.5 com prompt caching no system, e aplica ação por severity:
+ * batch pro Claude Haiku 5.5 com prompt caching no system, e aplica ação por severity:
  *
  * Store: produto e loja só são sinalizados (aprovação humana). Avaliação de
  * comprador high/critical vira status 'hidden' (sai da loja e do produto, médias
@@ -18,25 +18,29 @@
  *
  * Autenticação: `x-cron-secret` header ou `?secret=` query param igual a CRON_SECRET.
  *
- * Modelo: claude-haiku-4-5 (claude-haiku-4-5-20251001)
- *   ~$1/M input, $5/M output, $0.10/M cache read, $1.25/M cache write
+ * Modelo: claude-haiku-5-5
+ *   $0.10/M input, $0.50/M output, $0.01/M cache read, $0.125/M cache write
+ *   (tabela pra prompts até 100K tokens — nossos batches ficam bem abaixo)
  *   System cacheado → ~80% economia em runs subsequentes
+ *   Haiku 5.5 vem com thinking adaptativo ligado por padrão; effort 'low' deixa
+ *   custo e latência perto do Haiku 4.5, que rodava sem thinking.
  */
 
 import { createClient } from '@supabase/supabase-js'
 
-const MODEL          = 'claude-haiku-4-5-20251001'
+const MODEL          = 'claude-haiku-5-5'
 const ANTHROPIC_URL  = 'https://api.anthropic.com/v1/messages'
 const ANTHROPIC_VER  = '2023-06-01'
 const MAX_BATCH      = 30           // itens por chamada de Claude (~3000 tokens entrada)
 const MAX_TOTAL      = 120          // teto por execução do cron (4 batches max)
 const MAX_CONTENT_CH = 1500         // trunca conteúdo longo
 
-// Precificação (USD por milhão de tokens) — Haiku 4.5
-const PRICE_IN   = 1.00 / 1_000_000
-const PRICE_OUT  = 5.00 / 1_000_000
-const PRICE_READ = 0.10 / 1_000_000
-const PRICE_WRITE = 1.25 / 1_000_000
+// Precificação (USD por milhão de tokens) — Haiku 5.5, prompt ≤ 100K tokens
+// (output_tokens já inclui os tokens de thinking)
+const PRICE_IN   = 0.10 / 1_000_000
+const PRICE_OUT  = 0.50 / 1_000_000
+const PRICE_READ = 0.01 / 1_000_000
+const PRICE_WRITE = 0.125 / 1_000_000
 
 // ────────────────────────────────────────────────────────────────────────────
 // SYSTEM PROMPT — cacheado (paga 1x, lê barato nas próximas chamadas)
@@ -359,7 +363,10 @@ async function classifyBatch(batch) {
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 2048,
+      // thinking conta dentro do max_tokens e o tokenizer do 5.5 gera ~30% mais
+      // tokens pro mesmo texto — 2048 ficava apertado pra 30 itens
+      max_tokens: 8192,
+      output_config: { effort: 'low' },
       system: [
         { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
       ],
@@ -376,8 +383,24 @@ async function classifyBatch(batch) {
 
   const data = await resp.json()
   const duration = Date.now() - t0
-  const text = data.content?.[0]?.text || ''
   const usage = data.usage || {}
+
+  if (data.stop_reason === 'max_tokens') {
+    throw new Error(`Anthropic max_tokens: resposta truncada (${usage.output_tokens} tokens)`)
+  }
+
+  // Recusa do classificador de segurança vem como HTTP 200. Lançar erro deixaria o lote
+  // em 'pending' e o cron pegaria os mesmos itens a cada 5 min, travando a fila da
+  // tabela — então o lote inteiro vai pra revisão humana (medium → flagged, sem ocultar).
+  if (data.stop_reason === 'refusal') {
+    const category = data.stop_details?.category || 'sem categoria'
+    console.warn(`[moderation] refusal (${category}) — ${batch.length} itens enviados pra revisão`)
+    const reasoning = `[recusa do modelo: ${category}] revisar manualmente`
+    return withUsage(batch.map(() => ({ severity: 'medium', categories: [], reasoning })), usage, duration)
+  }
+
+  // A resposta pode começar com blocos `thinking`, então junta só os blocos `text`
+  const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('')
 
   // Parse JSON da resposta
   let parsed
@@ -400,7 +423,12 @@ async function classifyBatch(batch) {
     }
   })
 
-  // Custo (rateado igual entre itens do batch)
+  return withUsage(verdicts, usage, duration)
+}
+
+// Custo (rateado igual entre itens do batch)
+function withUsage(verdicts, usage, duration) {
+  const n = verdicts.length
   const cost = (
     (usage.input_tokens || 0) * PRICE_IN +
     (usage.output_tokens || 0) * PRICE_OUT +
@@ -409,12 +437,12 @@ async function classifyBatch(batch) {
   )
 
   for (const v of verdicts) {
-    v._tokens_in = Math.round((usage.input_tokens || 0) / batch.length)
-    v._tokens_out = Math.round((usage.output_tokens || 0) / batch.length)
-    v._cache_read = Math.round((usage.cache_read_input_tokens || 0) / batch.length)
-    v._cache_write = Math.round((usage.cache_creation_input_tokens || 0) / batch.length)
-    v._cost = cost / batch.length
-    v._duration = Math.round(duration / batch.length)
+    v._tokens_in = Math.round((usage.input_tokens || 0) / n)
+    v._tokens_out = Math.round((usage.output_tokens || 0) / n)
+    v._cache_read = Math.round((usage.cache_read_input_tokens || 0) / n)
+    v._cache_write = Math.round((usage.cache_creation_input_tokens || 0) / n)
+    v._cost = cost / n
+    v._duration = Math.round(duration / n)
   }
 
   return verdicts
