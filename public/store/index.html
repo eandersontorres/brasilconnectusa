@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BrasilConnect Store · produtos da comunidade brasileira nos EUA</title>
+<meta name="description" content="Compre de lojas brasileiras nos Estados Unidos: moda, artesanato, livros, casa, festas e mais. Lojas e anúncios aprovados pela BrasilConnect, pagamento protegido e Garantia BrasilConnect.">
+<link rel="canonical" href="https://brasilconnectusa.com/store">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#1F4D3F">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="BrasilConnect Store">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://brasilconnectusa.com/store">
+<meta property="og:title" content="BrasilConnect Store · produtos da comunidade brasileira nos EUA">
+<meta property="og:description" content="Lojas brasileiras aprovadas, pagamento protegido e Garantia BrasilConnect. A loja só recebe depois que o pedido chega.">
+<meta property="og:image" content="https://brasilconnectusa.com/og-image.png">
+<meta property="og:image:alt" content="BrasilConnect Store">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BrasilConnect Store · produtos da comunidade brasileira nos EUA">
+<meta name="twitter:description" content="Lojas brasileiras aprovadas, pagamento protegido e Garantia BrasilConnect.">
+<meta name="twitter:image" content="https://brasilconnectusa.com/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/premium.css">
+<link rel="stylesheet" href="/css/store.css">
+<script src="/js/site.js" defer></script>
+<script src="/js/store.js" defer></script>
+</head>
+<body class="has-flag-stripe st-page">
+<div class="flag-stripe" aria-hidden="true"></div>
+<nav class="bc-nav">
+  <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+  <div class="bc-nav-r">
+    <a class="bc-nl active" href="/store">Store</a>
+    <a class="bc-nl" href="/store/pedidos">Meus pedidos</a>
+    <a class="st-nav-cart" href="/store/carrinho" aria-label="Carrinho">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+      <span class="st-nav-count" data-st-cart-count hidden>0</span>
+    </a>
+    <span class="st-nav-account" data-st-account></span>
+    <a class="bc-nl" href="/store/vender">Vender</a>
+  </div>
+</nav>
+
+<main id="conteudo" class="st-main">
+<div class="st-wrap">
+
+  <div id="st-banner" hidden></div>
+
+  <noscript>
+    <div class="st-banner"><strong>Ative o JavaScript.</strong> <span>A vitrine da Store precisa dele para mostrar os produtos.</span></div>
+  </noscript>
+
+  <!-- Carregando (ate saber se a Store esta aberta) -->
+  <div id="st-boot" aria-hidden="true">
+    <div class="st-hero">
+      <span class="st-skeleton st-skeleton-line short" style="height:14px;width:160px"></span>
+      <span class="st-skeleton" style="height:40px;max-width:520px;margin-top:14px"></span>
+      <span class="st-skeleton" style="height:58px;margin-top:20px;border-radius:14px"></span>
+    </div>
+    <ul class="st-grid" style="margin-top:28px">
+      <li><span class="st-skeleton st-skeleton-card"></span><span class="st-skeleton st-skeleton-line"></span></li>
+      <li><span class="st-skeleton st-skeleton-card"></span><span class="st-skeleton st-skeleton-line"></span></li>
+      <li><span class="st-skeleton st-skeleton-card"></span><span class="st-skeleton st-skeleton-line"></span></li>
+      <li><span class="st-skeleton st-skeleton-card"></span><span class="st-skeleton st-skeleton-line"></span></li>
+    </ul>
+  </div>
+
+  <!-- ── Vitrine aberta ─────────────────────────────────────────── -->
+  <div id="st-open" hidden>
+    <section class="st-hero" aria-labelledby="st-h1">
+      <p class="eyebrow">BrasilConnect Store</p>
+      <h1 id="st-h1">Produtos da comunidade brasileira nos EUA</h1>
+      <p class="st-lede">Lojas brasileiras aprovadas pela BrasilConnect. Você paga com segurança e a loja só recebe depois que o pedido chega.</p>
+
+      <form class="st-search" id="st-search" role="search" action="/store" method="get" novalidate>
+        <label for="st-q" class="st-sr">Buscar produtos</label>
+        <input id="st-q" name="q" type="search" class="st-input" placeholder="Buscar produtos" maxlength="120" autocomplete="off" enterkeyhint="search">
+        <div class="st-search-ship">
+          <label for="st-uf">Entregar em:</label>
+          <select id="st-uf" name="uf" class="st-select">
+            <option value="">Todos os estados</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+      </form>
+    </section>
+
+    <section class="st-results" aria-labelledby="st-h-results">
+      <h2 id="st-h-results" class="st-sr">Produtos</h2>
+
+      <div class="st-chips" id="st-cats" role="group" aria-label="Categorias" style="margin-top:20px" hidden></div>
+
+      <div class="st-toolbar">
+        <p class="st-count" id="st-count" aria-live="polite">Carregando produtos…</p>
+        <div class="st-sort">
+          <label for="st-sort">Ordenar</label>
+          <select id="st-sort" class="st-select">
+            <option value="relevance">Mais relevantes</option>
+            <option value="newest">Mais recentes</option>
+            <option value="best_selling">Mais vendidos</option>
+            <option value="price_asc">Menor preço</option>
+            <option value="price_desc">Maior preço</option>
+          </select>
+        </div>
+      </div>
+
+      <ul class="st-grid" id="st-grid" aria-busy="true"></ul>
+      <div id="st-grid-msg"></div>
+
+      <div class="st-more" id="st-more-wrap" hidden>
+        <button type="button" class="btn btn-secondary" id="st-more">Ver mais produtos</button>
+      </div>
+    </section>
+
+    <section class="st-section" id="st-sellers-sec" aria-labelledby="st-h-sellers" hidden>
+      <div class="st-head">
+        <h2 id="st-h-sellers">Lojas na Store</h2>
+        <a class="st-small" href="/store/vender">Quero abrir minha loja</a>
+      </div>
+      <ul class="st-sellers" id="st-sellers"></ul>
+    </section>
+
+    <section class="st-section" aria-labelledby="st-h-how">
+      <div class="st-head">
+        <h2 id="st-h-how">Como funciona a Garantia BrasilConnect</h2>
+        <a class="st-small" href="/store/regras#garantia">Ler as regras</a>
+      </div>
+      <ol class="st-how">
+        <li><strong>Lojas e anúncios aprovados</strong>Toda loja e todo produto passam pela equipe da BrasilConnect antes de aparecer na vitrine.</li>
+        <li><strong>Pagamento protegido</strong>Você paga com cartão pelo Stripe. A loja só recebe depois que o pedido é entregue.</li>
+        <li><strong>A loja envia e garante</strong>Cada loja posta o próprio pacote, manda o rastreio e responde pela garantia e pela devolução.</li>
+        <li><strong>Deu problema? A gente ajuda</strong>Não chegou, veio diferente ou com defeito? Abra um problema em até <span data-st-dispute-days>30</span> dias depois da entrega.</li>
+      </ol>
+    </section>
+  </div>
+
+  <!-- ── Store fechada (antes do lançamento) ────────────────────── -->
+  <div id="st-closed" hidden>
+    <section class="st-closed" aria-labelledby="st-h-closed">
+      <p class="eyebrow">BrasilConnect Store · em breve</p>
+      <h1 id="st-h-closed">A Store da comunidade brasileira nos EUA está chegando</h1>
+      <p class="st-lede" style="max-width:60ch">Moda, artesanato, livros, casa, festas e muito mais, vendidos por lojas brasileiras aprovadas pela BrasilConnect. Pagamento protegido: a loja só recebe depois que o pedido chega.</p>
+
+      <form class="st-waitlist" id="st-waitlist" novalidate>
+        <label for="st-wl-email" class="st-label">Quer saber quando abrir? Deixe seu e-mail.</label>
+        <div class="st-waitlist-row">
+          <input id="st-wl-email" name="email" type="email" class="st-input" placeholder="seu@email.com" autocomplete="email" inputmode="email" maxlength="200" required>
+          <button type="submit" class="btn btn-primary" data-track="store_waitlist">Me avise</button>
+        </div>
+        <p class="st-msg" id="st-wl-msg" role="status"></p>
+      </form>
+
+      <div class="st-panel" style="margin-top:28px;max-width:640px">
+        <h2 class="st-panel-title">Tem um negócio ou faz produtos?</h2>
+        <p class="st-small" style="margin:0 0 14px">Abra sua loja antes da inauguração. Você cadastra os produtos, define para onde entrega e recebe pelo Stripe depois de cada entrega.</p>
+        <a class="btn btn-secondary" href="/store/vender" data-track="store_vender_cta">Quero vender na Store</a>
+      </div>
+    </section>
+
+    <section class="st-section" aria-labelledby="st-h-how2">
+      <h2 id="st-h-how2">Como vai funcionar</h2>
+      <ol class="st-how">
+        <li><strong>Lojas e anúncios aprovados</strong>Toda loja e todo produto passam pela equipe da BrasilConnect antes de aparecer na vitrine.</li>
+        <li><strong>Pagamento protegido</strong>Você paga com cartão pelo Stripe. A loja só recebe depois que o pedido é entregue.</li>
+        <li><strong>A loja envia e garante</strong>Cada loja posta o próprio pacote, manda o rastreio e responde pela garantia e pela devolução.</li>
+        <li><strong>Deu problema? A gente ajuda</strong>Não chegou, veio diferente ou com defeito? Abra um problema em até <span data-st-dispute-days>30</span> dias depois da entrega.</li>
+      </ol>
+      <p class="st-small" style="margin-top:16px"><a href="/store/regras">Ler as regras da Store</a></p>
+    </section>
+  </div>
+
+</div>
+</main>
+
+<footer class="bc-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+        <p class="footer-tagline">A Store da comunidade brasileira nos EUA. Cada loja vende, envia e garante os próprios produtos; a BrasilConnect aprova os anúncios e protege o pagamento.</p>
+      </div>
+      <div><h4>Comprar</h4><a href="/store">Vitrine</a><a href="/store/pedidos">Meus pedidos</a><a href="/store/regras#garantia">Garantia BrasilConnect</a></div>
+      <div><h4>Vender</h4><a href="/store/vender">Abrir minha loja</a><a href="/store/painel">Painel da loja</a><a href="/store/regras#proibidos">Produtos proibidos</a></div>
+      <div><h4>BrasilConnect</h4><a href="/">Início</a><a href="/termos">Termos</a><a href="/privacidade">Privacidade</a><a href="mailto:oi@brasilconnectusa.com">Contato</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 BrasilConnect USA · <a href="/store/regras">Regras da Store</a></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict'
+
+  var PER = 24
+  var SORTS = ['relevance', 'newest', 'best_selling', 'price_asc', 'price_desc']
+  var CAT_RE = /^[a-z0-9-]{2,40}$/
+
+  function init() {
+    var S = window.BCStore
+    var countEl = document.getElementById('st-count')
+    if (!S) {
+      var bootEl = document.getElementById('st-boot')
+      var bannerEl = document.getElementById('st-banner')
+      if (bootEl) bootEl.hidden = true
+      if (bannerEl) {
+        bannerEl.className = 'st-banner'
+        bannerEl.textContent = 'Não deu para carregar a vitrine. Recarregue a página.'
+        bannerEl.hidden = false
+      }
+      return
+    }
+
+    var el = {
+      boot: document.getElementById('st-boot'),
+      banner: document.getElementById('st-banner'),
+      open: document.getElementById('st-open'),
+      closed: document.getElementById('st-closed'),
+      form: document.getElementById('st-search'),
+      q: document.getElementById('st-q'),
+      uf: document.getElementById('st-uf'),
+      sort: document.getElementById('st-sort'),
+      cats: document.getElementById('st-cats'),
+      count: countEl,
+      grid: document.getElementById('st-grid'),
+      gridMsg: document.getElementById('st-grid-msg'),
+      moreWrap: document.getElementById('st-more-wrap'),
+      more: document.getElementById('st-more'),
+      sellersSec: document.getElementById('st-sellers-sec'),
+      sellers: document.getElementById('st-sellers'),
+      wl: document.getElementById('st-waitlist'),
+      wlEmail: document.getElementById('st-wl-email'),
+      wlMsg: document.getElementById('st-wl-msg'),
+    }
+
+    var stateNames = {}
+    S.states.forEach(function (s) { stateNames[s.code] = s.name })
+    el.uf.insertAdjacentHTML('beforeend', S.states.map(function (s) {
+      return '<option value="' + S.esc(s.code) + '">' + S.esc(s.name) + '</option>'
+    }).join(''))
+
+    // ── Estado da busca (espelhado na URL) ─────────────────────────
+    var st = { q: '', cat: '', uf: '', sort: 'relevance', page: 1 }
+    var categories = []
+    var total = 0
+    var seq = 0
+    var loading = false
+    var focusAfterMore = false
+
+    function readUrl() {
+      var p
+      try { p = new URLSearchParams(window.location.search) } catch (_) { p = { get: function () { return null } } }
+      var q = String(p.get('q') || '').replace(/\s+/g, ' ').trim().slice(0, 120)
+      var cat = String(p.get('cat') || '').trim().toLowerCase()
+      var uf = String(p.get('uf') || '').trim().toUpperCase()
+      var sort = String(p.get('sort') || '')
+      st.q = q
+      st.cat = CAT_RE.test(cat) ? cat : ''
+      if (!stateNames[uf]) uf = ''
+      // Sem estado na URL: usa o "Entregar em" salvo
+      if (!uf && !p.get('uf')) uf = S.shipTo.get().state || ''
+      st.uf = uf
+      st.sort = SORTS.indexOf(sort) !== -1 ? sort : 'relevance'
+      st.page = 1
+    }
+
+    function writeUrl(push) {
+      var p = new URLSearchParams()
+      if (st.q) p.set('q', st.q)
+      if (st.cat) p.set('cat', st.cat)
+      if (st.uf) p.set('uf', st.uf)
+      if (st.sort !== 'relevance') p.set('sort', st.sort)
+      var qs = p.toString()
+      var url = window.location.pathname + (qs ? '?' + qs : '')
+      try {
+        if (push) window.history.pushState(null, '', url)
+        else window.history.replaceState(null, '', url)
+      } catch (_) { /* navegador sem history */ }
+    }
+
+    function syncControls() {
+      el.q.value = st.q
+      el.uf.value = st.uf
+      el.sort.value = st.sort
+      renderCats()
+    }
+
+    // ── Categorias ─────────────────────────────────────────────────
+    function catName(slug) {
+      for (var i = 0; i < categories.length; i++) if (categories[i].slug === slug) return categories[i].name
+      return ''
+    }
+    function renderCats() {
+      var list = categories.filter(function (c) { return (c.count || 0) > 0 || c.slug === st.cat })
+      if (!list.length) { el.cats.hidden = true; el.cats.innerHTML = ''; return }
+      el.cats.hidden = false
+      el.cats.innerHTML =
+        '<button type="button" class="st-chip" data-cat="" aria-pressed="' + (st.cat ? 'false' : 'true') + '">Todas</button>' +
+        list.map(function (c) {
+          return '<button type="button" class="st-chip" data-cat="' + S.esc(c.slug) + '" aria-pressed="' + (c.slug === st.cat ? 'true' : 'false') + '">' +
+            S.esc(c.name) + (c.count ? ' <span class="st-chip-count">' + Number(c.count) + '</span>' : '') + '</button>'
+        }).join('')
+    }
+    el.cats.addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-cat]') : null
+      if (!b) return
+      var cat = b.getAttribute('data-cat') || ''
+      if (cat === st.cat) return
+      st.cat = cat
+      apply(true)
+      // Os chips foram redesenhados: devolve o foco ao escolhido
+      var chips = el.cats.querySelectorAll('[data-cat]')
+      for (var i = 0; i < chips.length; i++) {
+        if ((chips[i].getAttribute('data-cat') || '') === cat) { chips[i].focus(); break }
+      }
+    })
+
+    // ── Resultados ─────────────────────────────────────────────────
+    function skeleton(n) {
+      var h = ''
+      for (var i = 0; i < n; i++) {
+        h += '<li aria-hidden="true"><span class="st-skeleton st-skeleton-card"></span>' +
+          '<span class="st-skeleton st-skeleton-line"></span><span class="st-skeleton st-skeleton-line short"></span></li>'
+      }
+      return h
+    }
+
+    function countText() {
+      var parts = []
+      if (st.q) parts.push('para "' + S.esc(st.q) + '"')
+      if (st.cat && catName(st.cat)) parts.push('em ' + S.esc(catName(st.cat)))
+      if (st.uf) parts.push('com entrega em ' + S.esc(stateNames[st.uf] || st.uf))
+      var head = '<strong>' + total + '</strong> ' + (total === 1 ? 'produto' : 'produtos')
+      var clear = (st.q || st.cat) ? ' <button type="button" class="st-linkbtn" data-clear>Limpar busca</button>' : ''
+      return head + (parts.length ? ' ' + parts.join(' ') : '') + clear
+    }
+
+    function emptyHtml() {
+      var h = '<div class="st-empty"><h3>Nenhum produto encontrado</h3>'
+      if (st.uf) {
+        h += '<p>Nenhuma loja com esses produtos entrega em ' + S.esc(stateNames[st.uf] || st.uf) + ' por enquanto.</p>'
+      } else if (st.q || st.cat) {
+        h += '<p>Tente outras palavras ou outra categoria.</p>'
+      } else {
+        h += '<p>Os primeiros produtos estão sendo aprovados. Volte daqui a pouco.</p>'
+      }
+      h += '<div class="st-btn-row" style="justify-content:center">'
+      if (st.uf) h += '<button type="button" class="btn btn-secondary" data-all-states>Ver todos os estados</button>'
+      if (st.q || st.cat) h += '<button type="button" class="btn btn-secondary" data-clear>Limpar busca</button>'
+      h += '</div></div>'
+      return h
+    }
+
+    function load(append) {
+      var my = ++seq
+      loading = true
+      el.grid.setAttribute('aria-busy', 'true')
+      el.more.disabled = true
+      if (!append) {
+        el.grid.innerHTML = skeleton(10)
+        el.gridMsg.innerHTML = ''
+        el.moreWrap.hidden = true
+        el.count.textContent = 'Carregando produtos…'
+      } else {
+        el.more.textContent = 'Carregando…'
+      }
+      var qs = 'action=search&per=' + PER + '&page=' + st.page + '&sort=' + encodeURIComponent(st.sort) +
+        (st.q ? '&q=' + encodeURIComponent(st.q) : '') +
+        (st.cat ? '&category=' + encodeURIComponent(st.cat) : '') +
+        (st.uf ? '&state=' + encodeURIComponent(st.uf) : '')
+      return S.api('/api/store/catalog?' + qs, { auth: false }).then(function (d) {
+        if (my !== seq) return
+        var items = (d && d.items) || []
+        total = Number(d && d.total) || 0
+        var html = items.map(function (p) { return '<li>' + S.productCard(p) + '</li>' }).join('')
+        if (append) {
+          var firstNew = el.grid.children.length
+          el.gridMsg.innerHTML = ''
+          el.grid.insertAdjacentHTML('beforeend', html)
+          // Teclado: leva o foco ao primeiro produto novo
+          if (focusAfterMore && el.grid.children[firstNew]) {
+            var a = el.grid.children[firstNew].querySelector('a')
+            if (a) a.focus()
+          }
+          focusAfterMore = false
+        } else {
+          el.grid.innerHTML = html
+          if (!items.length) el.gridMsg.innerHTML = emptyHtml()
+        }
+        el.count.innerHTML = total ? countText() : 'Nenhum produto ' + (st.q || st.cat || st.uf ? 'com esses filtros' : 'à venda ainda')
+        el.moreWrap.hidden = !(d && d.has_more)
+      }).catch(function (err) {
+        if (my !== seq) return
+        if (!append) el.grid.innerHTML = ''
+        if (!append) el.count.textContent = 'Não deu para carregar os produtos.'
+        el.gridMsg.innerHTML = '<div class="st-empty"><p>' + S.esc(err.message) + '</p>' +
+          '<button type="button" class="btn btn-secondary" data-retry="' + (append ? 'more' : 'all') + '">Tentar de novo</button></div>'
+        if (append) {
+          st.page = Math.max(1, st.page - 1)
+          el.moreWrap.hidden = true
+          focusAfterMore = false
+        }
+      }).then(function () {
+        if (my !== seq) return
+        loading = false
+        el.grid.setAttribute('aria-busy', 'false')
+        el.more.disabled = false
+        el.more.textContent = 'Ver mais produtos'
+      })
+    }
+
+    function apply(push) {
+      st.page = 1
+      writeUrl(push)
+      syncControls()
+      load(false)
+    }
+
+    el.form.addEventListener('submit', function (e) {
+      e.preventDefault()
+      st.q = String(el.q.value || '').replace(/\s+/g, ' ').trim().slice(0, 120)
+      apply(true)
+    })
+    el.uf.addEventListener('change', function () {
+      var uf = el.uf.value
+      var saved = S.shipTo.get()
+      S.shipTo.set({ state: uf, zip: saved.state === uf ? saved.zip : '' })
+      st.uf = uf
+      apply(true)
+    })
+    el.sort.addEventListener('change', function () {
+      st.sort = SORTS.indexOf(el.sort.value) !== -1 ? el.sort.value : 'relevance'
+      apply(true)
+    })
+    function loadMore() {
+      if (loading) return
+      // Guarda antes de desabilitar o botao (o navegador tira o foco dele)
+      focusAfterMore = document.activeElement === el.more
+      st.page += 1
+      load(true)
+    }
+    el.more.addEventListener('click', loadMore)
+    document.addEventListener('click', function (e) {
+      var t = e.target
+      if (!t || !t.closest) return
+      if (t.closest('[data-clear]')) {
+        st.q = ''
+        st.cat = ''
+        apply(true)
+        try { el.q.focus() } catch (_) { /* ignore */ }
+      } else if (t.closest('[data-all-states]')) {
+        S.shipTo.set({ state: '', zip: '' })
+        st.uf = ''
+        apply(true)
+      } else if (t.closest('[data-retry]')) {
+        if (t.closest('[data-retry]').getAttribute('data-retry') === 'more') {
+          el.gridMsg.innerHTML = ''
+          loadMore()
+        } else {
+          load(false)
+        }
+      } else if (t.closest('[data-reload]')) {
+        window.location.reload()
+      }
+    })
+    window.addEventListener('popstate', function () {
+      readUrl()
+      syncControls()
+      load(false)
+    })
+
+    // ── Lojas ──────────────────────────────────────────────────────
+    function initials(name) {
+      return String(name || '?').trim().split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase() }).join('') || '?'
+    }
+    function renderSellers(list) {
+      if (!list || !list.length) { el.sellersSec.hidden = true; return }
+      el.sellers.innerHTML = list.map(function (s) {
+        var logo = S.safeUrl(s.logo_url)
+        var loc = [s.city, s.state].filter(Boolean).join(', ')
+        return '<li><a class="st-seller-chip" href="/store/loja/' + S.esc(encodeURIComponent(s.slug || '')) + '">' +
+          (logo
+            ? '<span class="st-logo"><img src="' + S.esc(logo) + '" alt="" loading="lazy" decoding="async"></span>'
+            : '<span class="st-logo" aria-hidden="true">' + S.esc(initials(s.name)) + '</span>') +
+          '<span class="st-seller-chip-body">' +
+            '<span class="st-seller-chip-name">' + S.esc(s.name) + '</span>' +
+            (loc ? '<span class="st-seller-chip-loc">' + S.esc(loc) + '</span>' : '') +
+            (Number(s.rating_count) > 0 ? S.stars(s.rating_avg, s.rating_count) : '') +
+          '</span></a></li>'
+      }).join('')
+      el.sellersSec.hidden = false
+    }
+
+    // ── Faixa de aviso ─────────────────────────────────────────────
+    function showBanner(html) {
+      el.banner.className = 'st-banner'
+      el.banner.setAttribute('role', 'note')
+      el.banner.innerHTML = html
+      el.banner.hidden = false
+    }
+
+    function fillConfigText(cfg) {
+      var days = Number(cfg && cfg.dispute_window_days) || 30
+      document.querySelectorAll('[data-st-dispute-days]').forEach(function (n) { n.textContent = String(days) })
+    }
+
+    // ── Lista de espera (Store fechada) ────────────────────────────
+    function initWaitlist() {
+      var btn = el.wl.querySelector('button[type="submit"]')
+      el.wl.addEventListener('submit', function (e) {
+        e.preventDefault()
+        var email = String(el.wlEmail.value || '').trim().toLowerCase()
+        el.wlMsg.className = 'st-msg'
+        el.wlEmail.removeAttribute('aria-invalid')
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 200) {
+          el.wlMsg.className = 'st-msg is-err'
+          el.wlMsg.textContent = 'Digite um e-mail válido.'
+          el.wlEmail.setAttribute('aria-invalid', 'true')
+          el.wlEmail.focus()
+          return
+        }
+        btn.disabled = true
+        btn.textContent = 'Enviando…'
+        S.api('/api/waitlist', { method: 'POST', auth: false, body: { email: email, source: 'store' } })
+          .then(function () {
+            el.wlMsg.className = 'st-msg is-ok'
+            el.wlMsg.textContent = 'Anotamos seu e-mail. Avisamos quando a Store abrir.'
+            el.wlEmail.value = ''
+          })
+          .catch(function (err) {
+            el.wlMsg.className = 'st-msg is-err'
+            if (err.status === 429) el.wlMsg.textContent = 'Muitas tentativas. Espere um minuto e tente de novo.'
+            else if (err.status === 400) el.wlMsg.textContent = 'Digite um e-mail válido.'
+            else el.wlMsg.textContent = 'Não deu para salvar seu e-mail agora. Tente de novo.'
+          })
+          .then(function () {
+            btn.disabled = false
+            btn.textContent = 'Me avise'
+          })
+      })
+    }
+
+    // ── Inicio ─────────────────────────────────────────────────────
+    readUrl()
+    syncControls()
+    writeUrl(false)
+    var preview = S.isPreview()
+
+    // A busca sai junto com a home (a vitrine ainda escondida). Se a Store
+    // estiver fechada, o resultado e descartado.
+    load(false)
+    S.api('/api/store/catalog?action=home', { auth: false }).then(function (home) {
+      var cfg = (home && home.config) || {}
+      fillConfigText(cfg)
+      el.boot.hidden = true
+      if (!cfg.public_enabled && !preview) {
+        seq++ // descarta a busca em andamento
+        el.closed.hidden = false
+        initWaitlist()
+        return
+      }
+      if (!cfg.public_enabled) {
+        showBanner('<strong>Modo prévia.</strong> <span>A Store ainda está fechada ao público. Só quem tem o link de prévia vê esta vitrine.</span>')
+      } else if (!cfg.checkout_enabled) {
+        showBanner('<strong>As compras abrem em breve.</strong> <span>Você já pode conhecer os produtos e as lojas.</span>')
+      }
+      categories = (home && home.categories) || []
+      renderCats()
+      renderSellers(home && home.sellers)
+      el.open.hidden = false
+      if (st.cat && !catName(st.cat)) {
+        // Categoria da URL nao existe mais: refaz a busca sem ela
+        st.cat = ''
+        apply(false)
+      } else if (total) {
+        // A busca pode ter voltado antes das categorias: refaz o texto com o nome
+        el.count.innerHTML = countText()
+      }
+    }).catch(function (err) {
+      // Sem saber se a Store esta aberta, nao mostra a vitrine
+      seq++
+      el.boot.hidden = true
+      el.open.hidden = true
+      el.closed.hidden = true
+      el.banner.className = 'st-empty'
+      el.banner.removeAttribute('role')
+      el.banner.innerHTML = '<h1 style="font-size:28px">Não deu para abrir a Store agora</h1>' +
+        '<p>' + S.esc(err.message) + '</p>' +
+        '<button type="button" class="btn btn-primary" data-reload>Tentar de novo</button>'
+      el.banner.hidden = false
+    })
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init)
+  else init()
+})()
+</script>
+</body>
+</html>

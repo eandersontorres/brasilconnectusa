@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Painel da loja · BrasilConnect Store</title>
+  <meta name="description" content="Painel do vendedor da BrasilConnect Store: produtos, pedidos, etiquetas, entregas e repasses.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#1F4D3F">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <link rel="stylesheet" href="/css/store.css">
+  <script src="/js/site.js" defer></script>
+  <script src="/js/store.js" defer></script>
+  <script src="/js/store-painel.js" defer></script>
+</head>
+<body class="has-flag-stripe st-page">
+<div class="flag-stripe" aria-hidden="true"></div>
+<nav class="bc-nav">
+  <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+  <div class="bc-nav-r">
+    <a class="bc-nl" href="/store">Store</a>
+    <a class="bc-nl" href="/store/pedidos">Meus pedidos</a>
+    <a class="st-nav-cart" href="/store/carrinho" aria-label="Carrinho">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+      <span class="st-nav-count" data-st-cart-count hidden>0</span>
+    </a>
+    <span class="st-nav-account" data-st-account></span>
+    <a class="bc-nl active" href="/store/vender">Vender</a>
+  </div>
+</nav>
+
+<main class="st-wrap st-main" id="conteudo">
+  <div id="sp-app" aria-live="polite">
+    <noscript><div class="st-empty"><h2>Ative o JavaScript</h2><p>O painel da loja precisa de JavaScript para funcionar.</p></div></noscript>
+    <p class="st-sr" role="status">Carregando o painel…</p>
+    <span class="st-skeleton" style="height:120px;border-radius:var(--r-lg)"></span>
+  </div>
+</main>
+
+<footer class="bc-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+        <p class="footer-tagline">A Store da comunidade brasileira nos EUA. Cada loja vende, envia e garante os próprios produtos; a BrasilConnect aprova os anúncios e protege o pagamento.</p>
+      </div>
+      <div><h4>Comprar</h4><a href="/store">Vitrine</a><a href="/store/pedidos">Meus pedidos</a><a href="/store/regras#garantia">Garantia BrasilConnect</a></div>
+      <div><h4>Vender</h4><a href="/store/vender">Abrir minha loja</a><a href="/store/painel">Painel da loja</a><a href="/store/regras#proibidos">Produtos proibidos</a></div>
+      <div><h4>BrasilConnect</h4><a href="/">Início</a><a href="/termos">Termos</a><a href="/privacidade">Privacidade</a><a href="mailto:oi@brasilconnectusa.com">Contato</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 BrasilConnect USA · <a href="/store/regras">Regras da Store</a></div>
+  </div>
+</footer>
+
+<script>
+// Os scripts com defer (store.js e store-painel.js) rodam antes do DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function () {
+  var box = document.getElementById('sp-app')
+  if (!window.BCStore || !window.BCStorePainel) {
+    box.innerHTML = '<div class="st-empty"><h2>Não deu para carregar o painel</h2><p>Confira a internet e atualize a página.</p></div>'
+    return
+  }
+  box.removeAttribute('aria-live')
+  window.BCStorePainel.mount(box)
+})
+</script>
+</body>
+</html>

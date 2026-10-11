@@ -5,13 +5,22 @@
  * cria código de indicação automaticamente e linka cookie de referral se houver.
  *
  * Body: { email, city?, source?, referralCode? }
+ *
+ * source 'store' (lista da BrasilConnect Store, pagina /store fechada) e outra
+ * lista: fica em bc_interest_waitlist (interest_id 'store', state 'US'), nao
+ * mexe no cadastro de quem ja esta na lista do app, nao entra no drip do app
+ * (o drip le bc_waitlist) e recebe so uma confirmacao curta da Store.
+ * O aviso "A Store abriu" deve ler essa lista (notified = false).
  */
 
 import { createClient } from '@supabase/supabase-js'
 import { rateLimit } from './_lib/rateLimit.js'
 import { Resend } from 'resend'
+import { sendTransactional } from './_lib/mailer.js'
 
 const FROM_EMAIL = process.env.WAITLIST_FROM_EMAIL || 'BrasilConnect USA <oi@brasilconnectusa.com>'
+const SITE_URL = 'https://brasilconnectusa.com'
+const STORE_INTEREST = { interest_id: 'store', state: 'US' }
 
 export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end()
@@ -38,6 +47,8 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Configuração ausente' })
   }
 
+  if (cleanSource === 'store') return storeSignup(res, { email: cleanEmail, city: cleanCity, ip, userAgent, referer })
+
   let isNewSignup = false
   try {
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
@@ -46,11 +57,15 @@ export default async function handler(req, res) {
       .from('bc_waitlist').select('id').eq('email', cleanEmail).maybeSingle()
     isNewSignup = !existing
 
-    const { error } = await supabase.from('bc_waitlist').upsert({
-      email: cleanEmail, city: cleanCity, source: cleanSource,
+    // Quem ja esta na lista nao perde a cidade nem a origem quando o campo nao vem
+    const row = {
+      email: cleanEmail,
       ip_address: ip, user_agent: userAgent, referer,
       updated_at: new Date().toISOString(),
-    }, { onConflict: 'email' })
+    }
+    if (cleanCity || isNewSignup) row.city = cleanCity
+    if (source || isNewSignup) row.source = cleanSource
+    const { error } = await supabase.from('bc_waitlist').upsert(row, { onConflict: 'email' })
 
     if (error) {
       console.error('Waitlist insert error:', error.message)
@@ -117,6 +132,59 @@ export default async function handler(req, res) {
   }
 
   return res.status(200).json({ ok: true, isNew: isNewSignup })
+}
+
+// ───────────────────────────────────────────────────────────────────────
+// Lista da BrasilConnect Store (separada da lista do app)
+// ───────────────────────────────────────────────────────────────────────
+async function storeSignup(res, { email, city, ip, userAgent, referer }) {
+  let isNew = false
+  try {
+    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
+    const { data: found, error: fErr } = await supabase.from('bc_interest_waitlist').select('id')
+      .eq('email', email).eq('interest_id', STORE_INTEREST.interest_id).eq('state', STORE_INTEREST.state).maybeSingle()
+    if (!fErr) {
+      if (!found) {
+        const { error: iErr } = await supabase.from('bc_interest_waitlist').insert({
+          email, ...STORE_INTEREST, city, ip_address: ip,
+        })
+        // Corrida com outro envio do mesmo e-mail: a constraint unica ja garante uma linha so
+        if (iErr && !/duplicate|unique/i.test(iErr.message || '')) throw new Error(iErr.message)
+        isNew = !iErr
+      }
+    } else {
+      // Sem a tabela de interesses: guarda na lista geral sem mexer em quem ja esta nela
+      console.error('Store waitlist (interesses) indisponivel:', fErr.message)
+      const { data: existing } = await supabase.from('bc_waitlist').select('id').eq('email', email).maybeSingle()
+      if (!existing) {
+        const { error: wErr } = await supabase.from('bc_waitlist').insert({
+          email, city, source: 'store', ip_address: ip, user_agent: userAgent, referer,
+        })
+        if (wErr && !/duplicate|unique/i.test(wErr.message || '')) throw new Error(wErr.message)
+        isNew = !wErr
+      }
+    }
+  } catch (e) {
+    console.error('Store waitlist error:', e.message)
+    return res.status(500).json({ error: 'Erro ao salvar' })
+  }
+
+  // Confirmacao curta da Store (so na primeira vez; nada do drip do app)
+  if (isNew) {
+    await sendTransactional({
+      to: email,
+      subject: 'Você está na lista da BrasilConnect Store',
+      kicker: 'BRASILCONNECT STORE',
+      title: 'Anotamos seu e-mail',
+      paragraphs: [
+        'Obrigado pelo interesse na <strong>BrasilConnect Store</strong>, com produtos de lojas brasileiras nos EUA.',
+        'Quando a Store abrir para compras, mandamos um aviso neste e-mail. É só isso: você não entra em nenhuma outra lista.',
+      ],
+      ctaUrl: SITE_URL + '/store/regras',
+      ctaLabel: 'Ver como vai funcionar',
+    })
+  }
+  return res.status(200).json({ ok: true, isNew })
 }
 
 // ───────────────────────────────────────────────────────────────────────

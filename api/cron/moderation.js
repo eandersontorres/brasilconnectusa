@@ -4,8 +4,12 @@
  * Agente de moderação IA — roda a cada 5 minutos via Vercel cron.
  *
  * Pega até MAX_BATCH itens com agent_status='pending' (posts, comments,
- * businesses, profiles), manda em batch pro Claude Haiku 4.5 com prompt
- * caching no system, e aplica ação por severity:
+ * businesses, profiles e, da Store, produtos, lojas e avaliações), manda em
+ * batch pro Claude Haiku 4.5 com prompt caching no system, e aplica ação por severity:
+ *
+ * Store: produto e loja só são sinalizados (aprovação humana). Avaliação de
+ * comprador high/critical vira status 'hidden' (sai da loja e do produto, médias
+ * recalculadas) e aparece na aba Store > Avaliações do admin.
  *
  *   critical → is_deleted=true (auto-hide pesado) + agent_status='auto_hidden'
  *   high     → agent_status='flagged' (visível, ranqueia primeiro na fila)
@@ -75,6 +79,21 @@ CATEGORIAS
   - Link encurtador sem contexto (bit.ly, tinyurl) — sinal forte
   - Texto de copy-paste genérico que não responde nada
 
+**prohibited** — Produto da BrasilConnect Store (meta começa com "store-product") que não pode ser vendido:
+  - Bebida alcoólica (cachaça, cerveja, vinho), tabaco, vape, essência
+  - Remédio ou medicamento (inclusive brasileiro: dipirona, Dorflex, Neosaldina), suplemento ou chá com promessa de cura/emagrecimento, CBD/THC
+  - Carne, embutido, queijo, laticínio, perecível, comida caseira enviada para outro estado
+  - Réplica ou falsificação ("primeira linha", "réplica", "AAA", camisa de time sem ser original)
+  - Arma, munição, faca, spray de pimenta, fogos, bateria de lítio solta, animal, planta, semente, gift card, documento
+  - Anúncio com telefone, WhatsApp, e-mail, @ ou link para fechar a venda fora da Store
+  Produto e loja da Store NUNCA são escondidos pelo agente: um humano aprova tudo. Use high quando o item é claramente proibido e medium quando há dúvida. Para loja (meta "store-seller"), avalie nome e descrição como em business.
+
+**Avaliação da Store** (meta começa com "store-review"): texto que o comprador escreveu sobre um produto que recebeu. Crítica dura, nota baixa e reclamação de atraso ou defeito são LEGÍTIMAS (low). Marque:
+  - high + spam: telefone, WhatsApp, e-mail, @ ou link para comprar fora da Store ("chama no zap", "faço mais barato por fora")
+  - high + toxic: ofensa pessoal ao vendedor, ódio, ameaça, ou dados pessoais de alguém (endereço, telefone, nome completo de terceiro)
+  - medium: dúvida entre crítica legítima e ataque
+  Avaliação high ou critical sai do ar até o admin revisar.
+
 **toxic** — Ataques reais a pessoas ou grupos:
   - Racismo, xenofobia, homofobia, antissemitismo (não confundir com discussão política)
   - Ódio direcionado a grupos protegidos
@@ -123,7 +142,7 @@ Responda APENAS um JSON array com um objeto por item, na mesma ordem recebida. S
   {
     "ref": "<o ref do item>",
     "severity": "low|medium|high|critical",
-    "categories": ["scam"|"illegal"|"spam"|"toxic"],
+    "categories": ["scam"|"illegal"|"spam"|"toxic"|"prohibited"],
     "reasoning": "frase curta em PT-BR explicando o motivo (máx 140 chars)"
   }
 ]
@@ -189,7 +208,7 @@ export default async function handler(req, res) {
 // ────────────────────────────────────────────────────────────────────────────
 async function fetchPending(sb, limit) {
   const items = []
-  const perTable = Math.ceil(limit / 4)
+  const perTable = Math.ceil(limit / 7)
 
   // Posts (cobre feed/event/classified/job)
   const { data: posts } = await sb
@@ -254,6 +273,66 @@ async function fetchPending(sb, limit) {
       content: pr.bio || '',
       meta: 'profile-bio',
     })
+  }
+
+  // Store: produtos aguardando aprovacao (a IA so sinaliza; o admin decide)
+  const { data: products } = await sb
+    .from('bc_store_products')
+    .select('id, title, description, category_slug, price_cents, tags, condition, origin, hazmat')
+    .eq('agent_status', 'pending')
+    .eq('status', 'pending_review')
+    .order('submitted_at', { ascending: true })
+    .limit(perTable)
+  for (const pr of products || []) {
+    items.push({
+      target_type: 'product', target_id: pr.id, user_id: null,
+      title: pr.title || '',
+      content: pr.description || '',
+      meta: `store-product category=${pr.category_slug} price=$${((pr.price_cents || 0) / 100).toFixed(2)} condition=${pr.condition} origin=${pr.origin}${pr.hazmat ? ' hazmat' : ''}${(pr.tags || []).length ? ' tags=' + pr.tags.join(',') : ''}`,
+    })
+  }
+
+  // Store: lojas (cadastro novo ou dados editados)
+  const { data: sellers } = await sb
+    .from('bc_store_sellers')
+    .select('id, name, tagline, bio, user_id')
+    .eq('agent_status', 'pending')
+    .neq('status', 'rejected')
+    .order('updated_at', { ascending: true })
+    .limit(perTable)
+  for (const se of sellers || []) {
+    items.push({
+      target_type: 'store_seller', target_id: se.id, user_id: se.user_id,
+      title: se.name || '',
+      content: [se.tagline, se.bio].filter(Boolean).join(' — '),
+      meta: 'store-seller',
+    })
+  }
+
+  // Store: avaliacoes de comprador (publicadas na hora; alto risco sai do ar ate o admin ver)
+  try {
+    // So nota, sem texto: nada para avaliar
+    await sb.from('bc_store_reviews')
+      .update({ agent_status: 'clean', agent_severity: 'low', agent_checked_at: new Date().toISOString() })
+      .eq('agent_status', 'pending').is('body', null)
+    const { data: reviews } = await sb
+      .from('bc_store_reviews')
+      .select('id, rating, body, product_id, seller_id, buyer_user_id')
+      .eq('agent_status', 'pending')
+      .not('body', 'is', null)
+      .order('created_at', { ascending: true })
+      .limit(perTable)
+    for (const rv of reviews || []) {
+      items.push({
+        target_type: 'review', target_id: rv.id, user_id: rv.buyer_user_id,
+        product_id: rv.product_id, seller_id: rv.seller_id,
+        title: `Nota ${rv.rating} de 5`,
+        content: rv.body || '',
+        meta: `store-review rating=${rv.rating}`,
+      })
+    }
+  } catch (e) {
+    console.error('[moderation] avaliacoes da Store:', e.message)
   }
 
   return items.slice(0, limit)
@@ -369,10 +448,20 @@ async function applyVerdicts(sb, batch, verdicts, stats) {
         action.hide = false
       }
       // profile: só flag, admin banimento separado
+      else if (it.target_type === 'product' || it.target_type === 'store_seller') {
+        // Store: aprovacao e sempre humana; o agente so ordena a fila
+        updateBase.agent_status = 'flagged'
+        action.hide = false
+      }
     }
+
+    // Avaliacao da Store ja publicada: alto risco ou critico sai do ar ate o admin revisar
+    const hideReview = it.target_type === 'review' && (v.severity === 'high' || v.severity === 'critical')
+    if (hideReview) updateBase.status = 'hidden'
 
     const tableName = TABLE_BY_TYPE[it.target_type]
     await sb.from(tableName).update(updateBase).eq('id', it.target_id)
+    if (hideReview) await recalcStoreRatings(sb, it)
 
     // Log
     await sb.from('bc_agent_log').insert({
@@ -409,6 +498,24 @@ async function applyVerdicts(sb, batch, verdicts, stats) {
   }
 }
 
+/** Media e quantidade de notas visiveis do produto e da loja (depois de esconder uma avaliacao). */
+async function recalcStoreRatings(sb, it) {
+  const targets = [['bc_store_products', 'product_id', it.product_id], ['bc_store_sellers', 'seller_id', it.seller_id]]
+  for (const [table, column, id] of targets) {
+    if (!id) continue
+    try {
+      const { data, error } = await sb.from('bc_store_reviews').select('rating').eq(column, id).eq('status', 'visible').limit(10000)
+      if (error) throw new Error(error.message)
+      const ratings = (data || []).map(r => Number(r.rating)).filter(n => n >= 1 && n <= 5)
+      const avg = ratings.length ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 100) / 100 : null
+      const { error: uErr } = await sb.from(table).update({ rating_avg: avg, rating_count: ratings.length }).eq('id', id)
+      if (uErr) throw new Error(uErr.message)
+    } catch (e) {
+      console.error('[moderation] media de', table, id, e.message)
+    }
+  }
+}
+
 function decideAction(severity) {
   if (severity === 'critical') return { status: 'auto_hidden', hide: true }
   if (severity === 'high')     return { status: 'flagged',     hide: false }
@@ -417,6 +524,9 @@ function decideAction(severity) {
 }
 
 const TABLE_BY_TYPE = {
+  product: 'bc_store_products',
+  store_seller: 'bc_store_sellers',
+  review: 'bc_store_reviews',
   post: 'bc_posts',
   comment: 'bc_comments',
   business: 'bc_businesses',

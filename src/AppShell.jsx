@@ -7,7 +7,7 @@ import MessagesButton from './MessagesButton'
 import PostButton from './PostButton'
 import FeedbackButton from './FeedbackButton'
 import { apiFetch } from './lib/apiFetch'
-import { SHOW_BUSINESS } from './lib/features'
+import { SHOW_BUSINESS, SHOW_STORE } from './lib/features'
 
 // ─── Ícones monocromáticos Lucide-style (currentColor, sidebar 18px) ────────
 const ICP = {
@@ -24,6 +24,7 @@ const SIcons = {
   dollar:   <svg {...ICP}><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
   plane:    <svg {...ICP}><path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>,
   store:    <svg {...ICP}><path d="M2 7l1-4h18l1 4M3 7v13h18V7M3 7h18M9 22V12h6v10"/></svg>,
+  bag:      <svg {...ICP}><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>,
   trophy:   <svg {...ICP}><path d="M7 4h10v6a5 5 0 0 1-10 0V4z"/><path d="M7 4H5a2 2 0 0 0-2 2v1a3 3 0 0 0 3 3"/><path d="M17 4h2a2 2 0 0 1 2 2v1a3 3 0 0 1-3 3"/><line x1="12" y1="15" x2="12" y2="20"/><line x1="8" y1="20" x2="16" y2="20"/></svg>,
   tag:      <svg {...ICP}><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>,
   book:     <svg {...ICP}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>,
@@ -365,6 +366,7 @@ function LeftSidebar({ tab, setTab, user, myCommunities }) {
       {item(tab === 'remessas',   SIcons.dollar,   'Câmbio',     () => setTab('remessas'))}
       {item(tab === 'voos',       SIcons.plane,    'Voos',       () => setTab('voos'))}
       {SHOW_BUSINESS && item(false, SIcons.store, 'Negócios', () => { window.location.href = '/negocio' })}
+      {SHOW_STORE && item(false, SIcons.bag, 'Store', () => { window.location.href = '/store' })}
       {item(tab === 'marketplace',SIcons.tag,      'Marketplace',() => setTab('marketplace'))}
 
       {sectionTitle('Conteúdo')}

@@ -9,6 +9,8 @@ import { shellHtml, block } from './emailShell.js'
 
 const FROM = process.env.WAITLIST_FROM_EMAIL || 'BrasilConnect USA <oi@brasilconnectusa.com>'
 const REPLY_TO = 'oi@brasilconnectusa.com'
+// O Resend lento nao pode segurar o webhook/cron que chamou (funcoes tem 30-60s)
+const SEND_TIMEOUT_MS = 8000
 
 export function adminEmail() {
   return process.env.CONTACT_NOTIFY_EMAIL || 'oi@brasilconnectusa.com'
@@ -32,6 +34,7 @@ export async function sendTransactional({ to, subject, kicker, title, paragraphs
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${process.env.RESEND_API_KEY}` },
       body: JSON.stringify({ from: FROM, to: [to], reply_to: REPLY_TO, subject, html, text }),
+      signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
     })
     if (!r.ok) {
       console.error('[notify] resend respondeu', r.status, (await r.text()).slice(0, 200))

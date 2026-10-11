@@ -16,7 +16,7 @@
  */
 import { createClient } from '@supabase/supabase-js'
 
-const AUDIT_KEYS = ['action', 'id', 'business_id', 'user_id', 'request_id', 'report_id', 'order_id', 'match_id', 'message_id', 'lead_id', 'sponsor_id', 'entry_id', 'provider_id', 'appointment_id', 'role', 'status', 'reason', 'decision', 'home_score', 'away_score']
+const AUDIT_KEYS = ['action', 'id', 'business_id', 'user_id', 'request_id', 'report_id', 'order_id', 'match_id', 'message_id', 'lead_id', 'sponsor_id', 'entry_id', 'provider_id', 'appointment_id', 'role', 'status', 'reason', 'decision', 'home_score', 'away_score', 'product_id', 'seller_id', 'review_id']
 
 function service() {
   return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY, { auth: { persistSession: false } })
@@ -73,7 +73,7 @@ export async function auditAdmin(req, admin, extra) {
     const body = pick(req.body)
     const query = pick(req.query)
     const action = body.action || query.action || extra?.action || null
-    const target = body.business_id || body.user_id || body.request_id || body.report_id || body.order_id || body.match_id || body.id || query.id || null
+    const target = body.business_id || body.user_id || body.request_id || body.report_id || body.order_id || body.match_id || body.product_id || body.seller_id || body.review_id || body.id || query.id || null
     const ip = String(req.headers?.['x-forwarded-for'] || '').split(',')[0].trim() || null
     await sb.from('bc_admin_audit').insert({
       actor_email: admin.actor,

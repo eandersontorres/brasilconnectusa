@@ -24,6 +24,10 @@
     .tabs-row { display: flex; gap: 4px; background: var(--paper-soft); border-radius: 10px; padding: 4px; margin-bottom: 20px; }
     .tab-btn { flex: 1; padding: 10px 14px; border: none; background: transparent; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600; border-radius: 8px; color: var(--ink-muted); }
     .tab-btn.active { background: var(--paper-elevated); color: var(--ink); box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+    /* Com 14 abas a linha quebra em vez de espremer */
+    .tabs-row { flex-wrap: wrap; }
+    .tabs-row .tab-btn { flex: 1 1 auto; white-space: nowrap; }
+    .tab-btn:focus-visible { outline: 2px solid var(--green-deep); outline-offset: 2px; }
 
     .panel { background: var(--paper-elevated); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 24px 28px; margin-bottom: 18px; }
     .panel h3 { font-family: var(--font-display); margin: 0 0 6px 0; color: var(--ink); font-size: 1.2rem; font-weight: 600; }
@@ -114,6 +118,7 @@
 <body>
   <div id="app"></div>
 
+  <script src="/js/admin-store.js"></script>
   <script>
     const STORAGE_KEY = 'bc_admin_secret'
     const root = document.getElementById('app')
@@ -185,6 +190,7 @@
             <button class="tab-btn ${currentTab==='agent'?'active':''}" onclick="switchTab('agent')">Moderação IA</button>
             <button class="tab-btn ${currentTab==='feedback'?'active':''}" onclick="switchTab('feedback')">Feedback</button>
             <button class="tab-btn ${currentTab==='businesses'?'active':''}" onclick="switchTab('businesses')">Negócios</button>
+            <button class="tab-btn ${currentTab==='store'?'active':''}" onclick="switchTab('store')">Store</button>
             <button class="tab-btn ${currentTab==='restaurant-orders'?'active':''}" onclick="switchTab('restaurant-orders')">Pedidos Restaurante</button>
             <button class="tab-btn ${currentTab==='bolao'?'active':''}" onclick="switchTab('bolao')">Bolão Copa</button>
             <button class="tab-btn ${currentTab==='users'?'active':''}" onclick="switchTab('users')">Usuários</button>
@@ -209,6 +215,7 @@
         else if (tab === 'agent')      await loadAgent(c)
         else if (tab === 'feedback')   await loadFeedback(c)
         else if (tab === 'businesses') await loadBusinesses(c)
+        else if (tab === 'store')      await loadStore(c)
         else if (tab === 'restaurant-orders') await loadRestaurantOrders(c)
         else if (tab === 'bolao')      await loadBolao(c)
         else if (tab === 'users')      await loadUsers(c)
