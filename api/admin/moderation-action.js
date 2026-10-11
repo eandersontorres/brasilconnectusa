@@ -5,6 +5,7 @@
  *   action = 'approve'  → libera (agent_status='reviewed', is_deleted=false se estava auto_hidden)
  *   action = 'hide'     → confirma ocultação (is_deleted=true, agent_status='reviewed')
  *   action = 'ban_user' → bane o user dono do conteúdo + esconde o item
+ *                         (+ suspende a loja dele na BrasilConnect Store, se tiver)
  *
  * Cada ação cria log em bc_reports com reviewer_id e action_taken.
  */
@@ -74,6 +75,15 @@ export default async function handler(req, res) {
         banned_by: 'admin',
         banned_at: now,
       }, { onConflict: 'user_id' })
+
+      // BrasilConnect Store: dono banido nao vende nem recebe (loja suspensa, repasses retidos).
+      // Best effort: o ban ja foi gravado. Desbanir nao reativa a loja (decisao na aba Store).
+      try {
+        const { suspendStoreOfBannedUser } = await import('./store.js')
+        await suspendStoreOfBannedUser(sb, userId, { actor: admin.actor || 'admin', reason: 'Conta banida: ' + (admin_notes || 'fila do agente IA') })
+      } catch (e) {
+        console.error('[moderation-action] suspender loja da Store falhou:', e.message)
+      }
     }
     else {
       return res.status(400).json({ error: 'action inválida (use approve|hide|ban_user)' })

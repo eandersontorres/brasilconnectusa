@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <title>Venda na BrasilConnect Store · Abra sua loja</title>
+  <meta name="description" content="Abra sua loja na BrasilConnect Store e venda para a comunidade brasileira nos EUA. Sem mensalidade: comissão só quando vende, etiqueta com desconto e pagamento protegido.">
+  <link rel="canonical" href="https://brasilconnectusa.com/store/vender">
+  <meta name="theme-color" content="#1F4D3F">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="BrasilConnect">
+  <meta property="og:title" content="Venda na BrasilConnect Store">
+  <meta property="og:description" content="Abra sua loja e venda para a comunidade brasileira nos EUA. Comissão só quando vende, etiqueta com desconto e pagamento protegido.">
+  <meta property="og:url" content="https://brasilconnectusa.com/store/vender">
+  <meta property="og:image" content="https://brasilconnectusa.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/premium.css">
+  <link rel="stylesheet" href="/css/store.css">
+  <script src="/js/site.js" defer></script>
+  <script src="/js/store.js" defer></script>
+  <style>
+    /* Cadastro do vendedor (prefixo st-vd-). So tokens do premium.css. */
+    .st-vd-hero { padding-top: 24px; padding-bottom: 8px; }
+    .st-vd-kicker { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-deep); margin: 0 0 10px; }
+    .st-vd-hero h1 { font-size: clamp(28px, 7vw, 48px); line-height: 1.1; margin: 0 0 12px; max-width: 20ch; }
+    .st-vd-hero .st-lede { font-size: 16px; color: var(--ink-soft); margin: 0; max-width: 60ch; line-height: 1.6; }
+    .st-vd-facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
+    .st-vd-facts li { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--green-soft); color: var(--green-deep); font-size: 13px; font-weight: 600; }
+    .st-vd-facts svg { flex: none; }
+    @media (min-width: 720px) { .st-vd-hero { padding-top: 48px; padding-bottom: 16px; } .st-vd-hero .st-lede { font-size: 18px; } }
+
+    .st-vd-intro { font-size: 15px; color: var(--ink-soft); margin: -6px 0 18px; max-width: 64ch; line-height: 1.6; }
+    .st-vd-list { margin: 0; padding-left: 1.2rem; font-size: 14px; line-height: 1.6; color: var(--ink-soft); }
+    .st-vd-list li + li { margin-top: 6px; }
+
+    .st-vd-fee { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+    @media (min-width: 900px) { .st-vd-fee { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); } }
+    .st-vd-big { display: block; font-size: clamp(40px, 11vw, 56px); font-weight: 700; letter-spacing: -.03em; line-height: 1; color: var(--green-deep); font-variant-numeric: tabular-nums; }
+    .st-vd-big-sub { display: block; margin: 8px 0 16px; font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+    .st-vd-ex { margin: 0; padding: 14px; border-radius: var(--r-md); background: var(--paper); border: 1px solid var(--line); }
+    .st-vd-ex-title { font-size: 13px; font-weight: 600; color: var(--ink); margin: 0 0 8px; }
+    .st-vd-ex-row { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--ink-soft); padding: 3px 0; font-variant-numeric: tabular-nums; }
+    .st-vd-ex-row.is-total { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 8px; font-weight: 700; color: var(--green-deep); }
+    .st-vd-points { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+    .st-vd-points li { padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper-elevated); font-size: 14px; line-height: 1.55; color: var(--ink-soft); }
+    .st-vd-points strong { display: block; color: var(--ink); font-size: 15px; margin-bottom: 2px; }
+
+    .st-vd-no { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin: 0 0 16px; padding: 0; list-style: none; }
+    @media (min-width: 720px) { .st-vd-no { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .st-vd-no li { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--ink-soft); line-height: 1.5; }
+    .st-vd-no svg { flex: none; margin-top: 2px; color: var(--st-err); }
+
+    .st-vd-fs { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--paper-elevated); padding: 16px; margin: 0; min-width: 0; }
+    @media (min-width: 720px) { .st-vd-fs { padding: 22px; } }
+    .st-vd-fs > legend { font-size: 15px; font-weight: 700; color: var(--ink); padding: 0 6px; }
+    .st-vd-fs > .st-hint { margin: 0 0 14px; font-size: 13px; }
+    .st-vd-req { color: var(--st-err); }
+    .st-vd-slugst { font-size: 13px; margin: 0; overflow-wrap: anywhere; line-height: 1.5; }
+    .st-vd-slugst.is-ok { color: var(--st-ok); font-weight: 600; }
+    .st-vd-slugst.is-err { color: var(--st-err); }
+    .st-vd-warn { font-size: 13px; color: var(--st-err); margin: 0; }
+    .st-vd-warn:empty { display: none; }
+    .st-vd-img { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .st-vd-logo { width: 72px; height: 72px; border-radius: 14px; object-fit: cover; border: 1px solid var(--line); background: var(--paper-soft); display: block; }
+    .st-vd-banner { width: 100%; max-width: 420px; aspect-ratio: 3 / 1; border-radius: var(--r-md); object-fit: cover; border: 1px solid var(--line); background: var(--paper-soft); display: block; }
+    .st-vd-file { position: relative; overflow: hidden; }
+    .st-vd-file input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .st-vd-file:focus-within { outline: 2px solid var(--green-deep); outline-offset: 2px; }
+    .st-vd-mini { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; min-height: 36px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--paper-elevated); color: var(--ink); cursor: pointer; }
+    .st-vd-mini:hover { border-color: var(--st-err); color: var(--st-err); }
+    .st-vd-two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+    .st-vd-state { padding: 32px 16px; text-align: center; }
+    .st-vd-state p { color: var(--ink-soft); max-width: 46ch; margin: 0 auto 16px; }
+    .st-vd-agree { padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper-elevated); }
+    .st-vd-agree a { color: var(--green-deep); font-weight: 600; }
+    #vd-form-title:focus { outline: none; }
+  </style>
+</head>
+<body class="has-flag-stripe st-page">
+<div class="flag-stripe" aria-hidden="true"></div>
+<nav class="bc-nav">
+  <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+  <div class="bc-nav-r">
+    <a class="bc-nl" href="/store">Store</a>
+    <a class="bc-nl" href="/store/pedidos">Meus pedidos</a>
+    <a class="st-nav-cart" href="/store/carrinho" aria-label="Carrinho">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+      <span class="st-nav-count" data-st-cart-count hidden>0</span>
+    </a>
+    <span class="st-nav-account" data-st-account></span>
+    <a class="bc-nl active" href="/store/vender" aria-current="page">Vender</a>
+  </div>
+</nav>
+
+<main id="conteudo">
+  <!-- ── Topo ─────────────────────────────────────────────────── -->
+  <header class="st-wrap st-vd-hero">
+    <p class="st-vd-kicker">BrasilConnect Store</p>
+    <h1>Venda na Store da comunidade brasileira nos EUA</h1>
+    <p class="st-lede">Abra sua loja, anuncie o que você faz ou traz do Brasil e venda para brasileiros em todos os EUA. A BrasilConnect aprova os anúncios, recebe o pagamento com segurança e ajuda com a etiqueta. Você cuida do produto e do envio.</p>
+    <div class="st-btn-row">
+      <a class="btn btn-primary" href="#cadastro">Abrir minha loja</a>
+      <a class="btn btn-secondary" href="/store/painel">Já tenho loja</a>
+    </div>
+    <ul class="st-vd-facts" aria-label="Destaques">
+      <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Sem mensalidade</li>
+      <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Comissão só quando vende</li>
+      <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>Etiqueta com desconto</li>
+    </ul>
+  </header>
+
+  <!-- ── Como funciona ────────────────────────────────────────── -->
+  <section class="st-section" aria-labelledby="vd-how-title">
+    <div class="st-wrap">
+      <h2 class="st-section-title" id="vd-how-title">Como funciona</h2>
+      <ol class="st-how">
+        <li><strong>Cadastre sua loja</strong>Conte o que você vende, de onde posta e como funcionam devolução e garantia. A equipe da BrasilConnect confere o cadastro em até 2 dias úteis.</li>
+        <li><strong>Anuncie seus produtos</strong>Fotos reais, descrição completa e preço. Cada anúncio é aprovado antes de aparecer na vitrine.</li>
+        <li><strong>Venda e poste</strong>Chegou pedido, você recebe um aviso. Gere a etiqueta pelo painel ou poste por conta própria dentro do seu prazo de postagem.</li>
+        <li><strong>Receba</strong>Depois da entrega, o valor da venda menos a comissão vai para a sua conta pelo Stripe.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- ── Quem faz o que ───────────────────────────────────────── -->
+  <section class="st-section" aria-labelledby="vd-who-title">
+    <div class="st-wrap">
+      <h2 class="st-section-title" id="vd-who-title">Quem faz o quê</h2>
+      <div class="st-cols">
+        <div class="st-panel">
+          <h3 class="st-panel-title">A Store faz</h3>
+          <ul class="st-vd-list">
+            <li>Coloca sua loja numa vitrine feita para a comunidade brasileira nos EUA.</li>
+            <li>Aprova lojas e anúncios, o que dá confiança para quem compra.</li>
+            <li>Recebe o pagamento com cartão e segura o dinheiro até a entrega.</li>
+            <li>Vende a etiqueta com desconto pelo painel, sem você precisar de cartão.</li>
+            <li>Manda o rastreio e os avisos para o comprador.</li>
+            <li>Ajuda a resolver problemas pela Garantia BrasilConnect.</li>
+          </ul>
+        </div>
+        <div class="st-panel">
+          <h3 class="st-panel-title">Sua loja faz</h3>
+          <ul class="st-vd-list">
+            <li>Cadastra produtos com fotos reais e descrição honesta.</li>
+            <li>Escolhe para onde entrega e quanto cobra de frete.</li>
+            <li>Embala e posta dentro do prazo, com rastreio.</li>
+            <li>Responde o comprador pela conversa do pedido.</li>
+            <li>Cumpre a própria política de devolução e garantia.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Quanto custa ─────────────────────────────────────────── -->
+  <section class="st-section" aria-labelledby="vd-fee-title">
+    <div class="st-wrap">
+      <h2 class="st-section-title" id="vd-fee-title">Quanto custa</h2>
+      <div class="st-vd-fee">
+        <div class="st-panel" aria-live="polite">
+          <span class="st-vd-big" id="vd-fee-pct">…</span>
+          <span class="st-vd-big-sub" id="vd-fee-sub">de comissão, só quando você vende. Sem mensalidade e sem taxa para anunciar.</span>
+          <div class="st-vd-ex" id="vd-ex" hidden>
+            <p class="st-vd-ex-title">Exemplo de uma venda</p>
+            <div class="st-vd-ex-row"><span>Produto</span><span id="vd-ex-items"></span></div>
+            <div class="st-vd-ex-row"><span>Frete que você cobrou</span><span id="vd-ex-ship"></span></div>
+            <div class="st-vd-ex-row"><span>Comissão da Store</span><span id="vd-ex-fee"></span></div>
+            <div class="st-vd-ex-row is-total"><span>Você recebe</span><span id="vd-ex-net"></span></div>
+          </div>
+          <p class="st-hint" id="vd-fee-err" hidden style="margin-top:8px">Não deu para carregar a comissão agora. Ela está nas <a href="/store/regras#contrato">Regras da Store</a>.</p>
+        </div>
+        <ul class="st-vd-points">
+          <li><strong>Quando o dinheiro sai</strong><span id="vd-release">Depois que o pedido é entregue, ou na hora em que o comprador confirma o recebimento.</span></li>
+          <li><strong>Etiqueta com desconto</strong>Compre a etiqueta (USPS e outras) pelo painel, com preço de plataforma. O valor sai do repasse daquele pedido, sem cartão. Prefere postar por conta própria? É só informar o rastreio.</li>
+          <li><strong>Recebimento pelo Stripe</strong>Você cadastra seus dados e a conta do banco no Stripe, em uns 5 minutos. A BrasilConnect não guarda seus dados bancários.</li>
+          <li><strong>O comprador não paga comissão</strong>A comissão sai do valor da venda. O comprador vê o preço do produto e o frete que você definiu.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Proibidos ────────────────────────────────────────────── -->
+  <section class="st-section" aria-labelledby="vd-no-title">
+    <div class="st-wrap">
+      <h2 class="st-section-title" id="vd-no-title">O que não pode vender</h2>
+      <p class="st-vd-intro">A Store só aceita produto legal nos EUA, original e descrito com honestidade. Alguns exemplos do que é recusado:</p>
+      <ul class="st-vd-no">
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Réplica, falsificação ou camisa de time que não seja original.</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Remédio, produto controlado ou com promessa de cura.</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Carnes, laticínios, perecíveis, bebida alcoólica e comida caseira enviada para outro estado.</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Bateria de lítio solta, armas, munição e fogos.</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Cosmético sem lacre ou sem rótulo em inglês.</li>
+        <li><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Item de segurança infantil usado (cadeirinha, berço).</li>
+      </ul>
+      <a class="btn-link" href="/store/regras#proibidos">Ver a lista completa de produtos proibidos</a>
+    </div>
+  </section>
+
+  <!-- ── Cadastro ─────────────────────────────────────────────── -->
+  <section class="st-section" id="cadastro" aria-labelledby="vd-form-title">
+    <div class="st-wrap st-wrap-narrow">
+      <h2 class="st-section-title" id="vd-form-title" tabindex="-1">Abra sua loja</h2>
+      <p class="st-vd-intro">Leva uns 10 minutos. Depois de enviar, você já entra no painel para cadastrar produtos, regiões de entrega e ativar os recebimentos enquanto a equipe confere a loja.</p>
+      <p class="st-alert st-alert-warn" id="vd-prelaunch" role="status" hidden></p>
+
+      <div id="vd-loading" class="st-vd-state" role="status">
+        <span class="st-skeleton" style="height:96px;border-radius:var(--r-lg)" aria-hidden="true"></span>
+        <span class="st-sr">Carregando…</span>
+      </div>
+
+      <div id="vd-login" class="st-panel st-vd-state" hidden>
+        <h3 class="st-panel-title">Entre para abrir sua loja</h3>
+        <p>Use a mesma conta da BrasilConnect. Não tem conta? Dá para criar na hora, só com o e-mail.</p>
+        <button type="button" class="btn btn-primary" id="vd-login-btn">Entrar ou criar conta</button>
+      </div>
+
+      <div id="vd-has" class="st-panel st-vd-state" hidden role="status">
+        <h3 class="st-panel-title">Você já tem uma loja na Store</h3>
+        <p>Abrindo o painel da sua loja…</p>
+        <a class="btn btn-primary" href="/store/painel">Abrir o painel</a>
+      </div>
+
+      <div id="vd-fail" class="st-panel st-vd-state" hidden>
+        <h3 class="st-panel-title">Não deu para carregar o cadastro</h3>
+        <p id="vd-fail-msg">Confira a internet e tente de novo.</p>
+        <button type="button" class="btn btn-primary" id="vd-retry">Tentar de novo</button>
+      </div>
+
+      <form id="vd-form" class="st-form" novalidate hidden>
+        <p class="st-hint">Campos com <span class="st-vd-req" aria-hidden="true">*</span> são obrigatórios. <span id="vd-email-note"></span></p>
+
+        <fieldset class="st-vd-fs">
+          <legend>Sua loja</legend>
+          <p class="st-hint">É o que o comprador vê. Nada de telefone, e-mail, link ou @ nos textos: a venda e a conversa acontecem pela Store.</p>
+          <div class="st-form-grid">
+            <div class="st-field st-full">
+              <label for="vd-name">Nome da loja <span class="st-vd-req" aria-hidden="true">*</span></label>
+              <input class="st-input" id="vd-name" name="name" required minlength="2" maxlength="60" autocomplete="organization" placeholder="Ex.: Doces da Ana">
+            </div>
+            <div class="st-field st-full">
+              <label for="vd-slug">Endereço da loja <span class="st-vd-req" aria-hidden="true">*</span></label>
+              <input class="st-input" id="vd-slug" name="slug" required maxlength="40" autocomplete="off" autocapitalize="none" spellcheck="false" inputmode="url" aria-describedby="vd-slug-st vd-slug-h" placeholder="doces-da-ana">
+              <p class="st-vd-slugst" id="vd-slug-st" role="status" aria-live="polite"></p>
+              <p class="st-hint" id="vd-slug-h">Letras sem acento, números e hífen (de 3 a 40). Não muda depois da aprovação.</p>
+            </div>
+            <div class="st-field st-full">
+              <label for="vd-tagline">Frase curta</label>
+              <input class="st-input" id="vd-tagline" name="tagline" maxlength="120" placeholder="Ex.: Brigadeiros e bolos de pote feitos em Orlando">
+            </div>
+            <div class="st-field st-full">
+              <label for="vd-bio">Sobre a loja</label>
+              <textarea class="st-textarea" id="vd-bio" name="bio" rows="5" maxlength="2000" aria-describedby="vd-bio-h vd-contact" placeholder="Conte quem você é, o que vende e o que torna seus produtos especiais."></textarea>
+              <p class="st-hint" id="vd-bio-h">Até 2.000 caracteres.</p>
+              <p class="st-vd-warn" id="vd-contact" role="status"></p>
+            </div>
+            <div class="st-field">
+              <label for="vd-city">Cidade <span class="st-vd-req" aria-hidden="true">*</span></label>
+              <input class="st-input" id="vd-city" name="city" required maxlength="60" autocomplete="address-level2" placeholder="Ex.: Orlando">
+            </div>
+            <div class="st-field">
+              <label for="vd-state">Estado <span class="st-vd-req" aria-hidden="true">*</span></label>
+              <select class="st-select" id="vd-state" name="state" required autocomplete="address-level1" data-states></select>
+            </div>
+            <div class="st-field">
+              <span class="st-label" id="vd-logo-l">Logo (opcional)</span>
+              <div class="st-vd-img">
+                <img class="st-vd-logo" id="vd-logo-img" alt="Prévia do logo" hidden>
+                <label class="btn btn-secondary st-btn-sm st-vd-file"><span id="vd-logo-btn">Enviar logo</span><input type="file" accept="image/*" data-img="logo_url" aria-labelledby="vd-logo-l vd-logo-btn"></label>
+                <button type="button" class="st-vd-mini" data-clear="logo_url" hidden>Remover</button>
+              </div>
+              <p class="st-hint" id="vd-logo_url-st" role="status">Quadrado, de preferência.</p>
+            </div>
+            <div class="st-field">
+              <span class="st-label" id="vd-banner-l">Capa (opcional)</span>
+              <div class="st-vd-img">
+                <img class="st-vd-banner" id="vd-banner-img" alt="Prévia da capa" hidden>
+                <label class="btn btn-secondary st-btn-sm st-vd-file"><span id="vd-banner-btn">Enviar capa</span><input type="file" accept="image/*" data-img="banner_url" aria-labelledby="vd-banner-l vd-banner-btn"></label>
+                <button type="button" class="st-vd-mini" data-clear="banner_url" hidden>Remover</button>
+              </div>
+              <p class="st-hint" id="vd-banner_url-st" role="status">Foto deitada (3 por 1) que aparece no topo da loja.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="st-vd-fs">
+          <legend>Contato e postagem (privado)</legend>
+          <p class="st-hint">Só a BrasilConnect vê. O endereço de postagem vai na etiqueta como remetente e nunca aparece na vitrine.</p>
+          <div class="st-form-grid">
+            <div class="st-field">
+              <label for="vd-phone">Seu telefone <span class="st-vd-req" aria-hidden="true">*</span></label>
+              <input class="st-input" id="vd-phone" name="phone" type="tel" required autocomplete="tel" inputmode="tel" placeholder="(407) 555-0123" aria-describedby="vd-phone-h">
+              <p class="st-hint" id="vd-phone-h">Número dos EUA, com DDD. Usamos só para falar com você sobre a loja.</p>
+            </div>
+            <div class="st-field">
+              <label for="vd-handling">Prazo de postagem (dias úteis) <span class="st-vd-req" aria-hidden="true">*</span></label>
+              <input class="st-input" id="vd-handling" name="handling_days" type="number" required min="1" max="30" step="1" inputmode="numeric" value="2" aria-describedby="vd-handling-h">
+              <p class="st-hint" id="vd-handling-h">Quantos dias úteis você leva para postar depois do pagamento. De 1 a 30.</p>
+            </div>
+            <div class="st-field st-full">
+              <label for="vd-sf-name">Nome de quem envia <span class="st-vd-req" aria-hidden="true">*</span></label>
+              <input class="st-input" id="vd-sf-name" name="sf_name" required maxlength="60" autocomplete="name">
+            </div>
+            <div class="st-field st-full">
+              <label for="vd-sf-street1">Endereço de postagem (rua e número) <span class="st-vd-req" aria-hidden="true">*</span></label>
+              <input class="st-input" id="vd-sf-street1" name="sf_street1" required maxlength="100" autocomplete="address-line1" placeholder="123 Main St">
+            </div>
+            <div class="st-field st-full">
+              <label for="vd-sf-street2">Complemento</label>
+              <input class="st-input" id="vd-sf-street2" name="sf_street2" maxlength="100" autocomplete="address-line2" placeholder="Apt, suite">
+            </div>
+            <div class="st-field">
+              <label for="vd-sf-city">Cidade <span class="st-vd-req" aria-hidden="true">*</span></label>
+              <input class="st-input" id="vd-sf-city" name="sf_city" required maxlength="60" autocomplete="address-level2">
+            </div>
+            <div class="st-vd-two">
+              <div class="st-field">
+                <label for="vd-sf-state">Estado <span class="st-vd-req" aria-hidden="true">*</span></label>
+                <select class="st-select" id="vd-sf-state" name="sf_state" required autocomplete="address-level1" data-states data-short></select>
+              </div>
+              <div class="st-field">
+                <label for="vd-sf-zip">ZIP code <span class="st-vd-req" aria-hidden="true">*</span></label>
+                <input class="st-input" id="vd-sf-zip" name="sf_zip" required maxlength="10" inputmode="numeric" autocomplete="postal-code" placeholder="32801">
+              </div>
+            </div>
+            <div class="st-field st-full">
+              <label for="vd-sf-phone">Telefone para a etiqueta</label>
+              <input class="st-input" id="vd-sf-phone" name="sf_phone" type="tel" autocomplete="tel" inputmode="tel" aria-describedby="vd-sf-phone-h">
+              <p class="st-hint" id="vd-sf-phone-h">Em branco, usamos o seu telefone acima.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="st-vd-fs">
+          <legend>Devolução e garantia</legend>
+          <p class="st-hint">Sua loja responde pela devolução e pela garantia. Essas regras aparecem na página da loja e de cada produto.</p>
+          <label class="st-check"><input type="checkbox" id="vd-accepts" name="accepts_returns" checked><span>Aceito devolução</span></label>
+          <div class="st-form-grid" style="margin-top:14px">
+            <div class="st-field">
+              <label for="vd-rwin">Prazo para devolver (dias)</label>
+              <input class="st-input" id="vd-rwin" name="return_window_days" type="number" min="0" max="90" step="1" inputmode="numeric" value="7" aria-describedby="vd-rwin-h">
+              <p class="st-hint" id="vd-rwin-h">Contado da entrega. De 0 a 90.</p>
+            </div>
+            <div class="st-field st-full">
+              <label for="vd-rpol">Política de devolução</label>
+              <textarea class="st-textarea" id="vd-rpol" name="return_policy" rows="4" maxlength="3000" placeholder="Ex.: Aceito devolução em até 7 dias, produto sem uso e na embalagem. O frete de volta é por conta do comprador, exceto em caso de defeito."></textarea>
+            </div>
+            <div class="st-field st-full">
+              <label for="vd-wpol">Garantia</label>
+              <textarea class="st-textarea" id="vd-wpol" name="warranty_policy" rows="3" maxlength="3000" placeholder="Ex.: Troco peças com defeito de fabricação em até 30 dias."></textarea>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="st-vd-agree">
+          <label class="st-check"><input type="checkbox" id="vd-agree" name="agree" required>
+            <span>Li e aceito o <a href="/store/regras#contrato" target="_blank" rel="noopener">Contrato do Vendedor</a><span id="vd-agree-ver"></span> e as <a href="/store/regras#proibidos" target="_blank" rel="noopener">regras de produtos</a>. Entendo que minha loja é responsável pelo envio, pela devolução e pela garantia dos produtos.</span>
+          </label>
+        </div>
+
+        <p class="st-alert st-alert-err" id="vd-err" role="alert" hidden></p>
+        <div class="st-btn-row" style="margin-top:0">
+          <button type="submit" class="btn btn-primary" id="vd-submit">Enviar cadastro para análise</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="bc-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <a class="bc-logo" href="/">Brasil<em>Connect</em></a>
+        <p class="footer-tagline">A Store da comunidade brasileira nos EUA. Cada loja vende, envia e garante os próprios produtos; a BrasilConnect aprova os anúncios e protege o pagamento.</p>
+      </div>
+      <div><h4>Comprar</h4><a href="/store">Vitrine</a><a href="/store/pedidos">Meus pedidos</a><a href="/store/regras#garantia">Garantia BrasilConnect</a></div>
+      <div><h4>Vender</h4><a href="/store/vender">Abrir minha loja</a><a href="/store/painel">Painel da loja</a><a href="/store/regras#proibidos">Produtos proibidos</a></div>
+      <div><h4>BrasilConnect</h4><a href="/">Início</a><a href="/termos">Termos</a><a href="/privacidade">Privacidade</a><a href="mailto:oi@brasilconnectusa.com">Contato</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 BrasilConnect USA · <a href="/store/regras">Regras da Store</a></div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict'
+
+  var API = '/api/store/seller?action='
+  var S = null              // window.BCStore
+  var currentUid            // usuario ja tratado (onAuth chama de novo a cada mudanca)
+  var slugTouched = false   // a pessoa editou o endereco na mao
+  var slugTimer = null
+  var slugSeq = 0
+  var slugResult = null     // { slug, available, reason } da ultima checagem
+  var uploading = 0
+  var sending = false
+
+  function $(id) { return document.getElementById(id) }
+  function esc(s) { return S ? S.esc(s) : String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[c] }) }
+  function toast(msg, kind) { if (S) S.toast(msg, kind) }
+
+  /** Mesmo slugify do servidor (sem acento, minusculo, hifen, ate 40). */
+  function slugify(s) {
+    return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40).replace(/-+$/g, '')
+  }
+  var SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$/
+
+  /** Aviso de contato direto (o servidor confere de novo). */
+  function contactHint(text) {
+    var s = String(text || '')
+    if (/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(s)) return 'e-mail'
+    if (/(https?:\/\/|www\.)\S+/i.test(s)) return 'link'
+    if (/\b(whats\s?app|wpp|telegram)\b|(^|\s)@[a-z][a-z0-9_.]{2,}/i.test(s)) return 'contato de rede social'
+    if (/\(?\b\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}\b/.test(s)) return 'telefone'
+    return null
+  }
+
+  /** Nome que se passa pela equipe da Store (o servidor confere de novo). */
+  function impersonating(name) {
+    var n = String(name || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim()
+    if (n.replace(/ /g, '').indexOf('brasilconnect') !== -1) return true
+    return /(^| )(oficial|oficiais|suporte|support)( |$)/.test(n)
+  }
+
+  // Pre-lancamento: avisa que da para abrir a loja agora, mas as vendas comecam depois
+  function prelaunch(cfg) {
+    var box = $('vd-prelaunch')
+    if (!box || !cfg) return
+    var msg = ''
+    if (!cfg.public_enabled) msg = 'A Store ainda não abriu ao público. Você já pode abrir a loja, cadastrar os produtos e ativar os recebimentos: as vendas começam no lançamento.'
+    else if (!cfg.checkout_enabled) msg = 'As compras na Store ainda não abriram. Você já pode abrir a loja e montar o catálogo: as vendas começam quando o pagamento for liberado.'
+    box.textContent = msg
+    box.hidden = !msg
+  }
+
+  function show(id) {
+    ['vd-loading', 'vd-login', 'vd-has', 'vd-fail', 'vd-form'].forEach(function (x) { $(x).hidden = x !== id })
+  }
+
+  // ── Comissao e repasse (config publica) ───────────────────────────────
+  function pct(bps) {
+    var n = Number(bps) / 100
+    try { return n.toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + '%' } catch (_) { return n + '%' }
+  }
+  function feeFor(items, ship, cfg) {
+    var base = items + (cfg.fee_on_shipping ? ship : 0)
+    if (base <= 0) return 0
+    return Math.round(base * (Math.max(0, Number(cfg.fee_bps) || 0) / 10000)) + Math.max(0, Number(cfg.fee_fixed_cents) || 0)
+  }
+  function renderFee(cfg) {
+    if (!cfg || !isFinite(Number(cfg.fee_bps))) throw new Error('config')
+    var fixed = Math.max(0, Number(cfg.fee_fixed_cents) || 0)
+    $('vd-fee-pct').textContent = pct(cfg.fee_bps)
+    $('vd-fee-sub').textContent = 'de comissão sobre ' + (cfg.fee_on_shipping ? 'o valor dos itens e do frete' : 'o valor dos itens') +
+      (fixed ? ', mais ' + S.money(fixed) + ' por pedido' : '') + ', só quando você vende. Sem mensalidade e sem taxa para anunciar.'
+    var items = 5000
+    var ship = 800
+    var fee = feeFor(items, ship, cfg)
+    $('vd-ex-items').textContent = S.money(items)
+    $('vd-ex-ship').textContent = S.money(ship)
+    $('vd-ex-fee').textContent = '− ' + S.money(fee)
+    $('vd-ex-net').textContent = S.money(Math.max(0, items + ship - fee))
+    $('vd-ex').hidden = false
+    var after = Number(cfg.release_days_after_delivery)
+    var fresh = Number(cfg.release_days_new_seller)
+    if (isFinite(after)) {
+      $('vd-release').textContent = 'O repasse é liberado ' + after + (after === 1 ? ' dia' : ' dias') + ' depois da entrega' +
+        (isFinite(fresh) && fresh > after ? ' (' + fresh + ' dias nos primeiros pedidos da loja)' : '') +
+        ', ou na hora em que o comprador confirma o recebimento. Se você comprou a etiqueta pela Store, o valor dela sai do repasse.'
+    }
+  }
+
+  // ── Estados ───────────────────────────────────────────────────────────
+  function fillStates() {
+    var list = (S && Array.isArray(S.states)) ? S.states : []
+    document.querySelectorAll('select[data-states]').forEach(function (sel) {
+      var short = sel.hasAttribute('data-short')
+      sel.innerHTML = '<option value="">' + (short ? 'UF' : 'Escolha o estado') + '</option>' + list.map(function (s) {
+        return '<option value="' + esc(s.code) + '">' + esc(short ? s.code : s.name + ' (' + s.code + ')') + '</option>'
+      }).join('')
+    })
+  }
+
+  // ── Endereco da loja (checagem ao vivo) ───────────────────────────────
+  function slugStatus(text, kind) {
+    var el = $('vd-slug-st')
+    el.textContent = text || ''
+    el.className = 'st-vd-slugst' + (kind ? ' is-' + kind : '')
+    $('vd-slug').setAttribute('aria-invalid', kind === 'err' ? 'true' : 'false')
+  }
+  function scheduleSlugCheck() {
+    clearTimeout(slugTimer)
+    slugResult = null
+    var raw = $('vd-slug').value
+    var slug = slugify(raw)
+    if (!raw.trim()) { slugStatus(''); return }
+    if (!SLUG_RE.test(slug)) { slugStatus('Use de 3 a 40 letras sem acento, números ou hífen.', 'err'); return }
+    slugStatus('Conferindo brasilconnectusa.com/store/loja/' + slug + '…')
+    slugTimer = setTimeout(function () { checkSlug(raw) }, 450)
+  }
+  async function checkSlug(raw) {
+    var seq = ++slugSeq
+    try {
+      var d = await S.api(API + 'slug-check&slug=' + encodeURIComponent(raw))
+      if (seq !== slugSeq) return
+      slugResult = d
+      if (d.available) slugStatus('Disponível: brasilconnectusa.com/store/loja/' + d.slug, 'ok')
+      else if (d.reason === 'taken') slugStatus('Esse endereço já é de outra loja. Escolha outro.', 'err')
+      else if (d.reason === 'reserved') slugStatus('Esse endereço é reservado pela Store. Escolha outro.', 'err')
+      else slugStatus('Use de 3 a 40 letras sem acento, números ou hífen.', 'err')
+    } catch (e) {
+      if (seq !== slugSeq) return
+      slugStatus('Não deu para conferir agora. A gente confere de novo quando você enviar.')
+    }
+  }
+
+  // ── Fotos (logo e capa) ───────────────────────────────────────────────
+  var images = { logo_url: '', banner_url: '' }
+  function setImage(key, url) {
+    images[key] = url || ''
+    var img = $(key === 'logo_url' ? 'vd-logo-img' : 'vd-banner-img')
+    var btn = $(key === 'logo_url' ? 'vd-logo-btn' : 'vd-banner-btn')
+    var clear = document.querySelector('[data-clear="' + key + '"]')
+    var safe = S.safeUrl(url)
+    if (safe) { img.src = safe; img.hidden = false } else { img.removeAttribute('src'); img.hidden = true }
+    if (clear) clear.hidden = !safe
+    btn.textContent = safe ? (key === 'logo_url' ? 'Trocar logo' : 'Trocar capa') : (key === 'logo_url' ? 'Enviar logo' : 'Enviar capa')
+  }
+  async function onImage(input) {
+    var key = input.getAttribute('data-img')
+    var file = input.files && input.files[0]
+    input.value = ''
+    if (!file || (key !== 'logo_url' && key !== 'banner_url')) return
+    var st = $('vd-' + key + '-st')
+    st.textContent = 'Enviando…'
+    uploading++
+    try {
+      var url = await S.uploadImage(file)
+      setImage(key, url)
+      st.textContent = 'Imagem enviada.'
+    } catch (e) {
+      st.textContent = ''
+      toast(e.message || 'A imagem não foi enviada. Tente outra.', 'err')
+    } finally {
+      uploading--
+    }
+  }
+
+  // ── Formulario ────────────────────────────────────────────────────────
+  function val(id) { var f = $(id); return f ? String(f.value || '').trim() : '' }
+  function fail(id, msg) {
+    var f = $(id)
+    if (f) {
+      f.setAttribute('aria-invalid', 'true')
+      try { f.focus() } catch (_) { /* ignore */ }
+      if (f.scrollIntoView) f.scrollIntoView({ block: 'center', behavior: 'smooth' })
+    }
+    showErr(msg)
+    return false
+  }
+  function showErr(msg) {
+    var e = $('vd-err')
+    e.textContent = msg || ''
+    e.hidden = !msg
+  }
+  function digits(v) { return String(v || '').replace(/\D/g, '') }
+  function usPhone(v) { var d = digits(v); if (d.length === 11 && d.charAt(0) === '1') d = d.slice(1); return d.length === 10 }
+
+  function validate() {
+    document.querySelectorAll('#vd-form [aria-invalid="true"]').forEach(function (f) { f.setAttribute('aria-invalid', 'false') })
+    var name = val('vd-name')
+    if (name.length < 2) return fail('vd-name', 'Preencha o nome da loja (pelo menos 2 caracteres).')
+    if (impersonating(name)) return fail('vd-name', 'O nome da loja não pode usar "BrasilConnect", "oficial" ou "suporte": isso confunde o comprador com a equipe da Store.')
+    var slug = slugify(val('vd-slug') || name)
+    if (!SLUG_RE.test(slug)) return fail('vd-slug', 'O endereço da loja precisa ter de 3 a 40 letras sem acento, números ou hífen.')
+    if (slugResult && slugResult.slug === slug && !slugResult.available) return fail('vd-slug', 'Esse endereço de loja não está disponível. Escolha outro.')
+    var hit = contactHint([name, val('vd-tagline'), val('vd-bio')].join(' '))
+    if (hit) return fail('vd-bio', 'Tire o ' + hit + ' do nome, da frase ou do texto da loja: a venda e a conversa acontecem pela Store.')
+    if (val('vd-city').length < 2) return fail('vd-city', 'Preencha a cidade da loja.')
+    if (!val('vd-state')) return fail('vd-state', 'Escolha o estado da loja.')
+    if (!usPhone(val('vd-phone'))) return fail('vd-phone', 'Informe seu telefone dos EUA com DDD (10 dígitos).')
+    var hd = Number(val('vd-handling'))
+    if (!Number.isInteger(hd) || hd < 1 || hd > 30) return fail('vd-handling', 'O prazo de postagem precisa ser de 1 a 30 dias úteis.')
+    if (val('vd-sf-name').length < 2) return fail('vd-sf-name', 'Preencha o nome de quem envia.')
+    if (val('vd-sf-street1').length < 3) return fail('vd-sf-street1', 'Preencha a rua e o número do endereço de postagem.')
+    if (val('vd-sf-city').length < 2) return fail('vd-sf-city', 'Preencha a cidade do endereço de postagem.')
+    if (!val('vd-sf-state')) return fail('vd-sf-state', 'Escolha o estado do endereço de postagem.')
+    if (!/^\d{5}(-?\d{4})?$/.test(val('vd-sf-zip'))) return fail('vd-sf-zip', 'O ZIP code precisa ter 5 dígitos.')
+    if (val('vd-sf-phone') && !usPhone(val('vd-sf-phone'))) return fail('vd-sf-phone', 'O telefone da etiqueta precisa ter 10 dígitos (número dos EUA).')
+    if ($('vd-accepts').checked) {
+      var rw = Number(val('vd-rwin'))
+      if (!Number.isInteger(rw) || rw < 0 || rw > 90) return fail('vd-rwin', 'O prazo de devolução precisa ser de 0 a 90 dias.')
+    }
+    if (!$('vd-agree').checked) return fail('vd-agree', 'Para abrir a loja, aceite o Contrato do Vendedor.')
+    return true
+  }
+
+  function bodyFromForm() {
+    var accepts = $('vd-accepts').checked
+    return {
+      name: val('vd-name'),
+      slug: slugify(val('vd-slug') || val('vd-name')),
+      tagline: val('vd-tagline'),
+      bio: $('vd-bio').value,
+      logo_url: images.logo_url || null,
+      banner_url: images.banner_url || null,
+      city: val('vd-city'),
+      state: val('vd-state'),
+      phone: val('vd-phone'),
+      ship_from: {
+        name: val('vd-sf-name'),
+        street1: val('vd-sf-street1'),
+        street2: val('vd-sf-street2'),
+        city: val('vd-sf-city'),
+        state: val('vd-sf-state'),
+        zip: val('vd-sf-zip'),
+        phone: val('vd-sf-phone') || null,
+      },
+      handling_days: Number(val('vd-handling')),
+      accepts_returns: accepts,
+      return_window_days: accepts ? Number(val('vd-rwin')) : 0,
+      return_policy: $('vd-rpol').value,
+      warranty_policy: $('vd-wpol').value,
+      agree: $('vd-agree').checked === true,
+    }
+  }
+
+  async function submit(e) {
+    e.preventDefault()
+    if (sending) return
+    showErr('')
+    if (uploading > 0) { showErr('Espere a imagem terminar de enviar.'); return }
+    if (!validate()) return
+    var btn = $('vd-submit')
+    sending = true
+    btn.disabled = true
+    btn.setAttribute('aria-busy', 'true')
+    btn.textContent = 'Enviando…'
+    try {
+      await S.api(API + 'apply', { method: 'POST', body: bodyFromForm() })
+      toast('Cadastro enviado. Avisamos por e-mail quando a análise terminar.', 'ok')
+      window.location.href = '/store/painel'
+    } catch (err) {
+      sending = false
+      btn.disabled = false
+      btn.removeAttribute('aria-busy')
+      btn.textContent = 'Enviar cadastro para análise'
+      var msg = err && err.message ? err.message : 'Não deu certo. Tente de novo.'
+      if (err && err.status === 409 && /já tem uma loja/i.test(msg)) { show('vd-has'); window.location.replace('/store/painel'); return }
+      if (/endereço de loja|endereço da loja|endereço é reservado/i.test(msg)) { fail('vd-slug', msg); slugStatus(msg, 'err'); return }
+      if (/nome da loja/i.test(msg)) { fail('vd-name', msg); return }
+      if (/endereço de postagem/i.test(msg)) { fail('vd-sf-street1', msg); return }
+      if (/telefone/i.test(msg)) { fail('vd-phone', msg); return }
+      showErr(msg)
+      toast(msg, 'err')
+    }
+  }
+
+  // Copia cidade/UF da loja para o endereco de postagem, se ainda estiver vazio
+  function copyIfEmpty(from, to) {
+    var a = $(from)
+    var b = $(to)
+    if (a && b && !String(b.value || '').trim() && String(a.value || '').trim()) b.value = a.value
+  }
+
+  function bindForm() {
+    var form = $('vd-form')
+    form.addEventListener('submit', submit)
+    $('vd-name').addEventListener('input', function () {
+      if (!slugTouched) { $('vd-slug').value = slugify(this.value); scheduleSlugCheck() }
+    })
+    $('vd-slug').addEventListener('input', function () {
+      // Apagou tudo: volta a seguir o nome da loja na proxima digitacao do nome
+      slugTouched = !!this.value.trim()
+      scheduleSlugCheck()
+    })
+    $('vd-slug').addEventListener('blur', function () {
+      var s = slugify(this.value)
+      if (s && s !== this.value) { this.value = s; scheduleSlugCheck() }
+    })
+    form.addEventListener('input', function (e) {
+      var id = e.target && e.target.id
+      if (e.target && e.target.getAttribute('aria-invalid') === 'true' && id !== 'vd-slug') e.target.setAttribute('aria-invalid', 'false')
+      if (id === 'vd-name' || id === 'vd-tagline' || id === 'vd-bio') {
+        var hit = contactHint([val('vd-name'), val('vd-tagline'), $('vd-bio').value].join(' '))
+        $('vd-contact').textContent = hit ? 'Parece que tem ' + hit + ' no texto da loja. Tire antes de enviar: contato direto é recusado.' : ''
+      }
+    })
+    form.addEventListener('change', function (e) {
+      var t = e.target
+      if (t.matches && t.matches('input[data-img]')) { onImage(t); return }
+      if (t.id === 'vd-city') copyIfEmpty('vd-city', 'vd-sf-city')
+      if (t.id === 'vd-state') copyIfEmpty('vd-state', 'vd-sf-state')
+      if (t.id === 'vd-accepts') $('vd-rwin').disabled = !t.checked
+    })
+    form.addEventListener('click', function (e) {
+      var c = e.target.closest && e.target.closest('[data-clear]')
+      if (!c) return
+      var key = c.getAttribute('data-clear')
+      setImage(key, '')
+      $('vd-' + key + '-st').textContent = 'Imagem removida.'
+    })
+  }
+
+  // ── Quem esta logado ──────────────────────────────────────────────────
+  async function onUser(user) {
+    var uid = user ? user.id : ''
+    if (uid === currentUid) return
+    currentUid = uid
+    if (!user) { show('vd-login'); return }
+    show('vd-loading')
+    try {
+      var d = await S.api(API + 'me')
+      if (currentUid !== uid) return
+      if (d && d.seller) {
+        show('vd-has')
+        window.location.replace('/store/painel')
+        return
+      }
+      var ver = d && d.policy && d.policy.agreement_version
+      $('vd-agree-ver').textContent = ver ? ' (versão ' + ver + ')' : ''
+      $('vd-email-note').textContent = user.email ? 'Os avisos de pedidos vão para ' + user.email + '.' : ''
+      show('vd-form')
+    } catch (e) {
+      if (currentUid !== uid) return
+      $('vd-fail-msg').textContent = (e && e.message) || 'Confira a internet e tente de novo.'
+      show('vd-fail')
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    S = window.BCStore
+    if (!S) {
+      $('vd-fail-msg').textContent = 'A página não carregou por completo. Atualize e tente de novo.'
+      $('vd-retry').hidden = true
+      show('vd-fail')
+      $('vd-fee-pct').textContent = ''
+      $('vd-fee-err').hidden = false
+      return
+    }
+    fillStates()
+    bindForm()
+    S.config().then(function (cfg) {
+      try { prelaunch(cfg) } catch (_) { /* aviso opcional */ }
+      renderFee(cfg)
+    }).catch(function () {
+      $('vd-fee-pct').textContent = ''
+      $('vd-fee-sub').textContent = 'Sem mensalidade e sem taxa para anunciar: a comissão só é cobrada quando você vende.'
+      $('vd-fee-err').hidden = false
+    })
+    $('vd-login-btn').addEventListener('click', function () {
+      S.login({ reason: 'Entre para abrir sua loja na Store.' })
+    })
+    $('vd-retry').addEventListener('click', function () {
+      currentUid = undefined
+      onUser(S.user())
+    })
+    S.ready.then(function () { S.onAuth(onUser) })
+  })
+})()
+</script>
+</body>
+</html>

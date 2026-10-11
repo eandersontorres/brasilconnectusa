@@ -23,6 +23,46 @@
   ],
   "rewrites": [
     {
+      "source": "/store",
+      "destination": "/store/index.html"
+    },
+    {
+      "source": "/store/carrinho",
+      "destination": "/store/carrinho.html"
+    },
+    {
+      "source": "/store/vender",
+      "destination": "/store/vender.html"
+    },
+    {
+      "source": "/store/painel",
+      "destination": "/store/painel.html"
+    },
+    {
+      "source": "/store/regras",
+      "destination": "/store/regras.html"
+    },
+    {
+      "source": "/store/pedidos",
+      "destination": "/store/pedidos.html"
+    },
+    {
+      "source": "/store/pedidos/:id",
+      "destination": "/store/pedidos.html"
+    },
+    {
+      "source": "/store/sitemap.xml",
+      "destination": "/api/store/page?type=sitemap"
+    },
+    {
+      "source": "/store/p/:slug",
+      "destination": "/api/store/page?type=product&slug=:slug"
+    },
+    {
+      "source": "/store/loja/:slug",
+      "destination": "/api/store/page?type=shop&slug=:slug"
+    },
+    {
       "source": "/app",
       "destination": "/app.html"
     },
@@ -195,8 +235,26 @@
     {
       "path": "/api/cron/moderation",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/store",
+      "schedule": "0 * * * *"
     }
   ],
+  "functions": {
+    "api/cron/store.js": {
+      "maxDuration": 60
+    },
+    "api/store/seller.js": {
+      "maxDuration": 60
+    },
+    "api/store/checkout.js": {
+      "maxDuration": 30
+    },
+    "api/stripe/webhook.js": {
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/(.*)",
@@ -263,6 +321,33 @@
         {
           "key": "Cache-Control",
           "value": "private, no-store"
+        }
+      ]
+    },
+    {
+      "source": "/store/carrinho(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
+    {
+      "source": "/store/painel(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
+    {
+      "source": "/store/pedidos(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
         }
       ]
     },

@@ -7,6 +7,9 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /investidores
 Disallow: /go/
+Disallow: /store/carrinho
+Disallow: /store/painel
+Disallow: /store/pedidos
 
 # Bloquear bots que sugam conteúdo sem retornar tráfego
 User-agent: GPTBot
@@ -39,3 +42,4 @@ Allow: /
 
 # Sitemap
 Sitemap: https://brasilconnectusa.com/sitemap.xml
+Sitemap: https://brasilconnectusa.com/store/sitemap.xml
